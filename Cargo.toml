@@ -34,6 +34,8 @@ swe-edge-egress-breaker.workspace  = true
 swe-edge-egress-cache.workspace    = true
 swe-edge-egress-cassette.workspace = true
 swe-edge-egress-tls.workspace      = true
+swe-edge-egress-oauth.workspace    = true
+bytes.workspace                    = true
 
 [dev-dependencies]
 tokio          = { workspace = true, features = ["rt-multi-thread", "macros", "net", "time"] }

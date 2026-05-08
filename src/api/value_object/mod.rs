@@ -5,6 +5,7 @@ pub mod http_config;
 pub mod http_method;
 pub mod http_request;
 pub mod http_response;
+pub mod http_stream_response;
 
 pub use http_auth::HttpAuth;
 pub use http_body::{FormPart, HttpBody};
@@ -12,3 +13,4 @@ pub use http_config::HttpConfig;
 pub use http_method::HttpMethod;
 pub use http_request::HttpRequest;
 pub use http_response::HttpResponse;
+pub use http_stream_response::HttpStreamResponse;

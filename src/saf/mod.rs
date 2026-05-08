@@ -1,6 +1,7 @@
+use std::sync::Arc;
 use std::time::Duration;
 
-use reqwest_middleware::ClientBuilder;
+use reqwest_middleware::{ClientBuilder, Middleware};
 use swe_edge_egress_tls::TlsApplier;
 
 use crate::core::DefaultHttpOutbound;
@@ -8,13 +9,19 @@ use crate::core::DefaultHttpOutbound;
 pub use crate::api::port::{HttpOutbound, HttpOutboundError, HttpOutboundResult};
 pub use crate::api::value_object::{
     FormPart, HttpAuth, HttpBody, HttpConfig, HttpMethod, HttpRequest, HttpResponse,
+    HttpStreamResponse,
 };
 
 /// Aggregate middleware config for assembling a [`DefaultHttpOutbound`].
 #[derive(Debug, Clone)]
 pub struct HttpOutboundConfig {
     pub http:          HttpConfig,
+    /// Static auth strategy (Bearer/Basic/Header/Digest/AwsSigV4).
+    /// Ignored when `token_source` is `Some` — OAuth takes precedence.
     pub auth:          swe_edge_egress_auth::AuthConfig,
+    /// OAuth token source. When set, replaces the static `auth` layer.
+    /// Provide an `Arc<dyn OAuthTokenSource>` from your implementation crate.
+    pub token_source:  Option<Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>>,
     pub retry:         swe_edge_egress_retry::RetryConfig,
     pub rate:          swe_edge_egress_rate::RateConfig,
     pub breaker:       swe_edge_egress_breaker::BreakerConfig,
@@ -49,20 +56,80 @@ pub enum HttpOutboundBuildError {
 
 /// Build a fully assembled [`HttpOutbound`] from the supplied config.
 ///
-/// Assembly order: TLS → reqwest client → auth → retry → rate →
+/// Assembly order: TLS → reqwest client → auth/oauth → retry → rate →
 /// breaker → cache → cassette.
+///
+/// When `config.oauth` is `Some`, the OAuth token-refresh layer replaces the
+/// static `config.auth` layer. Both cannot be active simultaneously.
 pub fn http_outbound(
     config: HttpOutboundConfig,
 ) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
+    let retry   = swe_edge_egress_retry::Builder::with_config(config.retry).build()?;
+    let rate    = swe_edge_egress_rate::Builder::with_config(config.rate).build()?;
+    let breaker = swe_edge_egress_breaker::Builder::with_config(config.breaker).build()?;
+    let cache   = swe_edge_egress_cache::Builder::with_config(config.cache).build()?;
+    let cassette = swe_edge_egress_cassette::Builder::with_config(config.cassette).build(&config.cassette_name)?;
+    let tls     = swe_edge_egress_tls::Builder::with_config(config.tls).build()?;
+
+    if let Some(source) = config.token_source {
+        assemble(
+            config.http,
+            swe_edge_egress_oauth::builder().with_token_source(source).build()
+                .expect("token_source was Some so build cannot fail"),
+            retry, rate, breaker, cache, cassette, tls,
+        )
+    } else {
+        assemble(
+            config.http,
+            swe_edge_egress_auth::Builder::with_config(config.auth).build()?,
+            retry, rate, breaker, cache, cassette, tls,
+        )
+    }
+}
+
+/// Build an [`HttpOutbound`] with OAuth token-refresh auth and SWE defaults
+/// for every other middleware layer.
+///
+/// Shorthand for `http_outbound` when the caller supplies an
+/// [`OAuthTokenSource`] and accepts the SWE defaults for retry, rate,
+/// breaker, cache, cassette, and TLS.
+pub fn http_outbound_oauth(
+    http: HttpConfig,
+    source: Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>,
+) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
     assemble(
-        config.http,
-        swe_edge_egress_auth::Builder::with_config(config.auth).build()?,
-        swe_edge_egress_retry::Builder::with_config(config.retry).build()?,
-        swe_edge_egress_rate::Builder::with_config(config.rate).build()?,
-        swe_edge_egress_breaker::Builder::with_config(config.breaker).build()?,
-        swe_edge_egress_cache::Builder::with_config(config.cache).build()?,
-        swe_edge_egress_cassette::Builder::with_config(config.cassette).build(&config.cassette_name)?,
-        swe_edge_egress_tls::Builder::with_config(config.tls).build()?,
+        http,
+        swe_edge_egress_oauth::builder()
+            .with_token_source(source)
+            .build()
+            .expect("token_source is Some — build cannot fail"),
+        swe_edge_egress_retry::builder()?.build()?,
+        swe_edge_egress_rate::builder()?.build()?,
+        swe_edge_egress_breaker::builder()?.build()?,
+        swe_edge_egress_cache::builder()?.build()?,
+        swe_edge_egress_cassette::builder()?.build("default")?,
+        swe_edge_egress_tls::builder()?.build()?,
+    )
+}
+
+/// Build an [`HttpOutbound`] with a static [`AuthConfig`] and SWE defaults
+/// for every other middleware layer.
+///
+/// Shorthand for `http_outbound` when the caller uses an env-var-backed
+/// credential (Bearer, Header, Basic, etc.) and accepts the SWE defaults.
+pub fn http_outbound_with_auth(
+    http: HttpConfig,
+    auth: swe_edge_egress_auth::AuthConfig,
+) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
+    assemble(
+        http,
+        swe_edge_egress_auth::Builder::with_config(auth).build()?,
+        swe_edge_egress_retry::builder()?.build()?,
+        swe_edge_egress_rate::builder()?.build()?,
+        swe_edge_egress_breaker::builder()?.build()?,
+        swe_edge_egress_cache::builder()?.build()?,
+        swe_edge_egress_cassette::builder()?.build("default")?,
+        swe_edge_egress_tls::builder()?.build()?,
     )
 }
 
@@ -117,9 +184,9 @@ pub fn plain_http_outbound(config: HttpConfig) -> Result<impl HttpOutbound, Http
 }
 
 #[allow(clippy::too_many_arguments)]
-fn assemble(
+fn assemble<A: Middleware>(
     http_cfg: HttpConfig,
-    auth:     swe_edge_egress_auth::AuthMiddleware,
+    auth:     A,
     retry:    swe_edge_egress_retry::RetryLayer,
     rate:     swe_edge_egress_rate::RateLayer,
     breaker:  swe_edge_egress_breaker::BreakerLayer,
