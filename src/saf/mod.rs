@@ -107,7 +107,11 @@ pub fn http_outbound_oauth(
         swe_edge_egress_rate::builder()?.build()?,
         swe_edge_egress_breaker::builder()?.build()?,
         swe_edge_egress_cache::builder()?.build()?,
-        swe_edge_egress_cassette::builder()?.build("default")?,
+        // Cassette is disabled in production convenience functions — it is
+        // test infrastructure and must not intercept real outbound calls.
+        swe_edge_egress_cassette::Builder::with_config(
+            swe_edge_egress_cassette::CassetteConfig::disabled()
+        ).build("unused")?,
         swe_edge_egress_tls::builder()?.build()?,
     )
 }
@@ -128,7 +132,10 @@ pub fn http_outbound_with_auth(
         swe_edge_egress_rate::builder()?.build()?,
         swe_edge_egress_breaker::builder()?.build()?,
         swe_edge_egress_cache::builder()?.build()?,
-        swe_edge_egress_cassette::builder()?.build("default")?,
+        // Cassette disabled — production convenience function.
+        swe_edge_egress_cassette::Builder::with_config(
+            swe_edge_egress_cassette::CassetteConfig::disabled()
+        ).build("unused")?,
         swe_edge_egress_tls::builder()?.build()?,
     )
 }
