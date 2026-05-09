@@ -8,7 +8,7 @@ use reqwest_middleware::ClientWithMiddleware;
 use crate::api::port::http_outbound::{HttpOutbound, HttpOutboundError, HttpOutboundResult};
 use crate::api::value_object::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
 
-pub struct DefaultHttpOutbound {
+pub(crate) struct DefaultHttpOutbound {
     client:             ClientWithMiddleware,
     base_url:           Option<String>,
     max_response_bytes: Option<usize>,
@@ -205,5 +205,22 @@ impl HttpOutbound for DefaultHttpOutbound {
                 )))
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use reqwest_middleware::ClientBuilder;
+
+    fn client() -> ClientWithMiddleware {
+        ClientBuilder::new(reqwest::Client::new()).build()
+    }
+
+    /// @covers: new
+    #[test]
+    fn test_new_creates_outbound_with_base_url() {
+        let out = DefaultHttpOutbound::new(client(), Some("http://localhost".into()), None);
+        assert_eq!(out.base_url.as_deref(), Some("http://localhost"));
     }
 }

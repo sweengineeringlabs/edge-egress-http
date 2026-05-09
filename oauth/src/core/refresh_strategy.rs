@@ -128,3 +128,16 @@ mod tests {
         assert!(result.unwrap_err().to_string().contains("test failure"));
     }
 }
+
+#[cfg(test)]
+mod sync_coverage {
+    use std::sync::Arc;
+    use super::OAuthRefreshStrategy;
+    use crate::api::token_source::StaticTokenSource;
+
+    /// @covers: new
+    #[test]
+    fn test_new_creates_strategy() {
+        let _ = OAuthRefreshStrategy::new(Arc::new(StaticTokenSource("tok".into())));
+    }
+}
