@@ -156,6 +156,28 @@ pub fn default_http_outbound() -> Result<impl HttpOutbound, HttpOutboundBuildErr
     )
 }
 
+/// Build a fully-assembled [`HttpOutbound`] using the provided [`HttpConfig`]
+/// and SWE defaults for every middleware layer.
+///
+/// Same middleware stack as [`default_http_outbound`] but with caller-supplied
+/// transport settings (base URL, timeouts, headers, etc.).
+pub fn default_http_outbound_with_config(
+    http: HttpConfig,
+) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
+    assemble(
+        http,
+        swe_edge_egress_auth::builder()?.build()?,
+        swe_edge_egress_retry::builder()?.build()?,
+        swe_edge_egress_rate::builder()?.build()?,
+        swe_edge_egress_breaker::builder()?.build()?,
+        swe_edge_egress_cache::builder()?.build()?,
+        swe_edge_egress_cassette::Builder::with_config(
+            swe_edge_egress_cassette::CassetteConfig::disabled(),
+        ).build("unused")?,
+        swe_edge_egress_tls::builder()?.build()?,
+    )
+}
+
 /// Build a minimal [`HttpOutbound`] from just an [`HttpConfig`] — no middleware layers.
 ///
 /// All `HttpConfig` fields are honoured: `timeout_secs`, `connect_timeout_secs`,
