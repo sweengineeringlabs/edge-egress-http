@@ -3,3 +3,7 @@
 //! Concrete identity providers (noop, PEM, PKCS#12) live in `core::identity`;
 //! they implement [`HttpTls`](crate::api::http_tls::HttpTls) and are
 //! selected by `core::identity::tls_factory::build_provider`.
+pub(crate) mod noop_http_tls;
+pub(crate) mod pem_http_tls;
+pub(crate) mod pkcs12_http_tls;
+pub(crate) mod tls_factory;

@@ -4,3 +4,5 @@
 //! [`CredentialResolver`](crate::api::credential_resolver::CredentialResolver)
 //! using the source kinds declared in
 //! [`CredentialSource`](crate::api::credential_source::CredentialSource).
+
+pub(crate) mod env_credential_resolver;
