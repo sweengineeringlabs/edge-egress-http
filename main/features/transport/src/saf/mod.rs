@@ -3,8 +3,9 @@ use std::time::Duration;
 
 use reqwest_middleware::{ClientBuilder, Middleware};
 use swe_edge_egress_tls::TlsApplier;
+use swe_observ_metrics::MetricsProvider;
 
-use crate::core::DefaultHttpOutbound;
+use crate::core::{DefaultHttpOutbound, MetricsHttpOutbound};
 
 pub use crate::api::port::{HttpOutbound, HttpOutboundError, HttpOutboundResult};
 pub use crate::api::value_object::{
@@ -176,6 +177,21 @@ pub fn default_http_outbound_with_config(
         ).build("unused")?,
         swe_edge_egress_tls::builder()?.build()?,
     )
+}
+
+/// Wrap any [`HttpOutbound`] with per-call metrics observation.
+///
+/// Consumers call this after any of the factory functions to add observability
+/// without changing how the outbound is configured:
+///
+/// ```rust,ignore
+/// let outbound = observe_http_outbound(default_http_outbound()?, metrics_provider);
+/// ```
+pub fn observe_http_outbound(
+    inner:    impl HttpOutbound + 'static,
+    provider: Arc<dyn MetricsProvider>,
+) -> impl HttpOutbound {
+    MetricsHttpOutbound::new(Arc::new(inner), provider)
 }
 
 /// Build a minimal [`HttpOutbound`] from just an [`HttpConfig`] — no middleware layers.
