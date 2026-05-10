@@ -10,8 +10,8 @@
 //! already `String` (UTF-8) so this is natively correct — we
 //! don't need a separate `charset=UTF-8` header parameter.
 
-use base64::Engine;
 use async_trait::async_trait;
+use base64::Engine;
 use http::header::{HeaderValue, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 
@@ -41,8 +41,8 @@ impl BasicStrategy {
         let combined = format!("{}:{}", user.expose_secret(), pass.expose_secret());
         let encoded = base64::engine::general_purpose::STANDARD.encode(combined);
         let raw = format!("Basic {encoded}");
-        let mut hv = HeaderValue::from_str(&raw)
-            .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+        let mut hv =
+            HeaderValue::from_str(&raw).map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
         hv.set_sensitive(true);
         Ok(Self { header_value: hv })
     }
@@ -64,10 +64,7 @@ mod tests {
     use reqwest::{Method, Url};
 
     fn stub_request() -> reqwest::Request {
-        reqwest::Request::new(
-            Method::GET,
-            Url::parse("http://example.test/").unwrap(),
-        )
+        reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap())
     }
 
     /// @covers: BasicStrategy::authorize
@@ -81,7 +78,12 @@ mod tests {
         let mut req = stub_request();
         s.authorize(&mut req).unwrap();
 
-        let header = req.headers().get("authorization").unwrap().to_str().unwrap();
+        let header = req
+            .headers()
+            .get("authorization")
+            .unwrap()
+            .to_str()
+            .unwrap();
         let expected_payload = base64::engine::general_purpose::STANDARD.encode("alice:s3cr3t");
         assert_eq!(header, format!("Basic {expected_payload}"));
     }
@@ -99,7 +101,12 @@ mod tests {
         let mut req = stub_request();
         s.authorize(&mut req).unwrap();
 
-        let header = req.headers().get("authorization").unwrap().to_str().unwrap();
+        let header = req
+            .headers()
+            .get("authorization")
+            .unwrap()
+            .to_str()
+            .unwrap();
         let expected_payload = base64::engine::general_purpose::STANDARD.encode("bob:pässwörd");
         assert_eq!(header, format!("Basic {expected_payload}"));
     }

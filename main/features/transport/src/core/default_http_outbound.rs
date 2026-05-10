@@ -9,18 +9,22 @@ use crate::api::port::http_outbound::{HttpOutbound, HttpOutboundError, HttpOutbo
 use crate::api::value_object::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
 
 pub(crate) struct DefaultHttpOutbound {
-    client:             ClientWithMiddleware,
-    base_url:           Option<String>,
+    client: ClientWithMiddleware,
+    base_url: Option<String>,
     max_response_bytes: Option<usize>,
 }
 
 impl DefaultHttpOutbound {
     pub(crate) fn new(
-        client:             ClientWithMiddleware,
-        base_url:           Option<String>,
+        client: ClientWithMiddleware,
+        base_url: Option<String>,
         max_response_bytes: Option<usize>,
     ) -> Self {
-        Self { client, base_url, max_response_bytes }
+        Self {
+            client,
+            base_url,
+            max_response_bytes,
+        }
     }
 
     /// Build a reqwest-middleware request builder from an [`HttpRequest`].
@@ -53,7 +57,7 @@ impl DefaultHttpOutbound {
         if let Some(body) = request.body {
             builder = match body {
                 HttpBody::Json(v) => builder.json(&v),
-                HttpBody::Raw(b)  => builder.body(b),
+                HttpBody::Raw(b) => builder.body(b),
                 HttpBody::Form(f) => {
                     let pairs: Vec<(String, String)> = f.into_iter().collect();
                     builder.form(&pairs)
@@ -66,9 +70,9 @@ impl DefaultHttpOutbound {
                             mp = mp.file_name(filename);
                         }
                         if let Some(ct) = part.content_type {
-                            mp = mp.mime_str(&ct).map_err(|e| {
-                                HttpOutboundError::InvalidRequest(e.to_string())
-                            })?;
+                            mp = mp
+                                .mime_str(&ct)
+                                .map_err(|e| HttpOutboundError::InvalidRequest(e.to_string()))?;
                         }
                         form = form.part(part.name, mp);
                     }
@@ -87,7 +91,11 @@ impl DefaultHttpOutbound {
     fn resolve_url(&self, url: &str) -> String {
         match &self.base_url {
             Some(base) if !url.starts_with("http://") && !url.starts_with("https://") => {
-                format!("{}/{}", base.trim_end_matches('/'), url.trim_start_matches('/'))
+                format!(
+                    "{}/{}",
+                    base.trim_end_matches('/'),
+                    url.trim_start_matches('/')
+                )
             }
             _ => url.to_string(),
         }
@@ -99,17 +107,14 @@ impl HttpOutbound for DefaultHttpOutbound {
         let max_response_bytes = self.max_response_bytes;
         Box::pin(async move {
             let builder = self.build_request_builder(request)?;
-            let response = builder
-                .send()
-                .await
-                .map_err(|e| {
-                    if let reqwest_middleware::Error::Reqwest(ref re) = e {
-                        if re.is_timeout() {
-                            return HttpOutboundError::Timeout(e.to_string());
-                        }
+            let response = builder.send().await.map_err(|e| {
+                if let reqwest_middleware::Error::Reqwest(ref re) = e {
+                    if re.is_timeout() {
+                        return HttpOutboundError::Timeout(e.to_string());
                     }
-                    HttpOutboundError::ConnectionFailed(e.to_string())
-                })?;
+                }
+                HttpOutboundError::ConnectionFailed(e.to_string())
+            })?;
 
             // Early rejection on content-length hint (avoids buffering huge bodies).
             if let Some(max) = max_response_bytes {
@@ -137,29 +142,34 @@ impl HttpOutbound for DefaultHttpOutbound {
                 if body_bytes.len() > max {
                     return Err(HttpOutboundError::Internal(format!(
                         "response too large: {} bytes exceeds limit of {} bytes",
-                        body_bytes.len(), max
+                        body_bytes.len(),
+                        max
                     )));
                 }
             }
 
-            Ok(HttpResponse { status, headers, body: body_bytes.to_vec() })
+            Ok(HttpResponse {
+                status,
+                headers,
+                body: body_bytes.to_vec(),
+            })
         })
     }
 
-    fn send_stream(&self, request: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+    fn send_stream(
+        &self,
+        request: HttpRequest,
+    ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
         Box::pin(async move {
             let builder = self.build_request_builder(request)?;
-            let response = builder
-                .send()
-                .await
-                .map_err(|e| {
-                    if let reqwest_middleware::Error::Reqwest(ref re) = e {
-                        if re.is_timeout() {
-                            return HttpOutboundError::Timeout(e.to_string());
-                        }
+            let response = builder.send().await.map_err(|e| {
+                if let reqwest_middleware::Error::Reqwest(ref re) = e {
+                    if re.is_timeout() {
+                        return HttpOutboundError::Timeout(e.to_string());
                     }
-                    HttpOutboundError::ConnectionFailed(e.to_string())
-                })?;
+                }
+                HttpOutboundError::ConnectionFailed(e.to_string())
+            })?;
 
             let status = response.status().as_u16();
             let headers: HashMap<String, String> = response
@@ -174,7 +184,11 @@ impl HttpOutbound for DefaultHttpOutbound {
                     .map(|r| r.map_err(|e| HttpOutboundError::Internal(e.to_string())))
                     .boxed();
 
-            Ok(HttpStreamResponse { status, headers, body })
+            Ok(HttpStreamResponse {
+                status,
+                headers,
+                body,
+            })
         })
     }
 
@@ -182,20 +196,16 @@ impl HttpOutbound for DefaultHttpOutbound {
         Box::pin(async move {
             let url = match &self.base_url {
                 Some(u) => u.clone(),
-                None    => return Ok(()),
+                None => return Ok(()),
             };
-            let resp = self.client
-                .get(&url)
-                .send()
-                .await
-                .map_err(|e| {
-                    if let reqwest_middleware::Error::Reqwest(ref re) = e {
-                        if re.is_timeout() {
-                            return HttpOutboundError::Timeout(e.to_string());
-                        }
+            let resp = self.client.get(&url).send().await.map_err(|e| {
+                if let reqwest_middleware::Error::Reqwest(ref re) = e {
+                    if re.is_timeout() {
+                        return HttpOutboundError::Timeout(e.to_string());
                     }
-                    HttpOutboundError::ConnectionFailed(e.to_string())
-                })?;
+                }
+                HttpOutboundError::ConnectionFailed(e.to_string())
+            })?;
             if resp.status().is_success() {
                 Ok(())
             } else {

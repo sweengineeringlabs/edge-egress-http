@@ -63,7 +63,9 @@ mod tests {
     /// @covers: Error
     #[test]
     fn test_missing_env_var_names_the_variable() {
-        let err = Error::MissingEnvVar { name: "EDGE_API_TOKEN".into() };
+        let err = Error::MissingEnvVar {
+            name: "EDGE_API_TOKEN".into(),
+        };
         let s = err.to_string();
         assert!(s.contains("EDGE_API_TOKEN"));
     }
@@ -71,7 +73,9 @@ mod tests {
     /// @covers: Error
     #[test]
     fn test_unsupported_kind_names_valid_options() {
-        let err = Error::UnsupportedKind { kind: "digest".into() };
+        let err = Error::UnsupportedKind {
+            kind: "digest".into(),
+        };
         let s = err.to_string();
         assert!(s.contains("digest"));
         assert!(s.contains("bearer"));

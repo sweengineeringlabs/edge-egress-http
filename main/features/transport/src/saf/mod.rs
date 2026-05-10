@@ -16,22 +16,22 @@ pub use crate::api::value_object::{
 /// Aggregate middleware config for assembling a [`DefaultHttpOutbound`].
 #[derive(Debug, Clone)]
 pub struct HttpOutboundConfig {
-    pub http:          HttpConfig,
+    pub http: HttpConfig,
     /// Static auth strategy (Bearer/Basic/Header/Digest/AwsSigV4).
     /// Ignored when `token_source` is `Some` — OAuth takes precedence.
-    pub auth:          swe_edge_egress_auth::AuthConfig,
+    pub auth: swe_edge_egress_auth::AuthConfig,
     /// OAuth token source. When set, replaces the static `auth` layer.
     /// Provide an `Arc<dyn OAuthTokenSource>` from your implementation crate.
-    pub token_source:  Option<Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>>,
-    pub retry:         swe_edge_egress_retry::RetryConfig,
-    pub rate:          swe_edge_egress_rate::RateConfig,
-    pub breaker:       swe_edge_egress_breaker::BreakerConfig,
-    pub cache:         swe_edge_egress_cache::CacheConfig,
-    pub cassette:      swe_edge_egress_cassette::CassetteConfig,
+    pub token_source: Option<Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>>,
+    pub retry: swe_edge_egress_retry::RetryConfig,
+    pub rate: swe_edge_egress_rate::RateConfig,
+    pub breaker: swe_edge_egress_breaker::BreakerConfig,
+    pub cache: swe_edge_egress_cache::CacheConfig,
+    pub cassette: swe_edge_egress_cassette::CassetteConfig,
     /// On-disk cassette fixture name (no extension). Maps to
     /// `<cassette_dir>/<cassette_name>.yaml`.
     pub cassette_name: String,
-    pub tls:           swe_edge_egress_tls::TlsConfig,
+    pub tls: swe_edge_egress_tls::TlsConfig,
 }
 
 /// Error returned when assembling an [`HttpOutbound`] fails at startup.
@@ -65,25 +65,38 @@ pub enum HttpOutboundBuildError {
 pub fn http_outbound(
     config: HttpOutboundConfig,
 ) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
-    let retry   = swe_edge_egress_retry::Builder::with_config(config.retry).build()?;
-    let rate    = swe_edge_egress_rate::Builder::with_config(config.rate).build()?;
+    let retry = swe_edge_egress_retry::Builder::with_config(config.retry).build()?;
+    let rate = swe_edge_egress_rate::Builder::with_config(config.rate).build()?;
     let breaker = swe_edge_egress_breaker::Builder::with_config(config.breaker).build()?;
-    let cache   = swe_edge_egress_cache::Builder::with_config(config.cache).build()?;
-    let cassette = swe_edge_egress_cassette::Builder::with_config(config.cassette).build(&config.cassette_name)?;
-    let tls     = swe_edge_egress_tls::Builder::with_config(config.tls).build()?;
+    let cache = swe_edge_egress_cache::Builder::with_config(config.cache).build()?;
+    let cassette = swe_edge_egress_cassette::Builder::with_config(config.cassette)
+        .build(&config.cassette_name)?;
+    let tls = swe_edge_egress_tls::Builder::with_config(config.tls).build()?;
 
     if let Some(source) = config.token_source {
         assemble(
             config.http,
-            swe_edge_egress_oauth::builder().with_token_source(source).build()
+            swe_edge_egress_oauth::builder()
+                .with_token_source(source)
+                .build()
                 .expect("token_source was Some so build cannot fail"),
-            retry, rate, breaker, cache, cassette, tls,
+            retry,
+            rate,
+            breaker,
+            cache,
+            cassette,
+            tls,
         )
     } else {
         assemble(
             config.http,
             swe_edge_egress_auth::Builder::with_config(config.auth).build()?,
-            retry, rate, breaker, cache, cassette, tls,
+            retry,
+            rate,
+            breaker,
+            cache,
+            cassette,
+            tls,
         )
     }
 }
@@ -111,8 +124,9 @@ pub fn http_outbound_oauth(
         // Cassette is disabled in production convenience functions — it is
         // test infrastructure and must not intercept real outbound calls.
         swe_edge_egress_cassette::Builder::with_config(
-            swe_edge_egress_cassette::CassetteConfig::disabled()
-        ).build("unused")?,
+            swe_edge_egress_cassette::CassetteConfig::disabled(),
+        )
+        .build("unused")?,
         swe_edge_egress_tls::builder()?.build()?,
     )
 }
@@ -135,8 +149,9 @@ pub fn http_outbound_with_auth(
         swe_edge_egress_cache::builder()?.build()?,
         // Cassette disabled — production convenience function.
         swe_edge_egress_cassette::Builder::with_config(
-            swe_edge_egress_cassette::CassetteConfig::disabled()
-        ).build("unused")?,
+            swe_edge_egress_cassette::CassetteConfig::disabled(),
+        )
+        .build("unused")?,
         swe_edge_egress_tls::builder()?.build()?,
     )
 }
@@ -174,7 +189,8 @@ pub fn default_http_outbound_with_config(
         swe_edge_egress_cache::builder()?.build()?,
         swe_edge_egress_cassette::Builder::with_config(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
-        ).build("unused")?,
+        )
+        .build("unused")?,
         swe_edge_egress_tls::builder()?.build()?,
     )
 }
@@ -188,7 +204,7 @@ pub fn default_http_outbound_with_config(
 /// let outbound = observe_http_outbound(default_http_outbound()?, metrics_provider);
 /// ```
 pub fn observe_http_outbound(
-    inner:    impl HttpOutbound + 'static,
+    inner: impl HttpOutbound + 'static,
     provider: Arc<dyn MetricsProvider>,
 ) -> impl HttpOutbound {
     MetricsHttpOutbound::new(Arc::new(inner), provider)
@@ -200,7 +216,9 @@ pub fn observe_http_outbound(
 /// `user_agent`, `follow_redirects`, `max_redirects`, `default_headers`, and
 /// `max_response_bytes`.  Useful for integration tests and simple deployments
 /// that do not need the full auth/retry/rate/breaker/cache/cassette stack.
-pub fn plain_http_outbound(config: HttpConfig) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
+pub fn plain_http_outbound(
+    config: HttpConfig,
+) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
     let mut cb = reqwest::Client::builder();
     cb = cb.timeout(Duration::from_secs(config.timeout_secs));
     cb = cb.connect_timeout(Duration::from_secs(config.connect_timeout_secs));
@@ -208,7 +226,9 @@ pub fn plain_http_outbound(config: HttpConfig) -> Result<impl HttpOutbound, Http
         cb = cb.user_agent(ua);
     }
     if config.follow_redirects {
-        cb = cb.redirect(reqwest::redirect::Policy::limited(config.max_redirects as usize));
+        cb = cb.redirect(reqwest::redirect::Policy::limited(
+            config.max_redirects as usize,
+        ));
     } else {
         cb = cb.redirect(reqwest::redirect::Policy::none());
     }
@@ -225,19 +245,23 @@ pub fn plain_http_outbound(config: HttpConfig) -> Result<impl HttpOutbound, Http
         cb = cb.default_headers(map);
     }
     let client = reqwest_middleware::ClientBuilder::new(cb.build()?).build();
-    Ok(DefaultHttpOutbound::new(client, config.base_url, config.max_response_bytes))
+    Ok(DefaultHttpOutbound::new(
+        client,
+        config.base_url,
+        config.max_response_bytes,
+    ))
 }
 
 #[allow(clippy::too_many_arguments)]
 fn assemble<A: Middleware>(
     http_cfg: HttpConfig,
-    auth:     A,
-    retry:    swe_edge_egress_retry::RetryLayer,
-    rate:     swe_edge_egress_rate::RateLayer,
-    breaker:  swe_edge_egress_breaker::BreakerLayer,
-    cache:    swe_edge_egress_cache::CacheLayer,
+    auth: A,
+    retry: swe_edge_egress_retry::RetryLayer,
+    rate: swe_edge_egress_rate::RateLayer,
+    breaker: swe_edge_egress_breaker::BreakerLayer,
+    cache: swe_edge_egress_cache::CacheLayer,
     cassette: swe_edge_egress_cassette::CassetteLayer,
-    tls:      swe_edge_egress_tls::TlsLayer,
+    tls: swe_edge_egress_tls::TlsLayer,
 ) -> Result<DefaultHttpOutbound, HttpOutboundBuildError> {
     let mut cb = reqwest::Client::builder();
     cb = tls.apply_to(cb)?;
@@ -276,5 +300,9 @@ fn assemble<A: Middleware>(
         .with(cassette)
         .build();
 
-    Ok(DefaultHttpOutbound::new(client, http_cfg.base_url, http_cfg.max_response_bytes))
+    Ok(DefaultHttpOutbound::new(
+        client,
+        http_cfg.base_url,
+        http_cfg.max_response_bytes,
+    ))
 }

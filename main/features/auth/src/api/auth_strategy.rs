@@ -68,8 +68,7 @@ mod tests {
     #[async_trait]
     impl AuthStrategy for PrepareCountingStrategy {
         async fn prepare(&self, _host: Option<&str>) -> Result<(), Error> {
-            self.calls
-                .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             Ok(())
         }
         fn authorize(&self, _req: &mut reqwest::Request) -> Result<(), Error> {
@@ -90,10 +89,8 @@ mod tests {
     #[tokio::test]
     async fn test_authorize_mutates_request() {
         let s: Box<dyn AuthStrategy> = Box::new(StubStrategy);
-        let mut req = reqwest::Request::new(
-            Method::GET,
-            Url::parse("http://example.test/").unwrap(),
-        );
+        let mut req =
+            reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap());
         s.prepare(Some("example.test")).await.unwrap();
         s.authorize(&mut req).unwrap();
         assert_eq!(req.headers().get("x-stub").unwrap(), "applied");

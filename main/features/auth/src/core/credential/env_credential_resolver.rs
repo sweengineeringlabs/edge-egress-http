@@ -18,13 +18,9 @@ pub(crate) struct EnvCredentialResolver;
 impl CredentialResolver for EnvCredentialResolver {
     fn resolve(&self, source: &CredentialSource) -> Result<SecretString, Error> {
         match source {
-            CredentialSource::EnvVar(name) => {
-                std::env::var(name).map(SecretString::from).map_err(|_| {
-                    Error::MissingEnvVar {
-                        name: name.clone(),
-                    }
-                })
-            }
+            CredentialSource::EnvVar(name) => std::env::var(name)
+                .map(SecretString::from)
+                .map_err(|_| Error::MissingEnvVar { name: name.clone() }),
         }
     }
 }

@@ -49,7 +49,8 @@ impl HeaderStrategy {
 #[async_trait]
 impl AuthStrategy for HeaderStrategy {
     fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
-        req.headers_mut().insert(self.name.clone(), self.value.clone());
+        req.headers_mut()
+            .insert(self.name.clone(), self.value.clone());
         Ok(())
     }
 }
@@ -60,10 +61,7 @@ mod tests {
     use reqwest::{Method, Url};
 
     fn stub_request() -> reqwest::Request {
-        reqwest::Request::new(
-            Method::GET,
-            Url::parse("http://example.test/").unwrap(),
-        )
+        reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap())
     }
 
     /// @covers: HeaderStrategy::authorize
@@ -87,11 +85,8 @@ mod tests {
     fn test_new_lowercases_header_name_case_insensitively() {
         // Config might specify `X-API-Key`; we should accept it
         // and canonicalize.
-        let s = HeaderStrategy::new(
-            "X-API-Key".into(),
-            SecretString::from("v".to_string()),
-        )
-        .unwrap();
+        let s =
+            HeaderStrategy::new("X-API-Key".into(), SecretString::from("v".to_string())).unwrap();
         let mut req = stub_request();
         s.authorize(&mut req).unwrap();
         // Header-name matching on the wire is case-insensitive;
@@ -103,11 +98,8 @@ mod tests {
     #[test]
     fn test_new_rejects_invalid_header_name() {
         // Spaces aren't allowed in header names per RFC 7230.
-        let err = HeaderStrategy::new(
-            "bad name".into(),
-            SecretString::from("v".to_string()),
-        )
-        .unwrap_err();
+        let err = HeaderStrategy::new("bad name".into(), SecretString::from("v".to_string()))
+            .unwrap_err();
         match err {
             Error::InvalidHeaderName { name, .. } => assert_eq!(name, "bad name"),
             other => panic!("expected InvalidHeaderName, got {other:?}"),
@@ -117,22 +109,16 @@ mod tests {
     /// @covers: HeaderStrategy::new
     #[test]
     fn test_new_rejects_invalid_header_value() {
-        let err = HeaderStrategy::new(
-            "x-key".into(),
-            SecretString::from("bad\nvalue".to_string()),
-        )
-        .unwrap_err();
+        let err = HeaderStrategy::new("x-key".into(), SecretString::from("bad\nvalue".to_string()))
+            .unwrap_err();
         assert!(matches!(err, Error::InvalidHeaderValue(_)));
     }
 
     /// @covers: HeaderStrategy::fmt
     #[test]
     fn test_fmt_debug_shows_name_and_redacts_value() {
-        let s = HeaderStrategy::new(
-            "x-key".into(),
-            SecretString::from("s3cr3t".to_string()),
-        )
-        .unwrap();
+        let s =
+            HeaderStrategy::new("x-key".into(), SecretString::from("s3cr3t".to_string())).unwrap();
         let dbg = format!("{s:?}");
         assert!(dbg.contains("HeaderStrategy"));
         assert!(!dbg.contains("s3cr3t"));

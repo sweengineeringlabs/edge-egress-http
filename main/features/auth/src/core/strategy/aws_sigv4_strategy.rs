@@ -40,10 +40,34 @@ type HmacSha256 = Hmac<Sha256>;
 /// For canonical query: `/` IS in [`ENCODE_FOR_QUERY`] below,
 /// so query components percent-encode slashes.
 const ENCODE_FOR_PATH: &AsciiSet = &CONTROLS
-    .add(b' ').add(b'!').add(b'"').add(b'#').add(b'$').add(b'%').add(b'&').add(b'\'')
-    .add(b'(').add(b')').add(b'*').add(b'+').add(b',').add(b':').add(b';').add(b'<')
-    .add(b'=').add(b'>').add(b'?').add(b'@').add(b'[').add(b'\\').add(b']').add(b'^')
-    .add(b'`').add(b'{').add(b'|').add(b'}');
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    .add(b':')
+    .add(b';')
+    .add(b'<')
+    .add(b'=')
+    .add(b'>')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}');
 
 /// Same as [`ENCODE_FOR_PATH`] plus `/` — for query-string
 /// components per AWS SigV4 spec.
@@ -53,8 +77,7 @@ const ENCODE_FOR_QUERY: &AsciiSet = &ENCODE_FOR_PATH.add(b'/');
 const AMZ_DATE_FMT: &[FormatItem<'static>] =
     format_description!("[year][month][day]T[hour][minute][second]Z");
 /// `YYYYMMDD` — AWS credential-scope date component.
-const AMZ_DATE_ONLY_FMT: &[FormatItem<'static>] =
-    format_description!("[year][month][day]");
+const AMZ_DATE_ONLY_FMT: &[FormatItem<'static>] = format_description!("[year][month][day]");
 
 /// AWS SigV4 strategy. Holds pre-resolved credentials + the
 /// static (region, service) pair for signing.
@@ -71,7 +94,14 @@ impl std::fmt::Debug for AwsSigV4Strategy {
         f.debug_struct("AwsSigV4Strategy")
             .field("access_key_id", &"<redacted>")
             .field("secret_access_key", &"<redacted>")
-            .field("session_token", &if self.session_token.is_some() { "<set>" } else { "<none>" })
+            .field(
+                "session_token",
+                &if self.session_token.is_some() {
+                    "<set>"
+                } else {
+                    "<none>"
+                },
+            )
             .field("region", &self.region)
             .field("service", &self.service)
             .finish()
@@ -145,9 +175,11 @@ impl AwsSigV4Strategy {
                 HeaderValue::from_str(&host_value)
                     .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?
             }
-            None => return Err(Error::InvalidHeaderValue(
-                "SigV4 requires a URL with a host".into(),
-            )),
+            None => {
+                return Err(Error::InvalidHeaderValue(
+                    "SigV4 requires a URL with a host".into(),
+                ))
+            }
         };
         req.headers_mut().insert(HOST, host_header);
 
@@ -196,13 +228,14 @@ impl AwsSigV4Strategy {
         );
 
         // --- String to sign ---
-        let credential_scope =
-            format!("{date_scope}/{region}/{service}/aws4_request",
-                region = self.region, service = self.service);
-        let hashed_canonical = hex::encode(Sha256::digest(canonical_request.as_bytes()));
-        let string_to_sign = format!(
-            "AWS4-HMAC-SHA256\n{amz_date}\n{credential_scope}\n{hashed_canonical}"
+        let credential_scope = format!(
+            "{date_scope}/{region}/{service}/aws4_request",
+            region = self.region,
+            service = self.service
         );
+        let hashed_canonical = hex::encode(Sha256::digest(canonical_request.as_bytes()));
+        let string_to_sign =
+            format!("AWS4-HMAC-SHA256\n{amz_date}\n{credential_scope}\n{hashed_canonical}");
 
         // --- Derive signing key ---
         let signing_key = derive_signing_key(
@@ -278,9 +311,8 @@ fn canonical_query_string(query: &str) -> String {
 }
 
 fn hmac_sha256(key: &[u8], data: &[u8]) -> Result<Vec<u8>, Error> {
-    let mut mac = HmacSha256::new_from_slice(key).map_err(|e| Error::InvalidHeaderValue(
-        format!("HMAC key len: {e}"),
-    ))?;
+    let mut mac = HmacSha256::new_from_slice(key)
+        .map_err(|e| Error::InvalidHeaderValue(format!("HMAC key len: {e}")))?;
     mac.update(data);
     Ok(mac.finalize().into_bytes().to_vec())
 }
@@ -377,11 +409,15 @@ mod tests {
     fn test_sign_attaches_authorization_header_with_sigv4_prefix() {
         let s = stub_strategy();
         let mut req = stub_req(Method::GET, "https://s3.amazonaws.com/bucket/key");
-        let now = OffsetDateTime::UNIX_EPOCH
-            + time::Duration::days(16_000); // arbitrary fixed point
+        let now = OffsetDateTime::UNIX_EPOCH + time::Duration::days(16_000); // arbitrary fixed point
         s.sign(&mut req, now).unwrap();
 
-        let auth = req.headers().get("authorization").unwrap().to_str().unwrap();
+        let auth = req
+            .headers()
+            .get("authorization")
+            .unwrap()
+            .to_str()
+            .unwrap();
         assert!(auth.starts_with("AWS4-HMAC-SHA256 Credential="));
         assert!(auth.contains("SignedHeaders="));
         assert!(auth.contains("Signature="));
@@ -487,11 +523,13 @@ mod tests {
     }
 
     fn extract_signature(req: &reqwest::Request) -> String {
-        let auth = req.headers().get("authorization").unwrap().to_str().unwrap();
-        auth.split("Signature=")
-            .nth(1)
+        let auth = req
+            .headers()
+            .get("authorization")
             .unwrap()
-            .to_string()
+            .to_str()
+            .unwrap();
+        auth.split("Signature=").nth(1).unwrap().to_string()
     }
 
     /// @covers: hmac_sha256
@@ -551,7 +589,12 @@ mod tests {
         let s = stub_strategy();
         let mut req = stub_req(Method::GET, "https://s3.amazonaws.com/bucket/obj");
         s.authorize(&mut req).unwrap();
-        let auth = req.headers().get("authorization").unwrap().to_str().unwrap();
+        let auth = req
+            .headers()
+            .get("authorization")
+            .unwrap()
+            .to_str()
+            .unwrap();
         assert!(auth.starts_with("AWS4-HMAC-SHA256 Credential="));
     }
 }

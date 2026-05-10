@@ -58,7 +58,11 @@ mod tests {
             self.calls.fetch_add(1, Ordering::SeqCst);
             req.headers_mut().insert(
                 "x-auth-applied",
-                self.calls.load(Ordering::SeqCst).to_string().parse().unwrap(),
+                self.calls
+                    .load(Ordering::SeqCst)
+                    .to_string()
+                    .parse()
+                    .unwrap(),
             );
             Ok(())
         }

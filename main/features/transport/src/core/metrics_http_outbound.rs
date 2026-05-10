@@ -10,7 +10,7 @@ use crate::api::value_object::{HttpRequest, HttpResponse, HttpStreamResponse};
 /// Wraps any [`HttpOutbound`]; records per-call latency, request count, and
 /// error count using the supplied [`MetricsProvider`].
 pub(crate) struct MetricsHttpOutbound {
-    inner:    Arc<dyn HttpOutbound>,
+    inner: Arc<dyn HttpOutbound>,
     provider: Arc<dyn MetricsProvider>,
 }
 
@@ -23,14 +23,18 @@ impl MetricsHttpOutbound {
 impl HttpOutbound for MetricsHttpOutbound {
     fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
         let provider = Arc::clone(&self.provider);
-        let method   = request.method.to_string();
-        let fut      = self.inner.send(request);
+        let method = request.method.to_string();
+        let fut = self.inner.send(request);
         Box::pin(async move {
-            let start  = Instant::now();
+            let start = Instant::now();
             let result = fut.await;
             let labels = &[("method", method.as_str())];
             provider.record_counter("edge_egress_requests_total", 1.0, labels);
-            provider.record_histogram("edge_egress_latency_us", start.elapsed().as_micros() as f64, labels);
+            provider.record_histogram(
+                "edge_egress_latency_us",
+                start.elapsed().as_micros() as f64,
+                labels,
+            );
             if result.is_err() {
                 provider.record_counter("edge_egress_errors_total", 1.0, labels);
             }
@@ -38,16 +42,23 @@ impl HttpOutbound for MetricsHttpOutbound {
         })
     }
 
-    fn send_stream(&self, request: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+    fn send_stream(
+        &self,
+        request: HttpRequest,
+    ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
         let provider = Arc::clone(&self.provider);
-        let method   = request.method.to_string();
-        let fut      = self.inner.send_stream(request);
+        let method = request.method.to_string();
+        let fut = self.inner.send_stream(request);
         Box::pin(async move {
-            let start  = Instant::now();
+            let start = Instant::now();
             let result = fut.await;
             let labels = &[("method", method.as_str())];
             provider.record_counter("edge_egress_requests_total", 1.0, labels);
-            provider.record_histogram("edge_egress_latency_us", start.elapsed().as_micros() as f64, labels);
+            provider.record_histogram(
+                "edge_egress_latency_us",
+                start.elapsed().as_micros() as f64,
+                labels,
+            );
             if result.is_err() {
                 provider.record_counter("edge_egress_errors_total", 1.0, labels);
             }
@@ -72,18 +83,44 @@ mod tests {
     struct NoopOutbound;
     impl HttpOutbound for NoopOutbound {
         fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
-            Box::pin(async { Ok(HttpResponse { status: 200, headers: Default::default(), body: vec![] }) })
-        }
-        fn send_stream(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
             Box::pin(async {
-                let body: futures::stream::BoxStream<'static, Result<bytes::Bytes, crate::api::port::http_outbound::HttpOutboundError>> =
-                    Box::pin(futures::stream::empty());
-                Ok(HttpStreamResponse { status: 200, headers: Default::default(), body })
+                Ok(HttpResponse {
+                    status: 200,
+                    headers: Default::default(),
+                    body: vec![],
+                })
+            })
+        }
+        fn send_stream(
+            &self,
+            _: HttpRequest,
+        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+            Box::pin(async {
+                let body: futures::stream::BoxStream<
+                    'static,
+                    Result<bytes::Bytes, crate::api::port::http_outbound::HttpOutboundError>,
+                > = Box::pin(futures::stream::empty());
+                Ok(HttpStreamResponse {
+                    status: 200,
+                    headers: Default::default(),
+                    body,
+                })
             })
         }
         fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
             Box::pin(async { Ok(()) })
         }
+    }
+
+    /// @covers: new — constructs with the supplied inner outbound and provider.
+    #[test]
+    fn test_new_stores_inner_and_provider() {
+        let p = provider();
+        let inner = Arc::new(NoopOutbound);
+        let m = MetricsHttpOutbound::new(Arc::clone(&inner) as Arc<dyn HttpOutbound>, Arc::clone(&p));
+        // Verify construction succeeded and the provider is wired by exercising it.
+        let snaps = m.provider.export();
+        assert!(snaps.is_empty(), "fresh instance must have no recorded metrics");
     }
 
     /// @covers: send — records edge_egress_requests_total on success.
@@ -93,8 +130,12 @@ mod tests {
         let m = MetricsHttpOutbound::new(Arc::new(NoopOutbound), Arc::clone(&p));
         m.send(HttpRequest::get("/")).await.unwrap();
         let snaps = p.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_egress_requests_total" && s.value == 1.0),
-            "expected edge_egress_requests_total=1, got {snaps:?}");
+        assert!(
+            snaps
+                .iter()
+                .any(|s| s.name == "edge_egress_requests_total" && s.value == 1.0),
+            "expected edge_egress_requests_total=1, got {snaps:?}"
+        );
     }
 
     /// @covers: send — records edge_egress_latency_us histogram.
@@ -104,8 +145,10 @@ mod tests {
         let m = MetricsHttpOutbound::new(Arc::new(NoopOutbound), Arc::clone(&p));
         m.send(HttpRequest::get("/")).await.unwrap();
         let snaps = p.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_egress_latency_us"),
-            "expected edge_egress_latency_us, got {snaps:?}");
+        assert!(
+            snaps.iter().any(|s| s.name == "edge_egress_latency_us"),
+            "expected edge_egress_latency_us, got {snaps:?}"
+        );
     }
 
     /// @covers: send — records edge_egress_errors_total on failure.
@@ -117,7 +160,10 @@ mod tests {
             fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
                 Box::pin(async { Err(HttpOutboundError::ConnectionFailed("refused".into())) })
             }
-            fn send_stream(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+            fn send_stream(
+                &self,
+                _: HttpRequest,
+            ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
                 Box::pin(async { Err(HttpOutboundError::ConnectionFailed("refused".into())) })
             }
             fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
@@ -128,7 +174,11 @@ mod tests {
         let m = MetricsHttpOutbound::new(Arc::new(FailOutbound), Arc::clone(&p));
         let _ = m.send(HttpRequest::get("/")).await;
         let snaps = p.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_egress_errors_total" && s.value == 1.0),
-            "expected edge_egress_errors_total=1, got {snaps:?}");
+        assert!(
+            snaps
+                .iter()
+                .any(|s| s.name == "edge_egress_errors_total" && s.value == 1.0),
+            "expected edge_egress_errors_total=1, got {snaps:?}"
+        );
     }
 }

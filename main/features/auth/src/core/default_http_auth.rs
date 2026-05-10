@@ -109,7 +109,11 @@ mod tests {
         let mut req = stub_request();
         d.process(&mut req).await.unwrap();
         assert_eq!(
-            req.headers().get("authorization").unwrap().to_str().unwrap(),
+            req.headers()
+                .get("authorization")
+                .unwrap()
+                .to_str()
+                .unwrap(),
             "Bearer tok-7"
         );
     }

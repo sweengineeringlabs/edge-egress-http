@@ -171,9 +171,9 @@ impl DigestStrategy {
         let www_auth = response
             .headers()
             .get(WWW_AUTHENTICATE)
-            .ok_or_else(|| Error::InvalidHeaderValue(
-                "digest probe 401 missing WWW-Authenticate header".into(),
-            ))?
+            .ok_or_else(|| {
+                Error::InvalidHeaderValue("digest probe 401 missing WWW-Authenticate header".into())
+            })?
             .to_str()
             .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?
             .to_string();
@@ -228,11 +228,7 @@ impl DigestStrategy {
         // Negotiate the qop value we'll echo back. None = RFC
         // 2069 legacy. `selected_qop` is the single token the
         // client commits to (never a list).
-        let selected_qop = cached
-            .challenge
-            .qop
-            .as_deref()
-            .map(select_qop);
+        let selected_qop = cached.challenge.qop.as_deref().map(select_qop);
 
         // HA2 per RFC 7616 §3.4.2.
         //   qop == "auth" (or unset): H(method:uri)
@@ -261,9 +257,7 @@ impl DigestStrategy {
         };
 
         let response = match &selected_qop {
-            Some(qop) => algo.hash(
-                format!("{ha1}:{nonce}:{nc}:{cnonce}:{qop}:{ha2}").as_bytes(),
-            ),
+            Some(qop) => algo.hash(format!("{ha1}:{nonce}:{nc}:{cnonce}:{qop}:{ha2}").as_bytes()),
             None => {
                 // Legacy RFC 2069 form — no qop, no nc/cnonce
                 // in response. Kept for servers that don't
@@ -277,26 +271,17 @@ impl DigestStrategy {
         // the plaintext username (the hash is a presentation-
         // layer privacy feature, not a credential-layer change).
         let username_field = if cached.challenge.userhash {
-            algo.hash(
-                format!("{}:{}", self.username.expose_secret(), realm).as_bytes(),
-            )
+            algo.hash(format!("{}:{}", self.username.expose_secret(), realm).as_bytes())
         } else {
             self.username.expose_secret().to_string()
         };
 
         let mut header = format!(
             r#"Digest username="{}", realm="{}", nonce="{}", uri="{}", algorithm={}, response="{}""#,
-            username_field,
-            realm,
-            nonce,
-            uri,
-            cached.challenge.algorithm,
-            response,
+            username_field, realm, nonce, uri, cached.challenge.algorithm, response,
         );
         if let Some(qop) = &selected_qop {
-            header.push_str(&format!(
-                r#", qop={qop}, nc={nc}, cnonce="{cnonce}""#,
-            ));
+            header.push_str(&format!(r#", qop={qop}, nc={nc}, cnonce="{cnonce}""#,));
         }
         if let Some(opaque) = &cached.challenge.opaque {
             header.push_str(&format!(r#", opaque="{opaque}""#));
@@ -365,9 +350,8 @@ impl DigestAlgorithm {
 #[async_trait]
 impl AuthStrategy for DigestStrategy {
     async fn prepare(&self, host: Option<&str>) -> Result<(), Error> {
-        let host = host.ok_or_else(|| Error::InvalidHeaderValue(
-            "Digest requires a URL with a host".into(),
-        ))?;
+        let host = host
+            .ok_or_else(|| Error::InvalidHeaderValue("Digest requires a URL with a host".into()))?;
 
         // Check cache under lock; if present + fresh, nothing
         // to do.
@@ -407,9 +391,7 @@ impl AuthStrategy for DigestStrategy {
         let host = req
             .url()
             .host_str()
-            .ok_or_else(|| Error::InvalidHeaderValue(
-                "Digest requires a URL with a host".into(),
-            ))?
+            .ok_or_else(|| Error::InvalidHeaderValue("Digest requires a URL with a host".into()))?
             .to_string();
         let method = req.method().as_str().to_string();
         let uri = if let Some(q) = req.url().query() {
@@ -423,20 +405,17 @@ impl AuthStrategy for DigestStrategy {
         // streaming bodies with no `as_bytes()` handle we pass
         // `None` and `build_authorization_header` falls back to
         // the empty-body hash (only relevant for `auth-int`).
-        let body_bytes: Option<Vec<u8>> =
-            req.body().and_then(|b| b.as_bytes().map(<[u8]>::to_vec));
+        let body_bytes: Option<Vec<u8>> = req.body().and_then(|b| b.as_bytes().map(<[u8]>::to_vec));
 
         let mut cache = self.nonce_cache.lock().unwrap();
-        let cached = cache.get_mut(&host).ok_or_else(|| Error::InvalidHeaderValue(
-            "Digest authorize called without successful prepare — cached nonce missing".into(),
-        ))?;
+        let cached = cache.get_mut(&host).ok_or_else(|| {
+            Error::InvalidHeaderValue(
+                "Digest authorize called without successful prepare — cached nonce missing".into(),
+            )
+        })?;
 
-        let auth_value = self.build_authorization_header(
-            &method,
-            &uri,
-            body_bytes.as_deref(),
-            cached,
-        )?;
+        let auth_value =
+            self.build_authorization_header(&method, &uri, body_bytes.as_deref(), cached)?;
         let mut hv = HeaderValue::from_str(&auth_value)
             .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
         hv.set_sensitive(true);
@@ -452,9 +431,7 @@ fn parse_challenge(header: &str) -> Result<Challenge, Error> {
     let rest = header
         .strip_prefix("Digest ")
         .or_else(|| header.strip_prefix("Digest"))
-        .ok_or_else(|| Error::InvalidHeaderValue(
-            "WWW-Authenticate missing Digest scheme".into(),
-        ))?
+        .ok_or_else(|| Error::InvalidHeaderValue("WWW-Authenticate missing Digest scheme".into()))?
         .trim_start();
 
     let mut realm = None;
@@ -494,12 +471,10 @@ fn parse_challenge(header: &str) -> Result<Challenge, Error> {
         }
     }
 
-    let realm = realm.ok_or_else(|| Error::InvalidHeaderValue(
-        "Digest challenge missing realm".into(),
-    ))?;
-    let nonce = nonce.ok_or_else(|| Error::InvalidHeaderValue(
-        "Digest challenge missing nonce".into(),
-    ))?;
+    let realm =
+        realm.ok_or_else(|| Error::InvalidHeaderValue("Digest challenge missing realm".into()))?;
+    let nonce =
+        nonce.ok_or_else(|| Error::InvalidHeaderValue("Digest challenge missing nonce".into()))?;
 
     Ok(Challenge {
         realm,
@@ -652,10 +627,22 @@ mod tests {
     #[test]
     fn test_parse_algorithm_accepts_all_rfc7616_variants() {
         assert_eq!(DigestAlgorithm::parse("MD5").unwrap(), DigestAlgorithm::Md5);
-        assert_eq!(DigestAlgorithm::parse("MD5-sess").unwrap(), DigestAlgorithm::Md5Sess);
-        assert_eq!(DigestAlgorithm::parse("SHA-256").unwrap(), DigestAlgorithm::Sha256);
-        assert_eq!(DigestAlgorithm::parse("SHA-256-sess").unwrap(), DigestAlgorithm::Sha256Sess);
-        assert_eq!(DigestAlgorithm::parse("SHA-512-256").unwrap(), DigestAlgorithm::Sha512_256);
+        assert_eq!(
+            DigestAlgorithm::parse("MD5-sess").unwrap(),
+            DigestAlgorithm::Md5Sess
+        );
+        assert_eq!(
+            DigestAlgorithm::parse("SHA-256").unwrap(),
+            DigestAlgorithm::Sha256
+        );
+        assert_eq!(
+            DigestAlgorithm::parse("SHA-256-sess").unwrap(),
+            DigestAlgorithm::Sha256Sess
+        );
+        assert_eq!(
+            DigestAlgorithm::parse("SHA-512-256").unwrap(),
+            DigestAlgorithm::Sha512_256
+        );
         assert_eq!(
             DigestAlgorithm::parse("SHA-512-256-sess").unwrap(),
             DigestAlgorithm::Sha512_256Sess
@@ -666,8 +653,14 @@ mod tests {
     #[test]
     fn test_parse_algorithm_is_case_insensitive() {
         assert_eq!(DigestAlgorithm::parse("md5").unwrap(), DigestAlgorithm::Md5);
-        assert_eq!(DigestAlgorithm::parse("sha-256").unwrap(), DigestAlgorithm::Sha256);
-        assert_eq!(DigestAlgorithm::parse("Sha-512-256").unwrap(), DigestAlgorithm::Sha512_256);
+        assert_eq!(
+            DigestAlgorithm::parse("sha-256").unwrap(),
+            DigestAlgorithm::Sha256
+        );
+        assert_eq!(
+            DigestAlgorithm::parse("Sha-512-256").unwrap(),
+            DigestAlgorithm::Sha512_256
+        );
     }
 
     /// @covers: DigestAlgorithm::parse
@@ -748,7 +741,9 @@ mod tests {
             fetched_at: Instant::now(),
             nc: 0,
         };
-        let h = s.build_authorization_header("GET", "/", None, &mut cached).unwrap();
+        let h = s
+            .build_authorization_header("GET", "/", None, &mut cached)
+            .unwrap();
         // SHA-256 response digest is 64 hex chars (vs MD5's 32).
         // Extract the response=... value and assert on its length.
         let response_val = h.split(r#"response=""#).nth(1).unwrap();
@@ -789,8 +784,12 @@ mod tests {
             fetched_at: Instant::now(),
             nc: 0,
         };
-        let h1 = s.build_authorization_header("GET", "/", None, &mut c1).unwrap();
-        let h2 = s.build_authorization_header("GET", "/", None, &mut c2).unwrap();
+        let h1 = s
+            .build_authorization_header("GET", "/", None, &mut c1)
+            .unwrap();
+        let h2 = s
+            .build_authorization_header("GET", "/", None, &mut c2)
+            .unwrap();
         // Non-sess HA1 ≠ -sess HA1 (sess folds cnonce into HA1)
         // → different final response. cnonce differs per call
         // anyway, so this doesn't give a deterministic diff;
@@ -839,7 +838,9 @@ mod tests {
             fetched_at: Instant::now(),
             nc: 0,
         };
-        let h = s.build_authorization_header("GET", "/dir/index.html", None, &mut cached).unwrap();
+        let h = s
+            .build_authorization_header("GET", "/dir/index.html", None, &mut cached)
+            .unwrap();
         assert!(h.starts_with("Digest "));
         assert!(h.contains(r#"username="alice""#));
         assert!(h.contains(r#"realm="testrealm""#));
@@ -872,8 +873,10 @@ mod tests {
             fetched_at: Instant::now(),
             nc: 0,
         };
-        s.build_authorization_header("GET", "/", None, &mut cached).unwrap();
-        s.build_authorization_header("GET", "/", None, &mut cached).unwrap();
+        s.build_authorization_header("GET", "/", None, &mut cached)
+            .unwrap();
+        s.build_authorization_header("GET", "/", None, &mut cached)
+            .unwrap();
         assert_eq!(cached.nc, 2);
     }
 
@@ -975,7 +978,9 @@ mod tests {
             fetched_at: Instant::now(),
             nc: 0,
         };
-        let h = s.build_authorization_header("GET", "/", None, &mut cached).unwrap();
+        let h = s
+            .build_authorization_header("GET", "/", None, &mut cached)
+            .unwrap();
 
         // The `username=` field must be the hex hash of
         // "alice:testrealm", NOT the plaintext "alice".
@@ -1068,16 +1073,14 @@ mod tests {
         let body_hash_none = algo.hash(b"");
         let ha2_none = algo.hash(format!("POST:/submit:{body_hash_none}").as_bytes());
         let expected_none = algo.hash(
-            format!("{ha1}:fixed-nonce:00000001:{cnonce_none}:auth-int:{ha2_none}")
-                .as_bytes(),
+            format!("{ha1}:fixed-nonce:00000001:{cnonce_none}:auth-int:{ha2_none}").as_bytes(),
         );
         assert_eq!(resp_none, expected_none, "header: {h_none}");
 
         let body_hash_real = algo.hash(b"hello=world");
         let ha2_body = algo.hash(format!("POST:/submit:{body_hash_real}").as_bytes());
         let expected_body = algo.hash(
-            format!("{ha1}:fixed-nonce:00000001:{cnonce_body}:auth-int:{ha2_body}")
-                .as_bytes(),
+            format!("{ha1}:fixed-nonce:00000001:{cnonce_body}:auth-int:{ha2_body}").as_bytes(),
         );
         assert_eq!(resp_body, expected_body, "header: {h_body}");
 
@@ -1122,7 +1125,10 @@ mod tests {
         // Belt-and-braces: auth-int MUST NOT appear as the qop
         // token. (It may appear nowhere else in the header, so
         // a substring check is safe.)
-        assert!(!h.contains("auth-int"), "header should not contain auth-int: {h}");
+        assert!(
+            !h.contains("auth-int"),
+            "header should not contain auth-int: {h}"
+        );
     }
 
     /// @covers: select_qop
@@ -1144,7 +1150,10 @@ mod tests {
             SecretString::from("pass".to_string()),
             None,
         );
-        assert!(s.is_ok(), "DigestStrategy::new should succeed with valid args");
+        assert!(
+            s.is_ok(),
+            "DigestStrategy::new should succeed with valid args"
+        );
     }
 
     /// @covers: DigestStrategy::new
@@ -1159,7 +1168,10 @@ mod tests {
         // expected_realm drives realm-mismatch validation in prepare();
         // we can verify it was stored via Debug output.
         let dbg = format!("{s:?}");
-        assert!(dbg.contains("expected-realm"), "expected_realm must appear in debug: {dbg}");
+        assert!(
+            dbg.contains("expected-realm"),
+            "expected_realm must appear in debug: {dbg}"
+        );
     }
 
     /// @covers: DigestStrategy::fmt (Debug impl)
@@ -1173,8 +1185,14 @@ mod tests {
         .unwrap();
         let dbg = format!("{s:?}");
         // Credentials must not appear.
-        assert!(!dbg.contains("alice_unique_digest"), "username leaked: {dbg}");
-        assert!(!dbg.contains("pass_unique_digest"), "password leaked: {dbg}");
+        assert!(
+            !dbg.contains("alice_unique_digest"),
+            "username leaked: {dbg}"
+        );
+        assert!(
+            !dbg.contains("pass_unique_digest"),
+            "password leaked: {dbg}"
+        );
         // The redaction markers from the fmt impl must appear.
         assert!(dbg.contains("redacted"), "expected redacted marker: {dbg}");
         // Realm is not sensitive and is shown for diagnostics.
@@ -1245,9 +1263,18 @@ mod tests {
             .unwrap()
             .to_str()
             .unwrap();
-        assert!(auth.starts_with("Digest "), "header must start with Digest: {auth}");
-        assert!(auth.contains(r#"username="alice""#), "header missing username: {auth}");
-        assert!(auth.contains(r#"nonce="nonce123""#), "header missing nonce: {auth}");
+        assert!(
+            auth.starts_with("Digest "),
+            "header must start with Digest: {auth}"
+        );
+        assert!(
+            auth.contains(r#"username="alice""#),
+            "header missing username: {auth}"
+        );
+        assert!(
+            auth.contains(r#"nonce="nonce123""#),
+            "header missing nonce: {auth}"
+        );
     }
 
     /// @covers: DigestStrategy::fetch_challenge
@@ -1264,7 +1291,11 @@ mod tests {
             SecretString::from("p".to_string()),
             None,
         );
-        assert!(result.is_ok(), "new() must succeed (builds probe client): {:?}", result);
+        assert!(
+            result.is_ok(),
+            "new() must succeed (builds probe client): {:?}",
+            result
+        );
     }
 
     /// @covers: DigestStrategy::prepare (sync observable path)
@@ -1280,7 +1311,10 @@ mod tests {
         )
         .unwrap();
         let cache = s.nonce_cache.lock().unwrap();
-        assert!(cache.is_empty(), "nonce cache must be empty before any prepare() call");
+        assert!(
+            cache.is_empty(),
+            "nonce cache must be empty before any prepare() call"
+        );
     }
 
     /// @covers: split_csv_respecting_quotes
@@ -1298,14 +1332,25 @@ mod tests {
     fn test_split_csv_respecting_quotes_quoted_comma_not_split() {
         // A comma inside quotes must NOT cause a split.
         let parts = split_csv_respecting_quotes(r#"realm="a,b", nonce="n""#);
-        assert_eq!(parts.len(), 2, "comma in quoted value must not split: {parts:?}");
-        assert!(parts[0].contains("a,b"), "first part should contain a,b: {}", parts[0]);
+        assert_eq!(
+            parts.len(),
+            2,
+            "comma in quoted value must not split: {parts:?}"
+        );
+        assert!(
+            parts[0].contains("a,b"),
+            "first part should contain a,b: {}",
+            parts[0]
+        );
     }
 
     /// @covers: split_csv_respecting_quotes
     #[test]
     fn test_split_csv_respecting_quotes_empty_string() {
         let parts = split_csv_respecting_quotes("");
-        assert!(parts.is_empty(), "empty input must yield empty vec: {parts:?}");
+        assert!(
+            parts.is_empty(),
+            "empty input must yield empty vec: {parts:?}"
+        );
     }
 }

@@ -12,8 +12,8 @@ use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use swe_edge_egress_http_transport::{
-    FormPart, HttpAuth, HttpBody, HttpConfig, HttpMethod, HttpOutbound, HttpOutboundError,
-    HttpRequest, HttpResponse, plain_http_outbound,
+    plain_http_outbound, FormPart, HttpAuth, HttpBody, HttpConfig, HttpMethod, HttpOutbound,
+    HttpOutboundError, HttpRequest, HttpResponse,
 };
 
 // ─── test-server helpers ─────────────────────────────────────────────────────
@@ -117,7 +117,10 @@ async fn test_health_check_succeeds_when_server_is_listening() {
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
     let client = plain_http_outbound(cfg).unwrap();
-    client.health_check().await.expect("health check must succeed when port is open");
+    client
+        .health_check()
+        .await
+        .expect("health check must succeed when port is open");
 }
 
 #[tokio::test]
@@ -171,7 +174,9 @@ async fn test_send_with_json_body_sets_application_json_content_type() {
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
     let client = plain_http_outbound(cfg).unwrap();
-    let req = HttpRequest::post("/").with_json(&serde_json::json!({"k": "v"})).unwrap();
+    let req = HttpRequest::post("/")
+        .with_json(&serde_json::json!({"k": "v"}))
+        .unwrap();
     let resp = client.send(req).await.expect("JSON POST must succeed");
     let ct = String::from_utf8(resp.body).unwrap();
     assert!(
@@ -244,10 +249,8 @@ async fn test_send_rejects_response_when_content_length_exceeds_max_bytes() {
     // Return an actual 150-byte body — hyper sets Content-Length: 150 automatically.
     // The client's early rejection (checking content-length before buffering) fires
     // because 150 > max_response_bytes(100).
-    let (port, _jh) = spawn_once(|_req| async {
-        Response::new(Full::new(Bytes::from(vec![b'x'; 150])))
-    })
-    .await;
+    let (port, _jh) =
+        spawn_once(|_req| async { Response::new(Full::new(Bytes::from(vec![b'x'; 150]))) }).await;
 
     let cfg = HttpConfig {
         base_url: Some(format!("http://127.0.0.1:{port}")),
@@ -283,9 +286,15 @@ async fn test_send_applies_default_headers_to_every_request() {
         ..Default::default()
     };
     let client = plain_http_outbound(cfg).unwrap();
-    let resp = client.send(HttpRequest::get("/")).await.expect("GET must succeed");
+    let resp = client
+        .send(HttpRequest::get("/"))
+        .await
+        .expect("GET must succeed");
     let echoed = String::from_utf8(resp.body).unwrap();
-    assert_eq!(echoed, "tenant-99", "default header must be forwarded on every request");
+    assert_eq!(
+        echoed, "tenant-99",
+        "default header must be forwarded on every request"
+    );
 }
 
 #[tokio::test]
@@ -299,10 +308,10 @@ async fn test_send_returns_invalid_request_error_for_bad_multipart_mime_type() {
     let client = plain_http_outbound(cfg).unwrap();
     let mut req = HttpRequest::post("/");
     req.body = Some(HttpBody::Multipart(vec![FormPart {
-        name:         "upload".to_string(),
-        filename:     None,
+        name: "upload".to_string(),
+        filename: None,
         content_type: Some("not!!!a/valid/mime".to_string()),
-        data:         b"bytes".to_vec(),
+        data: b"bytes".to_vec(),
     }]));
     let result = client.send(req).await;
     assert!(
@@ -320,7 +329,10 @@ async fn test_send_patch_request_reaches_server_with_correct_method() {
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
     let client = plain_http_outbound(cfg).unwrap();
-    let resp = client.send(HttpRequest::patch("/")).await.expect("PATCH must succeed");
+    let resp = client
+        .send(HttpRequest::patch("/"))
+        .await
+        .expect("PATCH must succeed");
     assert_eq!(resp.body, b"PATCH");
 }
 
@@ -340,7 +352,10 @@ async fn test_send_head_request_reaches_server_with_correct_method() {
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
     let client = plain_http_outbound(cfg).unwrap();
-    let resp = client.send(HttpRequest::head("/")).await.expect("HEAD must succeed");
+    let resp = client
+        .send(HttpRequest::head("/"))
+        .await
+        .expect("HEAD must succeed");
     assert_eq!(
         resp.headers.get("x-received-method").map(String::as_str),
         Some("HEAD")
@@ -356,6 +371,9 @@ async fn test_send_options_request_reaches_server_with_correct_method() {
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
     let client = plain_http_outbound(cfg).unwrap();
-    let resp = client.send(HttpRequest::options("/")).await.expect("OPTIONS must succeed");
+    let resp = client
+        .send(HttpRequest::options("/"))
+        .await
+        .expect("OPTIONS must succeed");
     assert_eq!(resp.body, b"OPTIONS");
 }

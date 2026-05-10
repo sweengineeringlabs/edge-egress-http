@@ -14,15 +14,23 @@ pub enum HttpAuth {
 
 impl HttpAuth {
     pub fn bearer(token: impl Into<String>) -> Self {
-        HttpAuth::Bearer { token: token.into() }
+        HttpAuth::Bearer {
+            token: token.into(),
+        }
     }
 
     pub fn basic(username: impl Into<String>, password: impl Into<String>) -> Self {
-        HttpAuth::Basic { username: username.into(), password: password.into() }
+        HttpAuth::Basic {
+            username: username.into(),
+            password: password.into(),
+        }
     }
 
     pub fn api_key(header: impl Into<String>, key: impl Into<String>) -> Self {
-        HttpAuth::ApiKey { header: header.into(), key: key.into() }
+        HttpAuth::ApiKey {
+            header: header.into(),
+            key: key.into(),
+        }
     }
 }
 

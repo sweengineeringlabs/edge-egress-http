@@ -31,7 +31,10 @@ pub trait HttpOutbound: Send + Sync {
     /// connection. Retry middleware applies to the connection only — a
     /// partially-consumed stream cannot be transparently retried. If the stream
     /// drops mid-response, the caller must decide whether to reconnect.
-    fn send_stream(&self, request: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>>;
+    fn send_stream(
+        &self,
+        request: HttpRequest,
+    ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>>;
 
     fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>>;
 

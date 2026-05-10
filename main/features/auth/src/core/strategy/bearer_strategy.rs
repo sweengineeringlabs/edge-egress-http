@@ -36,8 +36,8 @@ impl BearerStrategy {
     /// NUL, non-visible ASCII).
     pub(crate) fn new(token: SecretString) -> Result<Self, Error> {
         let raw = format!("Bearer {}", token.expose_secret());
-        let mut hv = HeaderValue::from_str(&raw)
-            .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+        let mut hv =
+            HeaderValue::from_str(&raw).map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
         hv.set_sensitive(true);
         Ok(Self { header_value: hv })
     }
@@ -58,10 +58,7 @@ mod tests {
     use reqwest::{Method, Url};
 
     fn stub_request() -> reqwest::Request {
-        reqwest::Request::new(
-            Method::GET,
-            Url::parse("http://example.test/").unwrap(),
-        )
+        reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap())
     }
 
     /// @covers: BearerStrategy::authorize
@@ -83,7 +80,11 @@ mod tests {
             .insert("authorization", "Bearer old-token".parse().unwrap());
         s.authorize(&mut req).unwrap();
         assert_eq!(
-            req.headers().get("authorization").unwrap().to_str().unwrap(),
+            req.headers()
+                .get("authorization")
+                .unwrap()
+                .to_str()
+                .unwrap(),
             "Bearer new-token"
         );
     }

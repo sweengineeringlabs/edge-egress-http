@@ -55,7 +55,11 @@ pub(crate) fn build_strategy(
         } => {
             let user = resolver.resolve(&CredentialSource::EnvVar(user_env.clone()))?;
             let password = resolver.resolve(&CredentialSource::EnvVar(password_env.clone()))?;
-            Ok(Box::new(DigestStrategy::new(user, password, realm.clone())?))
+            Ok(Box::new(DigestStrategy::new(
+                user,
+                password,
+                realm.clone(),
+            )?))
         }
 
         AuthConfig::AwsSigV4 {
@@ -65,14 +69,10 @@ pub(crate) fn build_strategy(
             region,
             service,
         } => {
-            let access_key =
-                resolver.resolve(&CredentialSource::EnvVar(access_key_env.clone()))?;
-            let secret_key =
-                resolver.resolve(&CredentialSource::EnvVar(secret_key_env.clone()))?;
+            let access_key = resolver.resolve(&CredentialSource::EnvVar(access_key_env.clone()))?;
+            let secret_key = resolver.resolve(&CredentialSource::EnvVar(secret_key_env.clone()))?;
             let session_token = match session_token_env {
-                Some(var) => Some(
-                    resolver.resolve(&CredentialSource::EnvVar(var.clone()))?,
-                ),
+                Some(var) => Some(resolver.resolve(&CredentialSource::EnvVar(var.clone()))?),
                 None => None,
             };
             Ok(Box::new(AwsSigV4Strategy::new(
@@ -119,17 +119,28 @@ mod tests {
         let r = &StubResolver("x");
         assert!(build_strategy(&AuthConfig::None, r).is_ok());
         assert!(build_strategy(
-            &AuthConfig::Bearer { token_env: "T".into() },
+            &AuthConfig::Bearer {
+                token_env: "T".into()
+            },
             r
-        ).is_ok());
+        )
+        .is_ok());
         assert!(build_strategy(
-            &AuthConfig::Basic { user_env: "U".into(), pass_env: "P".into() },
+            &AuthConfig::Basic {
+                user_env: "U".into(),
+                pass_env: "P".into()
+            },
             r
-        ).is_ok());
+        )
+        .is_ok());
         assert!(build_strategy(
-            &AuthConfig::Header { name: "x-k".into(), value_env: "V".into() },
+            &AuthConfig::Header {
+                name: "x-k".into(),
+                value_env: "V".into()
+            },
             r
-        ).is_ok());
+        )
+        .is_ok());
     }
 
     /// @covers: build_strategy
@@ -158,7 +169,11 @@ mod tests {
         );
         strategy.authorize(&mut req).unwrap();
         assert_eq!(
-            req.headers().get("authorization").unwrap().to_str().unwrap(),
+            req.headers()
+                .get("authorization")
+                .unwrap()
+                .to_str()
+                .unwrap(),
             "Bearer tok-42"
         );
     }
@@ -178,7 +193,12 @@ mod tests {
             reqwest::Url::parse("http://example.test/").unwrap(),
         );
         strategy.authorize(&mut req).unwrap();
-        let h = req.headers().get("authorization").unwrap().to_str().unwrap();
+        let h = req
+            .headers()
+            .get("authorization")
+            .unwrap()
+            .to_str()
+            .unwrap();
         assert!(h.starts_with("Basic "));
     }
 

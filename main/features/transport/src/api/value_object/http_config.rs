@@ -3,7 +3,9 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-fn default_max_response_bytes() -> Option<usize> { Some(10 * 1024 * 1024) }
+fn default_max_response_bytes() -> Option<usize> {
+    Some(10 * 1024 * 1024)
+}
 
 /// HTTP client configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,7 +42,10 @@ impl Default for HttpConfig {
 
 impl HttpConfig {
     pub fn with_base_url(base_url: impl Into<String>) -> Self {
-        Self { base_url: Some(base_url.into()), ..Default::default() }
+        Self {
+            base_url: Some(base_url.into()),
+            ..Default::default()
+        }
     }
 
     pub fn with_header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
