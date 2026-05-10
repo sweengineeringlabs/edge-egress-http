@@ -14,7 +14,7 @@ fn make_cfg(dir: &str) -> CassetteConfig {
 
 /// @covers: builder
 #[test]
-fn e2e_builder() {
+fn test_e2e_builder() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let b = swe_edge_egress_cassette::builder().expect("builder() must succeed");
@@ -26,7 +26,7 @@ fn e2e_builder() {
 
 /// @covers: Builder::with_config
 #[test]
-fn e2e_with_config() {
+fn test_e2e_with_config() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let b = Builder::with_config(make_cfg(&dir));
@@ -36,7 +36,7 @@ fn e2e_with_config() {
 
 /// @covers: Builder::config
 #[test]
-fn e2e_config() {
+fn test_e2e_config() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let b = Builder::with_config(make_cfg(&dir));
@@ -46,7 +46,7 @@ fn e2e_config() {
 
 /// @covers: Builder::build
 #[test]
-fn e2e_build() {
+fn test_e2e_build() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let cfg = CassetteConfig {

@@ -15,7 +15,7 @@ fn make_cfg() -> RetryConfig {
 
 /// @covers: builder
 #[test]
-fn e2e_builder() {
+fn test_e2e_builder() {
     let layer: RetryLayer = swe_edge_egress_retry::builder()
         .expect("builder() must succeed")
         .build()
@@ -25,7 +25,7 @@ fn e2e_builder() {
 
 /// @covers: Builder::with_config
 #[test]
-fn e2e_with_config() {
+fn test_e2e_with_config() {
     let b = Builder::with_config(make_cfg());
     assert_eq!(b.config().max_retries, 3);
     b.build().expect("e2e with_config build must succeed");
@@ -33,7 +33,7 @@ fn e2e_with_config() {
 
 /// @covers: Builder::config
 #[test]
-fn e2e_config() {
+fn test_e2e_config() {
     let b = Builder::with_config(make_cfg());
     assert_eq!(b.config().initial_interval_ms, 100);
     assert!(b.config().retryable_statuses.contains(&429));
@@ -41,7 +41,7 @@ fn e2e_config() {
 
 /// @covers: Builder::build
 #[test]
-fn e2e_build() {
+fn test_e2e_build() {
     let cfg = RetryConfig {
         max_retries: 5,
         initial_interval_ms: 50,

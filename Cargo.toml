@@ -1,0 +1,61 @@
+[workspace]
+resolver = "2"
+members = [
+    "main/features/transport",
+    "main/features/auth",
+    "main/features/retry",
+    "main/features/rate",
+    "main/features/breaker",
+    "main/features/cache",
+    "main/features/cassette",
+    "main/features/tls",
+    "main/features/oauth",
+]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT"
+rust-version = "1.75"
+authors      = ["SWE Engineering Labs"]
+repository   = "https://github.com/sweengineeringlabs/edge"
+
+[workspace.dependencies]
+serde        = { version = "1.0", features = ["derive"] }
+serde_json   = "1.0"
+serde_yaml   = "0.9"
+thiserror    = "2"
+async-trait  = "0.1"
+tokio        = { version = "1.0", features = ["rt", "sync", "fs", "time", "net", "macros"] }
+tracing      = { version = "0.1", default-features = false }
+toml         = "0.8"
+http         = "1"
+anyhow       = "1"
+base64       = "0.22"
+sha2         = "0.10"
+hmac         = "0.12"
+md-5         = "0.10"
+hex          = "0.4"
+time         = { version = "0.3", features = ["formatting", "macros"] }
+percent-encoding = "2.3"
+secrecy      = "0.10"
+moka         = { version = "0.12", features = ["future"] }
+reqwest      = { version = "0.12", features = ["json", "stream", "multipart", "native-tls", "rustls-tls"], default-features = false }
+reqwest-middleware = { version = "0.3", features = ["json", "multipart"] }
+futures  = "0.3"
+bytes    = "1"
+chrono   = { version = "0.4", features = ["serde"] }
+
+# Workspace-internal crates
+swe-edge-egress-auth     = { path = "main/features/auth" }
+swe-edge-egress-retry    = { path = "main/features/retry" }
+swe-edge-egress-rate     = { path = "main/features/rate" }
+swe-edge-egress-breaker  = { path = "main/features/breaker" }
+swe-edge-egress-cache    = { path = "main/features/cache" }
+swe-edge-egress-cassette = { path = "main/features/cassette" }
+swe-edge-egress-tls      = { path = "main/features/tls" }
+swe-edge-egress-oauth    = { path = "main/features/oauth" }
+
+[workspace.lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"

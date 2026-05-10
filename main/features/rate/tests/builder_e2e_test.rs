@@ -8,7 +8,7 @@ fn make_cfg() -> RateConfig {
 
 /// @covers: builder
 #[test]
-fn e2e_builder() {
+fn test_e2e_builder() {
     let layer: RateLayer = swe_edge_egress_rate::builder()
         .expect("builder() must succeed")
         .build()
@@ -18,7 +18,7 @@ fn e2e_builder() {
 
 /// @covers: Builder::with_config
 #[test]
-fn e2e_with_config() {
+fn test_e2e_with_config() {
     let b = Builder::with_config(make_cfg());
     assert_eq!(b.config().tokens_per_second, 10);
     b.build().expect("e2e with_config build must succeed");
@@ -26,7 +26,7 @@ fn e2e_with_config() {
 
 /// @covers: Builder::config
 #[test]
-fn e2e_config() {
+fn test_e2e_config() {
     let b = Builder::with_config(make_cfg());
     assert_eq!(b.config().burst_capacity, 20);
     assert!(!b.config().per_host);
@@ -34,7 +34,7 @@ fn e2e_config() {
 
 /// @covers: Builder::build
 #[test]
-fn e2e_build() {
+fn test_e2e_build() {
     let cfg = RateConfig { tokens_per_second: 100, burst_capacity: 500, per_host: true };
     let layer = Builder::with_config(cfg).build().expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());

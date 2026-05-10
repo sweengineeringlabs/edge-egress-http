@@ -8,7 +8,7 @@ fn make_cfg() -> BreakerConfig {
 
 /// @covers: builder
 #[test]
-fn e2e_builder() {
+fn test_e2e_builder() {
     let layer: BreakerLayer = swe_edge_egress_breaker::builder()
         .expect("builder() must succeed")
         .build()
@@ -18,7 +18,7 @@ fn e2e_builder() {
 
 /// @covers: Builder::with_config
 #[test]
-fn e2e_with_config() {
+fn test_e2e_with_config() {
     let b = Builder::with_config(make_cfg());
     assert_eq!(b.config().failure_threshold, 3);
     b.build().expect("e2e with_config build must succeed");
@@ -26,7 +26,7 @@ fn e2e_with_config() {
 
 /// @covers: Builder::config
 #[test]
-fn e2e_config() {
+fn test_e2e_config() {
     let b = Builder::with_config(make_cfg());
     assert_eq!(b.config().failure_statuses, vec![500u16, 502, 503]);
     assert_eq!(b.config().reset_after_successes, 2);
@@ -34,7 +34,7 @@ fn e2e_config() {
 
 /// @covers: Builder::build
 #[test]
-fn e2e_build() {
+fn test_e2e_build() {
     let cfg = BreakerConfig {
         failure_threshold: 5,
         half_open_after_seconds: 30,

@@ -1,0 +1,50 @@
+# SEA project configuration (L0)
+[project]
+name = "swe-edge-egress-http"
+workspaces = [
+    "transport",
+    "auth",
+    "retry",
+    "rate",
+    "breaker",
+    "cache",
+    "cassette",
+    "tls",
+    "oauth",
+]
+
+[workspace.transport]
+path = "main/features/transport"
+crate = "swe-edge-egress-http-transport"
+
+[workspace.auth]
+path = "main/features/auth"
+crate = "swe-edge-egress-auth"
+
+[workspace.retry]
+path = "main/features/retry"
+crate = "swe-edge-egress-retry"
+
+[workspace.rate]
+path = "main/features/rate"
+crate = "swe-edge-egress-rate"
+
+[workspace.breaker]
+path = "main/features/breaker"
+crate = "swe-edge-egress-breaker"
+
+[workspace.cache]
+path = "main/features/cache"
+crate = "swe-edge-egress-cache"
+
+[workspace.cassette]
+path = "main/features/cassette"
+crate = "swe-edge-egress-cassette"
+
+[workspace.tls]
+path = "main/features/tls"
+crate = "swe-edge-egress-tls"
+
+[workspace.oauth]
+path = "main/features/oauth"
+crate = "swe-edge-egress-oauth"
