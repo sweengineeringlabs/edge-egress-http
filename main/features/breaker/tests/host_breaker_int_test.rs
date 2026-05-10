@@ -30,7 +30,10 @@ fn test_host_breaker_threshold_one_layer_builds() {
     };
     let layer: BreakerLayer = Builder::with_config(cfg).build().expect("build");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("1"), "failure_threshold=1 must appear in debug; got: {dbg}");
+    assert!(
+        dbg.contains("1"),
+        "failure_threshold=1 must appear in debug; got: {dbg}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -116,8 +119,14 @@ fn test_host_breaker_two_layers_have_independent_state() {
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");
 
-    assert!(dbg_a.contains("2"), "layer_a must reflect threshold=2; got: {dbg_a}");
-    assert!(dbg_b.contains("10"), "layer_b must reflect threshold=10; got: {dbg_b}");
+    assert!(
+        dbg_a.contains("2"),
+        "layer_a must reflect threshold=2; got: {dbg_a}"
+    );
+    assert!(
+        dbg_b.contains("10"),
+        "layer_b must reflect threshold=10; got: {dbg_b}"
+    );
     // The two layers are distinct objects — their configs must not be identical.
     assert_ne!(
         dbg_a, dbg_b,

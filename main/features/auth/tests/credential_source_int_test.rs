@@ -23,9 +23,11 @@ use swe_edge_egress_auth::{AuthConfig, Builder, Error};
 fn test_credential_source_bearer_identifies_missing_token_env_by_name() {
     let env_name = "SWE_AUTH_SRC_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(
             name, env_name,
@@ -39,9 +41,11 @@ fn test_credential_source_bearer_identifies_missing_token_env_by_name() {
 fn test_credential_source_bearer_resolved_when_token_env_is_present() {
     let env_name = "SWE_AUTH_SRC_BRR_02";
     std::env::set_var(env_name, "src-bearer-value");
-    Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("token_env present — credential source must resolve");
+    Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("token_env present — credential source must resolve");
     std::env::remove_var(env_name);
 }
 

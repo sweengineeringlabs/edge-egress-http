@@ -38,7 +38,7 @@
 
 mod api;
 mod core;
-mod saf;
 mod gateway;
+mod saf;
 
 pub use gateway::*;

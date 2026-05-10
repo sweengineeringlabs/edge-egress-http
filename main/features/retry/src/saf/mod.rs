@@ -2,7 +2,7 @@
 
 mod builder;
 
+pub use crate::api::error::Error;
 pub use crate::api::retry_config::RetryConfig;
 pub use crate::api::retry_layer::RetryLayer;
-pub use crate::api::error::Error;
 pub use builder::{builder, Builder};

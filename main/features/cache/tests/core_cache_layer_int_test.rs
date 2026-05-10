@@ -23,7 +23,9 @@ fn test_core_cache_layer_zero_ttl_builds_without_error() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("zero TTL must not cause build to fail");
+    Builder::with_config(cfg)
+        .build()
+        .expect("zero TTL must not cause build to fail");
 }
 
 /// Zero TTL must appear in the `Debug` output so an operator can confirm that
@@ -95,7 +97,9 @@ fn test_core_cache_layer_respect_cc_true_long_ttl_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("respect_cc=true + 3600s must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("respect_cc=true + 3600s must build");
 }
 
 /// `respect_cache_control = false` — all Cache-Control headers are ignored;
@@ -108,7 +112,9 @@ fn test_core_cache_layer_respect_cc_false_builds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("respect_cc=false must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("respect_cc=false must build");
 }
 
 // ---------------------------------------------------------------------------

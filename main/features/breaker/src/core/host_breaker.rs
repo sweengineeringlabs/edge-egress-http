@@ -66,8 +66,7 @@ impl CircuitBreakerNode for HostBreaker {
                 self.consecutive_failures = 0;
             }
             (State::Closed, Outcome::Failure) => {
-                self.consecutive_failures =
-                    self.consecutive_failures.saturating_add(1);
+                self.consecutive_failures = self.consecutive_failures.saturating_add(1);
                 if self.consecutive_failures >= config.failure_threshold {
                     self.state = State::Open {
                         since: Instant::now(),
@@ -75,8 +74,7 @@ impl CircuitBreakerNode for HostBreaker {
                 }
             }
             (State::HalfOpen, Outcome::Success) => {
-                self.consecutive_successes =
-                    self.consecutive_successes.saturating_add(1);
+                self.consecutive_successes = self.consecutive_successes.saturating_add(1);
                 if self.consecutive_successes >= config.reset_after_successes {
                     self.state = State::Closed;
                     self.consecutive_failures = 0;
@@ -105,7 +103,6 @@ impl HostBreaker {
             consecutive_successes: 0,
         }
     }
-
 }
 
 #[cfg(test)]
@@ -159,7 +156,10 @@ mod tests {
         assert_eq!(b.state(), State::Closed, "one failure stays closed");
         b.record(&cfg, Outcome::Failure);
         b.record(&cfg, Outcome::Failure);
-        assert!(matches!(b.state(), State::Open { .. }), "three failures trip breaker");
+        assert!(
+            matches!(b.state(), State::Open { .. }),
+            "three failures trip breaker"
+        );
     }
 
     /// @covers: CircuitBreakerNode::record
@@ -278,7 +278,9 @@ mod tests {
         assert_eq!(b.state(), State::Closed);
         b.state = State::HalfOpen;
         assert_eq!(b.state(), State::HalfOpen);
-        b.state = State::Open { since: Instant::now() };
+        b.state = State::Open {
+            since: Instant::now(),
+        };
         assert!(matches!(b.state(), State::Open { .. }));
     }
 }

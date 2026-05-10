@@ -36,7 +36,9 @@ fn test_cache_layer_coercible_to_boxed_send_sync() {
         respect_cache_control: false,
         cache_private: false,
     };
-    let layer: CacheLayer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer: CacheLayer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     // Coerce to a boxed `Send + Sync` object — this fails to compile if either
     // bound is absent.
     let _boxed: Box<dyn Send + Sync> = Box::new(layer);

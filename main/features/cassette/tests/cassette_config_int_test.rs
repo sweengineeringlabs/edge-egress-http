@@ -67,7 +67,9 @@ fn test_mode_replay_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg).build("mode_replay").expect("replay mode must build");
+    Builder::with_config(cfg)
+        .build("mode_replay")
+        .expect("replay mode must build");
 }
 
 /// "record" mode must build a layer without error.
@@ -82,7 +84,9 @@ fn test_mode_record_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg).build("mode_record").expect("record mode must build");
+    Builder::with_config(cfg)
+        .build("mode_record")
+        .expect("record mode must build");
 }
 
 /// "auto" mode must build a layer without error.
@@ -97,7 +101,9 @@ fn test_mode_auto_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg).build("mode_auto").expect("auto mode must build");
+    Builder::with_config(cfg)
+        .build("mode_auto")
+        .expect("auto mode must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -115,11 +121,17 @@ fn test_match_on_with_all_standard_components_builds() {
     let cfg = CassetteConfig {
         mode: "replay".to_string(),
         cassette_dir: dir,
-        match_on: vec!["method".to_string(), "url".to_string(), "body_hash".to_string()],
+        match_on: vec![
+            "method".to_string(),
+            "url".to_string(),
+            "body_hash".to_string(),
+        ],
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg).build("match_on_all").expect("all match_on components must build");
+    Builder::with_config(cfg)
+        .build("match_on_all")
+        .expect("all match_on components must build");
 }
 
 /// An empty `match_on` is a degenerate but valid config — every request
@@ -135,7 +147,9 @@ fn test_match_on_empty_builds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg).build("match_on_empty").expect("empty match_on must build");
+    Builder::with_config(cfg)
+        .build("match_on_empty")
+        .expect("empty match_on must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -157,7 +171,10 @@ fn test_scrub_headers_survives_build_round_trip() {
         scrub_body_paths: vec![],
     };
     let b = Builder::with_config(cfg);
-    assert!(b.config().scrub_headers.contains(&"authorization".to_string()));
+    assert!(b
+        .config()
+        .scrub_headers
+        .contains(&"authorization".to_string()));
     assert!(b.config().scrub_headers.contains(&"set-cookie".to_string()));
 }
 

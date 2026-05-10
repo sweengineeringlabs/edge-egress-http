@@ -46,7 +46,9 @@ fn test_cache_layer_debug_contains_type_name() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CacheLayer"),
@@ -64,7 +66,9 @@ fn test_cache_layer_debug_includes_ttl_seconds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("123"),
@@ -82,7 +86,9 @@ fn test_cache_layer_debug_includes_max_entries() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("999"),

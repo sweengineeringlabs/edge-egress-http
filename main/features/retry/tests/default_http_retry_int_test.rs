@@ -36,8 +36,14 @@ fn test_builder_pipeline_embeds_config_in_default_http_retry() {
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains('4'), "Debug must embed max_retries=4; got: {dbg}");
-    assert!(dbg.contains("250"), "Debug must embed initial_interval_ms=250; got: {dbg}");
+    assert!(
+        dbg.contains('4'),
+        "Debug must embed max_retries=4; got: {dbg}"
+    );
+    assert!(
+        dbg.contains("250"),
+        "Debug must embed initial_interval_ms=250; got: {dbg}"
+    );
 }
 
 // ---------------------------------------------------------------------------

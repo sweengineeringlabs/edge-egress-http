@@ -69,7 +69,10 @@ fn test_with_config_per_host_false_preserved() {
         per_host: false,
     };
     let b = Builder::with_config(cfg);
-    assert!(!b.config().per_host, "per_host=false must survive with_config");
+    assert!(
+        !b.config().per_host,
+        "per_host=false must survive with_config"
+    );
 }
 
 /// `config()` must return a reference to the stored policy.
@@ -112,7 +115,9 @@ fn test_build_with_custom_config_succeeds() {
         burst_capacity: 40,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("custom config must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("custom config must build");
 }
 
 /// `per_host = true` must build successfully.
@@ -123,7 +128,9 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 10,
         per_host: true,
     };
-    Builder::with_config(cfg).build().expect("per_host=true must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=true must build");
 }
 
 /// `per_host = false` must build successfully.
@@ -134,7 +141,9 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 10,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("per_host=false must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=false must build");
 }
 
 /// High token rate and burst capacity are valid operator choices.
@@ -145,7 +154,9 @@ fn test_build_with_high_rate_and_burst_succeeds() {
         burst_capacity: 50_000,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("high rate + burst must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("high rate + burst must build");
 }
 
 // ---------------------------------------------------------------------------

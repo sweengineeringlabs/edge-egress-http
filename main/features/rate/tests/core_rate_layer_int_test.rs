@@ -22,7 +22,9 @@ fn test_core_rate_layer_global_bucket_builds() {
         burst_capacity: 20,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("per_host=false (global bucket) must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=false (global bucket) must build");
 }
 
 /// The `Debug` output for a global-bucket layer must include `per_host: false`.
@@ -53,7 +55,9 @@ fn test_core_rate_layer_per_host_bucket_builds() {
         burst_capacity: 15,
         per_host: true,
     };
-    Builder::with_config(cfg).build().expect("per_host=true must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=true must build");
 }
 
 // ---------------------------------------------------------------------------

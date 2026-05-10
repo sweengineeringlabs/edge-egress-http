@@ -10,7 +10,10 @@ fn test_e2e_builder() {
         .build()
         .expect("build() must succeed");
     let s = format!("{mw:?}");
-    assert!(s.contains("swe_edge_egress_auth"), "e2e: middleware Debug must name crate: {s}");
+    assert!(
+        s.contains("swe_edge_egress_auth"),
+        "e2e: middleware Debug must name crate: {s}"
+    );
 }
 
 /// @covers: Builder::with_config
@@ -28,7 +31,10 @@ fn test_e2e_with_config() {
 fn test_e2e_config() {
     let b = Builder::with_config(AuthConfig::None);
     let c = b.config();
-    assert!(matches!(c, AuthConfig::None), "config() must return stored policy");
+    assert!(
+        matches!(c, AuthConfig::None),
+        "config() must return stored policy"
+    );
 }
 
 /// @covers: Builder::build
@@ -36,7 +42,9 @@ fn test_e2e_config() {
 fn test_e2e_build() {
     let env = "SWE_E2E_AUTH_BEARER_01";
     std::env::set_var(env, "e2e-token");
-    let cfg = AuthConfig::Bearer { token_env: env.into() };
+    let cfg = AuthConfig::Bearer {
+        token_env: env.into(),
+    };
     let mw = Builder::with_config(cfg)
         .build()
         .expect("bearer e2e build must succeed when env set");

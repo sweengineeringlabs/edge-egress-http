@@ -96,7 +96,10 @@ mod tests {
     fn test_builder_without_source_returns_error() {
         let result = builder().build();
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("no OAuthTokenSource"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("no OAuthTokenSource"));
     }
 
     #[test]

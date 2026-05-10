@@ -59,7 +59,10 @@ mod tests {
         let p = PemHttpTls::new(path.to_str().unwrap().to_string()).unwrap();
         // The path is stored for Debug output.
         let dbg = format!("{p:?}");
-        assert!(dbg.contains("16 bytes"), "debug must show byte count: {dbg}");
+        assert!(
+            dbg.contains("16 bytes"),
+            "debug must show byte count: {dbg}"
+        );
     }
 
     /// @covers: PemHttpTls::new

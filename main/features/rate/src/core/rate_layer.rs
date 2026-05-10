@@ -117,10 +117,7 @@ mod tests {
     }
 
     fn stub_req(url: &str) -> reqwest::Request {
-        reqwest::Request::new(
-            reqwest::Method::GET,
-            reqwest::Url::parse(url).unwrap(),
-        )
+        reqwest::Request::new(reqwest::Method::GET, reqwest::Url::parse(url).unwrap())
     }
 
     /// @covers: RateLayer::new

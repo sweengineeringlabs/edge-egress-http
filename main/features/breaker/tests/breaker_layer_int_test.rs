@@ -127,6 +127,12 @@ fn test_two_breaker_layers_from_different_configs_are_independent() {
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");
 
-    assert!(dbg_a.contains("2"), "layer_a must reflect threshold=2; got: {dbg_a}");
-    assert!(dbg_b.contains("20"), "layer_b must reflect threshold=20; got: {dbg_b}");
+    assert!(
+        dbg_a.contains("2"),
+        "layer_a must reflect threshold=2; got: {dbg_a}"
+    );
+    assert!(
+        dbg_b.contains("20"),
+        "layer_b must reflect threshold=20; got: {dbg_b}"
+    );
 }

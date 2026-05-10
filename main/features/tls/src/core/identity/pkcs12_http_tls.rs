@@ -19,7 +19,14 @@ impl std::fmt::Debug for Pkcs12HttpTls {
         f.debug_struct("Pkcs12HttpTls")
             .field("path", &self.path)
             .field("bytes", &format!("<{} bytes>", self.der_bytes.len()))
-            .field("password", &if self.password.is_some() { "<set>" } else { "<none>" })
+            .field(
+                "password",
+                &if self.password.is_some() {
+                    "<set>"
+                } else {
+                    "<none>"
+                },
+            )
             .finish()
     }
 }
@@ -52,10 +59,12 @@ impl HttpTls for Pkcs12HttpTls {
             .as_ref()
             .map(|p| p.expose_secret().to_string())
             .unwrap_or_default();
-        let identity = reqwest::Identity::from_pkcs12_der(&self.der_bytes, &password)
-            .map_err(|e| Error::InvalidCertificate {
-                format: "pkcs12",
-                reason: e.to_string(),
+        let identity =
+            reqwest::Identity::from_pkcs12_der(&self.der_bytes, &password).map_err(|e| {
+                Error::InvalidCertificate {
+                    format: "pkcs12",
+                    reason: e.to_string(),
+                }
             })?;
         Ok(Some(identity))
     }
@@ -74,9 +83,15 @@ mod tests {
         let p = Pkcs12HttpTls::new(path.to_str().unwrap().to_string(), None).unwrap();
         // The bytes were loaded (Debug shows byte count).
         let dbg = format!("{p:?}");
-        assert!(dbg.contains("17 bytes"), "debug must show byte count: {dbg}");
+        assert!(
+            dbg.contains("17 bytes"),
+            "debug must show byte count: {dbg}"
+        );
         // No password set.
-        assert!(dbg.contains("<none>"), "debug must show password absent: {dbg}");
+        assert!(
+            dbg.contains("<none>"),
+            "debug must show password absent: {dbg}"
+        );
     }
 
     /// @covers: Pkcs12HttpTls::new
@@ -92,15 +107,21 @@ mod tests {
         .unwrap();
         let dbg = format!("{p:?}");
         // Password is set but not leaked.
-        assert!(dbg.contains("<set>"), "debug must show password is set: {dbg}");
-        assert!(!dbg.contains("secret"), "password must not leak into debug: {dbg}");
+        assert!(
+            dbg.contains("<set>"),
+            "debug must show password is set: {dbg}"
+        );
+        assert!(
+            !dbg.contains("secret"),
+            "password must not leak into debug: {dbg}"
+        );
     }
 
     /// @covers: Pkcs12HttpTls::new
     #[test]
     fn test_load_missing_file_returns_file_read_failed() {
-        let err = Pkcs12HttpTls::new("/path/definitely/does/not/exist.p12".into(), None)
-            .unwrap_err();
+        let err =
+            Pkcs12HttpTls::new("/path/definitely/does/not/exist.p12".into(), None).unwrap_err();
         match err {
             Error::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),

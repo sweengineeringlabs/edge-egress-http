@@ -214,10 +214,7 @@ mod tests {
     #[test]
     fn test_parse_vary_star_among_names_returns_star() {
         // Conservative: any star axis makes the whole thing uncacheable.
-        assert_eq!(
-            parse_vary(Some("Accept-Encoding, *")),
-            VaryDirective::Star
-        );
+        assert_eq!(parse_vary(Some("Accept-Encoding, *")), VaryDirective::Star);
     }
 
     /// @covers: parse_vary
@@ -328,10 +325,7 @@ mod tests {
     /// @covers: entry_matches_vary
     #[test]
     fn test_entry_matches_vary_no_vary_always_matches() {
-        let entry = sample_entry(
-            Instant::now() + Duration::from_secs(60),
-            None,
-        );
+        let entry = sample_entry(Instant::now() + Duration::from_secs(60), None);
         // No vary_headers recorded → any request matches.
         let req = |_: &str| "whatever".to_string();
         assert!(entry_matches_vary(&entry, &req));
@@ -340,10 +334,7 @@ mod tests {
     /// @covers: entry_matches_vary
     #[test]
     fn test_entry_matches_vary_exact_match() {
-        let mut entry = sample_entry(
-            Instant::now() + Duration::from_secs(60),
-            None,
-        );
+        let mut entry = sample_entry(Instant::now() + Duration::from_secs(60), None);
         entry.vary_headers = vec![
             ("accept-encoding".to_string(), "gzip".to_string()),
             ("accept-language".to_string(), "en".to_string()),
@@ -359,12 +350,8 @@ mod tests {
     /// @covers: entry_matches_vary
     #[test]
     fn test_entry_matches_vary_mismatch_rejects() {
-        let mut entry = sample_entry(
-            Instant::now() + Duration::from_secs(60),
-            None,
-        );
-        entry.vary_headers =
-            vec![("accept-encoding".to_string(), "gzip".to_string())];
+        let mut entry = sample_entry(Instant::now() + Duration::from_secs(60), None);
+        entry.vary_headers = vec![("accept-encoding".to_string(), "gzip".to_string())];
         let req = |_: &str| "br".to_string();
         assert!(!entry_matches_vary(&entry, &req));
     }
@@ -382,8 +369,7 @@ mod tests {
     fn test_should_revalidate_stale_no_swr_returns_true() {
         let now = Instant::now();
         // Make the entry definitively stale: expires_at is in the past.
-        let entry =
-            sample_entry(now - Duration::from_secs(1), None);
+        let entry = sample_entry(now - Duration::from_secs(1), None);
         assert!(should_revalidate(&entry, now));
     }
 
@@ -392,10 +378,7 @@ mod tests {
     fn test_should_revalidate_stale_within_swr_returns_false() {
         let now = Instant::now();
         // expired 1s ago, SWR window = 60s → still reusable.
-        let entry = sample_entry(
-            now - Duration::from_secs(1),
-            Some(Duration::from_secs(60)),
-        );
+        let entry = sample_entry(now - Duration::from_secs(1), Some(Duration::from_secs(60)));
         assert!(!should_revalidate(&entry, now));
     }
 
@@ -416,10 +399,7 @@ mod tests {
     fn test_cached_entry_in_swr_window_is_still_reusable() {
         let now = Instant::now();
         // Stale (expired 5s ago) but within 30s SWR window.
-        let entry = sample_entry(
-            now - Duration::from_secs(5),
-            Some(Duration::from_secs(30)),
-        );
+        let entry = sample_entry(now - Duration::from_secs(5), Some(Duration::from_secs(30)));
         assert!(in_swr_window(&entry, now));
     }
 
@@ -428,10 +408,7 @@ mod tests {
     fn test_in_swr_window_fresh_returns_false() {
         // Fresh entries are not "in SWR window" — they're just fresh.
         let now = Instant::now();
-        let entry = sample_entry(
-            now + Duration::from_secs(60),
-            Some(Duration::from_secs(30)),
-        );
+        let entry = sample_entry(now + Duration::from_secs(60), Some(Duration::from_secs(30)));
         assert!(!in_swr_window(&entry, now));
     }
 

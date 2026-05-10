@@ -41,7 +41,10 @@ fn test_e2e_config() {
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let b = Builder::with_config(make_cfg(&dir));
     assert!(b.config().match_on.contains(&"url".to_string()));
-    assert!(b.config().scrub_headers.contains(&"authorization".to_string()));
+    assert!(b
+        .config()
+        .scrub_headers
+        .contains(&"authorization".to_string()));
 }
 
 /// @covers: Builder::build
@@ -56,6 +59,8 @@ fn test_e2e_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec!["meta.id".to_string()],
     };
-    let layer = Builder::with_config(cfg).build("e2e_build_test").expect("e2e build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build("e2e_build_test")
+        .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

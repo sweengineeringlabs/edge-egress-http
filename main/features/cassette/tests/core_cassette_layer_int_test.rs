@@ -186,7 +186,11 @@ method=GET|url=https://example.test/status:
         .await
         .expect("replay must succeed on a fixture hit");
 
-    assert_eq!(resp.status().as_u16(), 200, "replayed status must match fixture");
+    assert_eq!(
+        resp.status().as_u16(),
+        200,
+        "replayed status must match fixture"
+    );
     let body = resp.text().await.expect("must read body");
     assert_eq!(body, r#"{"ok":true}"#, "replayed body must match fixture");
 }

@@ -17,7 +17,11 @@ fn make_cfg(dir: &str, scrub_body_paths: Vec<String>) -> CassetteConfig {
     CassetteConfig {
         mode: "auto".to_string(),
         cassette_dir: dir.replace('\\', "/"),
-        match_on: vec!["method".to_string(), "url".to_string(), "body_hash".to_string()],
+        match_on: vec![
+            "method".to_string(),
+            "url".to_string(),
+            "body_hash".to_string(),
+        ],
         scrub_headers: vec![],
         scrub_body_paths,
     }
@@ -103,7 +107,11 @@ fn test_scrub_body_paths_survive_builder_round_trip() {
     let cfg = CassetteConfig {
         mode: "auto".to_string(),
         cassette_dir: dir,
-        match_on: vec!["method".to_string(), "url".to_string(), "body_hash".to_string()],
+        match_on: vec![
+            "method".to_string(),
+            "url".to_string(),
+            "body_hash".to_string(),
+        ],
         scrub_headers: vec![],
         scrub_body_paths: paths.clone(),
     };
@@ -125,7 +133,11 @@ fn test_body_hash_in_match_on_with_scrub_paths_builds_correctly() {
     let cfg = CassetteConfig {
         mode: "replay".to_string(),
         cassette_dir: dir,
-        match_on: vec!["method".to_string(), "url".to_string(), "body_hash".to_string()],
+        match_on: vec![
+            "method".to_string(),
+            "url".to_string(),
+            "body_hash".to_string(),
+        ],
         scrub_headers: vec![],
         scrub_body_paths: vec!["request_id".to_string()],
     };
@@ -133,5 +145,8 @@ fn test_body_hash_in_match_on_with_scrub_paths_builds_correctly() {
     // Both must be present — the middleware logic gates scrubbing on whether
     // body_hash is in match_on.
     assert!(b.config().match_on.contains(&"body_hash".to_string()));
-    assert!(b.config().scrub_body_paths.contains(&"request_id".to_string()));
+    assert!(b
+        .config()
+        .scrub_body_paths
+        .contains(&"request_id".to_string()));
 }

@@ -13,7 +13,8 @@ pub struct RateLayer {
     /// Per-host token buckets, keyed by authority
     /// (host:port). When `config.per_host = false`, a single
     /// bucket keyed by the empty string serves all requests.
-    pub(crate) buckets: Cache<String, Arc<tokio::sync::Mutex<crate::core::token_bucket::TokenBucket>>>,
+    pub(crate) buckets:
+        Cache<String, Arc<tokio::sync::Mutex<crate::core::token_bucket::TokenBucket>>>,
 }
 
 impl std::fmt::Debug for RateLayer {

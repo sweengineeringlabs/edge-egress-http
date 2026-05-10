@@ -117,8 +117,14 @@ fn test_two_rate_layers_from_different_configs_are_independent() {
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");
 
-    assert!(dbg_a.contains("5"), "layer_a must reflect rate=5; got: {dbg_a}");
-    assert!(dbg_b.contains("500"), "layer_b must reflect rate=500; got: {dbg_b}");
+    assert!(
+        dbg_a.contains("5"),
+        "layer_a must reflect rate=5; got: {dbg_a}"
+    );
+    assert!(
+        dbg_b.contains("500"),
+        "layer_b must reflect rate=500; got: {dbg_b}"
+    );
     assert_ne!(
         dbg_a, dbg_b,
         "two layers with different configs must produce different Debug output"

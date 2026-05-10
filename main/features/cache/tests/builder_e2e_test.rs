@@ -3,7 +3,12 @@
 use swe_edge_egress_cache::{Builder, CacheConfig, CacheLayer};
 
 fn make_cfg() -> CacheConfig {
-    CacheConfig { default_ttl_seconds: 300, max_entries: 100, respect_cache_control: true, cache_private: false }
+    CacheConfig {
+        default_ttl_seconds: 300,
+        max_entries: 100,
+        respect_cache_control: true,
+        cache_private: false,
+    }
 }
 
 /// @covers: builder
@@ -14,7 +19,10 @@ fn test_e2e_builder() {
         .build()
         .expect("build() must succeed");
     let s = format!("{layer:?}");
-    assert!(s.contains("CacheLayer"), "e2e: Debug must contain 'CacheLayer': {s}");
+    assert!(
+        s.contains("CacheLayer"),
+        "e2e: Debug must contain 'CacheLayer': {s}"
+    );
 }
 
 /// @covers: Builder::with_config
@@ -36,7 +44,14 @@ fn test_e2e_config() {
 /// @covers: Builder::build
 #[test]
 fn test_e2e_build() {
-    let cfg = CacheConfig { default_ttl_seconds: 60, max_entries: 50, respect_cache_control: false, cache_private: true };
-    let layer = Builder::with_config(cfg).build().expect("e2e build must succeed");
+    let cfg = CacheConfig {
+        default_ttl_seconds: 60,
+        max_entries: 50,
+        respect_cache_control: false,
+        cache_private: true,
+    };
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

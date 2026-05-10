@@ -77,8 +77,14 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
     let policy: &CacheConfig = b.config();
     // Access both fields on the same borrowed reference.  If config() returned
     // an owned value, a type-system mismatch here would catch the regression.
-    assert_eq!(policy.default_ttl_seconds, 99, "ttl mismatch via &CacheConfig");
-    assert_eq!(policy.max_entries, 7, "max_entries mismatch via &CacheConfig");
+    assert_eq!(
+        policy.default_ttl_seconds, 99,
+        "ttl mismatch via &CacheConfig"
+    );
+    assert_eq!(
+        policy.max_entries, 7,
+        "max_entries mismatch via &CacheConfig"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -109,7 +115,9 @@ fn test_build_with_custom_ttl_reflects_in_debug_output() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("7"),

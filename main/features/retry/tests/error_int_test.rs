@@ -60,7 +60,9 @@ fn test_parse_failed_is_std_error() {
 /// operators nothing to act on.
 #[test]
 fn test_not_implemented_display_is_non_empty() {
-    assert!(!Error::NotImplemented("retry strategy").to_string().is_empty());
+    assert!(!Error::NotImplemented("retry strategy")
+        .to_string()
+        .is_empty());
 }
 
 /// `NotImplemented` display must name the crate.
@@ -107,5 +109,8 @@ fn test_not_implemented_is_std_error() {
 fn test_error_variants_have_distinct_display_messages() {
     let pf = Error::ParseFailed("foo".to_string()).to_string();
     let ni = Error::NotImplemented("foo").to_string();
-    assert_ne!(pf, ni, "ParseFailed and NotImplemented must produce distinct display messages");
+    assert_ne!(
+        pf, ni,
+        "ParseFailed and NotImplemented must produce distinct display messages"
+    );
 }

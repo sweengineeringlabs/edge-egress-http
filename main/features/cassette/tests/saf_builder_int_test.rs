@@ -71,7 +71,10 @@ fn test_saf_with_config_and_build_produces_cassette_layer() {
         .build("saf_with_config")
         .expect("with_config + build must succeed");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("CassetteLayer"), "must be a CassetteLayer; got: {dbg}");
+    assert!(
+        dbg.contains("CassetteLayer"),
+        "must be a CassetteLayer; got: {dbg}"
+    );
 }
 
 /// `build` takes a cassette name which becomes part of the on-disk path.

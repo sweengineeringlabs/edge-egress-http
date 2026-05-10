@@ -29,8 +29,14 @@ fn test_build_returns_retry_layer_with_correct_debug() {
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("RetryLayer"), "Debug must name the type; got: {dbg}");
-    assert!(dbg.contains("max_retries"), "Debug must expose max_retries; got: {dbg}");
+    assert!(
+        dbg.contains("RetryLayer"),
+        "Debug must name the type; got: {dbg}"
+    );
+    assert!(
+        dbg.contains("max_retries"),
+        "Debug must expose max_retries; got: {dbg}"
+    );
 }
 
 /// `max_retries` must appear as the configured value in Debug output.
@@ -48,7 +54,10 @@ fn test_retry_layer_debug_reflects_configured_max_retries() {
     let layer = Builder::with_config(cfg).build().expect("build");
     let dbg = format!("{layer:?}");
     // The value 7 must appear somewhere in the Debug string.
-    assert!(dbg.contains('7'), "Debug must embed the max_retries value; got: {dbg}");
+    assert!(
+        dbg.contains('7'),
+        "Debug must embed the max_retries value; got: {dbg}"
+    );
 }
 
 /// Two layers with different configs must produce different Debug strings —
@@ -73,7 +82,11 @@ fn test_two_layers_with_different_configs_have_different_debug() {
     };
     let la = Builder::with_config(cfg_a).build().unwrap();
     let lb = Builder::with_config(cfg_b).build().unwrap();
-    assert_ne!(format!("{la:?}"), format!("{lb:?}"), "different configs must yield different Debug");
+    assert_ne!(
+        format!("{la:?}"),
+        format!("{lb:?}"),
+        "different configs must yield different Debug"
+    );
 }
 
 // ---------------------------------------------------------------------------

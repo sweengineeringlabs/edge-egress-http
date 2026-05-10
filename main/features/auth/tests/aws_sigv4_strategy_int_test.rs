@@ -152,8 +152,8 @@ fn test_aws_sigv4_region_and_service_are_stored_as_literals() {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
-        region: "ap-southeast-1".into(),   // literal, not an env var
-        service: "sts".into(),             // literal
+        region: "ap-southeast-1".into(), // literal, not an env var
+        service: "sts".into(),           // literal
     })
     .build()
     .expect("region/service are literals — must not affect build success");

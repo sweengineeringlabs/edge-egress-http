@@ -57,10 +57,7 @@ impl TokenBucket {
     /// Returns `Ok(())` if a token was available + consumed.
     /// Returns `Err(wait)` if the bucket is empty; `wait` is
     /// the time until one token will be available.
-    fn try_acquire(
-        &mut self,
-        config: &RateConfig,
-    ) -> Result<(), Duration> {
+    fn try_acquire(&mut self, config: &RateConfig) -> Result<(), Duration> {
         self.refill(config);
         if self.tokens >= 1.0 {
             self.tokens -= 1.0;

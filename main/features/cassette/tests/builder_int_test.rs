@@ -74,7 +74,10 @@ fn test_with_config_stores_all_fields_unchanged() {
     assert_eq!(b.config().cassette_dir, dir);
     assert!(b.config().match_on.contains(&"method".to_string()));
     assert!(b.config().match_on.contains(&"url".to_string()));
-    assert!(b.config().scrub_headers.contains(&"authorization".to_string()));
+    assert!(b
+        .config()
+        .scrub_headers
+        .contains(&"authorization".to_string()));
     assert!(b.config().scrub_body_paths.is_empty());
 }
 
@@ -164,7 +167,11 @@ fn test_build_with_nested_scrub_body_paths_succeeds() {
     let cfg = CassetteConfig {
         mode: "auto".to_string(),
         cassette_dir: dir,
-        match_on: vec!["method".to_string(), "url".to_string(), "body_hash".to_string()],
+        match_on: vec![
+            "method".to_string(),
+            "url".to_string(),
+            "body_hash".to_string(),
+        ],
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: vec!["request_id".to_string(), "metadata.trace_id".to_string()],
     };

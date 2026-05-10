@@ -33,9 +33,11 @@ fn test_factory_none_config_builds_without_env_vars() {
 fn test_factory_bearer_config_fails_without_token_env() {
     let env_name = "SWE_AUTH_FACTORY_BRR_MISS_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -46,9 +48,11 @@ fn test_factory_bearer_config_fails_without_token_env() {
 fn test_factory_bearer_config_builds_with_token_env() {
     let env_name = "SWE_AUTH_FACTORY_BRR_OK_01";
     std::env::set_var(env_name, "factory-bearer-token");
-    Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("Bearer with env set must build");
+    Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("Bearer with env set must build");
     std::env::remove_var(env_name);
 }
 
@@ -238,9 +242,11 @@ fn test_factory_each_config_variant_fails_on_its_own_missing_env_not_others() {
     std::env::set_var("SWE_AUTH_FACTORY_DISPATCH_BASIC_U_01", "alice");
     std::env::set_var("SWE_AUTH_FACTORY_DISPATCH_BASIC_P_01", "pass");
 
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: bearer_env.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: bearer_env.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(
             name, bearer_env,

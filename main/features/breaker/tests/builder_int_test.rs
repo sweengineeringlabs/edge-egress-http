@@ -108,7 +108,9 @@ fn test_build_with_custom_config_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    Builder::with_config(cfg).build().expect("custom config must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("custom config must build");
 }
 
 /// An empty `failure_statuses` list is a valid policy (no HTTP status triggers

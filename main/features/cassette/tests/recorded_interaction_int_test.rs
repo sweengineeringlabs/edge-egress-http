@@ -58,8 +58,12 @@ method=GET|url=https://api.example.test/health:
     std::fs::write(dir.join("schema_stable.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "schema_stable");
-    let layer = Builder::with_config(cfg).build(&name).expect("build must succeed");
-    let client = ClientBuilder::new(reqwest::Client::new()).with(layer).build();
+    let layer = Builder::with_config(cfg)
+        .build(&name)
+        .expect("build must succeed");
+    let client = ClientBuilder::new(reqwest::Client::new())
+        .with(layer)
+        .build();
 
     let resp = client
         .get("https://api.example.test/health")
@@ -100,8 +104,12 @@ method=GET|url=https://api.example.test/greet:
     std::fs::write(dir.join("with_body_hash.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "with_body_hash");
-    let layer = Builder::with_config(cfg).build(&name).expect("build must succeed");
-    let client = ClientBuilder::new(reqwest::Client::new()).with(layer).build();
+    let layer = Builder::with_config(cfg)
+        .build(&name)
+        .expect("build must succeed");
+    let client = ClientBuilder::new(reqwest::Client::new())
+        .with(layer)
+        .build();
 
     let resp = client
         .get("https://api.example.test/greet")
@@ -139,8 +147,12 @@ method=GET|url=https://api.example.test/missing:
     std::fs::write(dir.join("status_404.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "status_404");
-    let layer = Builder::with_config(cfg).build(&name).expect("build must succeed");
-    let client = ClientBuilder::new(reqwest::Client::new()).with(layer).build();
+    let layer = Builder::with_config(cfg)
+        .build(&name)
+        .expect("build must succeed");
+    let client = ClientBuilder::new(reqwest::Client::new())
+        .with(layer)
+        .build();
 
     let resp = client
         .get("https://api.example.test/missing")

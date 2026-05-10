@@ -114,16 +114,19 @@ fn test_pkcs12_invalid_content_returns_invalid_certificate_on_apply_to() {
         password_env: None,
     };
     // build() succeeds: file exists and is readable.
-    let layer = Builder::with_config(cfg).build().expect("build must succeed for existing file");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed for existing file");
 
     // apply_to() calls identity() → from_pkcs12_der() → InvalidCertificate.
-    let err = layer
-        .apply_to(reqwest::Client::builder())
-        .unwrap_err();
+    let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
         Error::InvalidCertificate { format, reason } => {
             assert_eq!(format, "pkcs12", "format must be 'pkcs12'; got: {format}");
-            assert!(!reason.is_empty(), "reason must not be empty; got: {reason}");
+            assert!(
+                !reason.is_empty(),
+                "reason must not be empty; got: {reason}"
+            );
         }
         other => panic!("expected InvalidCertificate, got: {other:?}"),
     }
@@ -146,7 +149,9 @@ fn test_pkcs12_bytes_read_eagerly_at_build_not_at_apply_to() {
         path: path.to_str().unwrap().replace('\\', "/"),
         password_env: None,
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
 
     // Delete the file after build.
     std::fs::remove_file(&path).unwrap();

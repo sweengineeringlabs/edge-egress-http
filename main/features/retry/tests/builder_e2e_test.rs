@@ -50,6 +50,8 @@ fn test_e2e_build() {
         retryable_statuses: vec![503, 504],
         retryable_methods: vec!["GET".to_string(), "HEAD".to_string()],
     };
-    let layer = Builder::with_config(cfg).build().expect("e2e build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

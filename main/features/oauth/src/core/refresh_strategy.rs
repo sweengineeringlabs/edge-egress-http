@@ -42,7 +42,7 @@ impl OAuthRefreshStrategy {
         let mut guard = self.cached.lock().await;
 
         let needs_refresh = match guard.as_ref() {
-            None    => true,
+            None => true,
             Some(c) => c.expires_at_ms.saturating_sub(now) < REFRESH_WINDOW_MS,
         };
 
@@ -65,7 +65,8 @@ impl OAuthRefreshStrategy {
 
 impl std::fmt::Debug for OAuthRefreshStrategy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("OAuthRefreshStrategy").finish_non_exhaustive()
+        f.debug_struct("OAuthRefreshStrategy")
+            .finish_non_exhaustive()
     }
 }
 
@@ -131,9 +132,9 @@ mod tests {
 
 #[cfg(test)]
 mod sync_coverage {
-    use std::sync::Arc;
     use super::OAuthRefreshStrategy;
     use crate::api::token_source::StaticTokenSource;
+    use std::sync::Arc;
 
     /// @covers: new
     #[test]

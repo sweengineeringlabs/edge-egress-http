@@ -38,15 +38,13 @@ use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 use moka::future::Cache;
-use reqwest::header::{
-    HeaderMap, HeaderValue, CACHE_CONTROL, ETAG, IF_NONE_MATCH, VARY,
-};
+use reqwest::header::{HeaderMap, HeaderValue, CACHE_CONTROL, ETAG, IF_NONE_MATCH, VARY};
 
 use crate::api::cache_config::CacheConfig;
 use crate::api::cache_layer::CacheLayer;
 use crate::core::cached_entry::{
-    entry_matches_vary, extract_max_age, extract_stale_while_revalidate,
-    in_swr_window, parse_vary, should_revalidate, CachedEntry, VaryDirective,
+    entry_matches_vary, extract_max_age, extract_stale_while_revalidate, in_swr_window, parse_vary,
+    should_revalidate, CachedEntry, VaryDirective,
 };
 
 /// The result of inspecting a response for cacheability: a fresh
@@ -60,9 +58,8 @@ pub(crate) struct TtlDecision {
 impl CacheLayer {
     /// Construct from a resolved config.
     pub(crate) fn new(config: CacheConfig) -> Self {
-        let store: Cache<String, Arc<Vec<CachedEntry>>> = Cache::builder()
-            .max_capacity(config.max_entries)
-            .build();
+        let store: Cache<String, Arc<Vec<CachedEntry>>> =
+            Cache::builder().max_capacity(config.max_entries).build();
         Self {
             config: Arc::new(config),
             store,
@@ -267,8 +264,7 @@ impl CacheLayer {
             VaryDirective::Names(names) => names,
             VaryDirective::Star => return Ok((response, None)),
         };
-        let vary_headers =
-            snapshot_vary_values_from_snapshot(req_snapshot, &vary_names);
+        let vary_headers = snapshot_vary_values_from_snapshot(req_snapshot, &vary_names);
 
         // Capture response shape.
         let status_code = response.status().as_u16();
@@ -276,7 +272,9 @@ impl CacheLayer {
             .headers()
             .iter()
             .filter_map(|(k, v)| {
-                v.to_str().ok().map(|v| (k.as_str().to_string(), v.to_string()))
+                v.to_str()
+                    .ok()
+                    .map(|v| (k.as_str().to_string(), v.to_string()))
             })
             .collect();
         let body = response.bytes().await.map_err(|e| {
@@ -399,11 +397,7 @@ fn snapshot_vary_values_from_snapshot(
 /// Spawn an SWR background refresh. The refresh bypasses the
 /// middleware chain (by necessity — `Next` is non-`'static`)
 /// and uses the CacheLayer's owned `reqwest::Client`.
-fn spawn_swr_refresh(
-    layer: Arc<CacheLayer>,
-    key: String,
-    snap: RequestSnapshot,
-) {
+fn spawn_swr_refresh(layer: Arc<CacheLayer>, key: String, snap: RequestSnapshot) {
     tokio::spawn(async move {
         // Build a fresh request from the snapshot.
         let mut builder = layer
@@ -483,8 +477,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
                 }
                 let response = next.run(req, ext).await?;
                 if response.status().as_u16() == 304 {
-                    let refreshed =
-                        self.refresh_on_304(entry, &response, key).await;
+                    let refreshed = self.refresh_on_304(entry, &response, key).await;
                     return reconstruct(&refreshed).map_err(|e| {
                         reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                             "swe_edge_egress_cache 304 reconstruct: {e}"
@@ -578,8 +571,7 @@ mod tests {
             HeaderValue::from_static("en-US"),
         );
         let snap = RequestSnapshot::new(&req);
-        let result =
-            snapshot_vary_values_from_snapshot(&snap, &["accept-language".to_string()]);
+        let result = snapshot_vary_values_from_snapshot(&snap, &["accept-language".to_string()]);
         assert_eq!(
             result,
             vec![("accept-language".to_string(), "en-US".to_string())]
@@ -774,10 +766,8 @@ mod tests {
 
     /// Construct a minimal `reqwest::Request` with optional headers.
     fn stub_request(url: &str, headers: &[(&str, &str)]) -> reqwest::Request {
-        let mut req = reqwest::Request::new(
-            reqwest::Method::GET,
-            reqwest::Url::parse(url).unwrap(),
-        );
+        let mut req =
+            reqwest::Request::new(reqwest::Method::GET, reqwest::Url::parse(url).unwrap());
         for (k, v) in headers {
             req.headers_mut().insert(
                 HeaderName::from_bytes(k.as_bytes()).unwrap(),
@@ -796,12 +786,8 @@ mod tests {
         // Pretend upstream said `Vary: Accept-Encoding`.
         let vary_names = vec!["accept-encoding".to_string()];
 
-        let req_gzip = stub_request(
-            "https://example.test/x",
-            &[("accept-encoding", "gzip")],
-        );
-        let req_br =
-            stub_request("https://example.test/x", &[("accept-encoding", "br")]);
+        let req_gzip = stub_request("https://example.test/x", &[("accept-encoding", "gzip")]);
+        let req_br = stub_request("https://example.test/x", &[("accept-encoding", "br")]);
 
         let snap_gzip = RequestSnapshot::new(&req_gzip);
         let snap_br = RequestSnapshot::new(&req_br);
@@ -812,10 +798,7 @@ mod tests {
             body: Arc::new(b"gzip-body".to_vec()),
             expires_at: Instant::now() + Duration::from_secs(60),
             etag: None,
-            vary_headers: snapshot_vary_values_from_snapshot(
-                &snap_gzip,
-                &vary_names,
-            ),
+            vary_headers: snapshot_vary_values_from_snapshot(&snap_gzip, &vary_names),
             stale_while_revalidate: None,
         };
         let entry_br = CachedEntry {
@@ -836,13 +819,15 @@ mod tests {
         );
 
         // Lookup with Accept-Encoding: gzip → gzip variant.
-        let found_gzip =
-            find_matching_variant(&l.store, &key, &req_gzip).await.unwrap();
+        let found_gzip = find_matching_variant(&l.store, &key, &req_gzip)
+            .await
+            .unwrap();
         assert_eq!(&*found_gzip.body, b"gzip-body");
 
         // Lookup with Accept-Encoding: br → br variant.
-        let found_br =
-            find_matching_variant(&l.store, &key, &req_br).await.unwrap();
+        let found_br = find_matching_variant(&l.store, &key, &req_br)
+            .await
+            .unwrap();
         assert_eq!(&*found_br.body, b"br-body");
     }
 
@@ -853,10 +838,7 @@ mod tests {
         let key = "GET https://example.test/x".to_string();
         let vary_names = vec!["accept-encoding".to_string()];
 
-        let req = stub_request(
-            "https://example.test/x",
-            &[("accept-encoding", "gzip")],
-        );
+        let req = stub_request("https://example.test/x", &[("accept-encoding", "gzip")]);
         let snap = RequestSnapshot::new(&req);
         let entry = CachedEntry {
             status: 200,
@@ -871,12 +853,12 @@ mod tests {
 
         // Second request with the SAME Accept-Encoding value →
         // hit (no new variant; Vec stays length 1).
-        let req2 = stub_request(
-            "https://example.test/x",
-            &[("accept-encoding", "gzip")],
-        );
+        let req2 = stub_request("https://example.test/x", &[("accept-encoding", "gzip")]);
         let hit = find_matching_variant(&l.store, &key, &req2).await;
-        assert!(hit.is_some(), "same Vary values must hit the stored variant");
+        assert!(
+            hit.is_some(),
+            "same Vary values must hit the stored variant"
+        );
 
         let stored = l.store.get(&key).await.unwrap();
         assert_eq!(stored.len(), 1, "no new variant should be created");
@@ -904,10 +886,7 @@ mod tests {
     #[test]
     fn test_stale_while_revalidate_parsed_from_cache_control() {
         let l = CacheLayer::new(test_config());
-        let resp = stub_response(&[(
-            "cache-control",
-            "max-age=60, stale-while-revalidate=300",
-        )]);
+        let resp = stub_response(&[("cache-control", "max-age=60, stale-while-revalidate=300")]);
         let decision = l.ttl_for(&resp).expect("cacheable");
         assert_eq!(decision.ttl, Duration::from_secs(60));
         assert_eq!(decision.swr, Some(Duration::from_secs(300)));
@@ -918,10 +897,7 @@ mod tests {
     fn test_stale_while_revalidate_duration_zero_means_none() {
         let l = CacheLayer::new(test_config());
         // Explicit zero and omitted directive both → None.
-        let resp_zero = stub_response(&[(
-            "cache-control",
-            "max-age=60, stale-while-revalidate=0",
-        )]);
+        let resp_zero = stub_response(&[("cache-control", "max-age=60, stale-while-revalidate=0")]);
         assert_eq!(l.ttl_for(&resp_zero).unwrap().swr, None);
 
         let resp_absent = stub_response(&[("cache-control", "max-age=60")]);
@@ -1033,11 +1009,11 @@ mod tests {
             HeaderValue::from_static("gzip"),
         );
         let snap = RequestSnapshot::new(&req);
-        let result = snapshot_vary_values_from_snapshot(
-            &snap,
-            &["accept-encoding".to_string()],
+        let result = snapshot_vary_values_from_snapshot(&snap, &["accept-encoding".to_string()]);
+        assert_eq!(
+            result,
+            vec![("accept-encoding".to_string(), "gzip".to_string())]
         );
-        assert_eq!(result, vec![("accept-encoding".to_string(), "gzip".to_string())]);
     }
 
     /// @covers: snapshot_vary_values_from_snapshot
@@ -1048,11 +1024,11 @@ mod tests {
             reqwest::Url::parse("https://example.test/").unwrap(),
         );
         let snap = RequestSnapshot::new(&req);
-        let result = snapshot_vary_values_from_snapshot(
-            &snap,
-            &["accept-encoding".to_string()],
+        let result = snapshot_vary_values_from_snapshot(&snap, &["accept-encoding".to_string()]);
+        assert_eq!(
+            result,
+            vec![("accept-encoding".to_string(), "".to_string())]
         );
-        assert_eq!(result, vec![("accept-encoding".to_string(), "".to_string())]);
     }
 
     /// @covers: snapshot_vary_values_from_snapshot
@@ -1136,8 +1112,7 @@ mod tests {
             stale_while_revalidate: None,
         };
         let refreshed = CachedEntry {
-            expires_at: std::time::Instant::now()
-                + std::time::Duration::from_secs(60),
+            expires_at: std::time::Instant::now() + std::time::Duration::from_secs(60),
             ..base.clone()
         };
         // Verify the status + body fields were preserved by struct-update.

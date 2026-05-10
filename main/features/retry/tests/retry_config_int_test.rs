@@ -65,7 +65,9 @@ fn test_max_retries_zero_is_valid() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let _layer: RetryLayer = Builder::with_config(cfg).build().expect("max_retries=0 must build");
+    let _layer: RetryLayer = Builder::with_config(cfg)
+        .build()
+        .expect("max_retries=0 must build");
 }
 
 /// `max_retries=u32::MAX` is an extreme value but must not panic or error
@@ -81,7 +83,9 @@ fn test_max_retries_max_u32_builds_without_error() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    Builder::with_config(cfg).build().expect("max_retries=u32::MAX must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("max_retries=u32::MAX must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -117,7 +121,9 @@ fn test_retryable_statuses_empty_is_valid() {
         retryable_statuses: vec![],
         retryable_methods: vec!["GET".to_string()],
     };
-    Builder::with_config(cfg).build().expect("empty retryable_statuses must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("empty retryable_statuses must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -160,7 +166,9 @@ fn test_multiplier_one_produces_constant_interval() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    Builder::with_config(cfg).build().expect("multiplier=1.0 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("multiplier=1.0 must build");
 }
 
 /// `multiplier=0.5` (backoff shrinks over time) is unusual but structurally
@@ -175,5 +183,7 @@ fn test_multiplier_below_one_builds_successfully() {
         retryable_statuses: vec![429],
         retryable_methods: vec!["GET".to_string()],
     };
-    Builder::with_config(cfg).build().expect("multiplier=0.5 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("multiplier=0.5 must build");
 }

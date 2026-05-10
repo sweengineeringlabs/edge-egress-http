@@ -113,5 +113,8 @@ fn test_noop_strategy_builder_fn_produces_noop_build() {
         .build()
         .expect("default builder must produce a noop middleware");
     let s = format!("{mw:?}");
-    assert!(!s.is_empty(), "builder() noop middleware Debug must be non-empty");
+    assert!(
+        !s.is_empty(),
+        "builder() noop middleware Debug must be non-empty"
+    );
 }

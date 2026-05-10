@@ -15,9 +15,7 @@ use crate::api::cassette_layer::CassetteLayer;
 use crate::api::error::Error;
 
 use super::body_scrubber::scrub_body;
-use super::recorded_interaction::{
-    RecordedInteraction, RecordedRequest, RecordedResponse,
-};
+use super::recorded_interaction::{RecordedInteraction, RecordedRequest, RecordedResponse};
 
 impl CassetteLayer {
     /// Construct. Loads fixtures from disk if the file exists;
@@ -78,10 +76,7 @@ impl CassetteLayer {
 
         if let Some(parent) = self.cassette_path.parent() {
             tokio::fs::create_dir_all(parent).await.map_err(|e| {
-                Error::ParseFailed(format!(
-                    "create cassette dir {}: {e}",
-                    parent.display()
-                ))
+                Error::ParseFailed(format!("create cassette dir {}: {e}", parent.display()))
             })?;
         }
         tokio::fs::write(&self.cassette_path, yaml)
@@ -126,11 +121,11 @@ impl reqwest_middleware::Middleware for CassetteLayer {
         if mode == "replay" || mode == "auto" {
             let fixtures = self.fixtures.lock().await;
             if let Some(interaction) = fixtures.get(&key) {
-                return reconstruct_response(&interaction.response).map_err(
-                    |e| reqwest_middleware::Error::Middleware(anyhow::anyhow!(
+                return reconstruct_response(&interaction.response).map_err(|e| {
+                    reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                         "swe_edge_egress_cassette replay reconstruct failed: {e}"
-                    )),
-                );
+                    ))
+                });
             }
             drop(fixtures);
             // Miss handling:
@@ -146,11 +141,11 @@ impl reqwest_middleware::Middleware for CassetteLayer {
         // Record / auto-miss: clone the request (for body
         // capture), dispatch, capture the response, save to
         // fixtures + disk.
-        let attempt_req = req
-            .try_clone()
-            .ok_or_else(|| reqwest_middleware::Error::Middleware(anyhow::anyhow!(
+        let attempt_req = req.try_clone().ok_or_else(|| {
+            reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                 "swe_edge_egress_cassette: cannot record a request with a non-cloneable body"
-            )))?;
+            ))
+        })?;
         let recorded_req = RecordedRequest {
             method: req.method().to_string(),
             url: req.url().to_string(),
@@ -216,15 +211,12 @@ impl reqwest_middleware::Middleware for CassetteLayer {
 
 /// Load previously-recorded fixtures from disk. Missing file
 /// yields an empty map; malformed YAML yields an error.
-fn load_fixtures_from_disk(
-    path: &Path,
-) -> Result<HashMap<String, RecordedInteraction>, Error> {
+fn load_fixtures_from_disk(path: &Path) -> Result<HashMap<String, RecordedInteraction>, Error> {
     if !path.is_file() {
         return Ok(HashMap::new());
     }
-    let yaml = std::fs::read_to_string(path).map_err(|e| {
-        Error::ParseFailed(format!("read cassette {}: {e}", path.display()))
-    })?;
+    let yaml = std::fs::read_to_string(path)
+        .map_err(|e| Error::ParseFailed(format!("read cassette {}: {e}", path.display())))?;
     if yaml.trim().is_empty() {
         return Ok(HashMap::new());
     }
@@ -297,11 +289,8 @@ mod tests {
     #[test]
     fn test_match_key_includes_method_and_url() {
         let dir = tempfile::tempdir().unwrap();
-        let layer = CassetteLayer::new(
-            test_config(dir.path().to_str().unwrap()),
-            "test_cassette",
-        )
-        .unwrap();
+        let layer =
+            CassetteLayer::new(test_config(dir.path().to_str().unwrap()), "test_cassette").unwrap();
         let req = reqwest::Request::new(
             Method::GET,
             Url::parse("https://api.example.test/foo").unwrap(),
@@ -371,19 +360,12 @@ mod tests {
     #[test]
     fn test_match_key_differs_across_methods_on_same_url() {
         let dir = tempfile::tempdir().unwrap();
-        let layer = CassetteLayer::new(
-            test_config(dir.path().to_str().unwrap()),
-            "test_cassette",
-        )
-        .unwrap();
-        let r_get = reqwest::Request::new(
-            Method::GET,
-            Url::parse("https://example.test/x").unwrap(),
-        );
-        let r_post = reqwest::Request::new(
-            Method::POST,
-            Url::parse("https://example.test/x").unwrap(),
-        );
+        let layer =
+            CassetteLayer::new(test_config(dir.path().to_str().unwrap()), "test_cassette").unwrap();
+        let r_get =
+            reqwest::Request::new(Method::GET, Url::parse("https://example.test/x").unwrap());
+        let r_post =
+            reqwest::Request::new(Method::POST, Url::parse("https://example.test/x").unwrap());
         assert_ne!(layer.match_key(&r_get), layer.match_key(&r_post));
     }
 
@@ -391,11 +373,8 @@ mod tests {
     #[test]
     fn test_scrub_response_removes_configured_headers() {
         let dir = tempfile::tempdir().unwrap();
-        let layer = CassetteLayer::new(
-            test_config(dir.path().to_str().unwrap()),
-            "test_cassette",
-        )
-        .unwrap();
+        let layer =
+            CassetteLayer::new(test_config(dir.path().to_str().unwrap()), "test_cassette").unwrap();
         let mut r = RecordedResponse {
             status: 200,
             headers: {
@@ -410,8 +389,14 @@ mod tests {
         layer.scrub_response(&mut r);
         // Scrubbed (case-insensitive): authorization + set-cookie.
         assert!(r.headers.contains_key("content-type"));
-        assert!(!r.headers.iter().any(|(k, _)| k.eq_ignore_ascii_case("authorization")));
-        assert!(!r.headers.iter().any(|(k, _)| k.eq_ignore_ascii_case("set-cookie")));
+        assert!(!r
+            .headers
+            .iter()
+            .any(|(k, _)| k.eq_ignore_ascii_case("authorization")));
+        assert!(!r
+            .headers
+            .iter()
+            .any(|(k, _)| k.eq_ignore_ascii_case("set-cookie")));
     }
 
     /// @covers: load_fixtures_from_disk
@@ -470,11 +455,8 @@ mod tests {
     #[test]
     fn test_new_with_nonexistent_cassette_starts_empty() {
         let dir = tempfile::tempdir().unwrap();
-        let layer = CassetteLayer::new(
-            test_config(dir.path().to_str().unwrap()),
-            "fresh_cassette",
-        )
-        .unwrap();
+        let layer = CassetteLayer::new(test_config(dir.path().to_str().unwrap()), "fresh_cassette")
+            .unwrap();
         // Path is computed but file doesn't exist yet.
         assert!(!layer.cassette_path.exists());
     }
@@ -486,11 +468,8 @@ mod tests {
     #[test]
     fn test_flush_to_disk_path_derived_from_config() {
         let dir = tempfile::tempdir().unwrap();
-        let layer = CassetteLayer::new(
-            test_config(dir.path().to_str().unwrap()),
-            "my_cassette",
-        )
-        .unwrap();
+        let layer =
+            CassetteLayer::new(test_config(dir.path().to_str().unwrap()), "my_cassette").unwrap();
         // flush_to_disk writes to cassette_path; verify path contains name.
         let path_str = layer.cassette_path.to_str().unwrap();
         assert!(
@@ -519,7 +498,10 @@ mod tests {
         let path = dir.path().join("empty.yaml");
         std::fs::write(&path, "   ").unwrap();
         let fixtures = load_fixtures_from_disk(&path).unwrap();
-        assert!(fixtures.is_empty(), "whitespace-only YAML must yield empty map");
+        assert!(
+            fixtures.is_empty(),
+            "whitespace-only YAML must yield empty map"
+        );
     }
 
     /// @covers: sha256_hex

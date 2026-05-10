@@ -1,9 +1,8 @@
 //! Public builder entry point.
 
+use crate::api::error::Error;
 use crate::api::retry_config::RetryConfig;
 use crate::api::retry_layer::RetryLayer;
-use crate::api::error::Error;
-
 
 /// Start configuring the retry middleware with the SWE baseline
 /// loaded from the crate-shipped `config/application.toml`.

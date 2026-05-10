@@ -17,10 +17,7 @@ impl TlsLayer {
 }
 
 impl TlsApplier for TlsLayer {
-    fn apply_to(
-        &self,
-        builder: reqwest::ClientBuilder,
-    ) -> Result<reqwest::ClientBuilder, Error> {
+    fn apply_to(&self, builder: reqwest::ClientBuilder) -> Result<reqwest::ClientBuilder, Error> {
         match self.provider.identity()? {
             Some(identity) => Ok(builder.identity(identity)),
             None => Ok(builder),

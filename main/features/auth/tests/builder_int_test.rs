@@ -44,7 +44,9 @@ fn test_with_config_stores_none_variant() {
 
 #[test]
 fn test_with_config_stores_bearer_variant() {
-    let cfg = AuthConfig::Bearer { token_env: "SWE_BLD_BEARER_01".into() };
+    let cfg = AuthConfig::Bearer {
+        token_env: "SWE_BLD_BEARER_01".into(),
+    };
     let b = Builder::with_config(cfg);
     assert!(
         matches!(b.config(), AuthConfig::Bearer { .. }),
@@ -104,7 +106,9 @@ fn test_with_config_stores_aws_sigv4_variant() {
 
 #[test]
 fn test_config_accessor_returns_stored_bearer_token_env_name() {
-    let cfg = AuthConfig::Bearer { token_env: "SWE_BLD_CFG_BEARER_01".into() };
+    let cfg = AuthConfig::Bearer {
+        token_env: "SWE_BLD_CFG_BEARER_01".into(),
+    };
     let b = Builder::with_config(cfg);
     match b.config() {
         AuthConfig::Bearer { token_env } => {
@@ -136,9 +140,11 @@ fn test_build_none_config_returns_auth_middleware() {
 fn test_build_bearer_missing_env_returns_missing_env_var_error() {
     let env_name = "SWE_BLD_MISS_BEARER_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -149,9 +155,11 @@ fn test_build_bearer_missing_env_returns_missing_env_var_error() {
 fn test_build_bearer_env_set_produces_auth_middleware() {
     let env_name = "SWE_BLD_SET_BEARER_01";
     std::env::set_var(env_name, "bld-token-value");
-    let mw = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("Bearer with env set must build");
+    let mw = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("Bearer with env set must build");
     let _ = format!("{mw:?}");
     std::env::remove_var(env_name);
 }

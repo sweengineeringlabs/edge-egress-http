@@ -155,7 +155,10 @@ fn test_factory_three_error_paths_produce_distinct_messages() {
     .to_string();
 
     // The three errors must not all be identical — they come from different code paths.
-    assert_ne!(e_pem, e_pkcs12_missing_env, "PEM and missing-env errors must differ");
+    assert_ne!(
+        e_pem, e_pkcs12_missing_env,
+        "PEM and missing-env errors must differ"
+    );
     assert_ne!(
         e_pkcs12_no_pw, e_pkcs12_missing_env,
         "no-password and missing-env errors must differ"

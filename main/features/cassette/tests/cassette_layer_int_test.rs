@@ -32,7 +32,10 @@ fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
     // The cassette file should not exist on disk yet — it is only written
     // when the first request is recorded in "record" or "auto" mode.
     let expected = tmpdir.path().join("nonexistent_cassette.yaml");
-    assert!(!expected.exists(), "cassette file must not be created at build time");
+    assert!(
+        !expected.exists(),
+        "cassette file must not be created at build time"
+    );
     drop(layer); // explicit for readability
 }
 
@@ -52,7 +55,10 @@ fn test_cassette_layer_debug_contains_mode_and_path() {
     );
     // Mode must appear in the Debug output so operators can diagnose whether
     // the layer will attempt a real request or replay from fixtures.
-    assert!(dbg.contains("replay"), "Debug must include the mode; got: {dbg}");
+    assert!(
+        dbg.contains("replay"),
+        "Debug must include the mode; got: {dbg}"
+    );
 }
 
 /// Two independent `build` calls with different cassette names must produce
@@ -71,7 +77,10 @@ fn test_two_layers_with_different_names_have_different_paths() {
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");
     // Paths are embedded in Debug; they must differ.
-    assert_ne!(dbg_a, dbg_b, "two layers with different names must have different debug output");
+    assert_ne!(
+        dbg_a, dbg_b,
+        "two layers with different names must have different debug output"
+    );
 }
 
 // ---------------------------------------------------------------------------

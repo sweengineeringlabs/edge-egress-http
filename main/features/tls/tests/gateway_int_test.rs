@@ -8,7 +8,10 @@ fn test_build_none_config_produces_noop_layer() {
         .build()
         .expect("None config must build successfully");
     let s = format!("{layer:?}");
-    assert!(s.contains("noop"), "None config Debug must contain 'noop': {s}");
+    assert!(
+        s.contains("noop"),
+        "None config Debug must contain 'noop': {s}"
+    );
 }
 
 #[test]
@@ -20,12 +23,17 @@ fn test_tls_layer_is_send_and_sync() {
 #[test]
 fn test_builder_fn_loads_swe_default_none_config() {
     let b = swe_edge_egress_tls::builder().expect("builder() must succeed");
-    assert!(matches!(b.config(), TlsConfig::None), "swe_default must be TlsConfig::None");
+    assert!(
+        matches!(b.config(), TlsConfig::None),
+        "swe_default must be TlsConfig::None"
+    );
 }
 
 #[test]
 fn test_with_config_pem_missing_file_returns_file_read_failed() {
-    let cfg = TlsConfig::Pem { path: "/does/not/exist/cert.pem".into() };
+    let cfg = TlsConfig::Pem {
+        path: "/does/not/exist/cert.pem".into(),
+    };
     let err = Builder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
@@ -35,7 +43,10 @@ fn test_with_config_pem_missing_file_returns_file_read_failed() {
 
 #[test]
 fn test_with_config_pkcs12_missing_file_returns_file_read_failed() {
-    let cfg = TlsConfig::Pkcs12 { path: "/does/not/exist/cert.p12".into(), password_env: None };
+    let cfg = TlsConfig::Pkcs12 {
+        path: "/does/not/exist/cert.p12".into(),
+        password_env: None,
+    };
     let err = Builder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
@@ -67,23 +78,36 @@ fn test_build_none_config_always_succeeds_regardless_of_env() {
 
 #[test]
 fn test_with_config_stores_pem_variant() {
-    let cfg = TlsConfig::Pem { path: "/some/path.pem".into() };
+    let cfg = TlsConfig::Pem {
+        path: "/some/path.pem".into(),
+    };
     let b = Builder::with_config(cfg);
-    assert!(matches!(b.config(), TlsConfig::Pem { .. }), "Builder must store Pem config");
+    assert!(
+        matches!(b.config(), TlsConfig::Pem { .. }),
+        "Builder must store Pem config"
+    );
 }
 
 #[test]
 fn test_error_parse_failed_display_contains_crate_name() {
     let err = Error::ParseFailed("oops".to_string());
     let s = err.to_string();
-    assert!(s.contains("swe_edge_egress_tls"), "ParseFailed Display must name the crate: {s}");
+    assert!(
+        s.contains("swe_edge_egress_tls"),
+        "ParseFailed Display must name the crate: {s}"
+    );
 }
 
 #[test]
 fn test_error_missing_env_var_display_contains_var_name() {
-    let err = Error::MissingEnvVar { name: "MY_VAR".to_string() };
+    let err = Error::MissingEnvVar {
+        name: "MY_VAR".to_string(),
+    };
     let s = err.to_string();
-    assert!(s.contains("MY_VAR"), "MissingEnvVar Display must contain var name: {s}");
+    assert!(
+        s.contains("MY_VAR"),
+        "MissingEnvVar Display must contain var name: {s}"
+    );
 }
 
 #[test]
@@ -93,7 +117,10 @@ fn test_error_file_read_failed_display_contains_path() {
         reason: "No such file".to_string(),
     };
     let s = err.to_string();
-    assert!(s.contains("/some/path.pem"), "FileReadFailed Display must contain path: {s}");
+    assert!(
+        s.contains("/some/path.pem"),
+        "FileReadFailed Display must contain path: {s}"
+    );
 }
 
 #[test]

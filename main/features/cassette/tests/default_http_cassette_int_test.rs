@@ -38,11 +38,17 @@ fn test_builder_pipeline_stores_config_in_default_http_cassette() {
     let b = Builder::with_config(cfg);
     // Config before build: mode and scrub_headers are stored.
     assert_eq!(b.config().mode, "auto");
-    assert!(b.config().scrub_headers.contains(&"authorization".to_string()));
+    assert!(b
+        .config()
+        .scrub_headers
+        .contains(&"authorization".to_string()));
 
     let layer = b.build("default_impl_check").expect("build must succeed");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("CassetteLayer"), "Debug must name the layer type; got: {dbg}");
+    assert!(
+        dbg.contains("CassetteLayer"),
+        "Debug must name the layer type; got: {dbg}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -72,8 +78,12 @@ fn test_layer_debug_differs_for_different_modes() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let l1 = Builder::with_config(cfg_replay).build("mode_replay_debug").unwrap();
-    let l2 = Builder::with_config(cfg_record).build("mode_record_debug").unwrap();
+    let l1 = Builder::with_config(cfg_replay)
+        .build("mode_replay_debug")
+        .unwrap();
+    let l2 = Builder::with_config(cfg_record)
+        .build("mode_record_debug")
+        .unwrap();
     assert_ne!(
         format!("{l1:?}"),
         format!("{l2:?}"),
@@ -109,7 +119,11 @@ fn test_builder_does_not_mutate_config_during_build() {
     let cfg = CassetteConfig {
         mode: "record".to_string(),
         cassette_dir: dir.clone(),
-        match_on: vec!["method".to_string(), "url".to_string(), "body_hash".to_string()],
+        match_on: vec![
+            "method".to_string(),
+            "url".to_string(),
+            "body_hash".to_string(),
+        ],
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: scrub_body.clone(),
     };

@@ -46,9 +46,7 @@ impl BreakerLayer {
     /// Is this response status a "failure" for breaker-counting
     /// purposes?
     fn is_failure(&self, status: reqwest::StatusCode) -> bool {
-        self.config
-            .failure_statuses
-            .contains(&status.as_u16())
+        self.config.failure_statuses.contains(&status.as_u16())
     }
 }
 
@@ -81,11 +79,9 @@ impl reqwest_middleware::Middleware for BreakerLayer {
         };
 
         match admission {
-            Admission::RejectOpen => Err(reqwest_middleware::Error::Middleware(
-                anyhow::anyhow!(
-                    "swe_edge_egress_breaker: circuit open for {key} — request rejected"
-                ),
-            )),
+            Admission::RejectOpen => Err(reqwest_middleware::Error::Middleware(anyhow::anyhow!(
+                "swe_edge_egress_breaker: circuit open for {key} — request rejected"
+            ))),
             Admission::Proceed => {
                 let result = next.run(req, ext).await;
 

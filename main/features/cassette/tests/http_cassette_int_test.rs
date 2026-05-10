@@ -116,5 +116,8 @@ fn test_builder_pipeline_produces_cassette_layer() {
         .expect("pipeline must produce a CassetteLayer");
     // Confirm we received a CassetteLayer, not a panic or error.
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("CassetteLayer"), "must be a CassetteLayer; got: {dbg}");
+    assert!(
+        dbg.contains("CassetteLayer"),
+        "must be a CassetteLayer; got: {dbg}"
+    );
 }

@@ -55,7 +55,10 @@ fn test_cache_layer_built_from_builder_is_usable() {
     // If CacheLayer's HttpCache impl were broken (e.g. panics on construction)
     // this test would surface it.
     let dbg = format!("{layer:?}");
-    assert!(!dbg.is_empty(), "CacheLayer Debug must produce non-empty output");
+    assert!(
+        !dbg.is_empty(),
+        "CacheLayer Debug must produce non-empty output"
+    );
 }
 
 // ---------------------------------------------------------------------------

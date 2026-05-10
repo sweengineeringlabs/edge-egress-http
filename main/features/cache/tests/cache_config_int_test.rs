@@ -39,7 +39,9 @@ fn test_cache_config_zero_ttl_is_legal_and_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("zero TTL must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("zero TTL must not be rejected");
 }
 
 /// Large TTL values (e.g. one year in seconds) must be accepted without overflow
@@ -54,7 +56,9 @@ fn test_cache_config_large_ttl_is_accepted() {
         cache_private: false,
     };
     assert_eq!(cfg.default_ttl_seconds, ONE_YEAR_SECS);
-    Builder::with_config(cfg).build().expect("large TTL must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("large TTL must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -71,7 +75,9 @@ fn test_cache_config_single_entry_capacity_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("max_entries=1 must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("max_entries=1 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------

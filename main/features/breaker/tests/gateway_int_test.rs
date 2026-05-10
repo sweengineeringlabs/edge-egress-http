@@ -19,7 +19,10 @@ fn test_builder_fn_loads_swe_default_and_succeeds() {
 #[test]
 fn test_builder_fn_default_config_has_positive_failure_threshold() {
     let b = swe_edge_egress_breaker::builder().expect("builder() must succeed");
-    assert!(b.config().failure_threshold >= 1, "swe_default failure_threshold must be >= 1");
+    assert!(
+        b.config().failure_threshold >= 1,
+        "swe_default failure_threshold must be >= 1"
+    );
 }
 
 #[test]
@@ -38,12 +41,17 @@ fn test_build_default_produces_breaker_layer() {
         .build()
         .expect("build() must succeed");
     let s = format!("{layer:?}");
-    assert!(s.contains("BreakerLayer"), "Debug must contain 'BreakerLayer': {s}");
+    assert!(
+        s.contains("BreakerLayer"),
+        "Debug must contain 'BreakerLayer': {s}"
+    );
 }
 
 #[test]
 fn test_build_custom_config_produces_layer() {
-    Builder::with_config(make_cfg()).build().expect("build with custom cfg must succeed");
+    Builder::with_config(make_cfg())
+        .build()
+        .expect("build with custom cfg must succeed");
 }
 
 #[test]
@@ -72,14 +80,19 @@ fn test_build_empty_failure_statuses_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    Builder::with_config(cfg).build().expect("empty failure_statuses must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("empty failure_statuses must build");
 }
 
 #[test]
 fn test_error_parse_failed_display_contains_crate_name() {
     let err = Error::ParseFailed("oops".to_string());
     let s = err.to_string();
-    assert!(s.contains("swe_edge_egress_breaker"), "ParseFailed Display must name the crate: {s}");
+    assert!(
+        s.contains("swe_edge_egress_breaker"),
+        "ParseFailed Display must name the crate: {s}"
+    );
 }
 
 #[test]

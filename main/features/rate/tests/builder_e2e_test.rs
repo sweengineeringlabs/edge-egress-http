@@ -3,7 +3,11 @@
 use swe_edge_egress_rate::{Builder, RateConfig, RateLayer};
 
 fn make_cfg() -> RateConfig {
-    RateConfig { tokens_per_second: 10, burst_capacity: 20, per_host: false }
+    RateConfig {
+        tokens_per_second: 10,
+        burst_capacity: 20,
+        per_host: false,
+    }
 }
 
 /// @covers: builder
@@ -35,7 +39,13 @@ fn test_e2e_config() {
 /// @covers: Builder::build
 #[test]
 fn test_e2e_build() {
-    let cfg = RateConfig { tokens_per_second: 100, burst_capacity: 500, per_host: true };
-    let layer = Builder::with_config(cfg).build().expect("e2e build must succeed");
+    let cfg = RateConfig {
+        tokens_per_second: 100,
+        burst_capacity: 500,
+        per_host: true,
+    };
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

@@ -23,9 +23,11 @@ use swe_edge_egress_auth::{AuthConfig, Builder, Error};
 fn test_resolver_env_present_bearer_build_succeeds() {
     let env_name = "SWE_AUTH_RESOLVER_PRES_BRR_01";
     std::env::set_var(env_name, "resolver-test-token");
-    Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("bearer env present — resolver must succeed and build must pass");
+    Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("bearer env present — resolver must succeed and build must pass");
     std::env::remove_var(env_name);
 }
 
@@ -53,9 +55,11 @@ fn test_resolver_env_present_basic_both_build_succeeds() {
 fn test_resolver_env_absent_bearer_returns_missing_env_var_with_exact_name() {
     let env_name = "SWE_AUTH_RESOLVER_ABS_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => {
             assert_eq!(
@@ -137,15 +141,16 @@ fn test_resolver_empty_env_var_is_present_and_build_succeeds_for_bearer() {
     std::env::set_var(env_name, "");
     // Empty bearer value produces "Bearer " — that's a valid header value
     // (space is an ASCII visible char; it won't fail HeaderValue::from_str).
-    let result = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() }).build();
+    let result = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build();
     // Accept either Ok (built successfully) or Err(InvalidHeaderValue)
     // — but never MissingEnvVar, because the var IS set.
     match result {
         Ok(_) => { /* resolver succeeded; scheme accepted empty token */ }
         Err(Error::MissingEnvVar { name }) => {
-            panic!(
-                "empty env var must NOT produce MissingEnvVar — var is present: {name}"
-            );
+            panic!("empty env var must NOT produce MissingEnvVar — var is present: {name}");
         }
         Err(_) => { /* some other validation error is acceptable */ }
     }

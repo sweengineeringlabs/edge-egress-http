@@ -49,7 +49,10 @@ fn test_with_config_none_builds_and_debug_contains_noop() {
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("noop"), "None config Debug must contain 'noop'; got: {dbg}");
+    assert!(
+        dbg.contains("noop"),
+        "None config Debug must contain 'noop'; got: {dbg}"
+    );
 }
 
 /// `TlsConfig::Pem` with a missing file must fail fast at `build()` time,
@@ -143,7 +146,10 @@ fn test_config_accessor_returns_pkcs12_variant_with_correct_fields() {
     match b.config() {
         TlsConfig::Pkcs12 { path, password_env } => {
             assert_eq!(path, "/some/cert.p12");
-            assert_eq!(password_env.as_deref(), Some("SWE_IT_TLS_BUILDER_EXPECTED_ENV"));
+            assert_eq!(
+                password_env.as_deref(),
+                Some("SWE_IT_TLS_BUILDER_EXPECTED_ENV")
+            );
         }
         other => panic!("expected Pkcs12, got: {other:?}"),
     }

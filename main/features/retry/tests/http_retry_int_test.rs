@@ -65,7 +65,9 @@ fn test_retry_layer_debug_contains_max_retries() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("max_retries"),
@@ -89,7 +91,9 @@ fn test_retry_layer_attaches_to_reqwest_middleware_client_builder() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let layer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();

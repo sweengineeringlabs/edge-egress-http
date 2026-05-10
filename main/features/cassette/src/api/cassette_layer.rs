@@ -16,8 +16,14 @@ use crate::api::cassette_config::CassetteConfig;
 pub struct CassetteLayer {
     pub(crate) config: Arc<CassetteConfig>,
     pub(crate) cassette_path: PathBuf,
-    pub(crate) fixtures:
-        Arc<tokio::sync::Mutex<std::collections::HashMap<String, crate::core::recorded_interaction::RecordedInteraction>>>,
+    pub(crate) fixtures: Arc<
+        tokio::sync::Mutex<
+            std::collections::HashMap<
+                String,
+                crate::core::recorded_interaction::RecordedInteraction,
+            >,
+        >,
+    >,
 }
 
 impl std::fmt::Debug for CassetteLayer {

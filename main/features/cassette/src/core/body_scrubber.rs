@@ -247,7 +247,10 @@ mod tests {
         let arr = parsed.get("results").and_then(|v| v.as_array()).unwrap();
         assert_eq!(arr.len(), 2);
         let first = arr.first().unwrap();
-        assert!(first.get("id").is_none(), "id should be removed from results[0]");
+        assert!(
+            first.get("id").is_none(),
+            "id should be removed from results[0]"
+        );
         assert_eq!(first.get("name").and_then(|v| v.as_str()), Some("a"));
         // results[1] untouched.
         assert_eq!(arr[1].get("id").and_then(|v| v.as_i64()), Some(2));
@@ -265,7 +268,10 @@ mod tests {
         let arr = parsed.get("results").and_then(|v| v.as_array()).unwrap();
         assert_eq!(arr.len(), 1, "array should shrink by one");
         let remaining = arr.first().unwrap();
-        assert!(remaining.get("a").is_none(), "first element {{a:1}} was removed");
+        assert!(
+            remaining.get("a").is_none(),
+            "first element {{a:1}} was removed"
+        );
         assert_eq!(remaining.get("b").and_then(|v| v.as_i64()), Some(2));
     }
 

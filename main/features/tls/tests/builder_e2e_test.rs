@@ -9,7 +9,10 @@ fn test_e2e_builder() {
         .expect("builder() must succeed")
         .build()
         .expect("build() must succeed");
-    assert!(format!("{layer:?}").contains("noop"), "e2e: None config must produce noop layer");
+    assert!(
+        format!("{layer:?}").contains("noop"),
+        "e2e: None config must produce noop layer"
+    );
 }
 
 /// @covers: Builder::with_config
@@ -23,9 +26,14 @@ fn test_e2e_with_config() {
 /// @covers: Builder::config
 #[test]
 fn test_e2e_config() {
-    let cfg = TlsConfig::Pem { path: "/some/cert.pem".into() };
+    let cfg = TlsConfig::Pem {
+        path: "/some/cert.pem".into(),
+    };
     let b = Builder::with_config(cfg);
-    assert!(matches!(b.config(), TlsConfig::Pem { .. }), "config() must return Pem variant");
+    assert!(
+        matches!(b.config(), TlsConfig::Pem { .. }),
+        "config() must return Pem variant"
+    );
 }
 
 /// @covers: Builder::build

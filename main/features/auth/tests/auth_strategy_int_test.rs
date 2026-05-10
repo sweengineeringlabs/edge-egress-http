@@ -41,9 +41,11 @@ fn test_none_config_selects_noop_strategy_builds_without_env() {
 fn test_bearer_config_fails_fast_when_token_env_missing() {
     let env_name = "SWE_AUTH_STRAT_BEARER_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -54,9 +56,11 @@ fn test_bearer_config_fails_fast_when_token_env_missing() {
 fn test_bearer_config_selects_bearer_strategy_when_env_set() {
     let env_name = "SWE_AUTH_STRAT_BEARER_02";
     std::env::set_var(env_name, "strat-bearer-tok");
-    let mw = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("Bearer with env set must build");
+    let mw = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("Bearer with env set must build");
     // The middleware must be non-trivially constructed — debug shows processor.
     let s = format!("{mw:?}");
     assert!(s.contains("swe_edge_egress_auth"), "unexpected debug: {s}");

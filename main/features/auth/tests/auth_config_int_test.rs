@@ -50,7 +50,9 @@ fn test_auth_config_bearer_stores_token_env_name() {
 fn test_auth_config_bearer_missing_env_fails_at_build_time() {
     let env_name = "SWE_AUTH_CFG_BEARER_02";
     std::env::remove_var(env_name);
-    let cfg = AuthConfig::Bearer { token_env: env_name.into() };
+    let cfg = AuthConfig::Bearer {
+        token_env: env_name.into(),
+    };
     let err = Builder::with_config(cfg).build().unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
@@ -62,7 +64,9 @@ fn test_auth_config_bearer_missing_env_fails_at_build_time() {
 fn test_auth_config_bearer_env_set_builds_successfully() {
     let env_name = "SWE_AUTH_CFG_BEARER_03";
     std::env::set_var(env_name, "test-bearer-token");
-    let cfg = AuthConfig::Bearer { token_env: env_name.into() };
+    let cfg = AuthConfig::Bearer {
+        token_env: env_name.into(),
+    };
     Builder::with_config(cfg)
         .build()
         .expect("Bearer with env set must build");

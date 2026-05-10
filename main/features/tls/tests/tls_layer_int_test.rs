@@ -20,8 +20,14 @@ fn test_build_none_produces_layer_with_noop_in_debug() {
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("TlsLayer"), "Debug must name the struct; got: {dbg}");
-    assert!(dbg.contains("noop"), "None Debug must contain 'noop'; got: {dbg}");
+    assert!(
+        dbg.contains("TlsLayer"),
+        "Debug must name the struct; got: {dbg}"
+    );
+    assert!(
+        dbg.contains("noop"),
+        "None Debug must contain 'noop'; got: {dbg}"
+    );
 }
 
 /// Building with a missing PEM path must fail at `build()` time, not when
@@ -81,7 +87,10 @@ fn test_apply_to_none_returns_ok() {
         .build()
         .expect("None must build");
     let result = layer.apply_to(reqwest::Client::builder());
-    assert!(result.is_ok(), "None apply_to must return Ok; got: {result:?}");
+    assert!(
+        result.is_ok(),
+        "None apply_to must return Ok; got: {result:?}"
+    );
 }
 
 /// The result of `apply_to` must be a `ClientBuilder` that can successfully
@@ -94,7 +103,9 @@ fn test_apply_to_none_produces_buildable_client_builder() {
     let builder = layer
         .apply_to(reqwest::Client::builder())
         .expect("apply_to must succeed");
-    let _client = builder.build().expect("ClientBuilder must build after apply_to");
+    let _client = builder
+        .build()
+        .expect("ClientBuilder must build after apply_to");
 }
 
 /// `apply_to` must be callable multiple times on the same `TlsLayer`
@@ -104,8 +115,12 @@ fn test_apply_to_none_is_idempotent() {
     let layer: TlsLayer = Builder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer.apply_to(reqwest::Client::builder()).expect("first call");
-    layer.apply_to(reqwest::Client::builder()).expect("second call must also succeed");
+    layer
+        .apply_to(reqwest::Client::builder())
+        .expect("first call");
+    layer
+        .apply_to(reqwest::Client::builder())
+        .expect("second call must also succeed");
 }
 
 // ---------------------------------------------------------------------------

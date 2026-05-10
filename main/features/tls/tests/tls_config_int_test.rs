@@ -107,7 +107,10 @@ fn test_from_config_parses_pkcs12_without_password_env() {
     match cfg {
         TlsConfig::Pkcs12 { path, password_env } => {
             assert_eq!(path, "/etc/client.p12");
-            assert!(password_env.is_none(), "password_env must be None when omitted");
+            assert!(
+                password_env.is_none(),
+                "password_env must be None when omitted"
+            );
         }
         other => panic!("expected Pkcs12, got: {other:?}"),
     }

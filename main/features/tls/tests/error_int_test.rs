@@ -22,7 +22,10 @@ fn test_parse_failed_display_names_the_crate() {
 #[test]
 fn test_parse_failed_display_contains_supplied_reason() {
     let msg = Error::ParseFailed("missing field `path`".to_string()).to_string();
-    assert!(msg.contains("path"), "ParseFailed must embed the reason; got: {msg}");
+    assert!(
+        msg.contains("path"),
+        "ParseFailed must embed the reason; got: {msg}"
+    );
 }
 
 #[test]
@@ -69,13 +72,19 @@ fn test_missing_env_var_display_names_the_crate() {
 
 #[test]
 fn test_missing_env_var_is_debug_printable() {
-    let _ = format!("{:?}", Error::MissingEnvVar { name: "X".to_string() });
+    let _ = format!(
+        "{:?}",
+        Error::MissingEnvVar {
+            name: "X".to_string()
+        }
+    );
 }
 
 #[test]
 fn test_missing_env_var_is_std_error() {
-    let err: Box<dyn std::error::Error> =
-        Box::new(Error::MissingEnvVar { name: "Y".to_string() });
+    let err: Box<dyn std::error::Error> = Box::new(Error::MissingEnvVar {
+        name: "Y".to_string(),
+    });
     assert!(!err.to_string().is_empty());
 }
 
@@ -120,7 +129,10 @@ fn test_file_read_failed_display_names_the_crate() {
         reason: "r".to_string(),
     }
     .to_string();
-    assert!(msg.contains("swe_edge_egress_tls"), "FileReadFailed Display must name the crate; got: {msg}");
+    assert!(
+        msg.contains("swe_edge_egress_tls"),
+        "FileReadFailed Display must name the crate; got: {msg}"
+    );
 }
 
 #[test]
@@ -155,7 +167,10 @@ fn test_invalid_certificate_display_names_format() {
         reason: "wrong password".to_string(),
     }
     .to_string();
-    assert!(msg.contains("pkcs12"), "InvalidCertificate must name the format; got: {msg}");
+    assert!(
+        msg.contains("pkcs12"),
+        "InvalidCertificate must name the format; got: {msg}"
+    );
 }
 
 /// Display must include the reason (e.g. "wrong password") for diagnosability.
@@ -180,7 +195,10 @@ fn test_invalid_certificate_display_names_the_crate() {
         reason: "bad".to_string(),
     }
     .to_string();
-    assert!(msg.contains("swe_edge_egress_tls"), "InvalidCertificate Display must name the crate; got: {msg}");
+    assert!(
+        msg.contains("swe_edge_egress_tls"),
+        "InvalidCertificate Display must name the crate; got: {msg}"
+    );
 }
 
 #[test]
@@ -206,13 +224,19 @@ fn test_not_implemented_display_is_non_empty() {
 #[test]
 fn test_not_implemented_display_names_the_crate() {
     let msg = Error::NotImplemented("some feature").to_string();
-    assert!(msg.contains("swe_edge_egress_tls"), "NotImplemented must name the crate; got: {msg}");
+    assert!(
+        msg.contains("swe_edge_egress_tls"),
+        "NotImplemented must name the crate; got: {msg}"
+    );
 }
 
 #[test]
 fn test_not_implemented_display_contains_label() {
     let msg = Error::NotImplemented("grpc_identity").to_string();
-    assert!(msg.contains("grpc_identity"), "NotImplemented must embed the label; got: {msg}");
+    assert!(
+        msg.contains("grpc_identity"),
+        "NotImplemented must embed the label; got: {msg}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -242,7 +266,10 @@ fn test_all_error_variants_have_distinct_display_messages() {
     for (i, a) in messages.iter().enumerate() {
         for (j, b) in messages.iter().enumerate() {
             if i != j {
-                assert_ne!(a, b, "variants {i} and {j} must have distinct display messages");
+                assert_ne!(
+                    a, b,
+                    "variants {i} and {j} must have distinct display messages"
+                );
             }
         }
     }

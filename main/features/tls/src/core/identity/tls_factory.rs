@@ -20,15 +20,11 @@ pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, Err
     match config {
         TlsConfig::None => Ok(Box::new(NoopHttpTls)),
 
-        TlsConfig::Pkcs12 {
-            path,
-            password_env,
-        } => {
+        TlsConfig::Pkcs12 { path, password_env } => {
             let password = match password_env {
                 Some(var) => {
-                    let v = std::env::var(var).map_err(|_| Error::MissingEnvVar {
-                        name: var.clone(),
-                    })?;
+                    let v = std::env::var(var)
+                        .map_err(|_| Error::MissingEnvVar { name: var.clone() })?;
                     Some(SecretString::from(v))
                 }
                 None => None,

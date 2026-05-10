@@ -21,9 +21,11 @@ use swe_edge_egress_auth::{AuthConfig, Builder, Error};
 fn test_env_resolver_present_bearer_builds_successfully() {
     let env_name = "SWE_AUTH_ENVRES_PRES_01";
     std::env::set_var(env_name, "env-resolver-token");
-    Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("env var present — EnvCredentialResolver must succeed");
+    Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("env var present — EnvCredentialResolver must succeed");
     std::env::remove_var(env_name);
 }
 
@@ -64,9 +66,11 @@ fn test_env_resolver_present_header_builds_successfully() {
 fn test_env_resolver_absent_bearer_returns_missing_env_var_error() {
     let env_name = "SWE_AUTH_ENVRES_ABS_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => {
             assert_eq!(
@@ -124,7 +128,10 @@ fn test_env_resolver_empty_bearer_env_does_not_produce_missing_env_var_error() {
     // "Bearer " is a valid header value (space is ASCII printable).
     let env_name = "SWE_AUTH_ENVRES_EMPTY_BRR_01";
     std::env::set_var(env_name, "");
-    let result = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() }).build();
+    let result = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build();
     // Must NOT be MissingEnvVar — empty ≠ absent.
     if let Err(Error::MissingEnvVar { name }) = result {
         panic!(
@@ -144,9 +151,11 @@ fn test_env_resolver_resolution_is_snapshot_at_build_time() {
     // Set the env var, build the middleware (resolution happens here).
     let env_name = "SWE_AUTH_ENVRES_SNAP_01";
     std::env::set_var(env_name, "snapshot-token");
-    let mw = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("env present at build time");
+    let mw = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("env present at build time");
 
     // Now remove the var AFTER building.
     std::env::remove_var(env_name);

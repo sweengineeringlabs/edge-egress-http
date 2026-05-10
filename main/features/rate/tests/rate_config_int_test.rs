@@ -32,7 +32,9 @@ fn test_rate_config_minimum_tokens_per_second_builds() {
         burst_capacity: 1,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("tokens_per_second=1 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("tokens_per_second=1 must build");
 }
 
 /// High token rate — must not be rejected.
@@ -43,7 +45,9 @@ fn test_rate_config_high_tokens_per_second_builds() {
         burst_capacity: u32::MAX,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("max tokens_per_second must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("max tokens_per_second must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -58,7 +62,9 @@ fn test_rate_config_burst_capacity_one_builds() {
         burst_capacity: 1,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("burst_capacity=1 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("burst_capacity=1 must build");
 }
 
 /// Burst larger than the refill rate — common production pattern.
@@ -69,7 +75,9 @@ fn test_rate_config_burst_larger_than_rate_builds() {
         burst_capacity: 1_000,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("burst > rate must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("burst > rate must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -84,7 +92,9 @@ fn test_rate_config_per_host_true_builds() {
         burst_capacity: 10,
         per_host: true,
     };
-    Builder::with_config(cfg).build().expect("per_host=true must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=true must build");
 }
 
 /// `per_host = false` — single global bucket.
@@ -95,7 +105,9 @@ fn test_rate_config_per_host_false_builds() {
         burst_capacity: 10,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("per_host=false must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=false must build");
 }
 
 // ---------------------------------------------------------------------------

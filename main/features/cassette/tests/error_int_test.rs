@@ -110,5 +110,8 @@ fn test_not_implemented_is_std_error() {
 fn test_error_variants_have_distinct_display_messages() {
     let pf = Error::ParseFailed("foo".to_string()).to_string();
     let ni = Error::NotImplemented("foo").to_string();
-    assert_ne!(pf, ni, "ParseFailed and NotImplemented must produce different Display messages");
+    assert_ne!(
+        pf, ni,
+        "ParseFailed and NotImplemented must produce different Display messages"
+    );
 }

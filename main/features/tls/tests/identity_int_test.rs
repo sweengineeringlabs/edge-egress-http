@@ -32,5 +32,8 @@ fn test_identity_provider_is_send_sync() {
 #[test]
 fn test_identity_factory_none_variant_succeeds() {
     let result = Builder::with_config(TlsConfig::None).build();
-    assert!(result.is_ok(), "identity factory must succeed for TlsConfig::None");
+    assert!(
+        result.is_ok(),
+        "identity factory must succeed for TlsConfig::None"
+    );
 }

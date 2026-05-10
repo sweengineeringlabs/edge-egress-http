@@ -29,7 +29,9 @@ fn test_cached_entry_positive_ttl_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer: CacheLayer = Builder::with_config(cfg).build().expect("build must succeed");
+    let layer: CacheLayer = Builder::with_config(cfg)
+        .build()
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("300"),
@@ -47,7 +49,9 @@ fn test_cached_entry_short_ttl_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("TTL=1 must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("TTL=1 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -65,7 +69,9 @@ fn test_cached_entry_zero_ttl_fallback_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("TTL=0 must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("TTL=0 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -82,7 +88,9 @@ fn test_cached_entry_large_capacity_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("max_entries=500_000 must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("max_entries=500_000 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -99,7 +107,9 @@ fn test_cached_entry_cache_private_true_layer_builds() {
         respect_cache_control: true,
         cache_private: true,
     };
-    Builder::with_config(cfg).build().expect("cache_private=true must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("cache_private=true must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -116,5 +126,7 @@ fn test_cached_entry_ignore_cache_control_layer_builds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    Builder::with_config(cfg).build().expect("respect_cache_control=false must not be rejected");
+    Builder::with_config(cfg)
+        .build()
+        .expect("respect_cache_control=false must not be rejected");
 }

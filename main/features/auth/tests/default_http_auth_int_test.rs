@@ -37,9 +37,11 @@ fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
 fn test_default_http_auth_describe_returns_crate_name_for_bearer_config() {
     let env_name = "SWE_AUTH_DHA_DESC_BRR_01";
     std::env::set_var(env_name, "describe-test-tok");
-    let mw = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("Bearer with env set must build");
+    let mw = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("Bearer with env set must build");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -75,9 +77,11 @@ fn test_default_http_auth_describe_same_for_all_configs() {
 fn test_default_http_auth_build_fails_with_missing_env_var_for_bearer() {
     let env_name = "SWE_AUTH_DHA_BUILD_MISS_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .unwrap_err();
+    let err = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar at build time, got {other:?}"),
@@ -117,9 +121,11 @@ fn test_default_http_auth_build_succeeds_for_none() {
 fn test_default_http_auth_build_succeeds_for_bearer_with_env() {
     let env_name = "SWE_AUTH_DHA_BUILD_OK_BRR_01";
     std::env::set_var(env_name, "build-ok-token");
-    Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("Bearer with env set must build successfully");
+    Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("Bearer with env set must build successfully");
     std::env::remove_var(env_name);
 }
 
@@ -153,9 +159,7 @@ async fn test_default_http_auth_process_none_attaches_no_auth_headers() {
     let mw = Builder::with_config(AuthConfig::None)
         .build()
         .expect("build ok");
-    let _client = ClientBuilder::new(reqwest::Client::new())
-        .with(mw)
-        .build();
+    let _client = ClientBuilder::new(reqwest::Client::new()).with(mw).build();
     // Reaching here without panic proves the process() pathway compiles
     // and the middleware is correctly wired.
 }
@@ -166,11 +170,11 @@ async fn test_default_http_auth_process_bearer_wires_without_panic() {
 
     let env_name = "SWE_AUTH_DHA_PROC_BRR_01";
     std::env::set_var(env_name, "proc-bearer-tok");
-    let mw = Builder::with_config(AuthConfig::Bearer { token_env: env_name.into() })
-        .build()
-        .expect("Bearer build ok");
-    let _client = ClientBuilder::new(reqwest::Client::new())
-        .with(mw)
-        .build();
+    let mw = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_name.into(),
+    })
+    .build()
+    .expect("Bearer build ok");
+    let _client = ClientBuilder::new(reqwest::Client::new()).with(mw).build();
     std::env::remove_var(env_name);
 }

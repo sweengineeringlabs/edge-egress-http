@@ -48,7 +48,10 @@ fn test_rate_layer_built_from_builder_is_usable() {
         .build()
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");
-    assert!(!dbg.is_empty(), "RateLayer Debug must produce non-empty output");
+    assert!(
+        !dbg.is_empty(),
+        "RateLayer Debug must produce non-empty output"
+    );
 }
 
 // ---------------------------------------------------------------------------

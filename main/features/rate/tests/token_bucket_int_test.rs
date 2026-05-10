@@ -99,7 +99,9 @@ fn test_token_bucket_per_host_keying_builds() {
         burst_capacity: 40,
         per_host: true,
     };
-    Builder::with_config(cfg).build().expect("per_host=true (per-host buckets) must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=true (per-host buckets) must build");
 }
 
 /// `per_host = false` means all hosts share one global bucket.  Build must
@@ -111,5 +113,7 @@ fn test_token_bucket_global_keying_builds() {
         burst_capacity: 40,
         per_host: false,
     };
-    Builder::with_config(cfg).build().expect("per_host=false (global bucket) must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("per_host=false (global bucket) must build");
 }

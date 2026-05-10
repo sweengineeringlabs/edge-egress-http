@@ -95,7 +95,9 @@ impl reqwest_middleware::Middleware for RetryLayer {
             }
 
             // try_clone succeeds because we pre-checked above.
-            let attempt_req = req.try_clone().expect("body is cloneable — checked earlier");
+            let attempt_req = req
+                .try_clone()
+                .expect("body is cloneable — checked earlier");
             let attempt_next = next.clone();
             let result = attempt_next.run(attempt_req, ext).await;
 

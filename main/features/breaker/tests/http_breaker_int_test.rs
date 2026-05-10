@@ -49,7 +49,10 @@ fn test_breaker_layer_built_from_builder_is_usable() {
         .build()
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");
-    assert!(!dbg.is_empty(), "BreakerLayer Debug must produce non-empty output");
+    assert!(
+        !dbg.is_empty(),
+        "BreakerLayer Debug must produce non-empty output"
+    );
 }
 
 // ---------------------------------------------------------------------------

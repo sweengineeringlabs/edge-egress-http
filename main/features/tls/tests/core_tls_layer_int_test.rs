@@ -25,7 +25,9 @@ fn test_apply_to_none_returns_buildable_client_builder() {
     let cb = layer
         .apply_to(reqwest::Client::builder())
         .expect("apply_to None must return Ok");
-    let _client = cb.build().expect("ClientBuilder must build after noop apply_to");
+    let _client = cb
+        .build()
+        .expect("ClientBuilder must build after noop apply_to");
 }
 
 /// `apply_to` with a noop layer must be callable multiple times without error.
@@ -109,8 +111,14 @@ fn test_tls_layer_debug_contains_struct_name_and_provider() {
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("TlsLayer"), "Debug must name the struct; got: {dbg}");
-    assert!(dbg.contains("noop"), "Debug must name the provider; got: {dbg}");
+    assert!(
+        dbg.contains("TlsLayer"),
+        "Debug must name the struct; got: {dbg}"
+    );
+    assert!(
+        dbg.contains("noop"),
+        "Debug must name the provider; got: {dbg}"
+    );
 }
 
 // ---------------------------------------------------------------------------

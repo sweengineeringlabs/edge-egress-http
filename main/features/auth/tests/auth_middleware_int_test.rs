@@ -33,7 +33,9 @@ fn test_auth_middleware_builds_from_builder_fn_default() {
 fn test_auth_middleware_builds_from_bearer_config_when_env_set() {
     let env_name = "SWE_AUTH_MW_BEARER_01";
     std::env::set_var(env_name, "bearer-token-for-mw-test");
-    let cfg = AuthConfig::Bearer { token_env: env_name.into() };
+    let cfg = AuthConfig::Bearer {
+        token_env: env_name.into(),
+    };
     let mw = Builder::with_config(cfg)
         .build()
         .expect("Bearer with env set must produce AuthMiddleware");
@@ -92,12 +94,16 @@ fn test_two_auth_middleware_instances_are_independent() {
     std::env::set_var(env_a, "token-alpha");
     std::env::set_var(env_b, "token-beta");
 
-    let mw_a = Builder::with_config(AuthConfig::Bearer { token_env: env_a.into() })
-        .build()
-        .expect("build mw_a");
-    let mw_b = Builder::with_config(AuthConfig::Bearer { token_env: env_b.into() })
-        .build()
-        .expect("build mw_b");
+    let mw_a = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_a.into(),
+    })
+    .build()
+    .expect("build mw_a");
+    let mw_b = Builder::with_config(AuthConfig::Bearer {
+        token_env: env_b.into(),
+    })
+    .build()
+    .expect("build mw_b");
 
     // Each has its own processor. Debug strings differ (they embed the
     // processor kind — both are "swe_edge_egress_auth" for DefaultHttpAuth,
@@ -105,8 +111,14 @@ fn test_two_auth_middleware_instances_are_independent() {
     let s_a = format!("{mw_a:?}");
     let s_b = format!("{mw_b:?}");
     // Both contain the type name — ensures neither is a default stub.
-    assert!(s_a.contains("swe_edge_egress_auth"), "mw_a Debug missing crate name: {s_a}");
-    assert!(s_b.contains("swe_edge_egress_auth"), "mw_b Debug missing crate name: {s_b}");
+    assert!(
+        s_a.contains("swe_edge_egress_auth"),
+        "mw_a Debug missing crate name: {s_a}"
+    );
+    assert!(
+        s_b.contains("swe_edge_egress_auth"),
+        "mw_b Debug missing crate name: {s_b}"
+    );
 
     std::env::remove_var(env_a);
     std::env::remove_var(env_b);

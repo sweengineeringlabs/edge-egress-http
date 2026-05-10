@@ -41,10 +41,10 @@ impl CassetteConfig {
     /// record/replay infrastructure is not wanted.
     pub fn disabled() -> Self {
         Self {
-            mode:             "disabled".into(),
-            cassette_dir:     String::new(),
-            match_on:         vec![],
-            scrub_headers:    vec![],
+            mode: "disabled".into(),
+            cassette_dir: String::new(),
+            match_on: vec![],
+            scrub_headers: vec![],
             scrub_body_paths: vec![],
         }
     }

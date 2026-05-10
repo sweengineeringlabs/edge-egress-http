@@ -74,14 +74,19 @@ fn test_pem_invalid_content_returns_invalid_certificate() {
     // is valid for `load` (file exists, bytes read). The InvalidCertificate
     // error is produced by `identity()` which is called from `apply_to`,
     // not during `build()`. So `build()` must succeed here.
-    let layer = Builder::with_config(cfg).build().expect("load of existing file must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("load of existing file must succeed");
 
     // Now `apply_to` calls `identity()` which calls `reqwest::Identity::from_pem`.
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
         Error::InvalidCertificate { format, reason } => {
             assert_eq!(format, "pem", "format must be 'pem'; got: {format}");
-            assert!(!reason.is_empty(), "reason must not be empty; got: {reason}");
+            assert!(
+                !reason.is_empty(),
+                "reason must not be empty; got: {reason}"
+            );
         }
         other => panic!("expected InvalidCertificate, got: {other:?}"),
     }

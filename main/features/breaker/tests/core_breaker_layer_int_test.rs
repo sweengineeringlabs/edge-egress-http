@@ -23,7 +23,9 @@ fn test_core_breaker_layer_threshold_one_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    Builder::with_config(cfg).build().expect("failure_threshold=1 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("failure_threshold=1 must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -40,7 +42,9 @@ fn test_core_breaker_layer_zero_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    Builder::with_config(cfg).build().expect("half_open_after_seconds=0 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("half_open_after_seconds=0 must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +61,9 @@ fn test_core_breaker_layer_many_failure_statuses_builds() {
         reset_after_successes: 3,
         failure_statuses: statuses,
     };
-    Builder::with_config(cfg).build().expect("many failure_statuses must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("many failure_statuses must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -126,5 +132,7 @@ fn test_core_breaker_layer_builds_for_high_host_count_workload() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 502, 503, 504],
     };
-    Builder::with_config(cfg).build().expect("build for high-host-count workload");
+    Builder::with_config(cfg)
+        .build()
+        .expect("build for high-host-count workload");
 }

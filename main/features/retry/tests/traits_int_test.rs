@@ -55,7 +55,9 @@ fn test_retry_layer_is_arc_send_sync() {
 /// panic. No real HTTP call is made.
 #[test]
 fn test_retry_layer_attaches_to_reqwest_middleware_client_builder_via_trait_chain() {
-    let layer = Builder::with_config(make_cfg()).build().expect("build must succeed");
+    let layer = Builder::with_config(make_cfg())
+        .build()
+        .expect("build must succeed");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();

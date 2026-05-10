@@ -102,17 +102,29 @@ fn test_build_with_custom_config_returns_retry_layer() {
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("RetryLayer"), "Debug must name the type; got: {dbg}");
-    assert!(dbg.contains("max_retries"), "Debug must expose max_retries; got: {dbg}");
+    assert!(
+        dbg.contains("RetryLayer"),
+        "Debug must name the type; got: {dbg}"
+    );
+    assert!(
+        dbg.contains("max_retries"),
+        "Debug must expose max_retries; got: {dbg}"
+    );
 }
 
 /// Building via the `builder()` entry point then `build()` must produce a
 /// layer with the same `max_retries` visible in Debug as the config reports.
 #[test]
 fn test_build_from_swe_default_debug_contains_max_retries() {
-    let layer = builder().expect("baseline parses").build().expect("build ok");
+    let layer = builder()
+        .expect("baseline parses")
+        .build()
+        .expect("build ok");
     let dbg = format!("{layer:?}");
-    assert!(dbg.contains("max_retries"), "Debug must expose max_retries; got: {dbg}");
+    assert!(
+        dbg.contains("max_retries"),
+        "Debug must expose max_retries; got: {dbg}"
+    );
 }
 
 /// `max_retries=0` is valid — it means "pass-through, never retry". The
@@ -127,7 +139,9 @@ fn test_build_with_zero_max_retries_succeeds() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    Builder::with_config(cfg).build().expect("max_retries=0 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("max_retries=0 must build");
 }
 
 /// Empty `retryable_statuses` and `retryable_methods` are valid — the
@@ -142,7 +156,9 @@ fn test_build_with_empty_retryable_lists_succeeds() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    Builder::with_config(cfg).build().expect("empty retryable lists must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("empty retryable lists must build");
 }
 
 /// A very large multiplier (e.g. 100×) is a valid operator choice for
@@ -157,7 +173,9 @@ fn test_build_with_large_multiplier_succeeds() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["POST".to_string()],
     };
-    Builder::with_config(cfg).build().expect("multiplier=100.0 must build");
+    Builder::with_config(cfg)
+        .build()
+        .expect("multiplier=100.0 must build");
 }
 
 // ---------------------------------------------------------------------------

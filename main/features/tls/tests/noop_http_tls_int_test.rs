@@ -44,7 +44,9 @@ fn test_none_layer_apply_to_succeeds() {
     let cb = layer
         .apply_to(reqwest::Client::builder())
         .expect("None apply_to must return Ok");
-    let _client = cb.build().expect("ClientBuilder must build after noop apply_to");
+    let _client = cb
+        .build()
+        .expect("ClientBuilder must build after noop apply_to");
 }
 
 /// The noop path must not add an `Identity` to the `ClientBuilder`.

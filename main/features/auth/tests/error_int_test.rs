@@ -44,7 +44,9 @@ fn test_error_parse_failed_display_distinct_reasons_produce_distinct_messages() 
 
 #[test]
 fn test_error_missing_env_var_display_contains_crate_name() {
-    let err = Error::MissingEnvVar { name: "SOME_VAR".into() };
+    let err = Error::MissingEnvVar {
+        name: "SOME_VAR".into(),
+    };
     let s = err.to_string();
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -55,7 +57,10 @@ fn test_error_missing_env_var_display_contains_crate_name() {
 #[test]
 fn test_error_missing_env_var_display_contains_var_name() {
     let var_name = "MY_SPECIFIC_SECRET_ENV_VAR";
-    let s = Error::MissingEnvVar { name: var_name.into() }.to_string();
+    let s = Error::MissingEnvVar {
+        name: var_name.into(),
+    }
+    .to_string();
     assert!(
         s.contains(var_name),
         "MissingEnvVar Display must include the var name so operators know what to set: {s}"
@@ -64,8 +69,14 @@ fn test_error_missing_env_var_display_contains_var_name() {
 
 #[test]
 fn test_error_missing_env_var_display_different_names_produce_different_messages() {
-    let s1 = Error::MissingEnvVar { name: "VAR_A".into() }.to_string();
-    let s2 = Error::MissingEnvVar { name: "VAR_B".into() }.to_string();
+    let s1 = Error::MissingEnvVar {
+        name: "VAR_A".into(),
+    }
+    .to_string();
+    let s2 = Error::MissingEnvVar {
+        name: "VAR_B".into(),
+    }
+    .to_string();
     assert_ne!(s1, s2);
 }
 
@@ -75,7 +86,9 @@ fn test_error_missing_env_var_display_different_names_produce_different_messages
 
 #[test]
 fn test_error_unsupported_kind_display_contains_crate_name() {
-    let err = Error::UnsupportedKind { kind: "oauth2".into() };
+    let err = Error::UnsupportedKind {
+        kind: "oauth2".into(),
+    };
     let s = err.to_string();
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -208,7 +221,11 @@ fn test_error_variants_produce_distinct_display_strings() {
         Error::MissingEnvVar { name: "x".into() }.to_string(),
         Error::UnsupportedKind { kind: "x".into() }.to_string(),
         Error::InvalidHeaderValue("x".into()).to_string(),
-        Error::InvalidHeaderName { name: "x".into(), reason: "x".into() }.to_string(),
+        Error::InvalidHeaderName {
+            name: "x".into(),
+            reason: "x".into(),
+        }
+        .to_string(),
         Error::NotImplemented("x").to_string(),
     ];
     // Every message must be unique — they carry different prefixes.
@@ -229,7 +246,9 @@ fn test_error_debug_impl_does_not_panic_for_any_variant() {
     let variants: Vec<Error> = vec![
         Error::ParseFailed("x".into()),
         Error::MissingEnvVar { name: "VAR".into() },
-        Error::UnsupportedKind { kind: "oauth2".into() },
+        Error::UnsupportedKind {
+            kind: "oauth2".into(),
+        },
         Error::InvalidHeaderValue("bad val".into()),
         Error::InvalidHeaderName {
             name: "bad-name".into(),

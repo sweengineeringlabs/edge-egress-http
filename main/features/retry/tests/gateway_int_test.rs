@@ -94,7 +94,11 @@ fn test_retry_layer_satisfies_send_and_sync_bounds() {
 fn test_builder_with_config_stores_all_custom_policy_fields() {
     let cfg = make_cfg();
     let b = Builder::with_config(cfg);
-    assert_eq!(b.config().max_retries, 3, "max_retries must be stored unmodified");
+    assert_eq!(
+        b.config().max_retries,
+        3,
+        "max_retries must be stored unmodified"
+    );
     assert_eq!(
         b.config().initial_interval_ms,
         100,
@@ -105,7 +109,11 @@ fn test_builder_with_config_stores_all_custom_policy_fields() {
         5000,
         "max_interval_ms must be stored unmodified"
     );
-    assert_eq!(b.config().multiplier, 2.0, "multiplier must be stored unmodified");
+    assert_eq!(
+        b.config().multiplier,
+        2.0,
+        "multiplier must be stored unmodified"
+    );
     assert_eq!(
         b.config().retryable_statuses,
         vec![500u16, 502, 503],

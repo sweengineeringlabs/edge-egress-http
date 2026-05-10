@@ -3,7 +3,12 @@
 use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, Builder};
 
 fn make_cfg() -> BreakerConfig {
-    BreakerConfig { failure_threshold: 3, half_open_after_seconds: 60, reset_after_successes: 2, failure_statuses: vec![500, 502, 503] }
+    BreakerConfig {
+        failure_threshold: 3,
+        half_open_after_seconds: 60,
+        reset_after_successes: 2,
+        failure_statuses: vec![500, 502, 503],
+    }
 }
 
 /// @covers: builder
@@ -41,6 +46,8 @@ fn test_e2e_build() {
         reset_after_successes: 3,
         failure_statuses: vec![503, 504],
     };
-    let layer = Builder::with_config(cfg).build().expect("e2e build must succeed");
+    let layer = Builder::with_config(cfg)
+        .build()
+        .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

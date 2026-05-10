@@ -9,7 +9,6 @@ use crate::api::cassette_config::CassetteConfig;
 use crate::api::cassette_layer::CassetteLayer;
 use crate::api::error::Error;
 
-
 /// Start configuring the cassette with the SWE baseline.
 pub fn builder() -> Result<Builder, Error> {
     let cfg = CassetteConfig::swe_default()?;
@@ -68,6 +67,8 @@ mod tests {
             "#
         );
         let cfg = CassetteConfig::from_config(&toml).unwrap();
-        let _layer = Builder::with_config(cfg).build("fresh_case").expect("build ok");
+        let _layer = Builder::with_config(cfg)
+            .build("fresh_case")
+            .expect("build ok");
     }
 }

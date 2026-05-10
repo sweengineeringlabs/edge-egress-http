@@ -128,7 +128,10 @@ mod tests {
         // Values come from config/application.toml — NOT asserted
         // against hardcoded numbers here. The point of the test
         // is that the file exists and parses cleanly.
-        assert!(cfg.max_retries >= 1, "baseline must allow at least one attempt");
+        assert!(
+            cfg.max_retries >= 1,
+            "baseline must allow at least one attempt"
+        );
         assert!(!cfg.retryable_statuses.is_empty());
     }
 }
