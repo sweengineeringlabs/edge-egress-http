@@ -10,7 +10,7 @@
 //! - The builder pipeline does not modify the config values on the way through
 //!   `DefaultHttpRetry::new`.
 
-use swe_edge_egress_retry::{builder, Builder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{builder, ApplicationConfigBuilder, RetryConfig, RetryLayer};
 
 fn make_cfg(max_retries: u32, initial_ms: u64) -> RetryConfig {
     RetryConfig {
@@ -27,12 +27,12 @@ fn make_cfg(max_retries: u32, initial_ms: u64) -> RetryConfig {
 // DefaultHttpRetry::new — indirectly via builder pipeline
 // ---------------------------------------------------------------------------
 
-/// `DefaultHttpRetry::new` is invoked with the config inside `Builder::build`.
+/// `DefaultHttpRetry::new` is invoked with the config inside `ApplicationConfigBuilder::build`.
 /// Observable effect: the layer's Debug output must embed `max_retries` and
 /// `initial_interval_ms`, confirming the config was not swapped or reset.
 #[test]
 fn test_builder_pipeline_embeds_config_in_default_http_retry() {
-    let layer: RetryLayer = Builder::with_config(make_cfg(4, 250))
+    let layer: RetryLayer = ApplicationConfigBuilder::with_config(make_cfg(4, 250))
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -55,8 +55,8 @@ fn test_builder_pipeline_embeds_config_in_default_http_retry() {
 /// confirming `DefaultHttpRetry::new` stores the supplied config verbatim.
 #[test]
 fn test_two_layers_different_configs_have_different_debug() {
-    let l1 = Builder::with_config(make_cfg(1, 100)).build().unwrap();
-    let l2 = Builder::with_config(make_cfg(5, 500)).build().unwrap();
+    let l1 = ApplicationConfigBuilder::with_config(make_cfg(1, 100)).build().unwrap();
+    let l2 = ApplicationConfigBuilder::with_config(make_cfg(5, 500)).build().unwrap();
     assert_ne!(
         format!("{l1:?}"),
         format!("{l2:?}"),
@@ -82,7 +82,7 @@ fn test_retry_layer_is_send_and_sync() {
 // ---------------------------------------------------------------------------
 
 /// All config fields must survive the `DefaultHttpRetry::new` call
-/// unchanged. Observed through `Builder::config()` pre-build.
+/// unchanged. Observed through `ApplicationConfigBuilder::config()` pre-build.
 #[test]
 fn test_builder_does_not_mutate_config_in_default_http_retry() {
     let retryable_statuses = vec![429u16, 500, 502, 503, 504];
@@ -95,7 +95,7 @@ fn test_builder_does_not_mutate_config_in_default_http_retry() {
         retryable_statuses: retryable_statuses.clone(),
         retryable_methods: retryable_methods.clone(),
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(b.config().max_retries, 6);
     assert_eq!(b.config().initial_interval_ms, 300);
     assert_eq!(b.config().max_interval_ms, 15_000);

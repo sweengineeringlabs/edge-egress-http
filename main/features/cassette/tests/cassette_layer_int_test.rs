@@ -1,10 +1,10 @@
 //! Integration tests for `CassetteLayer` public surface (api type).
 //!
-//! `CassetteLayer` is an opaque type created via `Builder::build`. Tests
+//! `CassetteLayer` is an opaque type created via `ApplicationConfigBuilder::build`. Tests
 //! exercise observable properties: Debug output, Send+Sync bounds, and
 //! path derivation from `cassette_dir` + cassette name.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
 
 fn make_cfg(dir: &str, mode: &str) -> CassetteConfig {
     CassetteConfig {
@@ -26,7 +26,7 @@ fn make_cfg(dir: &str, mode: &str) -> CassetteConfig {
 fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer: CassetteLayer = Builder::with_config(make_cfg(dir, "auto"))
+    let layer: CassetteLayer = ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
         .build("nonexistent_cassette")
         .expect("build must succeed");
     // The cassette file should not exist on disk yet — it is only written
@@ -45,7 +45,7 @@ fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
 fn test_cassette_layer_debug_contains_mode_and_path() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer = Builder::with_config(make_cfg(dir, "replay"))
+    let layer = ApplicationConfigBuilder::with_config(make_cfg(dir, "replay"))
         .build("debug_check")
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -68,10 +68,10 @@ fn test_cassette_layer_debug_contains_mode_and_path() {
 fn test_two_layers_with_different_names_have_different_paths() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let a = Builder::with_config(make_cfg(dir, "auto"))
+    let a = ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
         .build("cassette_a")
         .expect("build a");
-    let b = Builder::with_config(make_cfg(dir, "auto"))
+    let b = ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
         .build("cassette_b")
         .expect("build b");
     let dbg_a = format!("{a:?}");
@@ -109,7 +109,7 @@ fn test_cassette_layer_is_sync() {
 fn test_build_auto_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, "auto"))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
         .build("auto_mode")
         .expect("auto mode must produce a layer");
 }
@@ -118,7 +118,7 @@ fn test_build_auto_mode_returns_layer() {
 fn test_build_record_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, "record"))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, "record"))
         .build("record_mode")
         .expect("record mode must produce a layer");
 }
@@ -127,7 +127,7 @@ fn test_build_record_mode_returns_layer() {
 fn test_build_replay_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, "replay"))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, "replay"))
         .build("replay_mode")
         .expect("replay mode must produce a layer");
 }

@@ -1,7 +1,7 @@
 //! Integration tests for `CredentialSource` behaviour.
 //!
 //! `CredentialSource` is `pub(crate)` — it cannot be imported here.
-//! These tests exercise its effects through `Builder::build()`:
+//! These tests exercise its effects through `ApplicationConfigBuilder::build()`:
 //! the `EnvVar` source kind is the only one that exists, and its
 //! resolution failure message must identify the var name declared
 //! in the config.
@@ -13,7 +13,7 @@
 //!   carrying the exact name.
 //! - The config stores only the env-var NAME, never a resolved value.
 
-use swe_edge_egress_auth::{AuthConfig, Builder, Error};
+use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
 
 // ---------------------------------------------------------------------------
 // Bearer: source is the token_env name
@@ -23,7 +23,7 @@ use swe_edge_egress_auth::{AuthConfig, Builder, Error};
 fn test_credential_source_bearer_identifies_missing_token_env_by_name() {
     let env_name = "SWE_AUTH_SRC_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -41,7 +41,7 @@ fn test_credential_source_bearer_identifies_missing_token_env_by_name() {
 fn test_credential_source_bearer_resolved_when_token_env_is_present() {
     let env_name = "SWE_AUTH_SRC_BRR_02";
     std::env::set_var(env_name, "src-bearer-value");
-    Builder::with_config(AuthConfig::Bearer {
+    ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -59,7 +59,7 @@ fn test_credential_source_basic_identifies_missing_pass_env_by_name() {
     let pass_env = "SWE_AUTH_SRC_BASIC_P_01";
     std::env::set_var(user_env, "user-present");
     std::env::remove_var(pass_env); // Only pass is missing
-    let err = Builder::with_config(AuthConfig::Basic {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -81,7 +81,7 @@ fn test_credential_source_basic_both_resolved_when_both_envs_present() {
     let pass_env = "SWE_AUTH_SRC_BASIC_P_02";
     std::env::set_var(user_env, "src-user");
     std::env::set_var(pass_env, "src-pass");
-    Builder::with_config(AuthConfig::Basic {
+    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -99,7 +99,7 @@ fn test_credential_source_basic_both_resolved_when_both_envs_present() {
 fn test_credential_source_header_identifies_missing_value_env_by_name() {
     let env_name = "SWE_AUTH_SRC_HDR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Header {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
         name: "x-test-key".into(),
         value_env: env_name.into(),
     })
@@ -121,7 +121,7 @@ fn test_credential_source_digest_identifies_missing_user_env_by_name() {
     let pass_env = "SWE_AUTH_SRC_DIG_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Digest {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -144,7 +144,7 @@ fn test_credential_source_aws_sigv4_identifies_missing_access_key_by_name() {
     let sk_env = "SWE_AUTH_SRC_AWS_SK_01";
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
-    let err = Builder::with_config(AuthConfig::AwsSigV4 {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
@@ -167,7 +167,7 @@ fn test_credential_source_aws_sigv4_optional_session_token_not_required() {
     let sk_env = "SWE_AUTH_SRC_AWS_SK_02";
     std::env::set_var(ak_env, "AKID_src_test");
     std::env::set_var(sk_env, "SECRET_src_test");
-    Builder::with_config(AuthConfig::AwsSigV4 {
+    ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None, // optional source not declared → not resolved
@@ -188,7 +188,7 @@ fn test_credential_source_aws_sigv4_session_token_env_resolved_when_present() {
     std::env::set_var(ak_env, "AKID_src_st");
     std::env::set_var(sk_env, "SECRET_src_st");
     std::env::set_var(st_env, "SESSION_src_st");
-    Builder::with_config(AuthConfig::AwsSigV4 {
+    ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: Some(st_env.into()),
@@ -210,7 +210,7 @@ fn test_credential_source_aws_sigv4_session_token_env_absent_fails() {
     std::env::set_var(ak_env, "AKID");
     std::env::set_var(sk_env, "SECRET");
     std::env::remove_var(st_env); // declared but not set
-    let err = Builder::with_config(AuthConfig::AwsSigV4 {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: Some(st_env.into()),

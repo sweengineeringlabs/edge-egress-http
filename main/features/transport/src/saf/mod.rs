@@ -65,13 +65,13 @@ pub enum HttpOutboundBuildError {
 pub fn http_outbound(
     config: HttpOutboundConfig,
 ) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
-    let retry = swe_edge_egress_retry::Builder::with_config(config.retry).build()?;
-    let rate = swe_edge_egress_rate::Builder::with_config(config.rate).build()?;
-    let breaker = swe_edge_egress_breaker::Builder::with_config(config.breaker).build()?;
-    let cache = swe_edge_egress_cache::Builder::with_config(config.cache).build()?;
-    let cassette = swe_edge_egress_cassette::Builder::with_config(config.cassette)
+    let retry = swe_edge_egress_retry::ApplicationConfigBuilder::with_config(config.retry).build()?;
+    let rate = swe_edge_egress_rate::ApplicationConfigBuilder::with_config(config.rate).build()?;
+    let breaker = swe_edge_egress_breaker::ApplicationConfigBuilder::with_config(config.breaker).build()?;
+    let cache = swe_edge_egress_cache::ApplicationConfigBuilder::with_config(config.cache).build()?;
+    let cassette = swe_edge_egress_cassette::ApplicationConfigBuilder::with_config(config.cassette)
         .build(&config.cassette_name)?;
-    let tls = swe_edge_egress_tls::Builder::with_config(config.tls).build()?;
+    let tls = swe_edge_egress_tls::ApplicationConfigBuilder::with_config(config.tls).build()?;
 
     if let Some(source) = config.token_source {
         assemble(
@@ -90,7 +90,7 @@ pub fn http_outbound(
     } else {
         assemble(
             config.http,
-            swe_edge_egress_auth::Builder::with_config(config.auth).build()?,
+            swe_edge_egress_auth::ApplicationConfigBuilder::with_config(config.auth).build()?,
             retry,
             rate,
             breaker,
@@ -123,7 +123,7 @@ pub fn http_outbound_oauth(
         swe_edge_egress_cache::builder()?.build()?,
         // Cassette is disabled in production convenience functions — it is
         // test infrastructure and must not intercept real outbound calls.
-        swe_edge_egress_cassette::Builder::with_config(
+        swe_edge_egress_cassette::ApplicationConfigBuilder::with_config(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
         )
         .build("unused")?,
@@ -142,13 +142,13 @@ pub fn http_outbound_with_auth(
 ) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
     assemble(
         http,
-        swe_edge_egress_auth::Builder::with_config(auth).build()?,
+        swe_edge_egress_auth::ApplicationConfigBuilder::with_config(auth).build()?,
         swe_edge_egress_retry::builder()?.build()?,
         swe_edge_egress_rate::builder()?.build()?,
         swe_edge_egress_breaker::builder()?.build()?,
         swe_edge_egress_cache::builder()?.build()?,
         // Cassette disabled — production convenience function.
-        swe_edge_egress_cassette::Builder::with_config(
+        swe_edge_egress_cassette::ApplicationConfigBuilder::with_config(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
         )
         .build("unused")?,
@@ -187,7 +187,7 @@ pub fn default_http_outbound_with_config(
         swe_edge_egress_rate::builder()?.build()?,
         swe_edge_egress_breaker::builder()?.build()?,
         swe_edge_egress_cache::builder()?.build()?,
-        swe_edge_egress_cassette::Builder::with_config(
+        swe_edge_egress_cassette::ApplicationConfigBuilder::with_config(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
         )
         .build("unused")?,

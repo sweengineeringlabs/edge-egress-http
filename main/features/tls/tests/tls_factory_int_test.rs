@@ -1,7 +1,7 @@
 //! Integration tests for `core::identity::tls_factory::build_provider`.
 //!
 //! `build_provider` is `pub(crate)`. Integration tests verify the factory's
-//! contract through the public `Builder::build()` path, which calls
+//! contract through the public `ApplicationConfigBuilder::build()` path, which calls
 //! `build_provider(&self.config)` internally:
 //!
 //! - `TlsConfig::None` → noop provider → layer Debug contains "noop".
@@ -15,7 +15,7 @@
 //! - Each variant selects the correct provider (`describe()` embedded in
 //!   the `TlsLayer` Debug).
 
-use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsApplier, TlsConfig};
 
 // ---------------------------------------------------------------------------
 // None variant → noop provider
@@ -25,7 +25,7 @@ use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig};
 /// producing a layer whose Debug output contains "noop".
 #[test]
 fn test_factory_none_variant_selects_noop_provider() {
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
@@ -39,7 +39,7 @@ fn test_factory_none_variant_selects_noop_provider() {
 /// must not corrupt the provider boxed inside the layer.
 #[test]
 fn test_factory_none_provider_allows_apply_to_to_succeed() {
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     layer
@@ -58,7 +58,7 @@ fn test_factory_pem_variant_returns_file_read_failed_for_missing_file() {
     let cfg = TlsConfig::Pem {
         path: "/factory/test/missing.pem".into(),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "factory must produce FileReadFailed for missing PEM; got: {err:?}"
@@ -77,7 +77,7 @@ fn test_factory_pkcs12_no_password_missing_file_returns_file_read_failed() {
         path: "/factory/test/missing.p12".into(),
         password_env: None,
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "factory must produce FileReadFailed for missing PKCS12 file; got: {err:?}"
@@ -94,7 +94,7 @@ fn test_factory_pkcs12_unset_password_env_returns_missing_env_var() {
         path: "irrelevant.p12".into(),
         password_env: Some(env.into()),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
@@ -111,7 +111,7 @@ fn test_factory_pkcs12_set_password_env_missing_file_returns_file_read_failed() 
         path: "/factory/test/missing_with_pw.p12".into(),
         password_env: Some(env.into()),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "factory must return FileReadFailed when env is set but file is missing; got: {err:?}"
@@ -131,14 +131,14 @@ fn test_factory_three_error_paths_produce_distinct_messages() {
     let env = "SWE_IT_TLS_FACTORY_DISTINCT_08";
     std::env::remove_var(env);
 
-    let e_pem = Builder::with_config(TlsConfig::Pem {
+    let e_pem = ApplicationConfigBuilder::with_config(TlsConfig::Pem {
         path: "/f/t/a.pem".into(),
     })
     .build()
     .unwrap_err()
     .to_string();
 
-    let e_pkcs12_no_pw = Builder::with_config(TlsConfig::Pkcs12 {
+    let e_pkcs12_no_pw = ApplicationConfigBuilder::with_config(TlsConfig::Pkcs12 {
         path: "/f/t/b.p12".into(),
         password_env: None,
     })
@@ -146,7 +146,7 @@ fn test_factory_three_error_paths_produce_distinct_messages() {
     .unwrap_err()
     .to_string();
 
-    let e_pkcs12_missing_env = Builder::with_config(TlsConfig::Pkcs12 {
+    let e_pkcs12_missing_env = ApplicationConfigBuilder::with_config(TlsConfig::Pkcs12 {
         path: "irrelevant.p12".into(),
         password_env: Some(env.into()),
     })

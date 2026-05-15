@@ -9,7 +9,7 @@ use std::sync::Arc;
 use crate::api::retry_config::RetryConfig;
 
 /// Retry middleware layer. Opaque handle — consumers get one
-/// from `saf::builder()` → `Builder::build()` and pass it to
+/// from `saf::builder()` → `ApplicationConfigBuilder::build()` and pass it to
 /// `reqwest_middleware::ClientBuilder`.
 pub struct RetryLayer {
     pub(crate) config: Arc<RetryConfig>,

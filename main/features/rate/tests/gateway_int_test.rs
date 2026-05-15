@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_rate crate.
 
-use swe_edge_egress_rate::{Builder, Error, RateConfig, RateLayer};
+use swe_edge_egress_rate::{ApplicationConfigBuilder, Error, RateConfig, RateLayer};
 
 fn make_cfg() -> RateConfig {
     RateConfig {
@@ -26,7 +26,7 @@ fn test_builder_fn_default_config_has_positive_tokens_per_second() {
 
 #[test]
 fn test_with_config_custom_config_stores_values() {
-    let b = Builder::with_config(make_cfg());
+    let b = ApplicationConfigBuilder::with_config(make_cfg());
     assert_eq!(b.config().tokens_per_second, 10);
     assert_eq!(b.config().burst_capacity, 20);
     assert!(!b.config().per_host);
@@ -47,7 +47,7 @@ fn test_build_default_produces_rate_layer() {
 
 #[test]
 fn test_build_custom_config_produces_layer() {
-    Builder::with_config(make_cfg())
+    ApplicationConfigBuilder::with_config(make_cfg())
         .build()
         .expect("build with custom cfg must succeed");
 }
@@ -65,7 +65,7 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 20,
         per_host: true,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("per_host=true must build");
 }
@@ -77,7 +77,7 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 20,
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("per_host=false must build");
 }
@@ -89,7 +89,7 @@ fn test_with_config_high_rate_flows_through_config_accessor() {
         burst_capacity: 5000,
         per_host: false,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(b.config().tokens_per_second, 1000);
 }
 

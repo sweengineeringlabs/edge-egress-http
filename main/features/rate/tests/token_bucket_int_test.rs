@@ -9,7 +9,7 @@
 //! - Edge-case capacity values (minimum, large, burst == rate) must all
 //!   be accepted by the builder.
 
-use swe_edge_egress_rate::{Builder, RateConfig, RateLayer};
+use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // burst_capacity == tokens_per_second — no burst beyond steady rate
@@ -24,7 +24,7 @@ fn test_token_bucket_burst_equals_rate_layer_builds() {
         burst_capacity: 10, // same as rate — no burst allowance
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("burst_capacity == tokens_per_second must build");
 }
@@ -42,7 +42,7 @@ fn test_token_bucket_burst_multiple_of_rate_builds() {
         burst_capacity: 50,
         per_host: true,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("burst_capacity=5x rate must build");
 }
@@ -60,7 +60,7 @@ fn test_token_bucket_minimum_config_builds_and_debug_correct() {
         burst_capacity: 1,
         per_host: false,
     };
-    let layer: RateLayer = Builder::with_config(cfg).build().expect("build");
+    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("1"),
@@ -82,7 +82,7 @@ fn test_token_bucket_large_burst_capacity_builds() {
         burst_capacity: 100_000,
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("large burst_capacity must not be rejected by token bucket init");
 }
@@ -99,7 +99,7 @@ fn test_token_bucket_per_host_keying_builds() {
         burst_capacity: 40,
         per_host: true,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("per_host=true (per-host buckets) must build");
 }
@@ -113,7 +113,7 @@ fn test_token_bucket_global_keying_builds() {
         burst_capacity: 40,
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("per_host=false (global bucket) must build");
 }

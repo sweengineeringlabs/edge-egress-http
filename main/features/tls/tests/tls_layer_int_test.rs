@@ -1,22 +1,22 @@
 //! Integration tests for `TlsLayer` public surface (api type).
 //!
-//! `TlsLayer` is an opaque type created via `Builder::build`. Tests exercise:
+//! `TlsLayer` is an opaque type created via `ApplicationConfigBuilder::build`. Tests exercise:
 //! - Debug output for each config variant.
 //! - `apply_to` for the `None` (pass-through) case.
 //! - Send + Sync bounds.
 //! - That the layer is usable in the standard `apply_to + ClientBuilder` pattern.
 
-use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
-// TlsLayer construction via Builder::build
+// TlsLayer construction via ApplicationConfigBuilder::build
 // ---------------------------------------------------------------------------
 
 /// `TlsConfig::None` must build into a `TlsLayer` whose Debug output names
 /// both the struct and the "noop" provider.
 #[test]
 fn test_build_none_produces_layer_with_noop_in_debug() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
@@ -37,7 +37,7 @@ fn test_build_pem_missing_file_fails_eagerly() {
     let cfg = TlsConfig::Pem {
         path: "/definitely/missing.pem".into(),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PEM must fail at build time; got: {err:?}"
@@ -51,7 +51,7 @@ fn test_build_pkcs12_missing_file_fails_eagerly() {
         path: "/definitely/missing.p12".into(),
         password_env: None,
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PKCS12 file must fail at build time; got: {err:?}"
@@ -68,7 +68,7 @@ fn test_build_pkcs12_unset_password_env_fails_eagerly() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
@@ -83,7 +83,7 @@ fn test_build_pkcs12_unset_password_env_fails_eagerly() {
 /// `ClientBuilder`.
 #[test]
 fn test_apply_to_none_returns_ok() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let result = layer.apply_to(reqwest::Client::builder());
@@ -97,7 +97,7 @@ fn test_apply_to_none_returns_ok() {
 /// call `build()` — confirming the builder was not corrupted.
 #[test]
 fn test_apply_to_none_produces_buildable_client_builder() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let builder = layer
@@ -112,7 +112,7 @@ fn test_apply_to_none_produces_buildable_client_builder() {
 /// (the provider is held behind an `Arc` so it is not consumed).
 #[test]
 fn test_apply_to_none_is_idempotent() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     layer
@@ -144,7 +144,7 @@ fn test_tls_layer_is_sync() {
 #[test]
 fn test_tls_layer_is_arc_safe() {
     use std::sync::Arc;
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let _arc: Arc<TlsLayer> = Arc::new(layer);
@@ -158,13 +158,13 @@ fn test_tls_layer_is_arc_safe() {
 /// confirming the provider field is actually embedded.
 #[test]
 fn test_two_layers_have_different_debug_strings() {
-    let l_none = Builder::with_config(TlsConfig::None)
+    let l_none = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     // Build a Pem layer with a file that doesn't exist — should fail, not produce
     // a None layer silently. We use a layer that does build for comparison:
     // build two None layers with the same config — they must have identical Debug.
-    let l_none2 = Builder::with_config(TlsConfig::None)
+    let l_none2 = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     // Both must produce the same Debug (deterministic).

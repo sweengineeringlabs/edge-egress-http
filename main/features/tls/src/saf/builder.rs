@@ -10,14 +10,14 @@ use crate::core::identity::build_provider;
 
 /// Start configuring the TLS layer with the SWE baseline
 /// (`kind = "none"` — pass-through).
-pub fn builder() -> Result<Builder, Error> {
+pub fn builder() -> Result<ApplicationConfigBuilder, Error> {
     let cfg = TlsConfig::swe_default()?;
-    Ok(Builder::with_config(cfg))
+    Ok(ApplicationConfigBuilder::with_config(cfg))
 }
 
-pub use crate::api::builder::Builder;
+pub use crate::api::builder::ApplicationConfigBuilder;
 
-impl Builder {
+impl ApplicationConfigBuilder {
     /// Construct from a caller-supplied config.
     pub fn with_config(config: TlsConfig) -> Self {
         Self { config }
@@ -48,7 +48,7 @@ mod tests {
         assert!(matches!(b.config(), TlsConfig::None));
     }
 
-    /// @covers: Builder::build
+    /// @covers: ApplicationConfigBuilder::build
     #[test]
     fn test_build_with_none_config_returns_pass_through_layer() {
         let layer = builder().expect("baseline").build().expect("build ok");
@@ -56,13 +56,13 @@ mod tests {
         assert!(s.contains("noop"));
     }
 
-    /// @covers: Builder::build
+    /// @covers: ApplicationConfigBuilder::build
     #[test]
     fn test_build_with_missing_pem_file_fails_fast() {
         let cfg = TlsConfig::Pem {
             path: "/this/path/does/not/exist.pem".into(),
         };
-        let err = Builder::with_config(cfg).build().unwrap_err();
+        let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
         match err {
             Error::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),

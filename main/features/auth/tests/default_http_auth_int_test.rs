@@ -1,7 +1,7 @@
 //! Integration tests for `DefaultHttpAuth` behaviour.
 //!
 //! `DefaultHttpAuth` is `pub(crate)`.  Its effects are observable through:
-//! 1. `Builder::build()` success/failure (build-time credential resolution)
+//! 1. `ApplicationConfigBuilder::build()` success/failure (build-time credential resolution)
 //! 2. The `AuthMiddleware::handle()` path (reqwest_middleware trait) which
 //!    delegates to `DefaultHttpAuth::process()`.
 //! 3. The Debug output of `AuthMiddleware`, which calls
@@ -15,7 +15,7 @@
 //! - `build()` succeeds when env vars are present.
 //! - `process()` is reachable end-to-end via the middleware handle path.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder, Error};
+use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder, Error};
 
 // ---------------------------------------------------------------------------
 // describe() via AuthMiddleware Debug
@@ -23,7 +23,7 @@ use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder, Error};
 
 #[test]
 fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
-    let mw: AuthMiddleware = Builder::with_config(AuthConfig::None)
+    let mw: AuthMiddleware = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None must build");
     let s = format!("{mw:?}");
@@ -37,7 +37,7 @@ fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
 fn test_default_http_auth_describe_returns_crate_name_for_bearer_config() {
     let env_name = "SWE_AUTH_DHA_DESC_BRR_01";
     std::env::set_var(env_name, "describe-test-tok");
-    let mw = Builder::with_config(AuthConfig::Bearer {
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -56,8 +56,8 @@ fn test_default_http_auth_describe_same_for_all_configs() {
     // Build two middlewares with different schemes and compare.
     let env_name = "SWE_AUTH_DHA_DESC_SAME_01";
     std::env::set_var(env_name, "tok");
-    let mw_none = Builder::with_config(AuthConfig::None).build().unwrap();
-    let mw_bearer = Builder::with_config(AuthConfig::Bearer {
+    let mw_none = ApplicationConfigBuilder::with_config(AuthConfig::None).build().unwrap();
+    let mw_bearer = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -77,7 +77,7 @@ fn test_default_http_auth_describe_same_for_all_configs() {
 fn test_default_http_auth_build_fails_with_missing_env_var_for_bearer() {
     let env_name = "SWE_AUTH_DHA_BUILD_MISS_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -94,7 +94,7 @@ fn test_default_http_auth_build_fails_with_missing_env_var_for_basic() {
     let pass_env = "SWE_AUTH_DHA_BUILD_MISS_BASIC_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Basic {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -112,7 +112,7 @@ fn test_default_http_auth_build_fails_with_missing_env_var_for_basic() {
 
 #[test]
 fn test_default_http_auth_build_succeeds_for_none() {
-    Builder::with_config(AuthConfig::None)
+    ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None config must always build");
 }
@@ -121,7 +121,7 @@ fn test_default_http_auth_build_succeeds_for_none() {
 fn test_default_http_auth_build_succeeds_for_bearer_with_env() {
     let env_name = "SWE_AUTH_DHA_BUILD_OK_BRR_01";
     std::env::set_var(env_name, "build-ok-token");
-    Builder::with_config(AuthConfig::Bearer {
+    ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -135,7 +135,7 @@ fn test_default_http_auth_build_succeeds_for_basic_with_envs() {
     let pass_env = "SWE_AUTH_DHA_BUILD_OK_BASIC_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "password");
-    Builder::with_config(AuthConfig::Basic {
+    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -156,7 +156,7 @@ async fn test_default_http_auth_process_none_attaches_no_auth_headers() {
     // None config → NoopStrategy → process() must add no headers.
     // We can't send a real request, but we can wire the middleware into
     // a ClientBuilder and verify it doesn't panic during wiring.
-    let mw = Builder::with_config(AuthConfig::None)
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("build ok");
     let _client = ClientBuilder::new(reqwest::Client::new()).with(mw).build();
@@ -170,7 +170,7 @@ async fn test_default_http_auth_process_bearer_wires_without_panic() {
 
     let env_name = "SWE_AUTH_DHA_PROC_BRR_01";
     std::env::set_var(env_name, "proc-bearer-tok");
-    let mw = Builder::with_config(AuthConfig::Bearer {
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()

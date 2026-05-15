@@ -12,7 +12,7 @@
 //!   boundary transitions.
 //! - Policy field values are faithfully carried by the layer's `Debug` output.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, Builder};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder};
 
 // ---------------------------------------------------------------------------
 // Threshold = 1 — opens on first failure
@@ -28,7 +28,7 @@ fn test_host_breaker_threshold_one_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    let layer: BreakerLayer = Builder::with_config(cfg).build().expect("build");
+    let layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("1"),
@@ -49,7 +49,7 @@ fn test_host_breaker_single_success_reset_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("reset_after_successes=1 must not be rejected");
 }
@@ -68,7 +68,7 @@ fn test_host_breaker_zero_wait_before_half_open_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("half_open_after_seconds=0 must not be rejected");
 }
@@ -88,7 +88,7 @@ fn test_host_breaker_4xx_failure_statuses_layer_builds() {
         reset_after_successes: 3,
         failure_statuses: vec![400, 404, 429],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("4xx failure_statuses must not be rejected");
 }
@@ -113,8 +113,8 @@ fn test_host_breaker_two_layers_have_independent_state() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let a = Builder::with_config(cfg_a).build().expect("build a");
-    let b = Builder::with_config(cfg_b).build().expect("build b");
+    let a = ApplicationConfigBuilder::with_config(cfg_a).build().expect("build a");
+    let b = ApplicationConfigBuilder::with_config(cfg_b).build().expect("build b");
 
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");

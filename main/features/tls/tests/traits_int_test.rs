@@ -4,11 +4,11 @@
 //! `dyn HttpTls`. The integration-level contract is:
 //!
 //! - The SAF re-export surface is complete: `TlsConfig`, `TlsLayer`,
-//!   `Builder`, `Error`, and `builder()` are all accessible.
+//!   `ApplicationConfigBuilder`, `Error`, and `builder()` are all accessible.
 //! - `TlsLayer::apply_to` works end-to-end with a `reqwest::ClientBuilder`.
 //! - `TlsLayer` is `Send + Sync` (flows from `HttpTls: Send + Sync + Debug`).
 
-use swe_edge_egress_tls::{builder, Builder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // SAF re-export completeness — compile-time proof
@@ -19,11 +19,11 @@ use swe_edge_egress_tls::{builder, Builder, Error, TlsApplier, TlsConfig, TlsLay
 #[test]
 fn test_saf_surface_exports_all_required_types() {
     // builder() — function
-    let _ = builder as fn() -> Result<swe_edge_egress_tls::Builder, Error>;
+    let _ = builder as fn() -> Result<swe_edge_egress_tls::ApplicationConfigBuilder, Error>;
 
-    // Builder — type
-    fn accept_builder(_: Builder) {}
-    let _ = accept_builder as fn(Builder);
+    // ApplicationConfigBuilder — type
+    fn accept_builder(_: ApplicationConfigBuilder) {}
+    let _ = accept_builder as fn(ApplicationConfigBuilder);
 
     // TlsConfig — type
     let _ = TlsConfig::None;
@@ -47,7 +47,7 @@ fn test_saf_surface_exports_all_required_types() {
 #[test]
 fn test_tls_layer_holds_arc_dyn_provider() {
     // The TlsLayer itself proves Arc<dyn HttpTls> works.
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     // If Arc<dyn HttpTls> weren't working, build() would fail to compile.
@@ -82,11 +82,11 @@ fn test_full_saf_pipeline_none_config_builds_client() {
     let _client = cb.build().expect("ClientBuilder must build");
 }
 
-/// The full pipeline through `Builder::with_config(TlsConfig::None)` must
+/// The full pipeline through `ApplicationConfigBuilder::with_config(TlsConfig::None)` must
 /// also produce a working client.
 #[test]
 fn test_full_with_config_pipeline_none_config_builds_client() {
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let _client = layer

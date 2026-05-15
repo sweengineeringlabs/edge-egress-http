@@ -1,9 +1,9 @@
 //! Integration tests for `api/builder.rs` and `saf/builder.rs`.
 //!
 //! Covers the full public builder surface: the `builder()` free function and
-//! the `Builder` type's `with_config`, `config`, and `build` methods.
+//! the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, Builder, Error};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder, Error};
 
 // ---------------------------------------------------------------------------
 // builder() free function
@@ -44,7 +44,7 @@ fn test_builder_fn_swe_default_reset_after_successes_is_positive() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config — custom policy round-trips correctly
+// ApplicationConfigBuilder::with_config — custom policy round-trips correctly
 // ---------------------------------------------------------------------------
 
 /// `with_config` must preserve every field of the supplied `BreakerConfig`
@@ -57,7 +57,7 @@ fn test_with_config_preserves_all_fields() {
         reset_after_successes: 3,
         failure_statuses: vec![500, 502, 503],
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy = b.config();
     assert_eq!(policy.failure_threshold, 5);
     assert_eq!(policy.half_open_after_seconds, 30);
@@ -75,14 +75,14 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy: &BreakerConfig = b.config();
     assert_eq!(policy.failure_threshold, 7);
     assert_eq!(policy.reset_after_successes, 2);
 }
 
 // ---------------------------------------------------------------------------
-// Builder::build — produces a usable BreakerLayer
+// ApplicationConfigBuilder::build — produces a usable BreakerLayer
 // ---------------------------------------------------------------------------
 
 /// The nominal build path must succeed and return a `BreakerLayer`.
@@ -108,7 +108,7 @@ fn test_build_with_custom_config_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("custom config must build");
 }
@@ -123,7 +123,7 @@ fn test_build_with_empty_failure_statuses_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("empty failure_statuses must not be rejected");
 }
@@ -138,7 +138,7 @@ fn test_build_with_high_failure_threshold_succeeds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("failure_threshold=1000 must not be rejected");
 }
@@ -152,7 +152,7 @@ fn test_build_with_single_success_reset_policy_succeeds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("reset_after_successes=1 must not be rejected");
 }

@@ -2,14 +2,14 @@
 //!
 //! `saf/builder.rs` contains:
 //! - `builder()` — the public SAF entry point, loads SWE baseline config.
-//! - `Builder::with_config` — accepts a caller-supplied `CassetteConfig`.
-//! - `Builder::config` — accessor.
-//! - `Builder::build` — finalises into a `CassetteLayer`.
+//! - `ApplicationConfigBuilder::with_config` — accepts a caller-supplied `CassetteConfig`.
+//! - `ApplicationConfigBuilder::config` — accessor.
+//! - `ApplicationConfigBuilder::build` — finalises into a `CassetteLayer`.
 //!
-//! The `saf/builder.rs` module also re-exports `api::builder::Builder`,
+//! The `saf/builder.rs` module also re-exports `api::builder::ApplicationConfigBuilder`,
 //! making it the single authoritative builder type through the public API.
 
-use swe_edge_egress_cassette::{builder, Builder, CassetteConfig, CassetteLayer, Error};
+use swe_edge_egress_cassette::{builder, ApplicationConfigBuilder, CassetteConfig, CassetteLayer, Error};
 
 // ---------------------------------------------------------------------------
 // builder() — SAF entry point: always returns Ok with default config
@@ -50,7 +50,7 @@ fn test_saf_builder_fn_default_match_on_is_not_empty() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config + build — custom config flow
+// ApplicationConfigBuilder::with_config + build — custom config flow
 // ---------------------------------------------------------------------------
 
 /// Custom config supplied via `with_config` must be accepted and produce a
@@ -67,7 +67,7 @@ fn test_saf_with_config_and_build_produces_cassette_layer() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer: CassetteLayer = Builder::with_config(cfg)
+    let layer: CassetteLayer = ApplicationConfigBuilder::with_config(cfg)
         .build("saf_with_config")
         .expect("with_config + build must succeed");
     let dbg = format!("{layer:?}");
@@ -97,8 +97,8 @@ fn test_saf_build_uses_cassette_name_in_path() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let l_a = Builder::with_config(cfg_a).build("cassette_alpha").unwrap();
-    let l_b = Builder::with_config(cfg_b).build("cassette_beta").unwrap();
+    let l_a = ApplicationConfigBuilder::with_config(cfg_a).build("cassette_alpha").unwrap();
+    let l_b = ApplicationConfigBuilder::with_config(cfg_b).build("cassette_beta").unwrap();
     let dbg_a = format!("{l_a:?}");
     let dbg_b = format!("{l_b:?}");
     // The cassette path is embedded in the Debug output; it must differ.

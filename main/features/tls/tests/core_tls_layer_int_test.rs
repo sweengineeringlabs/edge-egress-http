@@ -9,7 +9,7 @@
 //! - `apply_to` idempotency (safe to call multiple times).
 //! - The `TlsLayer` Debug output reflects the provider.
 
-use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // TlsLayer::apply_to — TlsConfig::None (noop path)
@@ -19,7 +19,7 @@ use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig, TlsLayer};
 /// `ClientBuilder` in a state that can successfully call `build()`.
 #[test]
 fn test_apply_to_none_returns_buildable_client_builder() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let cb = layer
@@ -34,7 +34,7 @@ fn test_apply_to_none_returns_buildable_client_builder() {
 /// The provider is behind `Arc` so it is not consumed.
 #[test]
 fn test_apply_to_none_is_idempotent() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     for i in 0..3 {
@@ -56,7 +56,7 @@ fn test_apply_to_pem_invalid_content_returns_invalid_certificate() {
     let path = tmpdir.path().join("invalid.pem");
     std::fs::write(&path, b"not-a-pem-file").unwrap();
 
-    let layer = Builder::with_config(TlsConfig::Pem {
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::Pem {
         path: path.to_str().unwrap().replace('\\', "/"),
     })
     .build()
@@ -83,7 +83,7 @@ fn test_apply_to_pkcs12_invalid_content_returns_invalid_certificate() {
     let path = tmpdir.path().join("invalid.p12");
     std::fs::write(&path, b"not-pkcs12-content").unwrap();
 
-    let layer = Builder::with_config(TlsConfig::Pkcs12 {
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::Pkcs12 {
         path: path.to_str().unwrap().replace('\\', "/"),
         password_env: None,
     })
@@ -107,7 +107,7 @@ fn test_apply_to_pkcs12_invalid_content_returns_invalid_certificate() {
 /// name so operators can identify the active identity configuration.
 #[test]
 fn test_tls_layer_debug_contains_struct_name_and_provider() {
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
@@ -134,7 +134,7 @@ fn test_core_tls_layer_is_send_and_sync() {
 /// `TlsLayer` must be usable across thread boundaries via `std::thread::spawn`.
 #[test]
 fn test_core_tls_layer_send_across_thread() {
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let handle = std::thread::spawn(move || {

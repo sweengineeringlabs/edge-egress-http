@@ -6,14 +6,14 @@ use crate::api::retry_layer::RetryLayer;
 
 /// Start configuring the retry middleware with the SWE baseline
 /// loaded from the crate-shipped `config/application.toml`.
-pub fn builder() -> Result<Builder, Error> {
+pub fn builder() -> Result<ApplicationConfigBuilder, Error> {
     let cfg = RetryConfig::swe_default()?;
-    Ok(Builder::with_config(cfg))
+    Ok(ApplicationConfigBuilder::with_config(cfg))
 }
 
-pub use crate::api::builder::Builder;
+pub use crate::api::builder::ApplicationConfigBuilder;
 
-impl Builder {
+impl ApplicationConfigBuilder {
     /// Construct from a caller-supplied config.
     pub fn with_config(config: RetryConfig) -> Self {
         Self { config }
@@ -43,7 +43,7 @@ mod tests {
         assert!(b.config().max_retries >= 1);
     }
 
-    /// @covers: Builder::build
+    /// @covers: ApplicationConfigBuilder::build
     #[test]
     fn test_build_returns_retry_layer() {
         let layer = builder().expect("baseline").build().expect("build ok");

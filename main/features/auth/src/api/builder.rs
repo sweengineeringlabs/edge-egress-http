@@ -1,6 +1,6 @@
-//! Builder type declaration (rule 160 — public types live in api/).
+//! ApplicationConfigBuilder type declaration (rule 160 — public types live in api/).
 //!
-//! The impl blocks for `Builder` live in `saf::builder` per rule
+//! The impl blocks for `ApplicationConfigBuilder` live in `saf::builder` per rule
 //! 154 (impls belong in the layer that owns the logic). This file
 //! declares the public struct shape so the type is anchored in api/.
 
@@ -10,8 +10,8 @@ use crate::api::credential_resolver::CredentialResolver;
 /// Opaque builder for the auth middleware.
 ///
 /// Construct via [`swe_edge_egress_auth::builder()`](crate::builder) or
-/// [`Builder::with_config`]. Finalize with [`Builder::build`].
-pub struct Builder {
+/// [`ApplicationConfigBuilder::with_config`]. Finalize with [`ApplicationConfigBuilder::build`].
+pub struct ApplicationConfigBuilder {
     /// The resolved auth policy.
     pub(crate) config: AuthConfig,
     /// Credential resolver (default: reads from process env vars).

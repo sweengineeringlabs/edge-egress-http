@@ -7,13 +7,13 @@
 //! processed end-to-end through the middleware's `handle` pathway).
 //!
 //! What we can observe from outside the crate:
-//! - `Builder::build()` succeeds or fails (fails fast on missing env vars)
+//! - `ApplicationConfigBuilder::build()` succeeds or fails (fails fast on missing env vars)
 //! - The built `AuthMiddleware` is a valid `reqwest_middleware::Middleware`
 //!   (compile-time bound)
 //! - `AuthMiddleware`'s `Debug` output reflects the processor kind
 
 use reqwest_middleware::Middleware;
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder, Error};
+use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder, Error};
 
 // Verify AuthMiddleware implements the reqwest_middleware::Middleware trait
 // at compile time. If the impl is removed this function won't compile.
@@ -28,7 +28,7 @@ fn _check() {
 
 #[test]
 fn test_none_config_selects_noop_strategy_builds_without_env() {
-    Builder::with_config(AuthConfig::None)
+    ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None config must build regardless of env state");
 }
@@ -41,7 +41,7 @@ fn test_none_config_selects_noop_strategy_builds_without_env() {
 fn test_bearer_config_fails_fast_when_token_env_missing() {
     let env_name = "SWE_AUTH_STRAT_BEARER_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -56,7 +56,7 @@ fn test_bearer_config_fails_fast_when_token_env_missing() {
 fn test_bearer_config_selects_bearer_strategy_when_env_set() {
     let env_name = "SWE_AUTH_STRAT_BEARER_02";
     std::env::set_var(env_name, "strat-bearer-tok");
-    let mw = Builder::with_config(AuthConfig::Bearer {
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -77,7 +77,7 @@ fn test_basic_config_fails_fast_when_user_env_missing() {
     let pass_env = "SWE_AUTH_STRAT_BASIC_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Basic {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -95,7 +95,7 @@ fn test_basic_config_selects_basic_strategy_when_both_envs_set() {
     let pass_env = "SWE_AUTH_STRAT_BASIC_P_02";
     std::env::set_var(user_env, "strat-user");
     std::env::set_var(pass_env, "strat-pass");
-    Builder::with_config(AuthConfig::Basic {
+    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -113,7 +113,7 @@ fn test_basic_config_selects_basic_strategy_when_both_envs_set() {
 fn test_header_config_fails_fast_when_value_env_missing() {
     let env_name = "SWE_AUTH_STRAT_HEADER_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Header {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -129,7 +129,7 @@ fn test_header_config_fails_fast_when_value_env_missing() {
 fn test_header_config_selects_header_strategy_when_env_set() {
     let env_name = "SWE_AUTH_STRAT_HEADER_02";
     std::env::set_var(env_name, "api-key-value");
-    Builder::with_config(AuthConfig::Header {
+    ApplicationConfigBuilder::with_config(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -148,7 +148,7 @@ fn test_digest_config_fails_fast_when_user_env_missing() {
     let pass_env = "SWE_AUTH_STRAT_DIG_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Digest {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -171,7 +171,7 @@ fn test_aws_sigv4_config_fails_fast_when_access_key_env_missing() {
     let sk_env = "SWE_AUTH_STRAT_AWS_SK_01";
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
-    let err = Builder::with_config(AuthConfig::AwsSigV4 {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
@@ -192,7 +192,7 @@ fn test_aws_sigv4_config_selects_sigv4_strategy_when_envs_set() {
     let sk_env = "SWE_AUTH_STRAT_AWS_SK_02";
     std::env::set_var(ak_env, "AKIATEST123");
     std::env::set_var(sk_env, "secretkey456");
-    Builder::with_config(AuthConfig::AwsSigV4 {
+    ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,

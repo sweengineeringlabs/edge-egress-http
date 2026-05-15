@@ -9,9 +9,9 @@
 //! - `from_config` parses valid TOML for each variant.
 //! - `from_config` rejects unknown `kind` values and inline `password` fields.
 //! - `swe_default()` always returns `TlsConfig::None`.
-//! - Values flow unchanged through `Builder::with_config`.
+//! - Values flow unchanged through `ApplicationConfigBuilder::with_config`.
 
-use swe_edge_egress_tls::{Builder, Error, TlsConfig};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsConfig};
 
 // ---------------------------------------------------------------------------
 // Direct variant construction
@@ -178,14 +178,14 @@ fn test_swe_default_is_none() {
 }
 
 // ---------------------------------------------------------------------------
-// Values flow through Builder unchanged
+// Values flow through ApplicationConfigBuilder unchanged
 // ---------------------------------------------------------------------------
 
-/// Each variant must survive the `Builder::with_config` round-trip without
+/// Each variant must survive the `ApplicationConfigBuilder::with_config` round-trip without
 /// modification — the builder must not normalise or switch variants.
 #[test]
 fn test_pem_variant_survives_builder_round_trip() {
-    let b = Builder::with_config(TlsConfig::Pem {
+    let b = ApplicationConfigBuilder::with_config(TlsConfig::Pem {
         path: "/roundtrip/cert.pem".into(),
     });
     match b.config() {
@@ -196,7 +196,7 @@ fn test_pem_variant_survives_builder_round_trip() {
 
 #[test]
 fn test_pkcs12_variant_survives_builder_round_trip() {
-    let b = Builder::with_config(TlsConfig::Pkcs12 {
+    let b = ApplicationConfigBuilder::with_config(TlsConfig::Pkcs12 {
         path: "/roundtrip/cert.p12".into(),
         password_env: Some("ROUND_TRIP_ENV".into()),
     });
@@ -211,6 +211,6 @@ fn test_pkcs12_variant_survives_builder_round_trip() {
 
 #[test]
 fn test_none_variant_survives_builder_round_trip() {
-    let b = Builder::with_config(TlsConfig::None);
+    let b = ApplicationConfigBuilder::with_config(TlsConfig::None);
     assert!(matches!(b.config(), TlsConfig::None));
 }

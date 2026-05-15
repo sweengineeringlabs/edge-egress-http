@@ -1,10 +1,10 @@
 //! Integration tests for `api/cache_layer.rs` — the public `CacheLayer` type.
 //!
-//! Covers: constructability via `Builder::build()`, `Debug` output, and the
+//! Covers: constructability via `ApplicationConfigBuilder::build()`, `Debug` output, and the
 //! `Send + Sync` bounds that let the layer be passed to
 //! `reqwest_middleware::ClientBuilder::with()`.
 
-use swe_edge_egress_cache::{Builder, CacheConfig, CacheLayer};
+use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig, CacheLayer};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -19,7 +19,7 @@ fn test_cache_layer_builds_from_custom_config() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let _layer: CacheLayer = Builder::with_config(cfg)
+    let _layer: CacheLayer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build() must succeed");
 }
@@ -46,7 +46,7 @@ fn test_cache_layer_debug_contains_type_name() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -66,7 +66,7 @@ fn test_cache_layer_debug_includes_ttl_seconds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -86,7 +86,7 @@ fn test_cache_layer_debug_includes_max_entries() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -130,8 +130,8 @@ fn test_two_layers_from_different_configs_are_independent() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let layer_a = Builder::with_config(cfg_a).build().expect("build a");
-    let layer_b = Builder::with_config(cfg_b).build().expect("build b");
+    let layer_a = ApplicationConfigBuilder::with_config(cfg_a).build().expect("build a");
+    let layer_b = ApplicationConfigBuilder::with_config(cfg_b).build().expect("build b");
 
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");

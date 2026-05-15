@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_cassette SAF builder surface.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
 
 fn make_cfg(dir: &str) -> CassetteConfig {
     CassetteConfig {
@@ -19,27 +19,27 @@ fn test_e2e_builder() {
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let b = swe_edge_egress_cassette::builder().expect("builder() must succeed");
     assert_eq!(b.config().mode, "replay");
-    let _layer: CassetteLayer = Builder::with_config(make_cfg(&dir))
+    let _layer: CassetteLayer = ApplicationConfigBuilder::with_config(make_cfg(&dir))
         .build("e2e_builder_test")
         .expect("build must succeed");
 }
 
-/// @covers: Builder::with_config
+/// @covers: ApplicationConfigBuilder::with_config
 #[test]
 fn test_e2e_with_config() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
-    let b = Builder::with_config(make_cfg(&dir));
+    let b = ApplicationConfigBuilder::with_config(make_cfg(&dir));
     assert_eq!(b.config().mode, "auto");
     b.build("e2e_with_config_test").expect("build must succeed");
 }
 
-/// @covers: Builder::config
+/// @covers: ApplicationConfigBuilder::config
 #[test]
 fn test_e2e_config() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
-    let b = Builder::with_config(make_cfg(&dir));
+    let b = ApplicationConfigBuilder::with_config(make_cfg(&dir));
     assert!(b.config().match_on.contains(&"url".to_string()));
     assert!(b
         .config()
@@ -47,7 +47,7 @@ fn test_e2e_config() {
         .contains(&"authorization".to_string()));
 }
 
-/// @covers: Builder::build
+/// @covers: ApplicationConfigBuilder::build
 #[test]
 fn test_e2e_build() {
     let tmpdir = tempfile::tempdir().unwrap();
@@ -59,7 +59,7 @@ fn test_e2e_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec!["meta.id".to_string()],
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build("e2e_build_test")
         .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());

@@ -4,7 +4,7 @@
 //! downstream effect: `BreakerLayer` must satisfy the trait's `Send + Sync`
 //! supertrait bounds so it can be installed in a `reqwest_middleware::ClientBuilder`.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, Builder};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time proof that HttpBreaker's supertrait bounds hold
@@ -45,7 +45,7 @@ fn test_breaker_layer_built_from_builder_is_usable() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    let layer: BreakerLayer = Builder::with_config(cfg)
+    let layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");

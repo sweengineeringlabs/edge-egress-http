@@ -1,8 +1,8 @@
-//! Integration tests for `swe_edge_egress_retry` `Builder` and `builder()` SAF entry point.
+//! Integration tests for `swe_edge_egress_retry` `ApplicationConfigBuilder` and `builder()` SAF entry point.
 //!
-//! Covers: `builder()`, `Builder::with_config`, `Builder::config`, `Builder::build`.
+//! Covers: `builder()`, `ApplicationConfigBuilder::with_config`, `ApplicationConfigBuilder::config`, `ApplicationConfigBuilder::build`.
 
-use swe_edge_egress_retry::{builder, Builder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{builder, ApplicationConfigBuilder, RetryConfig, RetryLayer};
 
 fn make_cfg(max_retries: u32) -> RetryConfig {
     RetryConfig {
@@ -62,7 +62,7 @@ fn test_builder_fn_swe_default_initial_interval_is_positive() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config — custom config flows through unchanged
+// ApplicationConfigBuilder::with_config — custom config flows through unchanged
 // ---------------------------------------------------------------------------
 
 /// All fields supplied through `with_config` must be readable via `config()`
@@ -70,7 +70,7 @@ fn test_builder_fn_swe_default_initial_interval_is_positive() {
 #[test]
 fn test_with_config_stores_all_fields_unchanged() {
     let cfg = make_cfg(5);
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(b.config().max_retries, 5);
     assert_eq!(b.config().initial_interval_ms, 100);
     assert_eq!(b.config().max_interval_ms, 5000);
@@ -84,21 +84,21 @@ fn test_with_config_stores_all_fields_unchanged() {
 #[test]
 fn test_config_accessor_returns_stored_reference() {
     let cfg = make_cfg(3);
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy: &RetryConfig = b.config();
     assert_eq!(policy.max_retries, 3);
     assert_eq!(policy.multiplier, 2.0);
 }
 
 // ---------------------------------------------------------------------------
-// Builder::build — produces a RetryLayer
+// ApplicationConfigBuilder::build — produces a RetryLayer
 // ---------------------------------------------------------------------------
 
 /// Happy path: `build` must succeed and return a `RetryLayer` whose Debug
 /// output names the type and exposes `max_retries` for operator visibility.
 #[test]
 fn test_build_with_custom_config_returns_retry_layer() {
-    let layer: RetryLayer = Builder::with_config(make_cfg(3))
+    let layer: RetryLayer = ApplicationConfigBuilder::with_config(make_cfg(3))
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -139,7 +139,7 @@ fn test_build_with_zero_max_retries_succeeds() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("max_retries=0 must build");
 }
@@ -156,7 +156,7 @@ fn test_build_with_empty_retryable_lists_succeeds() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("empty retryable lists must build");
 }
@@ -173,7 +173,7 @@ fn test_build_with_large_multiplier_succeeds() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["POST".to_string()],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("multiplier=100.0 must build");
 }

@@ -1,6 +1,6 @@
 //! Integration tests for the Digest auth strategy path.
 //!
-//! The strategy is `pub(crate)`.  Observable effects through `Builder::build()`:
+//! The strategy is `pub(crate)`.  Observable effects through `ApplicationConfigBuilder::build()`:
 //! - Missing user_env → `Error::MissingEnvVar { name: user_env }`
 //! - Missing password_env (when user_env present) → MissingEnvVar
 //! - Both envs set → build succeeds (strategy is constructed)
@@ -10,7 +10,7 @@
 //! and cannot be tested without one.  Integration tests here are
 //! confined to what is verifiable without network access.
 
-use swe_edge_egress_auth::{AuthConfig, Builder, Error};
+use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
 
 // ---------------------------------------------------------------------------
 // Missing env vars
@@ -22,7 +22,7 @@ fn test_digest_strategy_missing_user_env_returns_missing_env_var() {
     let pass_env = "SWE_AUTH_DIGEST_MISS_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Digest {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -41,7 +41,7 @@ fn test_digest_strategy_missing_pass_env_returns_missing_env_var() {
     let pass_env = "SWE_AUTH_DIGEST_MISS_P_02";
     std::env::set_var(user_env, "alice");
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Digest {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -65,7 +65,7 @@ fn test_digest_strategy_builds_when_both_envs_set_no_realm() {
     let pass_env = "SWE_AUTH_DIGEST_OK_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "s3cr3t");
-    Builder::with_config(AuthConfig::Digest {
+    ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -82,7 +82,7 @@ fn test_digest_strategy_builds_when_both_envs_set_with_realm() {
     let pass_env = "SWE_AUTH_DIGEST_OK_P_02";
     std::env::set_var(user_env, "bob");
     std::env::set_var(pass_env, "password");
-    Builder::with_config(AuthConfig::Digest {
+    ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: Some("api.example.com".into()),
@@ -104,7 +104,7 @@ fn test_digest_strategy_realm_none_and_some_both_build() {
     std::env::set_var(user_env, "user");
     std::env::set_var(pass_env, "pass");
 
-    Builder::with_config(AuthConfig::Digest {
+    ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -112,7 +112,7 @@ fn test_digest_strategy_realm_none_and_some_both_build() {
     .build()
     .expect("Digest realm=None must build");
 
-    Builder::with_config(AuthConfig::Digest {
+    ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: Some("realm.example".into()),
@@ -134,7 +134,7 @@ async fn test_digest_strategy_middleware_wires_into_reqwest_middleware() {
     let pass_env = "SWE_AUTH_DIGEST_WIRE_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "wonderland");
-    let mw = Builder::with_config(AuthConfig::Digest {
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
@@ -159,7 +159,7 @@ fn test_digest_strategy_middleware_debug_does_not_expose_password() {
     let secret_pass = "DIGEST_SECRET_PASS_UNIQUE_MARKER";
     std::env::set_var(user_env, "dbg-user");
     std::env::set_var(pass_env, secret_pass);
-    let mw = Builder::with_config(AuthConfig::Digest {
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
         user_env: user_env.into(),
         password_env: pass_env.into(),
         realm: None,
