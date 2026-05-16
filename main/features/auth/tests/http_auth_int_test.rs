@@ -10,7 +10,7 @@
 //! We exercise `describe()` via `AuthMiddleware`'s `Debug` impl, which
 //! calls `self.processor.describe()` as its single field value.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // describe() — visible through AuthMiddleware's Debug impl
@@ -67,7 +67,9 @@ fn test_http_auth_describe_same_across_configs() {
     let env_name = "SWE_AUTH_HTTPAUTH_SAME_01";
     std::env::set_var(env_name, "tok");
 
-    let mw_none = ApplicationConfigBuilder::with_config(AuthConfig::None).build().unwrap();
+    let mw_none = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
     let mw_bearer = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })

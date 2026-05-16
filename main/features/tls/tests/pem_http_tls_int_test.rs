@@ -23,7 +23,9 @@ fn test_pem_missing_file_returns_file_read_failed() {
     let cfg = TlsConfig::Pem {
         path: "/path/does/not/exist/cert.pem".into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::FileReadFailed { path, reason } => {
             assert!(
@@ -45,7 +47,9 @@ fn test_pem_missing_file_returns_file_read_failed() {
 fn test_pem_file_read_failed_contains_configured_path() {
     let path = "/very/specific/path/to/missing.pem";
     let cfg = TlsConfig::Pem { path: path.into() };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     let msg = err.to_string();
     assert!(
         msg.contains("missing.pem"),

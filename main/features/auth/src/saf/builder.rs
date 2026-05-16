@@ -108,7 +108,9 @@ mod tests {
             token_env: "EDGE_TEST_DEFINITELY_NOT_SET_99".into(),
         };
         std::env::remove_var("EDGE_TEST_DEFINITELY_NOT_SET_99");
-        let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+        let err = ApplicationConfigBuilder::with_config(cfg)
+            .build()
+            .unwrap_err();
         match err {
             Error::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_DEFINITELY_NOT_SET_99");
@@ -126,7 +128,9 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "EDGE_TEST_BEARER_OK_01".into(),
         };
-        let _mw = ApplicationConfigBuilder::with_config(cfg).build().expect("bearer builds");
+        let _mw = ApplicationConfigBuilder::with_config(cfg)
+            .build()
+            .expect("bearer builds");
 
         // Can't hit a real server in a unit test, but the
         // middleware's existence + the processor.process path

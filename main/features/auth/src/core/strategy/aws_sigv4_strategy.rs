@@ -342,7 +342,7 @@ mod tests {
     fn stub_strategy() -> AwsSigV4Strategy {
         // AWS documentation example keys — split to avoid secret-scanner false positives.
         let key_id = ["AKIA", "IOSFODNN7EXAMPLE"].concat();
-        let secret  = ["wJalrXUtnFEMI/K7MDENG", "/bPxRfiCYEXAMPLEKEY"].concat();
+        let secret = ["wJalrXUtnFEMI/K7MDENG", "/bPxRfiCYEXAMPLEKEY"].concat();
         AwsSigV4Strategy::new(
             SecretString::from(key_id),
             SecretString::from(secret),

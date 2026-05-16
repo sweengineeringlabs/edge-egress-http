@@ -13,7 +13,7 @@
 //! - `AuthMiddleware`'s `Debug` output reflects the processor kind
 
 use reqwest_middleware::Middleware;
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware, Error};
 
 // Verify AuthMiddleware implements the reqwest_middleware::Middleware trait
 // at compile time. If the impl is removed this function won't compile.

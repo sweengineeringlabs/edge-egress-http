@@ -60,7 +60,9 @@ fn test_token_bucket_minimum_config_builds_and_debug_correct() {
         burst_capacity: 1,
         per_host: false,
     };
-    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("1"),

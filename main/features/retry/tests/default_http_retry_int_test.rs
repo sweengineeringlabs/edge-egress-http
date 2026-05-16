@@ -55,8 +55,12 @@ fn test_builder_pipeline_embeds_config_in_default_http_retry() {
 /// confirming `DefaultHttpRetry::new` stores the supplied config verbatim.
 #[test]
 fn test_two_layers_different_configs_have_different_debug() {
-    let l1 = ApplicationConfigBuilder::with_config(make_cfg(1, 100)).build().unwrap();
-    let l2 = ApplicationConfigBuilder::with_config(make_cfg(5, 500)).build().unwrap();
+    let l1 = ApplicationConfigBuilder::with_config(make_cfg(1, 100))
+        .build()
+        .unwrap();
+    let l2 = ApplicationConfigBuilder::with_config(make_cfg(5, 500))
+        .build()
+        .unwrap();
     assert_ne!(
         format!("{l1:?}"),
         format!("{l2:?}"),

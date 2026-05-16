@@ -10,7 +10,7 @@
 //! and cannot be tested without one.  Integration tests here are
 //! confined to what is verifiable without network access.
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Missing env vars

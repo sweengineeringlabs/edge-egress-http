@@ -65,10 +65,13 @@ pub enum HttpOutboundBuildError {
 pub fn http_outbound(
     config: HttpOutboundConfig,
 ) -> Result<impl HttpOutbound, HttpOutboundBuildError> {
-    let retry = swe_edge_egress_retry::ApplicationConfigBuilder::with_config(config.retry).build()?;
+    let retry =
+        swe_edge_egress_retry::ApplicationConfigBuilder::with_config(config.retry).build()?;
     let rate = swe_edge_egress_rate::ApplicationConfigBuilder::with_config(config.rate).build()?;
-    let breaker = swe_edge_egress_breaker::ApplicationConfigBuilder::with_config(config.breaker).build()?;
-    let cache = swe_edge_egress_cache::ApplicationConfigBuilder::with_config(config.cache).build()?;
+    let breaker =
+        swe_edge_egress_breaker::ApplicationConfigBuilder::with_config(config.breaker).build()?;
+    let cache =
+        swe_edge_egress_cache::ApplicationConfigBuilder::with_config(config.cache).build()?;
     let cassette = swe_edge_egress_cassette::ApplicationConfigBuilder::with_config(config.cassette)
         .build(&config.cassette_name)?;
     let tls = swe_edge_egress_tls::ApplicationConfigBuilder::with_config(config.tls).build()?;

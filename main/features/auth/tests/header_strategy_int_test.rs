@@ -6,7 +6,7 @@
 //! - Invalid header value (CR/LF in credential) → `Error::InvalidHeaderValue`
 //! - Valid name + valid credential env → build succeeds
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Missing env var

@@ -2,7 +2,9 @@
 //!
 //! Covers: `builder()`, `ApplicationConfigBuilder::with_config`, `ApplicationConfigBuilder::config`, `ApplicationConfigBuilder::build`.
 
-use swe_edge_egress_tls::{builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{
+    builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer,
+};
 
 // ---------------------------------------------------------------------------
 // builder() — SAF entry point
@@ -63,7 +65,9 @@ fn test_with_config_pem_missing_file_fails_at_build_time() {
     let cfg = TlsConfig::Pem {
         path: "/this/path/definitely/does/not/exist.pem".into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PEM file must return FileReadFailed; got: {err:?}"
@@ -77,7 +81,9 @@ fn test_with_config_pkcs12_missing_file_fails_at_build_time() {
         path: "/this/path/definitely/does/not/exist.p12".into(),
         password_env: None,
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PKCS12 file must return FileReadFailed; got: {err:?}"
@@ -94,7 +100,9 @@ fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),

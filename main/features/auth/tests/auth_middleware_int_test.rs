@@ -4,7 +4,7 @@
 //! construction via `ApplicationConfigBuilder::build()`, the `Debug` impl, and
 //! `Send + Sync` bounds.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // Construction

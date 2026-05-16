@@ -4,7 +4,7 @@
 //! so they go through the real public API without touching `pub(crate)`
 //! internals.
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // None variant
@@ -53,7 +53,9 @@ fn test_auth_config_bearer_missing_env_fails_at_build_time() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -102,7 +104,9 @@ fn test_auth_config_basic_missing_user_env_fails_at_build() {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing basic user env must fail: {err:?}"
@@ -153,7 +157,9 @@ fn test_auth_config_header_missing_value_env_fails_at_build() {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing header value env must fail: {err:?}"
@@ -206,7 +212,9 @@ fn test_auth_config_digest_missing_user_env_fails_at_build() {
         password_env: pass_env.into(),
         realm: None,
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing digest user env must fail: {err:?}"
@@ -275,7 +283,9 @@ fn test_auth_config_aws_sigv4_missing_access_key_env_fails_at_build() {
         region: "us-east-1".into(),
         service: "s3".into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing AWS access key env must fail: {err:?}"

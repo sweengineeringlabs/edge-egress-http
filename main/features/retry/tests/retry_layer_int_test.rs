@@ -51,7 +51,9 @@ fn test_retry_layer_debug_reflects_configured_max_retries() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     // The value 7 must appear somewhere in the Debug string.
     assert!(
@@ -80,8 +82,12 @@ fn test_two_layers_with_different_configs_have_different_debug() {
         retryable_statuses: vec![429, 503],
         retryable_methods: vec!["GET".to_string(), "PUT".to_string()],
     };
-    let la = ApplicationConfigBuilder::with_config(cfg_a).build().unwrap();
-    let lb = ApplicationConfigBuilder::with_config(cfg_b).build().unwrap();
+    let la = ApplicationConfigBuilder::with_config(cfg_a)
+        .build()
+        .unwrap();
+    let lb = ApplicationConfigBuilder::with_config(cfg_b)
+        .build()
+        .unwrap();
     assert_ne!(
         format!("{la:?}"),
         format!("{lb:?}"),
@@ -121,7 +127,9 @@ fn test_retry_layer_implements_middleware_trait() {
 /// without error.
 #[test]
 fn test_retry_layer_attaches_to_client_builder() {
-    let layer = ApplicationConfigBuilder::with_config(make_cfg()).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(make_cfg())
+        .build()
+        .expect("build");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();
@@ -151,7 +159,9 @@ async fn test_middleware_does_not_retry_non_retryable_method() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()], // POST excluded
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();

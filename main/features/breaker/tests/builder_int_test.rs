@@ -3,7 +3,7 @@
 //! Covers the full public builder surface: the `builder()` free function and
 //! the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder, Error};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer, Error};
 
 // ---------------------------------------------------------------------------
 // builder() free function
@@ -179,4 +179,3 @@ fn test_error_parse_failed_display_echoes_reason() {
     let err = Error::ParseFailed(reason.to_string());
     assert!(err.to_string().contains(reason));
 }
-

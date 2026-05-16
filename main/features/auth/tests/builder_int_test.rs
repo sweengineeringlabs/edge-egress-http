@@ -4,7 +4,7 @@
 //! Both live under the stem "builder" — one file covers both because the
 //! public surface is the same (both are re-exported through the gateway).
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware, Error};
 
 // ---------------------------------------------------------------------------
 // builder() entry-point

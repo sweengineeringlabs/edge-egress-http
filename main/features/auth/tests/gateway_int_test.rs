@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_auth crate.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware, Error};
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
@@ -44,7 +44,9 @@ fn test_build_bearer_missing_env_returns_missing_env_var() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -74,7 +76,9 @@ fn test_build_basic_missing_user_env_returns_missing_env_var() {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing basic env must fail: {err:?}"
@@ -89,7 +93,9 @@ fn test_build_header_missing_value_env_returns_missing_env_var() {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing header env must fail: {err:?}"

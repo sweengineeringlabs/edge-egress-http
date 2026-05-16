@@ -4,7 +4,7 @@
 //! `Send + Sync` bounds that allow the layer to be installed in a
 //! `reqwest_middleware::ClientBuilder`.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -46,7 +46,9 @@ fn test_breaker_layer_debug_contains_type_name() {
         reset_after_successes: 2,
         failure_statuses: vec![500],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("BreakerLayer"),
@@ -64,7 +66,9 @@ fn test_breaker_layer_debug_includes_failure_threshold() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("7"),
@@ -81,7 +85,9 @@ fn test_breaker_layer_debug_includes_half_open_wait() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("42"),
@@ -121,8 +127,12 @@ fn test_two_breaker_layers_from_different_configs_are_independent() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let layer_a = ApplicationConfigBuilder::with_config(cfg_a).build().expect("build a");
-    let layer_b = ApplicationConfigBuilder::with_config(cfg_b).build().expect("build b");
+    let layer_a = ApplicationConfigBuilder::with_config(cfg_a)
+        .build()
+        .expect("build a");
+    let layer_b = ApplicationConfigBuilder::with_config(cfg_b)
+        .build()
+        .expect("build b");
 
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");

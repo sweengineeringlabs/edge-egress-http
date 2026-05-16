@@ -12,7 +12,7 @@
 //! - `AuthMiddleware: std::fmt::Debug`
 //! - `AuthMiddleware` implements `reqwest_middleware::Middleware`
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time checks
@@ -42,7 +42,9 @@ fn test_auth_middleware_implements_debug() {
     fn require_debug<T: std::fmt::Debug>() {}
     require_debug::<AuthMiddleware>();
     // Also exercise the impl at runtime.
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None).build().unwrap();
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
     let _ = format!("{mw:?}");
 }
 

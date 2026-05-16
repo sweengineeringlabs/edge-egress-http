@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_breaker SAF builder surface.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
 
 fn make_cfg() -> BreakerConfig {
     BreakerConfig {

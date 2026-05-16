@@ -37,7 +37,9 @@ fn test_build_pem_missing_file_fails_eagerly() {
     let cfg = TlsConfig::Pem {
         path: "/definitely/missing.pem".into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PEM must fail at build time; got: {err:?}"
@@ -51,7 +53,9 @@ fn test_build_pkcs12_missing_file_fails_eagerly() {
         path: "/definitely/missing.p12".into(),
         password_env: None,
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PKCS12 file must fail at build time; got: {err:?}"
@@ -68,7 +72,9 @@ fn test_build_pkcs12_unset_password_env_fails_eagerly() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),

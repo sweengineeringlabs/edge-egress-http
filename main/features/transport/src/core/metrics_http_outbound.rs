@@ -117,10 +117,14 @@ mod tests {
     fn test_new_stores_inner_and_provider() {
         let p = provider();
         let inner = Arc::new(NoopOutbound);
-        let m = MetricsHttpOutbound::new(Arc::clone(&inner) as Arc<dyn HttpOutbound>, Arc::clone(&p));
+        let m =
+            MetricsHttpOutbound::new(Arc::clone(&inner) as Arc<dyn HttpOutbound>, Arc::clone(&p));
         // Verify construction succeeded and the provider is wired by exercising it.
         let snaps = m.provider.export();
-        assert!(snaps.is_empty(), "fresh instance must have no recorded metrics");
+        assert!(
+            snaps.is_empty(),
+            "fresh instance must have no recorded metrics"
+        );
     }
 
     /// @covers: send — records edge_egress_requests_total on success.

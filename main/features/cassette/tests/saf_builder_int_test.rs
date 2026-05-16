@@ -9,7 +9,9 @@
 //! The `saf/builder.rs` module also re-exports `api::builder::ApplicationConfigBuilder`,
 //! making it the single authoritative builder type through the public API.
 
-use swe_edge_egress_cassette::{builder, ApplicationConfigBuilder, CassetteConfig, CassetteLayer, Error};
+use swe_edge_egress_cassette::{
+    builder, ApplicationConfigBuilder, CassetteConfig, CassetteLayer, Error,
+};
 
 // ---------------------------------------------------------------------------
 // builder() — SAF entry point: always returns Ok with default config
@@ -97,8 +99,12 @@ fn test_saf_build_uses_cassette_name_in_path() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let l_a = ApplicationConfigBuilder::with_config(cfg_a).build("cassette_alpha").unwrap();
-    let l_b = ApplicationConfigBuilder::with_config(cfg_b).build("cassette_beta").unwrap();
+    let l_a = ApplicationConfigBuilder::with_config(cfg_a)
+        .build("cassette_alpha")
+        .unwrap();
+    let l_b = ApplicationConfigBuilder::with_config(cfg_b)
+        .build("cassette_beta")
+        .unwrap();
     let dbg_a = format!("{l_a:?}");
     let dbg_b = format!("{l_b:?}");
     // The cassette path is embedded in the Debug output; it must differ.

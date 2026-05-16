@@ -51,4 +51,3 @@ fn test_parse_failed_is_std_error() {
     let err: Box<dyn std::error::Error> = Box::new(Error::ParseFailed("oops".to_string()));
     assert!(!err.to_string().is_empty());
 }
-

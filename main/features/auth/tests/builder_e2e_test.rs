@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_auth SAF builder surface.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 /// @covers: builder
 #[test]

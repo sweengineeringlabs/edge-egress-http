@@ -12,7 +12,7 @@
 //!   boundary transitions.
 //! - Policy field values are faithfully carried by the layer's `Debug` output.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
 
 // ---------------------------------------------------------------------------
 // Threshold = 1 — opens on first failure
@@ -28,7 +28,9 @@ fn test_host_breaker_threshold_one_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    let layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("1"),
@@ -113,8 +115,12 @@ fn test_host_breaker_two_layers_have_independent_state() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let a = ApplicationConfigBuilder::with_config(cfg_a).build().expect("build a");
-    let b = ApplicationConfigBuilder::with_config(cfg_b).build().expect("build b");
+    let a = ApplicationConfigBuilder::with_config(cfg_a)
+        .build()
+        .expect("build a");
+    let b = ApplicationConfigBuilder::with_config(cfg_b)
+        .build()
+        .expect("build b");
 
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");

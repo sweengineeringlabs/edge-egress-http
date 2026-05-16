@@ -6,7 +6,7 @@
 //! - The middleware is a valid `reqwest_middleware::Middleware`.
 //! - `Send + Sync` bounds are satisfied.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // Build always succeeds — no env vars required
@@ -93,8 +93,12 @@ fn test_noop_strategy_auth_middleware_can_be_moved_across_threads() {
 
 #[test]
 fn test_noop_strategy_two_independent_instances_both_build_and_debug() {
-    let mw1 = ApplicationConfigBuilder::with_config(AuthConfig::None).build().unwrap();
-    let mw2 = ApplicationConfigBuilder::with_config(AuthConfig::None).build().unwrap();
+    let mw1 = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
+    let mw2 = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
     // Both must be independently usable.
     let s1 = format!("{mw1:?}");
     let s2 = format!("{mw2:?}");

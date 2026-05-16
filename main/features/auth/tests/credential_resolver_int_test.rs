@@ -13,7 +13,7 @@
 //!   (scheme-level validation may reject the empty value, but that is the
 //!   scheme's concern — not the resolver's).
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Env var present → build succeeds

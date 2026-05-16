@@ -203,4 +203,3 @@ fn test_error_parse_failed_is_constructable_and_its_message_is_accessible() {
         "ParseFailed display must echo the supplied reason; got: {display}"
     );
 }
-

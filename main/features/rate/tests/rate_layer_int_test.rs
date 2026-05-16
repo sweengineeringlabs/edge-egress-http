@@ -43,7 +43,9 @@ fn test_rate_layer_debug_contains_type_name() {
         burst_capacity: 20,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RateLayer"),
@@ -59,7 +61,9 @@ fn test_rate_layer_debug_includes_tokens_per_second() {
         burst_capacity: 100,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("77"),
@@ -75,7 +79,9 @@ fn test_rate_layer_debug_includes_burst_capacity() {
         burst_capacity: 333,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("333"),
@@ -111,8 +117,12 @@ fn test_two_rate_layers_from_different_configs_are_independent() {
         burst_capacity: 1000,
         per_host: true,
     };
-    let layer_a = ApplicationConfigBuilder::with_config(cfg_a).build().expect("build a");
-    let layer_b = ApplicationConfigBuilder::with_config(cfg_b).build().expect("build b");
+    let layer_a = ApplicationConfigBuilder::with_config(cfg_a)
+        .build()
+        .expect("build a");
+    let layer_b = ApplicationConfigBuilder::with_config(cfg_b)
+        .build()
+        .expect("build b");
 
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");

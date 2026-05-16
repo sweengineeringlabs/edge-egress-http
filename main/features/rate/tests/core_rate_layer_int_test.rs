@@ -35,7 +35,9 @@ fn test_core_rate_layer_global_bucket_visible_in_debug() {
         burst_capacity: 20,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("false"),
@@ -90,7 +92,9 @@ fn test_core_rate_layer_debug_includes_tokens_per_second() {
         burst_capacity: 84,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("42"),
@@ -106,7 +110,9 @@ fn test_core_rate_layer_debug_includes_burst_capacity() {
         burst_capacity: 777,
         per_host: true,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("777"),

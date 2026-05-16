@@ -38,7 +38,9 @@ fn test_core_cache_layer_zero_ttl_visible_in_debug() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("0"),
@@ -75,7 +77,9 @@ fn test_core_cache_layer_large_max_entries_visible_in_debug() {
         respect_cache_control: false,
         cache_private: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("99999"),

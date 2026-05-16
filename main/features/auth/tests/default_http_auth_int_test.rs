@@ -15,7 +15,7 @@
 //! - `build()` succeeds when env vars are present.
 //! - `process()` is reachable end-to-end via the middleware handle path.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware, Error};
 
 // ---------------------------------------------------------------------------
 // describe() via AuthMiddleware Debug
@@ -56,7 +56,9 @@ fn test_default_http_auth_describe_same_for_all_configs() {
     // Build two middlewares with different schemes and compare.
     let env_name = "SWE_AUTH_DHA_DESC_SAME_01";
     std::env::set_var(env_name, "tok");
-    let mw_none = ApplicationConfigBuilder::with_config(AuthConfig::None).build().unwrap();
+    let mw_none = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
     let mw_bearer = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })

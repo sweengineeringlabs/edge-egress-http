@@ -12,7 +12,7 @@
 //! SigV4 header-correctness (Authorization: AWS4-HMAC-SHA256 …) is
 //! covered by the core-unit tests inside `aws_sigv4_strategy.rs`.
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 fn sigv4_config(ak: &str, sk: &str, st: Option<&str>) -> AuthConfig {
     AuthConfig::AwsSigV4 {

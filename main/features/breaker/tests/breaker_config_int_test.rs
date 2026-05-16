@@ -1,7 +1,7 @@
 //! Integration tests for `api/breaker_config.rs` — the public `BreakerConfig`
 //! struct and its field semantics.
 
-use swe_edge_egress_breaker::{BreakerConfig, ApplicationConfigBuilder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig};
 
 // ---------------------------------------------------------------------------
 // Struct literal construction — all four fields are public

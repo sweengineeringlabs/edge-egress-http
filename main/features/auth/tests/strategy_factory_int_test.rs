@@ -12,7 +12,7 @@
 //! file verifies the factory's dispatch: "config variant X → correct strategy
 //! selected → correct build outcome."
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // None → NoopStrategy (no env needed, no header attached)

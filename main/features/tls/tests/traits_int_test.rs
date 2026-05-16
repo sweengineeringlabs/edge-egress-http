@@ -8,7 +8,9 @@
 //! - `TlsLayer::apply_to` works end-to-end with a `reqwest::ClientBuilder`.
 //! - `TlsLayer` is `Send + Sync` (flows from `HttpTls: Send + Sync + Debug`).
 
-use swe_edge_egress_tls::{builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{
+    builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer,
+};
 
 // ---------------------------------------------------------------------------
 // SAF re-export completeness — compile-time proof

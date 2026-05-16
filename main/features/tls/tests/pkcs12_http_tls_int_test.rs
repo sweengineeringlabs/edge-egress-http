@@ -24,7 +24,9 @@ fn test_pkcs12_missing_file_no_password_returns_file_read_failed() {
         path: "/path/does/not/exist/cert.p12".into(),
         password_env: None,
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::FileReadFailed { path, .. } => {
             assert!(
@@ -44,7 +46,10 @@ fn test_pkcs12_file_read_failed_contains_configured_path() {
         path: "/very/specific/cert.p12".into(),
         password_env: None,
     };
-    let msg = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err().to_string();
+    let msg = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err()
+        .to_string();
     assert!(
         msg.contains("cert.p12"),
         "error message must contain the configured filename; got: {msg}"
@@ -67,7 +72,9 @@ fn test_pkcs12_missing_password_env_precedes_file_read() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => {
             assert_eq!(name, env_name, "MissingEnvVar must name the exact env var");
@@ -87,7 +94,9 @@ fn test_pkcs12_set_password_env_but_missing_file_returns_file_read_failed() {
         path: "/path/does/not/exist/cert.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "with password set but missing file, must return FileReadFailed; got: {err:?}"

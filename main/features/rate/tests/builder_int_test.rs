@@ -178,4 +178,3 @@ fn test_error_parse_failed_display_names_crate_and_echoes_reason() {
         "ParseFailed display must echo the reason; got: {msg}"
     );
 }
-

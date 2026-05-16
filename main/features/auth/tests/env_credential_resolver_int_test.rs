@@ -11,7 +11,7 @@
 //!   resolves successfully (scheme-level validation is separate).
 //! - Resolution is evaluated once at `build()` time, not per request.
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Present env var → build succeeds

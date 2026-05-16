@@ -130,8 +130,12 @@ fn test_two_layers_from_different_configs_are_independent() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let layer_a = ApplicationConfigBuilder::with_config(cfg_a).build().expect("build a");
-    let layer_b = ApplicationConfigBuilder::with_config(cfg_b).build().expect("build b");
+    let layer_a = ApplicationConfigBuilder::with_config(cfg_a)
+        .build()
+        .expect("build a");
+    let layer_b = ApplicationConfigBuilder::with_config(cfg_b)
+        .build()
+        .expect("build b");
 
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");

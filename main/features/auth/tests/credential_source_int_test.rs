@@ -13,7 +13,7 @@
 //!   carrying the exact name.
 //! - The config stores only the env-var NAME, never a resolved value.
 
-use swe_edge_egress_auth::{AuthConfig, ApplicationConfigBuilder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Bearer: source is the token_env name

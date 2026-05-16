@@ -35,7 +35,6 @@ pub enum Error {
         /// Underlying parse error.
         reason: String,
     },
-
 }
 
 #[cfg(test)]

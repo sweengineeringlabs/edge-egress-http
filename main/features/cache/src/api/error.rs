@@ -12,7 +12,6 @@ pub enum Error {
 mod tests {
     use super::*;
 
-
     /// @covers: Error
     #[test]
     fn test_parse_failed_display_names_crate_and_reason() {

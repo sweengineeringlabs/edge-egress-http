@@ -187,7 +187,9 @@ fn test_malformed_cassette_yaml_returns_parse_error() {
     std::fs::write(dir.join("malformed.yaml"), ": invalid: yaml: [[\n").unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "malformed");
-    let err = ApplicationConfigBuilder::with_config(cfg).build(&name).unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build(&name)
+        .unwrap_err();
     let msg = err.to_string();
     assert!(
         msg.contains("swe_edge_egress_cassette") || msg.contains("parse"),

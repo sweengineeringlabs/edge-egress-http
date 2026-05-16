@@ -62,7 +62,9 @@ mod tests {
         let cfg = TlsConfig::Pem {
             path: "/this/path/does/not/exist.pem".into(),
         };
-        let err = ApplicationConfigBuilder::with_config(cfg).build().unwrap_err();
+        let err = ApplicationConfigBuilder::with_config(cfg)
+            .build()
+            .unwrap_err();
         match err {
             Error::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),

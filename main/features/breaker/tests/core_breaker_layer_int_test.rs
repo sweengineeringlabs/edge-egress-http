@@ -7,7 +7,7 @@
 //! - `Debug` output must reflect the configured policy fields.
 //! - `Send + Sync` must hold after construction.
 
-use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, ApplicationConfigBuilder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
 
 // ---------------------------------------------------------------------------
 // Low threshold — breaker trips quickly
@@ -80,7 +80,9 @@ fn test_core_breaker_layer_debug_includes_failure_threshold() {
         reset_after_successes: 3,
         failure_statuses: vec![500],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("8"),
@@ -97,7 +99,9 @@ fn test_core_breaker_layer_debug_includes_reset_after_successes() {
         reset_after_successes: 6,
         failure_statuses: vec![503],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("6"),

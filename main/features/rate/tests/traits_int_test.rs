@@ -30,6 +30,8 @@ fn test_rate_layer_coercible_to_boxed_send_sync() {
         burst_capacity: 10,
         per_host: false,
     };
-    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg).build().expect("build");
+    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .expect("build");
     let _boxed: Box<dyn Send + Sync> = Box::new(layer);
 }

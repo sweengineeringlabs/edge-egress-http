@@ -72,6 +72,8 @@ fn test_retry_layer_attaches_to_reqwest_middleware_client_builder_via_trait_chai
 #[test]
 fn test_retry_layer_usable_as_arc_dyn_middleware() {
     use std::sync::Arc;
-    let layer = ApplicationConfigBuilder::with_config(make_cfg()).build().expect("build");
+    let layer = ApplicationConfigBuilder::with_config(make_cfg())
+        .build()
+        .expect("build");
     let _arc: Arc<dyn reqwest_middleware::Middleware> = Arc::new(layer);
 }

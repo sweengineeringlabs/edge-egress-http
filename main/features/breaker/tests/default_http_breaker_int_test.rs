@@ -3,7 +3,7 @@
 //! `DefaultHttpBreaker` is `pub(crate)`.  Its observable effect is through the
 //! SAF `builder()` function, which loads the crate-shipped SWE baseline.
 
-use swe_edge_egress_breaker::{BreakerConfig, ApplicationConfigBuilder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
