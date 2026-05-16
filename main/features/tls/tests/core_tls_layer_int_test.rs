@@ -38,7 +38,7 @@ fn test_apply_to_none_is_idempotent() {
         .build()
         .expect("None must build");
     for i in 0..3 {
-        layer
+        let _ = layer
             .apply_to(reqwest::Client::builder())
             .unwrap_or_else(|e| panic!("apply_to call {i} must succeed; got: {e:?}"));
     }

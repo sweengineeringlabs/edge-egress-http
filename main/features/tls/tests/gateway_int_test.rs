@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_tls crate.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsConfig, TlsLayer};
 
 #[test]
 fn test_build_none_config_produces_noop_layer() {

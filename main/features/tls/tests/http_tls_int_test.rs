@@ -23,7 +23,7 @@ fn test_apply_to_with_none_config_returns_ok() {
     let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("None apply_to must return Ok");
 }
@@ -35,10 +35,10 @@ fn test_apply_to_none_is_reusable() {
     let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("first apply_to");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("second apply_to must also succeed");
 }

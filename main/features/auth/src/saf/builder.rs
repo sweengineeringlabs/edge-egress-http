@@ -68,7 +68,7 @@ impl ApplicationConfigBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::atomic::AtomicBool;
 
     /// @covers: builder
     #[test]

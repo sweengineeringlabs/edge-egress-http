@@ -3,7 +3,7 @@
 //! Covers: `builder()`, `ApplicationConfigBuilder::with_config`, `ApplicationConfigBuilder::config`, `ApplicationConfigBuilder::build`.
 
 use swe_edge_egress_tls::{
-    builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer,
+    builder, ApplicationConfigBuilder, Error, TlsConfig, TlsLayer,
 };
 
 // ---------------------------------------------------------------------------

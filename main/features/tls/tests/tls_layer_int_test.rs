@@ -121,10 +121,10 @@ fn test_apply_to_none_is_idempotent() {
     let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("first call");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("second call must also succeed");
 }

@@ -13,7 +13,7 @@ fn test_identity_none_config_produces_no_identity() {
     let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None config must build without error");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("apply_to with no identity must not fail");
 }

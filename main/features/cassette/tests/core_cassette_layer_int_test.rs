@@ -13,8 +13,6 @@
 //! - The middleware returns an error when `mode="replay"` and no fixture
 //!   matches the incoming request.
 
-use std::collections::BTreeMap;
-
 use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
 
 fn make_cfg(dir: &str, mode: &str, match_on: Vec<String>) -> CassetteConfig {

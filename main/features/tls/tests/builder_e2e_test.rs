@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_tls SAF builder surface.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, TlsConfig, TlsLayer};
 
 /// @covers: builder
 #[test]

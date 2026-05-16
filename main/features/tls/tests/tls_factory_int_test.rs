@@ -42,7 +42,7 @@ fn test_factory_none_provider_allows_apply_to_to_succeed() {
     let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("noop apply_to must return Ok");
 }
