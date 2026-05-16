@@ -2,9 +2,7 @@
 //!
 //! Covers: `builder()`, `ApplicationConfigBuilder::with_config`, `ApplicationConfigBuilder::config`, `ApplicationConfigBuilder::build`.
 
-use swe_edge_egress_tls::{
-    builder, ApplicationConfigBuilder, Error, TlsConfig, TlsLayer,
-};
+use swe_edge_egress_tls::{builder, ApplicationConfigBuilder, Error, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // builder() — SAF entry point
