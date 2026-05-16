@@ -137,12 +137,6 @@ fn test_error_parse_failed_display_contains_crate_name() {
 }
 
 #[test]
-fn test_error_not_implemented_display_is_non_empty() {
-    let s = Error::NotImplemented("test").to_string();
-    assert!(!s.is_empty(), "NotImplemented Display must not be empty");
-}
-
-#[test]
 fn test_swe_default_scrub_headers_includes_authorization() {
     let b = swe_edge_egress_cassette::builder().expect("builder() must succeed");
     let has_auth = b

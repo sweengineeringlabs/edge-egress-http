@@ -122,9 +122,3 @@ fn test_error_file_read_failed_display_contains_path() {
         "FileReadFailed Display must contain path: {s}"
     );
 }
-
-#[test]
-fn test_error_not_implemented_display_is_non_empty() {
-    let s = Error::NotImplemented("test").to_string();
-    assert!(!s.is_empty(), "NotImplemented Display must not be empty");
-}

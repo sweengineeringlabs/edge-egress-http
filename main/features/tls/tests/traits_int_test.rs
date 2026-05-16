@@ -33,7 +33,7 @@ fn test_saf_surface_exports_all_required_types() {
     let _ = accept_layer as fn(TlsLayer);
 
     // Error — type
-    let _e = Error::NotImplemented("test");
+    let _e = Error::ParseFailed("test".to_string());
 }
 
 // ---------------------------------------------------------------------------

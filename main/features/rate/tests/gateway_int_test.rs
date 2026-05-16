@@ -102,9 +102,3 @@ fn test_error_parse_failed_display_contains_crate_name() {
         "ParseFailed Display must name the crate: {s}"
     );
 }
-
-#[test]
-fn test_error_not_implemented_display_is_non_empty() {
-    let s = Error::NotImplemented("test").to_string();
-    assert!(!s.is_empty(), "NotImplemented Display must not be empty");
-}

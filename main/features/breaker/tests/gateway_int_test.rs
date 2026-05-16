@@ -96,12 +96,6 @@ fn test_error_parse_failed_display_contains_crate_name() {
 }
 
 #[test]
-fn test_error_not_implemented_display_is_non_empty() {
-    let s = Error::NotImplemented("test").to_string();
-    assert!(!s.is_empty(), "NotImplemented Display must not be empty");
-}
-
-#[test]
 fn test_builder_config_method_borrows_current_policy() {
     let cfg = make_cfg();
     let b = ApplicationConfigBuilder::with_config(cfg);

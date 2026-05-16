@@ -179,14 +179,3 @@ fn test_error_parse_failed_display_names_crate_and_echoes_reason() {
     );
 }
 
-/// `Error::NotImplemented` display must be non-empty and name the crate.
-#[test]
-fn test_error_not_implemented_display_is_non_empty_and_names_crate() {
-    let err = Error::NotImplemented("token bucket");
-    let msg = err.to_string();
-    assert!(!msg.is_empty());
-    assert!(
-        msg.contains("swe_edge_egress_rate"),
-        "NotImplemented display must name the crate; got: {msg}"
-    );
-}

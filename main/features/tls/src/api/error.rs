@@ -36,9 +36,6 @@ pub enum Error {
         reason: String,
     },
 
-    /// ApplicationConfigBuilder hasn't been implemented yet (scaffold phase).
-    #[error("swe_edge_egress_tls: not implemented — {0}")]
-    NotImplemented(&'static str),
 }
 
 #[cfg(test)]

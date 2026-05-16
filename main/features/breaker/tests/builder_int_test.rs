@@ -180,14 +180,3 @@ fn test_error_parse_failed_display_echoes_reason() {
     assert!(err.to_string().contains(reason));
 }
 
-/// `Error::NotImplemented` must produce a non-empty display.
-#[test]
-fn test_error_not_implemented_display_is_non_empty_and_names_crate() {
-    let err = Error::NotImplemented("some feature");
-    let msg = err.to_string();
-    assert!(!msg.is_empty());
-    assert!(
-        msg.contains("swe_edge_egress_breaker"),
-        "NotImplemented display must name the crate; got: {msg}"
-    );
-}

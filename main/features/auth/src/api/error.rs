@@ -44,21 +44,11 @@ pub enum Error {
         reason: String,
     },
 
-    /// Middleware behavior not yet implemented (scaffold phase).
-    #[error("swe_edge_egress_auth: not implemented — {0}")]
-    NotImplemented(&'static str),
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// @covers: Error
-    #[test]
-    fn test_not_implemented_display_includes_crate_name() {
-        let err = Error::NotImplemented("builder");
-        assert!(err.to_string().contains("swe_edge_egress_auth"));
-    }
 
     /// @covers: Error
     #[test]

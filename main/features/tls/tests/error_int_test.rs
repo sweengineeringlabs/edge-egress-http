@@ -213,37 +213,10 @@ fn test_invalid_certificate_is_debug_printable() {
 }
 
 // ---------------------------------------------------------------------------
-// Error::NotImplemented
+// All four variants are distinct
 // ---------------------------------------------------------------------------
 
-#[test]
-fn test_not_implemented_display_is_non_empty() {
-    assert!(!Error::NotImplemented("test").to_string().is_empty());
-}
-
-#[test]
-fn test_not_implemented_display_names_the_crate() {
-    let msg = Error::NotImplemented("some feature").to_string();
-    assert!(
-        msg.contains("swe_edge_egress_tls"),
-        "NotImplemented must name the crate; got: {msg}"
-    );
-}
-
-#[test]
-fn test_not_implemented_display_contains_label() {
-    let msg = Error::NotImplemented("grpc_identity").to_string();
-    assert!(
-        msg.contains("grpc_identity"),
-        "NotImplemented must embed the label; got: {msg}"
-    );
-}
-
-// ---------------------------------------------------------------------------
-// All five variants are distinct
-// ---------------------------------------------------------------------------
-
-/// All five error variants for the same conceptual payload must produce
+/// All four error variants for the same conceptual payload must produce
 /// distinct display strings — callers must be able to distinguish them.
 #[test]
 fn test_all_error_variants_have_distinct_display_messages() {
@@ -260,7 +233,6 @@ fn test_all_error_variants_have_distinct_display_messages() {
             reason: "x".into(),
         }
         .to_string(),
-        Error::NotImplemented("x").to_string(),
     ];
     // No two messages should be identical.
     for (i, a) in messages.iter().enumerate() {

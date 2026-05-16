@@ -128,12 +128,6 @@ fn test_error_missing_env_var_display_contains_var_name() {
 }
 
 #[test]
-fn test_error_not_implemented_display_is_non_empty() {
-    let s = Error::NotImplemented("test").to_string();
-    assert!(!s.is_empty(), "NotImplemented Display must not be empty");
-}
-
-#[test]
 fn test_build_none_config_always_succeeds_regardless_of_env() {
     ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()

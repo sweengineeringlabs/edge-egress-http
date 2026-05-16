@@ -204,18 +204,3 @@ fn test_error_parse_failed_is_constructable_and_its_message_is_accessible() {
     );
 }
 
-/// `Error::NotImplemented` must be constructable so downstream consumers can
-/// match it.
-#[test]
-fn test_error_not_implemented_is_constructable_and_display_is_non_empty() {
-    let err = Error::NotImplemented("builder");
-    let display = err.to_string();
-    assert!(
-        !display.is_empty(),
-        "NotImplemented display must not be empty"
-    );
-    assert!(
-        display.contains("swe_edge_egress_cache"),
-        "NotImplemented display must identify the crate; got: {display}"
-    );
-}

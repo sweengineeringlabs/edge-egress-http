@@ -215,16 +215,3 @@ fn test_error_parse_failed_display_contains_supplied_reason() {
         "ParseFailed display must echo the reason; got: {msg}"
     );
 }
-
-#[test]
-fn test_error_not_implemented_display_is_non_empty_and_names_crate() {
-    // A blank or opaque error message leaves operators with no actionable
-    // information when the scaffold-phase feature is reached at runtime.
-    let err = Error::NotImplemented("retry strategy");
-    let msg = err.to_string();
-    assert!(!msg.is_empty(), "NotImplemented display must not be empty");
-    assert!(
-        msg.contains("swe_edge_egress_retry"),
-        "NotImplemented display must name the crate; got: {msg}"
-    );
-}
