@@ -57,5 +57,8 @@ fn test_oauth_builder_can_be_called_multiple_times_independently() {
     let result_a = builder().with_token_source(src_a).build();
     let result_b = builder().with_token_source(src_b).build();
     assert!(result_a.is_ok(), "first builder must succeed");
-    assert!(result_b.is_ok(), "second builder must succeed independently");
+    assert!(
+        result_b.is_ok(),
+        "second builder must succeed independently"
+    );
 }
