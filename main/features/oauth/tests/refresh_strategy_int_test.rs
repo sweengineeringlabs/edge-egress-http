@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use swe_edge_egress_oauth::{builder, Error, OAuthTokenSource, Result};
+use swe_edge_egress_oauth::{builder, OAuthTokenSource, Result};
 
 #[derive(Debug)]
 struct StaticSource(String);
@@ -15,15 +15,6 @@ impl OAuthTokenSource for StaticSource {
     }
 }
 
-#[derive(Debug)]
-struct FailingSource;
-
-#[async_trait]
-impl OAuthTokenSource for FailingSource {
-    async fn get_access_token(&self) -> Result<String> {
-        Err(Error::RefreshFailed("injected failure".into()))
-    }
-}
 
 /// @covers: builder — missing token source returns Configuration error.
 #[test]
