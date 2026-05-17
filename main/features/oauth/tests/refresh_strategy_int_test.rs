@@ -15,7 +15,6 @@ impl OAuthTokenSource for StaticSource {
     }
 }
 
-
 /// @covers: builder — missing token source returns Configuration error.
 #[test]
 fn test_oauth_builder_without_source_returns_configuration_error() {
