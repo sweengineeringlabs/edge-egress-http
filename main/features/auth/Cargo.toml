@@ -33,11 +33,10 @@ toml = { workspace = true }
 secrecy = { workspace = true }
 # Base64 encoding for the Basic scheme.
 base64 = { workspace = true }
-# Crypto primitives — SigV4 (sha2 + hmac), Digest (md-5). Shared:
+# Crypto primitives — SigV4 (sha2 + hmac). Shared:
 # hex for lower-hex encoding of hash/MAC outputs.
 sha2 = { workspace = true }
 hmac = { workspace = true }
-md-5 = { workspace = true }
 hex = { workspace = true }
 # SigV4 requires UTC timestamps in ISO 8601 basic format.
 time = { workspace = true }
