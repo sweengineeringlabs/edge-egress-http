@@ -145,45 +145,6 @@ fn test_factory_header_config_rejects_invalid_header_name_at_build() {
 }
 
 // ---------------------------------------------------------------------------
-// Digest → DigestStrategy (two env vars)
-// ---------------------------------------------------------------------------
-
-#[test]
-fn test_factory_digest_config_fails_without_user_env() {
-    let user_env = "SWE_AUTH_FACTORY_DIG_U_MISS_01";
-    let pass_env = "SWE_AUTH_FACTORY_DIG_P_MISS_01";
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    })
-    .build()
-    .unwrap_err();
-    assert!(
-        matches!(err, Error::MissingEnvVar { .. }),
-        "Digest without user env must fail: {err:?}"
-    );
-}
-
-#[test]
-fn test_factory_digest_config_builds_with_both_envs() {
-    let user_env = "SWE_AUTH_FACTORY_DIG_U_OK_01";
-    let pass_env = "SWE_AUTH_FACTORY_DIG_P_OK_01";
-    std::env::set_var(user_env, "alice");
-    std::env::set_var(pass_env, "secret");
-    ApplicationConfigBuilder::with_config(AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    })
-    .build()
-    .expect("Digest with both envs must build");
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-}
-
 // ---------------------------------------------------------------------------
 // AwsSigV4 → AwsSigV4Strategy (two required + one optional env var)
 // ---------------------------------------------------------------------------

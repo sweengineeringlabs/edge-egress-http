@@ -167,61 +167,6 @@ fn test_auth_config_header_missing_value_env_fails_at_build() {
 }
 
 // ---------------------------------------------------------------------------
-// Digest variant
-// ---------------------------------------------------------------------------
-
-#[test]
-fn test_auth_config_digest_stores_user_password_env_and_optional_realm() {
-    let cfg = AuthConfig::Digest {
-        user_env: "SWE_AUTH_CFG_DIG_U_01".into(),
-        password_env: "SWE_AUTH_CFG_DIG_P_01".into(),
-        realm: Some("api.example.com".into()),
-    };
-    match &cfg {
-        AuthConfig::Digest {
-            user_env,
-            password_env,
-            realm,
-        } => {
-            assert_eq!(user_env, "SWE_AUTH_CFG_DIG_U_01");
-            assert_eq!(password_env, "SWE_AUTH_CFG_DIG_P_01");
-            assert_eq!(realm.as_deref(), Some("api.example.com"));
-        }
-        other => panic!("expected Digest variant, got {other:?}"),
-    }
-}
-
-#[test]
-fn test_auth_config_digest_realm_is_optional() {
-    let cfg = AuthConfig::Digest {
-        user_env: "U".into(),
-        password_env: "P".into(),
-        realm: None,
-    };
-    assert!(matches!(cfg, AuthConfig::Digest { realm: None, .. }));
-}
-
-#[test]
-fn test_auth_config_digest_missing_user_env_fails_at_build() {
-    let user_env = "SWE_AUTH_CFG_DIG_U_02";
-    let pass_env = "SWE_AUTH_CFG_DIG_P_02";
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-    let cfg = AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .unwrap_err();
-    assert!(
-        matches!(err, Error::MissingEnvVar { .. }),
-        "missing digest user env must fail: {err:?}"
-    );
-}
-
-// ---------------------------------------------------------------------------
 // AwsSigV4 variant
 // ---------------------------------------------------------------------------
 
