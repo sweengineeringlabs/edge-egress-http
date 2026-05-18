@@ -411,13 +411,42 @@ fn spawn_swr_refresh(layer: Arc<CacheLayer>, key: String, snap: RequestSnapshot)
         }
         let req = match builder.build() {
             Ok(r) => r,
-            Err(_e) => return, // swallow — SWR is best-effort
+            Err(e) => {
+                #[cfg(feature = "tracing")]
+                tracing::warn!(
+                    error = %e,
+                    cache_key = %key,
+                    "SWR refresh: failed to build request — background refresh aborted"
+                );
+                #[cfg(not(feature = "tracing"))]
+                let _ = (e, &key);
+                return;
+            }
         };
         let response = match layer.swr_client.execute(req).await {
             Ok(r) => r,
-            Err(_e) => return,
+            Err(e) => {
+                #[cfg(feature = "tracing")]
+                tracing::warn!(
+                    error = %e,
+                    cache_key = %key,
+                    "SWR refresh: HTTP request failed — cached entry will remain stale"
+                );
+                #[cfg(not(feature = "tracing"))]
+                let _ = (e, &key);
+                return;
+            }
         };
-        let _ = layer.buffer_and_store(response, key, &snap).await;
+        if let Err(e) = layer.buffer_and_store(response, key.clone(), &snap).await {
+            #[cfg(feature = "tracing")]
+            tracing::warn!(
+                error = %e,
+                cache_key = %key,
+                "SWR refresh: failed to store refreshed response"
+            );
+            #[cfg(not(feature = "tracing"))]
+            let _ = (e, &key);
+        }
     });
 }
 
