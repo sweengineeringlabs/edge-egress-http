@@ -5,7 +5,9 @@ use futures::future::BoxFuture;
 use futures::StreamExt as _;
 use reqwest_middleware::ClientWithMiddleware;
 
-use crate::api::port::http_outbound::{HttpOutbound, HttpOutboundError, HttpOutboundResult};
+use crate::api::port::http_outbound::HttpOutbound;
+use crate::api::port::http_outbound_error::HttpOutboundError;
+use crate::api::port::HttpOutboundResult;
 use crate::api::value_object::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
 
 pub(crate) struct DefaultHttpOutbound {
@@ -227,7 +229,6 @@ mod tests {
         ClientBuilder::new(reqwest::Client::new()).build()
     }
 
-    /// @covers: new
     #[test]
     fn test_new_creates_outbound_with_base_url() {
         let out = DefaultHttpOutbound::new(client(), Some("http://localhost".into()), None);

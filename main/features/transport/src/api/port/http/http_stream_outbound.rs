@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::port::http_outbound::HttpOutboundResult;
+use crate::api::port::HttpOutboundResult;
 use crate::api::value_object::sse::SseStream;
 use crate::api::value_object::ws::WsChannel;
 
@@ -34,7 +34,6 @@ pub trait HttpStreamOutbound: Send + Sync {
 mod tests {
     use super::*;
 
-    /// @covers: HttpStreamOutbound
     #[test]
     fn test_http_stream_outbound_is_object_safe() {
         fn _assert_object_safe(_: &dyn HttpStreamOutbound) {}

@@ -4,7 +4,7 @@ use std::pin::Pin;
 
 use futures::Stream;
 
-use crate::api::port::http_outbound::HttpOutboundError;
+use crate::api::port::http_outbound_error::HttpOutboundError;
 use crate::api::value_object::sse::sse_event::SseEvent;
 
 /// A lazy stream of [`SseEvent`] items consumed from a remote SSE feed.
@@ -19,7 +19,6 @@ mod tests {
 
     use super::*;
 
-    /// @covers: SseStream
     #[test]
     fn test_sse_stream_empty_stream_is_valid() {
         let _s: SseStream = Box::pin(stream::empty());
