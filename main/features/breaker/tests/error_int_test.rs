@@ -46,54 +46,11 @@ fn test_error_parse_failed_with_empty_reason_display_is_non_empty() {
 }
 
 // ---------------------------------------------------------------------------
-// Error::NotImplemented
+// Debug
 // ---------------------------------------------------------------------------
 
-/// `NotImplemented` must be publicly constructable.
-#[test]
-fn test_error_not_implemented_is_publicly_constructable() {
-    let _err = Error::NotImplemented("some feature");
-}
-
-/// `Display` must name the crate.
-#[test]
-fn test_error_not_implemented_display_names_crate() {
-    let err = Error::NotImplemented("host breaker");
-    let msg = err.to_string();
-    assert!(
-        msg.contains("swe_edge_egress_breaker"),
-        "NotImplemented display must name the crate; got: {msg}"
-    );
-}
-
-/// `Display` must not be empty.
-#[test]
-fn test_error_not_implemented_display_is_non_empty() {
-    assert!(
-        !Error::NotImplemented("x").to_string().is_empty(),
-        "NotImplemented display must not be empty"
-    );
-}
-
-// ---------------------------------------------------------------------------
-// Debug — both variants
-// ---------------------------------------------------------------------------
-
-/// Both variants must implement `Debug`.
+/// `ParseFailed` must implement `Debug`.
 #[test]
 fn test_error_variants_implement_debug() {
     let _ = format!("{:?}", Error::ParseFailed("p".to_string()));
-    let _ = format!("{:?}", Error::NotImplemented("n"));
-}
-
-// ---------------------------------------------------------------------------
-// Distinctness
-// ---------------------------------------------------------------------------
-
-/// The two variants must produce distinguishable `Display` output.
-#[test]
-fn test_error_parse_failed_and_not_implemented_display_are_distinct() {
-    let a = Error::ParseFailed("foo".to_string()).to_string();
-    let b = Error::NotImplemented("foo").to_string();
-    assert_ne!(a, b, "the two Error variants must format differently");
 }

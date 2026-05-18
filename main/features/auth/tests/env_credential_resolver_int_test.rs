@@ -1,7 +1,7 @@
 //! Integration tests for `EnvCredentialResolver` behaviour.
 //!
 //! `EnvCredentialResolver` is `pub(crate)` — these tests exercise it
-//! through `Builder::build()`, the only public path it participates in.
+//! through `ApplicationConfigBuilder::build()`, the only public path it participates in.
 //!
 //! Contract being verified:
 //! - Env var present (any value) → `build()` succeeds.
@@ -11,7 +11,7 @@
 //!   resolves successfully (scheme-level validation is separate).
 //! - Resolution is evaluated once at `build()` time, not per request.
 
-use swe_edge_egress_auth::{AuthConfig, Builder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Present env var → build succeeds
@@ -21,7 +21,7 @@ use swe_edge_egress_auth::{AuthConfig, Builder, Error};
 fn test_env_resolver_present_bearer_builds_successfully() {
     let env_name = "SWE_AUTH_ENVRES_PRES_01";
     std::env::set_var(env_name, "env-resolver-token");
-    Builder::with_config(AuthConfig::Bearer {
+    ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -35,7 +35,7 @@ fn test_env_resolver_present_basic_user_and_pass_builds_successfully() {
     let pass_env = "SWE_AUTH_ENVRES_PRES_BASIC_P_01";
     std::env::set_var(user_env, "env-user");
     std::env::set_var(pass_env, "env-pass");
-    Builder::with_config(AuthConfig::Basic {
+    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -49,7 +49,7 @@ fn test_env_resolver_present_basic_user_and_pass_builds_successfully() {
 fn test_env_resolver_present_header_builds_successfully() {
     let env_name = "SWE_AUTH_ENVRES_PRES_HDR_01";
     std::env::set_var(env_name, "api-key-env-value");
-    Builder::with_config(AuthConfig::Header {
+    ApplicationConfigBuilder::with_config(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -66,7 +66,7 @@ fn test_env_resolver_present_header_builds_successfully() {
 fn test_env_resolver_absent_bearer_returns_missing_env_var_error() {
     let env_name = "SWE_AUTH_ENVRES_ABS_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -86,7 +86,7 @@ fn test_env_resolver_absent_bearer_returns_missing_env_var_error() {
 fn test_env_resolver_absent_header_returns_missing_env_var_error() {
     let env_name = "SWE_AUTH_ENVRES_ABS_HDR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Header {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
         name: "x-custom".into(),
         value_env: env_name.into(),
     })
@@ -95,25 +95,6 @@ fn test_env_resolver_absent_header_returns_missing_env_var_error() {
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
-    }
-}
-
-#[test]
-fn test_env_resolver_absent_digest_user_returns_missing_env_var() {
-    let user_env = "SWE_AUTH_ENVRES_ABS_DIG_U_01";
-    let pass_env = "SWE_AUTH_ENVRES_ABS_DIG_P_01";
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    })
-    .build()
-    .unwrap_err();
-    match err {
-        Error::MissingEnvVar { name } => assert_eq!(name, user_env),
-        other => panic!("expected MissingEnvVar for user_env, got {other:?}"),
     }
 }
 
@@ -128,7 +109,7 @@ fn test_env_resolver_empty_bearer_env_does_not_produce_missing_env_var_error() {
     // "Bearer " is a valid header value (space is ASCII printable).
     let env_name = "SWE_AUTH_ENVRES_EMPTY_BRR_01";
     std::env::set_var(env_name, "");
-    let result = Builder::with_config(AuthConfig::Bearer {
+    let result = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build();
@@ -151,7 +132,7 @@ fn test_env_resolver_resolution_is_snapshot_at_build_time() {
     // Set the env var, build the middleware (resolution happens here).
     let env_name = "SWE_AUTH_ENVRES_SNAP_01";
     std::env::set_var(env_name, "snapshot-token");
-    let mw = Builder::with_config(AuthConfig::Bearer {
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()

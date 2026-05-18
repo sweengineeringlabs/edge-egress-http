@@ -12,7 +12,7 @@
 //! - The middleware correctly reconstructs a `reqwest::Response` from the
 //!   recorded bytes stored in `body_base64`.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
 
 fn replay_cfg(dir: &str, cassette_name: &str) -> (CassetteConfig, String) {
     let cfg = CassetteConfig {
@@ -58,7 +58,7 @@ method=GET|url=https://api.example.test/health:
     std::fs::write(dir.join("schema_stable.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "schema_stable");
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build(&name)
         .expect("build must succeed");
     let client = ClientBuilder::new(reqwest::Client::new())
@@ -104,7 +104,7 @@ method=GET|url=https://api.example.test/greet:
     std::fs::write(dir.join("with_body_hash.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "with_body_hash");
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build(&name)
         .expect("build must succeed");
     let client = ClientBuilder::new(reqwest::Client::new())
@@ -147,7 +147,7 @@ method=GET|url=https://api.example.test/missing:
     std::fs::write(dir.join("status_404.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "status_404");
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build(&name)
         .expect("build must succeed");
     let client = ClientBuilder::new(reqwest::Client::new())
@@ -172,7 +172,7 @@ fn test_empty_cassette_file_loads_without_error() {
     std::fs::write(dir.join("empty_cassette.yaml"), "   \n").unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "empty_cassette");
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build(&name)
         .expect("empty cassette file must load without error");
 }
@@ -187,7 +187,9 @@ fn test_malformed_cassette_yaml_returns_parse_error() {
     std::fs::write(dir.join("malformed.yaml"), ": invalid: yaml: [[\n").unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "malformed");
-    let err = Builder::with_config(cfg).build(&name).unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build(&name)
+        .unwrap_err();
     let msg = err.to_string();
     assert!(
         msg.contains("swe_edge_egress_cassette") || msg.contains("parse"),

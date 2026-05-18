@@ -6,7 +6,7 @@
 //! - The middleware is a valid `reqwest_middleware::Middleware`.
 //! - `Send + Sync` bounds are satisfied.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // Build always succeeds — no env vars required
@@ -15,7 +15,7 @@ use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder};
 #[test]
 fn test_noop_strategy_builds_without_any_env_vars() {
     // Deliberately do not set any env vars. None config must succeed.
-    Builder::with_config(AuthConfig::None)
+    ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("AuthConfig::None must build unconditionally");
 }
@@ -26,7 +26,7 @@ fn test_noop_strategy_builds_even_when_common_env_vars_are_unset() {
     // None doesn't reference any env var — it must not be influenced.
     let irrelevant = "SWE_AUTH_NOOP_IRREL_01";
     std::env::remove_var(irrelevant);
-    Builder::with_config(AuthConfig::None)
+    ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None must build even when token env vars are absent");
 }
@@ -37,7 +37,7 @@ fn test_noop_strategy_builds_even_when_common_env_vars_are_unset() {
 
 #[test]
 fn test_noop_strategy_build_returns_auth_middleware() {
-    let mw: AuthMiddleware = Builder::with_config(AuthConfig::None)
+    let mw: AuthMiddleware = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None must build");
     // Verify the type is a real AuthMiddleware by exercising its Debug impl.
@@ -55,7 +55,7 @@ fn test_noop_strategy_build_returns_auth_middleware() {
 #[tokio::test]
 async fn test_noop_strategy_middleware_wires_into_reqwest_middleware_without_panic() {
     // Wiring the noop middleware into a ClientBuilder must not panic or error.
-    let mw = Builder::with_config(AuthConfig::None)
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None must build");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
@@ -76,7 +76,7 @@ fn test_noop_strategy_auth_middleware_is_send_and_sync() {
 
 #[test]
 fn test_noop_strategy_auth_middleware_can_be_moved_across_threads() {
-    let mw = Builder::with_config(AuthConfig::None)
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None must build");
     let handle = std::thread::spawn(move || {
@@ -93,8 +93,12 @@ fn test_noop_strategy_auth_middleware_can_be_moved_across_threads() {
 
 #[test]
 fn test_noop_strategy_two_independent_instances_both_build_and_debug() {
-    let mw1 = Builder::with_config(AuthConfig::None).build().unwrap();
-    let mw2 = Builder::with_config(AuthConfig::None).build().unwrap();
+    let mw1 = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
+    let mw2 = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
     // Both must be independently usable.
     let s1 = format!("{mw1:?}");
     let s2 = format!("{mw2:?}");

@@ -12,7 +12,7 @@
 //! - `AuthMiddleware: std::fmt::Debug`
 //! - `AuthMiddleware` implements `reqwest_middleware::Middleware`
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time checks
@@ -42,7 +42,9 @@ fn test_auth_middleware_implements_debug() {
     fn require_debug<T: std::fmt::Debug>() {}
     require_debug::<AuthMiddleware>();
     // Also exercise the impl at runtime.
-    let mw = Builder::with_config(AuthConfig::None).build().unwrap();
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
+        .build()
+        .unwrap();
     let _ = format!("{mw:?}");
 }
 
@@ -65,7 +67,7 @@ fn test_auth_middleware_implements_reqwest_middleware_middleware() {
 
 #[test]
 fn test_auth_middleware_can_be_moved_across_thread_boundary() {
-    let mw = Builder::with_config(AuthConfig::None)
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None config builds");
     let handle = std::thread::spawn(move || {
@@ -85,7 +87,7 @@ fn test_auth_middleware_can_be_moved_across_thread_boundary() {
 fn test_auth_middleware_can_be_shared_across_threads_via_arc() {
     use std::sync::Arc;
     let mw = Arc::new(
-        Builder::with_config(AuthConfig::None)
+        ApplicationConfigBuilder::with_config(AuthConfig::None)
             .build()
             .expect("None config builds"),
     );

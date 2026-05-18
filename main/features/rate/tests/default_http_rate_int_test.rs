@@ -3,7 +3,7 @@
 //! `DefaultHttpRate` is `pub(crate)`.  Its observable effect is through the
 //! SAF `builder()` function, which loads the crate-shipped SWE baseline.
 
-use swe_edge_egress_rate::{Builder, RateConfig};
+use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
@@ -50,7 +50,7 @@ fn test_default_http_rate_swe_default_builds_rate_layer() {
 // Custom config is not overridden by the default-loading path
 // ---------------------------------------------------------------------------
 
-/// A consumer-supplied config must survive `Builder::with_config` without any
+/// A consumer-supplied config must survive `ApplicationConfigBuilder::with_config` without any
 /// field being silently replaced by the SWE default.
 #[test]
 fn test_default_http_rate_custom_config_is_not_overridden_by_swe_default() {
@@ -59,7 +59,7 @@ fn test_default_http_rate_custom_config_is_not_overridden_by_swe_default() {
         burst_capacity: 7,
         per_host: true,
     };
-    let b = Builder::with_config(custom);
+    let b = ApplicationConfigBuilder::with_config(custom);
     assert_eq!(b.config().tokens_per_second, 3);
     assert_eq!(b.config().burst_capacity, 7);
     assert!(b.config().per_host);

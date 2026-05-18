@@ -1,9 +1,9 @@
 //! Integration tests for `api/builder.rs` and `saf/builder.rs`.
 //!
 //! Covers the full public builder surface: the `builder()` free function and
-//! the `Builder` type's `with_config`, `config`, and `build` methods.
+//! the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
 
-use swe_edge_egress_rate::{Builder, Error, RateConfig, RateLayer};
+use swe_edge_egress_rate::{ApplicationConfigBuilder, Error, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // builder() free function
@@ -42,7 +42,7 @@ fn test_builder_fn_swe_default_burst_capacity_is_positive() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config — custom policy round-trips correctly
+// ApplicationConfigBuilder::with_config — custom policy round-trips correctly
 // ---------------------------------------------------------------------------
 
 /// `with_config` must preserve every field without modification.
@@ -53,7 +53,7 @@ fn test_with_config_preserves_all_fields() {
         burst_capacity: 100,
         per_host: true,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy = b.config();
     assert_eq!(policy.tokens_per_second, 50);
     assert_eq!(policy.burst_capacity, 100);
@@ -68,7 +68,7 @@ fn test_with_config_per_host_false_preserved() {
         burst_capacity: 20,
         per_host: false,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert!(
         !b.config().per_host,
         "per_host=false must survive with_config"
@@ -83,14 +83,14 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
         burst_capacity: 14,
         per_host: true,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy: &RateConfig = b.config();
     assert_eq!(policy.tokens_per_second, 7);
     assert_eq!(policy.burst_capacity, 14);
 }
 
 // ---------------------------------------------------------------------------
-// Builder::build — produces a usable RateLayer
+// ApplicationConfigBuilder::build — produces a usable RateLayer
 // ---------------------------------------------------------------------------
 
 /// The nominal build path must succeed.
@@ -115,7 +115,7 @@ fn test_build_with_custom_config_succeeds() {
         burst_capacity: 40,
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("custom config must build");
 }
@@ -128,7 +128,7 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 10,
         per_host: true,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("per_host=true must build");
 }
@@ -141,7 +141,7 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 10,
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("per_host=false must build");
 }
@@ -154,7 +154,7 @@ fn test_build_with_high_rate_and_burst_succeeds() {
         burst_capacity: 50_000,
         per_host: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("high rate + burst must build");
 }
@@ -176,17 +176,5 @@ fn test_error_parse_failed_display_names_crate_and_echoes_reason() {
     assert!(
         msg.contains(reason),
         "ParseFailed display must echo the reason; got: {msg}"
-    );
-}
-
-/// `Error::NotImplemented` display must be non-empty and name the crate.
-#[test]
-fn test_error_not_implemented_display_is_non_empty_and_names_crate() {
-    let err = Error::NotImplemented("token bucket");
-    let msg = err.to_string();
-    assert!(!msg.is_empty());
-    assert!(
-        msg.contains("swe_edge_egress_rate"),
-        "NotImplemented display must name the crate; got: {msg}"
     );
 }

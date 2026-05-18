@@ -3,13 +3,13 @@
 //! `DefaultHttpCache` is `pub(crate)`, so we cannot name or construct it
 //! directly from an integration test.  Its observable effect is through the
 //! SAF `builder()` function, which loads the crate-shipped SWE baseline TOML
-//! and returns a `Builder` that carries that default policy.
+//! and returns a `ApplicationConfigBuilder` that carries that default policy.
 //!
 //! These tests verify that the default values produced by the SWE baseline are
 //! sane — if `DefaultHttpCache::new` or the underlying config ever regresses,
 //! these assertions catch it.
 
-use swe_edge_egress_cache::{Builder, CacheConfig};
+use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
@@ -71,7 +71,7 @@ fn test_default_http_cache_custom_config_is_not_overridden_by_swe_default() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let b = Builder::with_config(custom);
+    let b = ApplicationConfigBuilder::with_config(custom);
     assert_eq!(
         b.config().default_ttl_seconds,
         3,

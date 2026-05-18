@@ -9,7 +9,7 @@ use std::sync::Arc;
 use crate::api::http_tls::HttpTls;
 
 /// TLS identity layer. Opaque handle — consumers get one from
-/// `saf::builder()` → `Builder::build()` and apply it to a
+/// `saf::builder()` → `ApplicationConfigBuilder::build()` and apply it to a
 /// `reqwest::ClientBuilder` via `apply_to(..)`.
 ///
 /// ```ignore

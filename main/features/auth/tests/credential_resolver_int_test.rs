@@ -2,7 +2,7 @@
 //!
 //! `CredentialResolver` is `pub(crate)` — it cannot be imported in an
 //! integration test. These tests exercise the resolver's effect through
-//! the only public path it influences: `Builder::build()`.
+//! the only public path it influences: `ApplicationConfigBuilder::build()`.
 //!
 //! The contract being validated:
 //! - When the referenced env var is present, `build()` succeeds.
@@ -13,7 +13,7 @@
 //!   (scheme-level validation may reject the empty value, but that is the
 //!   scheme's concern — not the resolver's).
 
-use swe_edge_egress_auth::{AuthConfig, Builder, Error};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Env var present → build succeeds
@@ -23,7 +23,7 @@ use swe_edge_egress_auth::{AuthConfig, Builder, Error};
 fn test_resolver_env_present_bearer_build_succeeds() {
     let env_name = "SWE_AUTH_RESOLVER_PRES_BRR_01";
     std::env::set_var(env_name, "resolver-test-token");
-    Builder::with_config(AuthConfig::Bearer {
+    ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -37,7 +37,7 @@ fn test_resolver_env_present_basic_both_build_succeeds() {
     let pass_env = "SWE_AUTH_RESOLVER_PRES_BASIC_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "s3cret");
-    Builder::with_config(AuthConfig::Basic {
+    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -55,7 +55,7 @@ fn test_resolver_env_present_basic_both_build_succeeds() {
 fn test_resolver_env_absent_bearer_returns_missing_env_var_with_exact_name() {
     let env_name = "SWE_AUTH_RESOLVER_ABS_BRR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Bearer {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build()
@@ -75,7 +75,7 @@ fn test_resolver_env_absent_bearer_returns_missing_env_var_with_exact_name() {
 fn test_resolver_env_absent_header_returns_missing_env_var_with_exact_name() {
     let env_name = "SWE_AUTH_RESOLVER_ABS_HDR_01";
     std::env::remove_var(env_name);
-    let err = Builder::with_config(AuthConfig::Header {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -94,7 +94,7 @@ fn test_resolver_env_absent_basic_user_names_user_var_in_error() {
     let pass_env = "SWE_AUTH_RESOLVER_ABS_BASIC_P_01";
     std::env::remove_var(user_env);
     std::env::set_var(pass_env, "pass");
-    let err = Builder::with_config(AuthConfig::Basic {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -114,7 +114,7 @@ fn test_resolver_env_absent_basic_pass_names_pass_var_in_error() {
     let pass_env = "SWE_AUTH_RESOLVER_ABS_BASIC_P_02";
     std::env::set_var(user_env, "user");
     std::env::remove_var(pass_env);
-    let err = Builder::with_config(AuthConfig::Basic {
+    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -141,7 +141,7 @@ fn test_resolver_empty_env_var_is_present_and_build_succeeds_for_bearer() {
     std::env::set_var(env_name, "");
     // Empty bearer value produces "Bearer " — that's a valid header value
     // (space is an ASCII visible char; it won't fail HeaderValue::from_str).
-    let result = Builder::with_config(AuthConfig::Bearer {
+    let result = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .build();

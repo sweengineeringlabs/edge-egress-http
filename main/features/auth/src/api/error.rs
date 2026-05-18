@@ -9,7 +9,7 @@ pub enum Error {
 
     /// Config references an env var that isn't set. Includes
     /// the missing var name so operators know what to export.
-    /// This fails at `Builder::build()` (or equivalent config
+    /// This fails at `ApplicationConfigBuilder::build()` (or equivalent config
     /// realization) — the middleware refuses to construct with
     /// a dangling credential reference.
     #[error("swe_edge_egress_auth: required env var {name} is not set")]
@@ -43,22 +43,11 @@ pub enum Error {
         /// Underlying parse error.
         reason: String,
     },
-
-    /// Middleware behavior not yet implemented (scaffold phase).
-    #[error("swe_edge_egress_auth: not implemented — {0}")]
-    NotImplemented(&'static str),
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// @covers: Error
-    #[test]
-    fn test_not_implemented_display_includes_crate_name() {
-        let err = Error::NotImplemented("builder");
-        assert!(err.to_string().contains("swe_edge_egress_auth"));
-    }
 
     /// @covers: Error
     #[test]

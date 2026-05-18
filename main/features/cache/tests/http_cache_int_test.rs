@@ -2,11 +2,11 @@
 //!
 //! The `HttpCache` trait is `pub(crate)` so consumers cannot name it directly.
 //! What we CAN observe from outside is that `CacheLayer` (the concrete type
-//! produced by `Builder::build()`) satisfies the trait's bounds (`Send + Sync`),
+//! produced by `ApplicationConfigBuilder::build()`) satisfies the trait's bounds (`Send + Sync`),
 //! and that the layer can be passed to any generic context that requires those
 //! bounds.
 
-use swe_edge_egress_cache::{Builder, CacheConfig, CacheLayer};
+use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig, CacheLayer};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time proof that HttpCache's supertrait bounds hold
@@ -36,7 +36,7 @@ fn test_http_cache_send_and_sync_combined_bound_satisfied() {
 }
 
 // ---------------------------------------------------------------------------
-// Layer is usable after being constructed via Builder
+// Layer is usable after being constructed via ApplicationConfigBuilder
 // ---------------------------------------------------------------------------
 
 /// A `CacheLayer` produced by the builder must be ready to use — confirmed by
@@ -49,7 +49,7 @@ fn test_cache_layer_built_from_builder_is_usable() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer: CacheLayer = Builder::with_config(cfg)
+    let layer: CacheLayer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build() must succeed");
     // If CacheLayer's HttpCache impl were broken (e.g. panics on construction)

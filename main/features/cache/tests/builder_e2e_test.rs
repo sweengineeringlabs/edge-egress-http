@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_cache SAF builder surface.
 
-use swe_edge_egress_cache::{Builder, CacheConfig, CacheLayer};
+use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig, CacheLayer};
 
 fn make_cfg() -> CacheConfig {
     CacheConfig {
@@ -25,23 +25,23 @@ fn test_e2e_builder() {
     );
 }
 
-/// @covers: Builder::with_config
+/// @covers: ApplicationConfigBuilder::with_config
 #[test]
 fn test_e2e_with_config() {
-    let b = Builder::with_config(make_cfg());
+    let b = ApplicationConfigBuilder::with_config(make_cfg());
     assert_eq!(b.config().default_ttl_seconds, 300);
     b.build().expect("e2e with_config build must succeed");
 }
 
-/// @covers: Builder::config
+/// @covers: ApplicationConfigBuilder::config
 #[test]
 fn test_e2e_config() {
-    let b = Builder::with_config(make_cfg());
+    let b = ApplicationConfigBuilder::with_config(make_cfg());
     assert_eq!(b.config().max_entries, 100);
     assert!(b.config().respect_cache_control);
 }
 
-/// @covers: Builder::build
+/// @covers: ApplicationConfigBuilder::build
 #[test]
 fn test_e2e_build() {
     let cfg = CacheConfig {
@@ -50,7 +50,7 @@ fn test_e2e_build() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());

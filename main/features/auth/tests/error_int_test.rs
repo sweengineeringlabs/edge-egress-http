@@ -187,30 +187,6 @@ fn test_error_invalid_header_name_display_contains_reason() {
 }
 
 // ---------------------------------------------------------------------------
-// NotImplemented
-// ---------------------------------------------------------------------------
-
-#[test]
-fn test_error_not_implemented_display_contains_crate_name() {
-    let err = Error::NotImplemented("placeholder");
-    let s = err.to_string();
-    assert!(
-        s.contains("swe_edge_egress_auth"),
-        "NotImplemented Display must identify the crate: {s}"
-    );
-}
-
-#[test]
-fn test_error_not_implemented_display_contains_label() {
-    let label = "custom_feature_stub";
-    let s = Error::NotImplemented(label).to_string();
-    assert!(
-        s.contains(label),
-        "NotImplemented Display must include the label: {s}"
-    );
-}
-
-// ---------------------------------------------------------------------------
 // Variant distinctness — each variant produces a different message
 // ---------------------------------------------------------------------------
 
@@ -226,7 +202,6 @@ fn test_error_variants_produce_distinct_display_strings() {
             reason: "x".into(),
         }
         .to_string(),
-        Error::NotImplemented("x").to_string(),
     ];
     // Every message must be unique — they carry different prefixes.
     let unique: std::collections::HashSet<_> = msgs.iter().collect();
@@ -254,7 +229,6 @@ fn test_error_debug_impl_does_not_panic_for_any_variant() {
             name: "bad-name".into(),
             reason: "reason".into(),
         },
-        Error::NotImplemented("label"),
     ];
     for err in variants {
         let _ = format!("{err:?}");

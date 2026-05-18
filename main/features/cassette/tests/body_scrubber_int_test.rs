@@ -11,7 +11,7 @@
 //! (empty, nested dot paths, array-index paths) are accepted at build time
 //! without error, since path validation is deferred to request time.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
 
 fn make_cfg(dir: &str, scrub_body_paths: Vec<String>) -> CassetteConfig {
     CassetteConfig {
@@ -37,7 +37,7 @@ fn make_cfg(dir: &str, scrub_body_paths: Vec<String>) -> CassetteConfig {
 fn test_empty_scrub_body_paths_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, vec![]))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, vec![]))
         .build("empty_scrub_paths")
         .expect("empty scrub_body_paths must build");
 }
@@ -47,7 +47,7 @@ fn test_empty_scrub_body_paths_builds_successfully() {
 fn test_top_level_path_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, vec!["request_id".to_string()]))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, vec!["request_id".to_string()]))
         .build("top_level_path")
         .expect("top-level scrub path must build");
 }
@@ -57,7 +57,7 @@ fn test_top_level_path_builds_successfully() {
 fn test_nested_dot_path_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, vec!["metadata.trace_id".to_string()]))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, vec!["metadata.trace_id".to_string()]))
         .build("nested_path")
         .expect("nested dot path must build");
 }
@@ -68,7 +68,7 @@ fn test_nested_dot_path_builds_successfully() {
 fn test_array_index_path_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    Builder::with_config(make_cfg(dir, vec!["results.0.id".to_string()]))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, vec!["results.0.id".to_string()]))
         .build("array_index_path")
         .expect("array-index scrub path must build");
 }
@@ -86,7 +86,7 @@ fn test_multiple_mixed_paths_build_successfully() {
         "metadata.timestamp".to_string(),
         "results.0.id".to_string(),
     ];
-    Builder::with_config(make_cfg(dir, paths))
+    ApplicationConfigBuilder::with_config(make_cfg(dir, paths))
         .build("mixed_paths")
         .expect("multiple mixed scrub paths must build");
 }
@@ -96,7 +96,7 @@ fn test_multiple_mixed_paths_build_successfully() {
 // ---------------------------------------------------------------------------
 
 /// The `scrub_body_paths` configured via `CassetteConfig` must be visible
-/// through `Builder::config()` after `with_config`, confirming the paths
+/// through `ApplicationConfigBuilder::config()` after `with_config`, confirming the paths
 /// are stored verbatim and not dropped or normalised during builder
 /// construction.
 #[test]
@@ -115,7 +115,7 @@ fn test_scrub_body_paths_survive_builder_round_trip() {
         scrub_headers: vec![],
         scrub_body_paths: paths.clone(),
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(
         b.config().scrub_body_paths,
         paths,
@@ -141,7 +141,7 @@ fn test_body_hash_in_match_on_with_scrub_paths_builds_correctly() {
         scrub_headers: vec![],
         scrub_body_paths: vec!["request_id".to_string()],
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     // Both must be present — the middleware logic gates scrubbing on whether
     // body_hash is in match_on.
     assert!(b.config().match_on.contains(&"body_hash".to_string()));

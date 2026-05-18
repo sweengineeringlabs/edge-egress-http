@@ -18,22 +18,22 @@ use crate::core::default_http_auth::DefaultHttpAuth;
 /// Start configuring the auth middleware with the SWE baseline
 /// loaded from the crate-shipped `config/application.toml`
 /// (which is `kind = "none"` — pass-through).
-pub fn builder() -> Result<Builder, Error> {
+pub fn builder() -> Result<ApplicationConfigBuilder, Error> {
     let cfg = AuthConfig::swe_default()?;
-    Ok(Builder::with_config(cfg))
+    Ok(ApplicationConfigBuilder::with_config(cfg))
 }
 
-pub use crate::api::builder::Builder;
+pub use crate::api::builder::ApplicationConfigBuilder;
 
-impl std::fmt::Debug for Builder {
+impl std::fmt::Debug for ApplicationConfigBuilder {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Builder")
+        f.debug_struct("ApplicationConfigBuilder")
             .field("config", &self.config)
             .finish()
     }
 }
 
-impl Builder {
+impl ApplicationConfigBuilder {
     /// Construct from a caller-supplied config. Uses the
     /// default [`EnvCredentialResolver`] (reads credentials from
     /// process env vars).
@@ -68,7 +68,7 @@ impl Builder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::atomic::AtomicBool;
 
     /// @covers: builder
     #[test]
@@ -77,7 +77,7 @@ mod tests {
         assert!(matches!(b.config(), AuthConfig::None));
     }
 
-    /// @covers: Builder::with_config
+    /// @covers: ApplicationConfigBuilder::with_config
     #[test]
     fn test_with_config_holds_supplied_policy() {
         let cfg = AuthConfig::from_config(
@@ -87,11 +87,11 @@ mod tests {
             "#,
         )
         .unwrap();
-        let b = Builder::with_config(cfg);
+        let b = ApplicationConfigBuilder::with_config(cfg);
         assert!(matches!(b.config(), AuthConfig::Bearer { .. }));
     }
 
-    /// @covers: Builder::build
+    /// @covers: ApplicationConfigBuilder::build
     #[test]
     fn test_build_with_none_config_returns_middleware_instance() {
         let mw = builder().expect("baseline").build().expect("build ok");
@@ -101,14 +101,16 @@ mod tests {
         assert!(s.contains("swe_edge_egress_auth"));
     }
 
-    /// @covers: Builder::build
+    /// @covers: ApplicationConfigBuilder::build
     #[test]
     fn test_build_with_missing_bearer_env_fails_at_build_time() {
         let cfg = AuthConfig::Bearer {
             token_env: "EDGE_TEST_DEFINITELY_NOT_SET_99".into(),
         };
         std::env::remove_var("EDGE_TEST_DEFINITELY_NOT_SET_99");
-        let err = Builder::with_config(cfg).build().unwrap_err();
+        let err = ApplicationConfigBuilder::with_config(cfg)
+            .build()
+            .unwrap_err();
         match err {
             Error::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_DEFINITELY_NOT_SET_99");
@@ -117,7 +119,7 @@ mod tests {
         }
     }
 
-    /// @covers: Builder::build
+    /// @covers: ApplicationConfigBuilder::build
     #[test]
     fn test_build_with_bearer_env_set_produces_functioning_middleware() {
         // Ensure the var is set for this test regardless of
@@ -126,7 +128,9 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "EDGE_TEST_BEARER_OK_01".into(),
         };
-        let _mw = Builder::with_config(cfg).build().expect("bearer builds");
+        let _mw = ApplicationConfigBuilder::with_config(cfg)
+            .build()
+            .expect("bearer builds");
 
         // Can't hit a real server in a unit test, but the
         // middleware's existence + the processor.process path

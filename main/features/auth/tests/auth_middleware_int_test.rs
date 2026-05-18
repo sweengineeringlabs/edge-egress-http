@@ -1,10 +1,10 @@
 //! Integration tests for `AuthMiddleware` — the public reqwest-middleware layer.
 //!
 //! Tests exercise observable properties via the public API:
-//! construction via `Builder::build()`, the `Debug` impl, and
+//! construction via `ApplicationConfigBuilder::build()`, the `Debug` impl, and
 //! `Send + Sync` bounds.
 
-use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder};
+use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -13,7 +13,7 @@ use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, Builder};
 #[test]
 fn test_auth_middleware_builds_from_none_config() {
     // Simplest path: None config needs no env vars. Must always succeed.
-    let mw: AuthMiddleware = Builder::with_config(AuthConfig::None)
+    let mw: AuthMiddleware = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("None config must produce AuthMiddleware");
     // Verify the returned value is usable (debug at minimum).
@@ -36,7 +36,7 @@ fn test_auth_middleware_builds_from_bearer_config_when_env_set() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let mw = Builder::with_config(cfg)
+    let mw = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("Bearer with env set must produce AuthMiddleware");
     let _ = format!("{mw:?}");
@@ -49,7 +49,7 @@ fn test_auth_middleware_builds_from_bearer_config_when_env_set() {
 
 #[test]
 fn test_auth_middleware_debug_contains_auth_middleware_type_name() {
-    let mw = Builder::with_config(AuthConfig::None)
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("build ok");
     let s = format!("{mw:?}");
@@ -63,7 +63,7 @@ fn test_auth_middleware_debug_contains_auth_middleware_type_name() {
 fn test_auth_middleware_debug_contains_processor_description() {
     // The processor for any real config identifies itself as
     // "swe_edge_egress_auth" via DefaultHttpAuth::describe().
-    let mw = Builder::with_config(AuthConfig::None)
+    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
         .build()
         .expect("build ok");
     let s = format!("{mw:?}");
@@ -94,12 +94,12 @@ fn test_two_auth_middleware_instances_are_independent() {
     std::env::set_var(env_a, "token-alpha");
     std::env::set_var(env_b, "token-beta");
 
-    let mw_a = Builder::with_config(AuthConfig::Bearer {
+    let mw_a = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_a.into(),
     })
     .build()
     .expect("build mw_a");
-    let mw_b = Builder::with_config(AuthConfig::Bearer {
+    let mw_b = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
         token_env: env_b.into(),
     })
     .build()

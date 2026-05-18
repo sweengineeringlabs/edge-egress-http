@@ -5,4 +5,4 @@ mod builder;
 pub use crate::api::error::Error;
 pub use crate::api::rate_config::RateConfig;
 pub use crate::api::rate_layer::RateLayer;
-pub use builder::{builder, Builder};
+pub use builder::{builder, ApplicationConfigBuilder};

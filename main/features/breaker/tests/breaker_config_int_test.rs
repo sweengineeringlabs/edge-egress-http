@@ -1,7 +1,7 @@
 //! Integration tests for `api/breaker_config.rs` — the public `BreakerConfig`
 //! struct and its field semantics.
 
-use swe_edge_egress_breaker::{BreakerConfig, Builder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig};
 
 // ---------------------------------------------------------------------------
 // Struct literal construction — all four fields are public
@@ -38,7 +38,7 @@ fn test_breaker_config_threshold_one_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("failure_threshold=1 must build");
 }
@@ -52,7 +52,7 @@ fn test_breaker_config_large_threshold_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("large failure_threshold must build");
 }
@@ -71,7 +71,7 @@ fn test_breaker_config_zero_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![500],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("half_open_after_seconds=0 must build");
 }
@@ -85,7 +85,7 @@ fn test_breaker_config_large_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("half_open_after_seconds=3600 must build");
 }
@@ -103,7 +103,7 @@ fn test_breaker_config_empty_failure_statuses_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("empty failure_statuses must build");
 }
@@ -118,13 +118,13 @@ fn test_breaker_config_all_5xx_failure_statuses_builds() {
         reset_after_successes: 3,
         failure_statuses: all_5xx,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("all 5xx failure_statuses must build");
 }
 
 // ---------------------------------------------------------------------------
-// Config round-trip through Builder
+// Config round-trip through ApplicationConfigBuilder
 // ---------------------------------------------------------------------------
 
 /// No field must be silently modified between `with_config()` and `config()`.
@@ -136,7 +136,7 @@ fn test_breaker_config_round_trips_through_builder_unchanged() {
         reset_after_successes: 4,
         failure_statuses: vec![500, 503, 504],
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let out = b.config();
     assert_eq!(out.failure_threshold, 11);
     assert_eq!(out.half_open_after_seconds, 45);

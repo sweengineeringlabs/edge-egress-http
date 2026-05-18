@@ -75,10 +75,10 @@
 //! For production stacks where record/replay is not wanted:
 //!
 //! ```rust
-//! use swe_edge_egress_cassette::{Builder, CassetteConfig};
+//! use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
 //!
 //! # fn main() -> Result<(), swe_edge_egress_cassette::Error> {
-//! let cassette = Builder::with_config(CassetteConfig::disabled()).build("unused")?;
+//! let cassette = ApplicationConfigBuilder::with_config(CassetteConfig::disabled()).build("unused")?;
 //! # Ok(())
 //! # }
 //! ```
@@ -100,7 +100,6 @@
 
 mod api;
 mod core;
-mod gateway;
 mod saf;
 
-pub use gateway::*;
+pub use saf::*;

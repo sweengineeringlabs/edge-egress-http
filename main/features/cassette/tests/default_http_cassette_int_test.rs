@@ -4,14 +4,14 @@
 //! contract through observable effects produced by the public builder
 //! pipeline:
 //!
-//! - The layer built via `builder()` or `Builder::with_config` correctly
+//! - The layer built via `builder()` or `ApplicationConfigBuilder::with_config` correctly
 //!   encapsulates the config that `DefaultHttpCassette::new` was given.
 //! - The `describe()` return value ("swe_edge_egress_cassette") appears in the
 //!   layer's Debug output, confirming the impl is connected.
 //! - The layer is `Send + Sync`, which requires `DefaultHttpCassette`
 //!   (held inside via `Arc<CassetteConfig>`) to also be `Send + Sync`.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
 
 fn make_cfg(dir: &str) -> CassetteConfig {
     CassetteConfig {
@@ -28,14 +28,14 @@ fn make_cfg(dir: &str) -> CassetteConfig {
 // ---------------------------------------------------------------------------
 
 /// The builder must call `DefaultHttpCassette::new` with the correct config.
-/// Observable effect: `Builder::config()` and the resulting layer's Debug
+/// Observable effect: `ApplicationConfigBuilder::config()` and the resulting layer's Debug
 /// output must both reflect the original config values.
 #[test]
 fn test_builder_pipeline_stores_config_in_default_http_cassette() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
     let cfg = make_cfg(dir);
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     // Config before build: mode and scrub_headers are stored.
     assert_eq!(b.config().mode, "auto");
     assert!(b
@@ -78,10 +78,10 @@ fn test_layer_debug_differs_for_different_modes() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let l1 = Builder::with_config(cfg_replay)
+    let l1 = ApplicationConfigBuilder::with_config(cfg_replay)
         .build("mode_replay_debug")
         .unwrap();
-    let l2 = Builder::with_config(cfg_record)
+    let l2 = ApplicationConfigBuilder::with_config(cfg_record)
         .build("mode_record_debug")
         .unwrap();
     assert_ne!(
@@ -109,7 +109,7 @@ fn test_cassette_layer_is_send_and_sync() {
 // ---------------------------------------------------------------------------
 
 /// The config stored in the layer must be identical to the one passed to
-/// `Builder::with_config`. `DefaultHttpCassette::new` must not silently
+/// `ApplicationConfigBuilder::with_config`. `DefaultHttpCassette::new` must not silently
 /// transform or drop any field.
 #[test]
 fn test_builder_does_not_mutate_config_during_build() {
@@ -127,7 +127,7 @@ fn test_builder_does_not_mutate_config_during_build() {
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: scrub_body.clone(),
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     // All fields must be unchanged pre-build.
     assert_eq!(b.config().mode, "record");
     assert_eq!(b.config().cassette_dir, dir);

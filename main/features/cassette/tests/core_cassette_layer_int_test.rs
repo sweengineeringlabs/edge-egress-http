@@ -13,9 +13,7 @@
 //! - The middleware returns an error when `mode="replay"` and no fixture
 //!   matches the incoming request.
 
-use std::collections::BTreeMap;
-
-use swe_edge_egress_cassette::{Builder, CassetteConfig};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
 
 fn make_cfg(dir: &str, mode: &str, match_on: Vec<String>) -> CassetteConfig {
     CassetteConfig {
@@ -38,7 +36,7 @@ fn make_cfg(dir: &str, mode: &str, match_on: Vec<String>) -> CassetteConfig {
 fn test_new_missing_fixture_file_starts_empty_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer = Builder::with_config(make_cfg(
+    let layer = ApplicationConfigBuilder::with_config(make_cfg(
         dir,
         "replay",
         vec!["method".to_string(), "url".to_string()],
@@ -84,7 +82,7 @@ method=GET|url=https://example.test/:
     std::fs::write(dir_path.join("pre_written.yaml"), yaml).unwrap();
 
     let dir = dir_path.to_str().unwrap();
-    let layer = Builder::with_config(make_cfg(
+    let layer = ApplicationConfigBuilder::with_config(make_cfg(
         dir,
         "replay",
         vec!["method".to_string(), "url".to_string()],
@@ -107,7 +105,7 @@ async fn test_middleware_replay_mode_returns_error_on_cache_miss() {
 
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer = Builder::with_config(make_cfg(
+    let layer = ApplicationConfigBuilder::with_config(make_cfg(
         dir,
         "replay",
         vec!["method".to_string(), "url".to_string()],
@@ -168,7 +166,7 @@ method=GET|url=https://example.test/status:
     std::fs::write(dir_path.join("replay_hit.yaml"), yaml).unwrap();
 
     let dir = dir_path.to_str().unwrap();
-    let layer = Builder::with_config(make_cfg(
+    let layer = ApplicationConfigBuilder::with_config(make_cfg(
         dir,
         "replay",
         vec!["method".to_string(), "url".to_string()],
@@ -225,7 +223,7 @@ method=GET|url=https://example.test/res:
     std::fs::write(dir_path.join("method_isolation.yaml"), yaml).unwrap();
 
     let dir = dir_path.to_str().unwrap();
-    let layer = Builder::with_config(make_cfg(
+    let layer = ApplicationConfigBuilder::with_config(make_cfg(
         dir,
         "replay",
         vec!["method".to_string(), "url".to_string()],

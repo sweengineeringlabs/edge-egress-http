@@ -9,7 +9,7 @@
 //!   value appears in the Debug output.
 //! - Missing files / env vars surface as typed errors, not panics.
 
-use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // HttpTls::identity — None provider returns Ok(None)
@@ -20,10 +20,10 @@ use swe_edge_egress_tls::{Builder, Error, TlsApplier, TlsConfig, TlsLayer};
 /// must never fail.
 #[test]
 fn test_apply_to_with_none_config_returns_ok() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("None apply_to must return Ok");
 }
@@ -32,13 +32,13 @@ fn test_apply_to_with_none_config_returns_ok() {
 /// the identity is resolved once at build time and the layer is reusable.
 #[test]
 fn test_apply_to_none_is_reusable() {
-    let layer: TlsLayer = Builder::with_config(TlsConfig::None)
+    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("first apply_to");
-    layer
+    let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("second apply_to must also succeed");
 }
@@ -51,7 +51,7 @@ fn test_apply_to_none_is_reusable() {
 /// which is the value `NoopHttpTls::describe()` returns.
 #[test]
 fn test_none_layer_debug_contains_noop_describe_value() {
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let dbg = format!("{layer:?}");
@@ -73,7 +73,9 @@ fn test_pem_missing_file_returns_file_read_failed_at_build_time() {
     let cfg = TlsConfig::Pem {
         path: "/does/not/exist/cert.pem".into(),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PEM must return FileReadFailed; got: {err:?}"
@@ -88,7 +90,9 @@ fn test_pkcs12_missing_file_returns_file_read_failed_at_build_time() {
         path: "/does/not/exist/cert.p12".into(),
         password_env: None,
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
         "missing PKCS12 file must return FileReadFailed; got: {err:?}"
@@ -105,7 +109,9 @@ fn test_pkcs12_missing_password_env_returns_missing_env_var() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = Builder::with_config(cfg).build().unwrap_err();
+    let err = ApplicationConfigBuilder::with_config(cfg)
+        .build()
+        .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
@@ -129,7 +135,7 @@ fn test_tls_layer_is_send_and_sync() {
 #[test]
 fn test_tls_layer_is_arc_send_sync() {
     use std::sync::Arc;
-    let layer = Builder::with_config(TlsConfig::None)
+    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
         .build()
         .expect("None must build");
     let _arc: Arc<TlsLayer> = Arc::new(layer);

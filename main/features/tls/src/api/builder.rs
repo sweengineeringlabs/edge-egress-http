@@ -1,19 +1,19 @@
-//! Builder type declaration (rule 160 — public types live in api/).
+//! ApplicationConfigBuilder type declaration (rule 160 — public types live in api/).
 
 use crate::api::tls_config::TlsConfig;
 
 /// Opaque builder for the TLS identity layer.
 ///
 /// Construct via [`swe_edge_egress_tls::builder()`](crate::builder) or
-/// [`Builder::with_config`]. Finalize with [`Builder::build`].
-pub struct Builder {
+/// [`ApplicationConfigBuilder::with_config`]. Finalize with [`ApplicationConfigBuilder::build`].
+pub struct ApplicationConfigBuilder {
     /// The resolved TLS identity policy.
     pub(crate) config: TlsConfig,
 }
 
-impl std::fmt::Debug for Builder {
+impl std::fmt::Debug for ApplicationConfigBuilder {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Builder")
+        f.debug_struct("ApplicationConfigBuilder")
             .field("config", &self.config)
             .finish()
     }

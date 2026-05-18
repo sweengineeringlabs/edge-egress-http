@@ -11,7 +11,7 @@
 //! set, or if the trait object indirection through `HttpCassetteTrait` is
 //! broken, consumers of the crate would fail to compile.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
 
 // ---------------------------------------------------------------------------
 // reqwest_middleware::Middleware — CassetteLayer must implement it
@@ -62,7 +62,7 @@ fn test_cassette_layer_attaches_to_reqwest_middleware_client_builder() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build("trait_chain_check")
         .expect("build must succeed");
 

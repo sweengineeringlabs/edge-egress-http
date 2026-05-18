@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_retry SAF builder surface.
 
-use swe_edge_egress_retry::{Builder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{ApplicationConfigBuilder, RetryConfig, RetryLayer};
 
 fn make_cfg() -> RetryConfig {
     RetryConfig {
@@ -23,23 +23,23 @@ fn test_e2e_builder() {
     assert!(format!("{layer:?}").contains("RetryLayer"));
 }
 
-/// @covers: Builder::with_config
+/// @covers: ApplicationConfigBuilder::with_config
 #[test]
 fn test_e2e_with_config() {
-    let b = Builder::with_config(make_cfg());
+    let b = ApplicationConfigBuilder::with_config(make_cfg());
     assert_eq!(b.config().max_retries, 3);
     b.build().expect("e2e with_config build must succeed");
 }
 
-/// @covers: Builder::config
+/// @covers: ApplicationConfigBuilder::config
 #[test]
 fn test_e2e_config() {
-    let b = Builder::with_config(make_cfg());
+    let b = ApplicationConfigBuilder::with_config(make_cfg());
     assert_eq!(b.config().initial_interval_ms, 100);
     assert!(b.config().retryable_statuses.contains(&429));
 }
 
-/// @covers: Builder::build
+/// @covers: ApplicationConfigBuilder::build
 #[test]
 fn test_e2e_build() {
     let cfg = RetryConfig {
@@ -50,7 +50,7 @@ fn test_e2e_build() {
         retryable_statuses: vec![503, 504],
         retryable_methods: vec!["GET".to_string(), "HEAD".to_string()],
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());

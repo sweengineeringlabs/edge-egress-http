@@ -8,25 +8,11 @@ pub enum Error {
     /// names the missing or unknown field when that's the cause.
     #[error("swe_edge_egress_retry: config parse failed — {0}")]
     ParseFailed(String),
-
-    /// Middleware behavior not yet implemented (scaffold phase).
-    /// Replaced with richer variants when the real impl lands.
-    #[error("swe_edge_egress_retry: not implemented — {0}")]
-    NotImplemented(&'static str),
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// @covers: Error
-    #[test]
-    fn test_not_implemented_display_includes_crate_name() {
-        let err = Error::NotImplemented("builder");
-        let s = err.to_string();
-        assert!(s.contains("swe_edge_egress_retry"));
-        assert!(s.contains("builder"));
-    }
 
     /// @covers: Error
     #[test]

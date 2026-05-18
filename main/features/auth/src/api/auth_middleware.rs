@@ -17,7 +17,7 @@ use crate::api::http_auth::HttpAuth;
 /// reqwest-middleware layer that applies the configured auth
 /// policy to every outbound request.
 ///
-/// Construct via `saf::builder()` → `Builder::build()`. Use:
+/// Construct via `saf::builder()` → `ApplicationConfigBuilder::build()`. Use:
 ///
 /// ```ignore
 /// let mw = swe_edge_egress_auth::builder()?.build()?;

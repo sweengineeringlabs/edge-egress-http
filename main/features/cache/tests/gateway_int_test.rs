@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_cache crate.
 
-use swe_edge_egress_cache::{builder, Builder, CacheConfig, CacheLayer, Error};
+use swe_edge_egress_cache::{builder, ApplicationConfigBuilder, CacheConfig, CacheLayer, Error};
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -55,7 +55,7 @@ fn test_builder_fn_swe_default_has_positive_ttl() {
 
 #[test]
 fn test_build_from_swe_default_returns_cache_layer() {
-    // The full happy path: default config → Builder → CacheLayer.
+    // The full happy path: default config → ApplicationConfigBuilder → CacheLayer.
     let layer = builder()
         .expect("baseline parses")
         .build()
@@ -80,13 +80,13 @@ fn test_cache_layer_satisfies_send_and_sync_bounds() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config — custom CacheConfig flows through correctly
+// ApplicationConfigBuilder::with_config — custom CacheConfig flows through correctly
 // ---------------------------------------------------------------------------
 
 #[test]
 fn test_builder_with_config_stores_custom_ttl_and_max_entries() {
     let cfg = make_cfg();
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(
         b.config().default_ttl_seconds,
         30,
@@ -107,10 +107,10 @@ fn test_builder_with_config_stores_respect_cache_control_flag() {
         respect_cache_control: false, // non-default value
         cache_private: false,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert!(
         !b.config().respect_cache_control,
-        "respect_cache_control=false must be preserved through Builder"
+        "respect_cache_control=false must be preserved through ApplicationConfigBuilder"
     );
 }
 
@@ -123,7 +123,7 @@ fn test_builder_with_cache_private_true_builds_successfully() {
         respect_cache_control: true,
         cache_private: true,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("cache_private=true must produce a valid CacheLayer");
 }
@@ -137,7 +137,7 @@ fn test_builder_with_respect_cache_control_false_builds_successfully() {
         respect_cache_control: false,
         cache_private: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("respect_cache_control=false must produce a valid CacheLayer");
 }
@@ -151,7 +151,7 @@ fn test_builder_with_very_large_max_entries_builds_successfully() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("max_entries=1_000_000 must produce a valid CacheLayer");
 }
@@ -161,7 +161,7 @@ fn test_builder_config_accessor_returns_reference_to_stored_policy() {
     // config() must return a reference to the policy, not a copy that could
     // diverge from the one used during build.
     let cfg = make_cfg();
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy: &CacheConfig = b.config();
     assert_eq!(policy.max_entries, 100);
     assert_eq!(policy.default_ttl_seconds, 30);
@@ -192,18 +192,5 @@ fn test_error_parse_failed_display_contains_supplied_reason() {
     assert!(
         msg.contains("max_entries"),
         "ParseFailed display must echo the reason; got: {msg}"
-    );
-}
-
-#[test]
-fn test_error_not_implemented_display_is_non_empty_and_names_crate() {
-    // A blank or opaque error message leaves operators with no actionable
-    // information when the scaffold-phase feature is reached at runtime.
-    let err = Error::NotImplemented("middleware hook");
-    let msg = err.to_string();
-    assert!(!msg.is_empty(), "NotImplemented display must not be empty");
-    assert!(
-        msg.contains("swe_edge_egress_cache"),
-        "NotImplemented display must name the crate; got: {msg}"
     );
 }

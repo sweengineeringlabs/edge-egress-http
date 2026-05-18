@@ -3,7 +3,7 @@
 //! `DefaultHttpBreaker` is `pub(crate)`.  Its observable effect is through the
 //! SAF `builder()` function, which loads the crate-shipped SWE baseline.
 
-use swe_edge_egress_breaker::{BreakerConfig, Builder};
+use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
@@ -50,7 +50,7 @@ fn test_default_http_breaker_swe_default_builds_layer() {
 // Custom config is not overridden by the default-loading path
 // ---------------------------------------------------------------------------
 
-/// A consumer-supplied config must survive `Builder::with_config` without any
+/// A consumer-supplied config must survive `ApplicationConfigBuilder::with_config` without any
 /// field being silently replaced by the SWE default.
 #[test]
 fn test_default_http_breaker_custom_config_is_not_overridden_by_swe_default() {
@@ -60,7 +60,7 @@ fn test_default_http_breaker_custom_config_is_not_overridden_by_swe_default() {
         reset_after_successes: 11,
         failure_statuses: vec![418],
     };
-    let b = Builder::with_config(custom);
+    let b = ApplicationConfigBuilder::with_config(custom);
     assert_eq!(b.config().failure_threshold, 99);
     assert_eq!(b.config().half_open_after_seconds, 7);
     assert_eq!(b.config().reset_after_successes, 11);

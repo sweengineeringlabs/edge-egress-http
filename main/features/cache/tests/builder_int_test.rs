@@ -1,9 +1,9 @@
 //! Integration tests for `api/builder.rs` and `saf/builder.rs`.
 //!
 //! Covers the full public builder surface: the `builder()` free function
-//! and the `Builder` type's `with_config`, `config`, and `build` methods.
+//! and the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
 
-use swe_edge_egress_cache::{builder, Builder, CacheConfig, CacheLayer, Error};
+use swe_edge_egress_cache::{builder, ApplicationConfigBuilder, CacheConfig, CacheLayer, Error};
 
 // ---------------------------------------------------------------------------
 // builder() free function
@@ -42,7 +42,7 @@ fn test_builder_fn_swe_default_max_entries_is_positive() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config — custom policy round-trips correctly
+// ApplicationConfigBuilder::with_config — custom policy round-trips correctly
 // ---------------------------------------------------------------------------
 
 /// `with_config` must preserve every field of the supplied `CacheConfig`
@@ -55,7 +55,7 @@ fn test_with_config_preserves_all_fields() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy = b.config();
     assert_eq!(policy.default_ttl_seconds, 42);
     assert_eq!(policy.max_entries, 256);
@@ -73,7 +73,7 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     let policy: &CacheConfig = b.config();
     // Access both fields on the same borrowed reference.  If config() returned
     // an owned value, a type-system mismatch here would catch the regression.
@@ -88,7 +88,7 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::build — produces a usable CacheLayer
+// ApplicationConfigBuilder::build — produces a usable CacheLayer
 // ---------------------------------------------------------------------------
 
 /// The nominal build path must succeed and return a `CacheLayer`.
@@ -115,7 +115,7 @@ fn test_build_with_custom_ttl_reflects_in_debug_output() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = Builder::with_config(cfg)
+    let layer = ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -135,7 +135,7 @@ fn test_build_with_cache_private_true_succeeds() {
         respect_cache_control: true,
         cache_private: true,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("cache_private=true must not be rejected by build()");
 }
@@ -150,7 +150,7 @@ fn test_build_with_respect_cache_control_false_succeeds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("respect_cache_control=false must not be rejected by build()");
 }
@@ -165,7 +165,7 @@ fn test_build_with_large_max_entries_succeeds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("max_entries=1_000_000 must not be rejected by build()");
 }
@@ -181,7 +181,7 @@ fn test_build_with_zero_ttl_succeeds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build()
         .expect("default_ttl_seconds=0 must not be rejected by build()");
 }
@@ -201,21 +201,5 @@ fn test_error_parse_failed_is_constructable_and_its_message_is_accessible() {
     assert!(
         display.contains(&reason),
         "ParseFailed display must echo the supplied reason; got: {display}"
-    );
-}
-
-/// `Error::NotImplemented` must be constructable so downstream consumers can
-/// match it.
-#[test]
-fn test_error_not_implemented_is_constructable_and_display_is_non_empty() {
-    let err = Error::NotImplemented("builder");
-    let display = err.to_string();
-    assert!(
-        !display.is_empty(),
-        "NotImplemented display must not be empty"
-    );
-    assert!(
-        display.contains("swe_edge_egress_cache"),
-        "NotImplemented display must identify the crate; got: {display}"
     );
 }

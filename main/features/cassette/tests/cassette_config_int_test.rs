@@ -2,9 +2,9 @@
 //!
 //! `CassetteConfig` is a plain struct with public fields — tests exercise
 //! that struct literal construction round-trips correctly through the
-//! `Builder` and that field values are preserved without mutation.
+//! `ApplicationConfigBuilder` and that field values are preserved without mutation.
 
-use swe_edge_egress_cassette::{Builder, CassetteConfig};
+use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
 
 // ---------------------------------------------------------------------------
 // Struct construction — all public fields must be writable
@@ -67,7 +67,7 @@ fn test_mode_replay_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("mode_replay")
         .expect("replay mode must build");
 }
@@ -84,7 +84,7 @@ fn test_mode_record_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("mode_record")
         .expect("record mode must build");
 }
@@ -101,7 +101,7 @@ fn test_mode_auto_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("mode_auto")
         .expect("auto mode must build");
 }
@@ -129,7 +129,7 @@ fn test_match_on_with_all_standard_components_builds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("match_on_all")
         .expect("all match_on components must build");
 }
@@ -147,7 +147,7 @@ fn test_match_on_empty_builds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("match_on_empty")
         .expect("empty match_on must build");
 }
@@ -157,7 +157,7 @@ fn test_match_on_empty_builds() {
 // ---------------------------------------------------------------------------
 
 /// `scrub_headers` containing "authorization" must survive the round-trip
-/// through `Builder::with_config` into the layer's config, confirming the
+/// through `ApplicationConfigBuilder::with_config` into the layer's config, confirming the
 /// scrub list is not silently cleared during build.
 #[test]
 fn test_scrub_headers_survives_build_round_trip() {
@@ -170,7 +170,7 @@ fn test_scrub_headers_survives_build_round_trip() {
         scrub_headers: vec!["authorization".to_string(), "set-cookie".to_string()],
         scrub_body_paths: vec![],
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert!(b
         .config()
         .scrub_headers

@@ -1,8 +1,8 @@
-//! Integration tests for `swe_edge_egress_cassette` `Builder` and `builder()` SAF entry point.
+//! Integration tests for `swe_edge_egress_cassette` `ApplicationConfigBuilder` and `builder()` SAF entry point.
 //!
-//! Covers: `builder()`, `Builder::with_config`, `Builder::config`, `Builder::build`.
+//! Covers: `builder()`, `ApplicationConfigBuilder::with_config`, `ApplicationConfigBuilder::config`, `ApplicationConfigBuilder::build`.
 
-use swe_edge_egress_cassette::{builder, Builder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{builder, ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
 
 fn make_config(dir: &str) -> CassetteConfig {
     // Normalize backslashes so TOML doesn't treat `\U`, `\t`, etc. as escape
@@ -58,7 +58,7 @@ fn test_builder_fn_swe_default_scrubs_authorization_header() {
 }
 
 // ---------------------------------------------------------------------------
-// Builder::with_config — custom config flows through unchanged
+// ApplicationConfigBuilder::with_config — custom config flows through unchanged
 // ---------------------------------------------------------------------------
 
 /// All fields supplied through `with_config` must be accessible via
@@ -68,7 +68,7 @@ fn test_with_config_stores_all_fields_unchanged() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let cfg = make_config(&dir);
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
 
     assert_eq!(b.config().mode, "auto");
     assert_eq!(b.config().cassette_dir, dir);
@@ -95,14 +95,14 @@ fn test_config_accessor_returns_stored_reference() {
         scrub_headers: vec![],
         scrub_body_paths: vec!["request_id".to_string()],
     };
-    let b = Builder::with_config(cfg);
+    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(b.config().mode, "record");
     assert_eq!(b.config().match_on, vec!["body_hash"]);
     assert_eq!(b.config().scrub_body_paths, vec!["request_id"]);
 }
 
 // ---------------------------------------------------------------------------
-// Builder::build — produces a CassetteLayer
+// ApplicationConfigBuilder::build — produces a CassetteLayer
 // ---------------------------------------------------------------------------
 
 /// Happy path: `build` must succeed and return a `CassetteLayer` whose
@@ -111,7 +111,7 @@ fn test_config_accessor_returns_stored_reference() {
 fn test_build_with_auto_mode_returns_cassette_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
-    let layer: CassetteLayer = Builder::with_config(make_config(&dir))
+    let layer: CassetteLayer = ApplicationConfigBuilder::with_config(make_config(&dir))
         .build("happy_path")
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
@@ -135,7 +135,7 @@ fn test_build_replay_mode_missing_fixture_file_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("replay_no_fixture")
         .expect("replay with missing fixture must build");
 }
@@ -153,7 +153,7 @@ fn test_build_record_mode_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("record_session")
         .expect("record mode must build");
 }
@@ -175,7 +175,7 @@ fn test_build_with_nested_scrub_body_paths_succeeds() {
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: vec!["request_id".to_string(), "metadata.trace_id".to_string()],
     };
-    Builder::with_config(cfg)
+    ApplicationConfigBuilder::with_config(cfg)
         .build("nested_scrub")
         .expect("nested scrub body paths must build");
 }
