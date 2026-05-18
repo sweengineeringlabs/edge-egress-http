@@ -1,6 +1,6 @@
 //! Pluggable HTTP auth strategy contract.
 //!
-//! Async trait (per `async_trait` macro) so strategies that need
+//! Async strategy contract so strategies that need
 //! async setup — currently Digest, for fetching a nonce via a
 //! side-channel request — fit the same shape as the synchronous
 //! schemes (Bearer / Basic / Header / AWS SigV4).
@@ -10,7 +10,7 @@
 //! [`AuthConfig`](crate::api::auth_config::AuthConfig), not to
 //! arbitrary external impls.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::error::Error;
 
@@ -28,7 +28,6 @@ use crate::api::error::Error;
 ///    attachment. Called after `prepare` completes. Strategies
 ///    hold any pre-computed state they need so the hot path on
 ///    every request is a trivial header insert.
-#[async_trait]
 pub(crate) trait AuthStrategy: Send + Sync + std::fmt::Debug {
     /// Optional async setup step.
     ///
@@ -36,8 +35,8 @@ pub(crate) trait AuthStrategy: Send + Sync + std::fmt::Debug {
     /// per-host state (Digest's nonce cache) override this.
     /// `host` is the URL host of the outbound request — `None`
     /// when the URL is hostless (unlikely in practice).
-    async fn prepare(&self, _host: Option<&str>) -> Result<(), Error> {
-        Ok(())
+    fn prepare<'a>(&'a self, _host: Option<&'a str>) -> BoxFuture<'a, Result<(), Error>> {
+        Box::pin(async { Ok(()) })
     }
 
     /// Apply the strategy to `req` in place. Called once per
@@ -52,7 +51,6 @@ mod tests {
 
     #[derive(Debug)]
     struct StubStrategy;
-    #[async_trait]
     impl AuthStrategy for StubStrategy {
         fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
             req.headers_mut()
@@ -65,11 +63,10 @@ mod tests {
     struct PrepareCountingStrategy {
         calls: std::sync::atomic::AtomicUsize,
     }
-    #[async_trait]
     impl AuthStrategy for PrepareCountingStrategy {
-        async fn prepare(&self, _host: Option<&str>) -> Result<(), Error> {
+        fn prepare<'a>(&'a self, _host: Option<&'a str>) -> BoxFuture<'a, Result<(), Error>> {
             self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-            Ok(())
+            Box::pin(async { Ok(()) })
         }
         fn authorize(&self, _req: &mut reqwest::Request) -> Result<(), Error> {
             Ok(())

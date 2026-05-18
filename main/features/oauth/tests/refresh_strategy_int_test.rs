@@ -2,16 +2,16 @@
 
 use std::sync::Arc;
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use swe_edge_egress_oauth::{builder, OAuthTokenSource, Result};
 
 #[derive(Debug)]
 struct StaticSource(String);
 
-#[async_trait]
 impl OAuthTokenSource for StaticSource {
-    async fn get_access_token(&self) -> Result<String> {
-        Ok(self.0.clone())
+    fn get_access_token(&self) -> BoxFuture<'_, Result<String>> {
+        let v = self.0.clone();
+        Box::pin(async move { Ok(v) })
     }
 }
 

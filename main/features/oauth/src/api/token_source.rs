@@ -5,7 +5,7 @@
 //! outbound request; your implementation is responsible for proactive
 //! refresh and any credential file I/O.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::Result;
 
@@ -18,20 +18,19 @@ use crate::api::Result;
 ///
 /// The middleware calls this once per request; implementations should cache
 /// the current token in memory and only hit the token endpoint when necessary.
-#[async_trait]
 pub trait OAuthTokenSource: Send + Sync + std::fmt::Debug + 'static {
     /// Return a valid access token. Must not return an expired token.
-    async fn get_access_token(&self) -> Result<String>;
+    fn get_access_token(&self) -> BoxFuture<'_, Result<String>>;
 }
 
 #[cfg(test)]
 pub(crate) struct StaticTokenSource(pub String);
 
 #[cfg(test)]
-#[async_trait]
 impl OAuthTokenSource for StaticTokenSource {
-    async fn get_access_token(&self) -> Result<String> {
-        Ok(self.0.clone())
+    fn get_access_token(&self) -> BoxFuture<'_, Result<String>> {
+        let v = self.0.clone();
+        Box::pin(async move { Ok(v) })
     }
 }
 
@@ -46,10 +45,9 @@ impl std::fmt::Debug for StaticTokenSource {
 pub(crate) struct FailingTokenSource;
 
 #[cfg(test)]
-#[async_trait]
 impl OAuthTokenSource for FailingTokenSource {
-    async fn get_access_token(&self) -> Result<String> {
-        Err(crate::api::Error::RefreshFailed("test failure".into()))
+    fn get_access_token(&self) -> BoxFuture<'_, Result<String>> {
+        Box::pin(async { Err(crate::api::Error::RefreshFailed("test failure".into())) })
     }
 }
 
