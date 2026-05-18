@@ -2,7 +2,6 @@
 //! credential headers (`x-api-key`, `x-goog-api-key`,
 //! `x-auth-token`, etc.) instead of `Authorization`.
 
-use async_trait::async_trait;
 use http::header::{HeaderName, HeaderValue};
 use secrecy::{ExposeSecret, SecretString};
 
@@ -46,7 +45,6 @@ impl HeaderStrategy {
     }
 }
 
-#[async_trait]
 impl AuthStrategy for HeaderStrategy {
     fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
         req.headers_mut()

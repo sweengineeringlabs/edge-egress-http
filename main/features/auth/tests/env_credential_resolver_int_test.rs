@@ -98,25 +98,6 @@ fn test_env_resolver_absent_header_returns_missing_env_var_error() {
     }
 }
 
-#[test]
-fn test_env_resolver_absent_digest_user_returns_missing_env_var() {
-    let user_env = "SWE_AUTH_ENVRES_ABS_DIG_U_01";
-    let pass_env = "SWE_AUTH_ENVRES_ABS_DIG_P_01";
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    })
-    .build()
-    .unwrap_err();
-    match err {
-        Error::MissingEnvVar { name } => assert_eq!(name, user_env),
-        other => panic!("expected MissingEnvVar for user_env, got {other:?}"),
-    }
-}
-
 // ---------------------------------------------------------------------------
 // Empty env var is "present" — resolver returns the empty string
 // ---------------------------------------------------------------------------

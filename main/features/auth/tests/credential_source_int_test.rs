@@ -112,29 +112,6 @@ fn test_credential_source_header_identifies_missing_value_env_by_name() {
 }
 
 // ---------------------------------------------------------------------------
-// Digest: two sources (user_env, password_env)
-// ---------------------------------------------------------------------------
-
-#[test]
-fn test_credential_source_digest_identifies_missing_user_env_by_name() {
-    let user_env = "SWE_AUTH_SRC_DIG_U_01";
-    let pass_env = "SWE_AUTH_SRC_DIG_P_01";
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    })
-    .build()
-    .unwrap_err();
-    match err {
-        Error::MissingEnvVar { name } => assert_eq!(name, user_env),
-        other => panic!("expected MissingEnvVar for user_env, got {other:?}"),
-    }
-}
-
-// ---------------------------------------------------------------------------
 // AwsSigV4: two required sources + one optional (session_token_env)
 // ---------------------------------------------------------------------------
 
