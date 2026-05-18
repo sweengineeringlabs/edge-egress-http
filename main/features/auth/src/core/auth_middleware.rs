@@ -49,22 +49,26 @@ mod tests {
         calls: AtomicUsize,
     }
 
-    #[async_trait::async_trait]
     impl HttpAuth for CountingHttpAuth {
         fn describe(&self) -> &'static str {
             "counting-stub"
         }
-        async fn process(&self, req: &mut reqwest::Request) -> Result<(), Error> {
-            self.calls.fetch_add(1, Ordering::SeqCst);
-            req.headers_mut().insert(
-                "x-auth-applied",
-                self.calls
-                    .load(Ordering::SeqCst)
-                    .to_string()
-                    .parse()
-                    .unwrap(),
-            );
-            Ok(())
+        fn process<'a>(
+            &'a self,
+            req: &'a mut reqwest::Request,
+        ) -> futures::future::BoxFuture<'a, Result<(), Error>> {
+            Box::pin(async move {
+                self.calls.fetch_add(1, Ordering::SeqCst);
+                req.headers_mut().insert(
+                    "x-auth-applied",
+                    self.calls
+                        .load(Ordering::SeqCst)
+                        .to_string()
+                        .parse()
+                        .unwrap(),
+                );
+                Ok(())
+            })
         }
     }
 

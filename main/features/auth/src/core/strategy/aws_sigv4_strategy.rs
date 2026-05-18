@@ -14,7 +14,6 @@
 //!      SignedHeaders=..., Signature=...` + `x-amz-date` +
 //!      optional `x-amz-security-token` headers.
 
-use async_trait::async_trait;
 use hmac::{Hmac, Mac};
 use http::header::{HeaderName, HeaderValue, AUTHORIZATION, HOST};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
@@ -266,7 +265,6 @@ impl AwsSigV4Strategy {
     }
 }
 
-#[async_trait]
 impl AuthStrategy for AwsSigV4Strategy {
     fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
         self.sign(req, Self::now())

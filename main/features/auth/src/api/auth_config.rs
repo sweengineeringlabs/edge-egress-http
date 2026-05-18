@@ -48,25 +48,6 @@ pub enum AuthConfig {
         value_env: String,
     },
 
-    /// HTTP Digest Access Authentication per RFC 7616.
-    ///
-    /// Uses a nonce-based challenge-response: the strategy
-    /// fetches a nonce from the target host via a side-channel
-    /// request, caches it, and computes per-request response
-    /// hashes. Handles stale nonces by invalidating + refetching.
-    Digest {
-        /// Env var holding the username.
-        user_env: String,
-        /// Env var holding the password.
-        password_env: String,
-        /// Expected realm. Optional — when provided, the
-        /// strategy validates the server's `realm=` parameter
-        /// matches, guarding against misconfiguration against
-        /// the wrong host.
-        #[serde(default)]
-        realm: Option<String>,
-    },
-
     /// AWS Signature Version 4 — signs each request with
     /// HMAC-SHA256 using the access-key / secret-key pair
     /// derived from env vars. Suitable for AWS service APIs and

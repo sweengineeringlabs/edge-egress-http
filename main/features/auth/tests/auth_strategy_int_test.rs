@@ -139,29 +139,6 @@ fn test_header_config_selects_header_strategy_when_env_set() {
 }
 
 // ---------------------------------------------------------------------------
-// Digest → DigestStrategy: fails fast on missing user/pass env
-// ---------------------------------------------------------------------------
-
-#[test]
-fn test_digest_config_fails_fast_when_user_env_missing() {
-    let user_env = "SWE_AUTH_STRAT_DIG_U_01";
-    let pass_env = "SWE_AUTH_STRAT_DIG_P_01";
-    std::env::remove_var(user_env);
-    std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Digest {
-        user_env: user_env.into(),
-        password_env: pass_env.into(),
-        realm: None,
-    })
-    .build()
-    .unwrap_err();
-    assert!(
-        matches!(err, Error::MissingEnvVar { .. }),
-        "expected MissingEnvVar for missing digest user env, got {err:?}"
-    );
-}
-
-// ---------------------------------------------------------------------------
 // AwsSigV4 → AwsSigV4Strategy: fails fast on missing access/secret key env
 // ---------------------------------------------------------------------------
 
