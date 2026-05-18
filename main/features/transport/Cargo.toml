@@ -10,6 +10,10 @@ description  = "edge — egress HTTP outbound domain: request/response types, ou
 keywords     = ["gateway", "egress", "http", "sea", "swe"]
 categories   = ["network-programming"]
 
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "transport"
+
 [lib]
 path = "src/lib.rs"
 
@@ -21,7 +25,6 @@ serde.workspace             = true
 serde_json.workspace        = true
 thiserror.workspace         = true
 futures.workspace           = true
-chrono.workspace            = true
 http.workspace              = true
 tokio                       = { workspace = true, features = ["rt", "net"] }
 reqwest.workspace           = true

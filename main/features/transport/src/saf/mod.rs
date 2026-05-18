@@ -7,10 +7,12 @@ use swe_observ_metrics::MetricsProvider;
 
 use crate::core::{DefaultHttpOutbound, MetricsHttpOutbound};
 
-pub use crate::api::port::{HttpOutbound, HttpOutboundError, HttpOutboundResult};
+pub use crate::api::port::{
+    HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamOutbound,
+};
 pub use crate::api::value_object::{
     FormPart, HttpAuth, HttpBody, HttpConfig, HttpMethod, HttpRequest, HttpResponse,
-    HttpStreamResponse,
+    HttpStreamResponse, SseEvent, SseStream, WsChannel, WsMessage, WsReceiver, WsSender,
 };
 
 /// Aggregate middleware config for assembling a [`DefaultHttpOutbound`].
