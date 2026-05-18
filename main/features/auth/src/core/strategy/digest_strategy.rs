@@ -59,7 +59,9 @@
 //! username internally.
 
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+
+use parking_lot::Mutex;
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -356,7 +358,7 @@ impl AuthStrategy for DigestStrategy {
         // Check cache under lock; if present + fresh, nothing
         // to do.
         {
-            let cache = self.nonce_cache.lock().unwrap();
+            let cache = self.nonce_cache.lock();
             if let Some(entry) = cache.get(host) {
                 if entry.fetched_at.elapsed() < NONCE_TTL {
                     return Ok(());
@@ -375,7 +377,7 @@ impl AuthStrategy for DigestStrategy {
             }
         }
 
-        let mut cache = self.nonce_cache.lock().unwrap();
+        let mut cache = self.nonce_cache.lock();
         cache.insert(
             host.to_string(),
             CachedNonce {
@@ -407,7 +409,7 @@ impl AuthStrategy for DigestStrategy {
         // the empty-body hash (only relevant for `auth-int`).
         let body_bytes: Option<Vec<u8>> = req.body().and_then(|b| b.as_bytes().map(<[u8]>::to_vec));
 
-        let mut cache = self.nonce_cache.lock().unwrap();
+        let mut cache = self.nonce_cache.lock();
         let cached = cache.get_mut(&host).ok_or_else(|| {
             Error::InvalidHeaderValue(
                 "Digest authorize called without successful prepare — cached nonce missing".into(),
@@ -1235,7 +1237,7 @@ mod tests {
         .unwrap();
         // Seed the nonce cache directly — avoids needing an HTTP server.
         {
-            let mut cache = s.nonce_cache.lock().unwrap();
+            let mut cache = s.nonce_cache.lock();
             cache.insert(
                 "example.test".to_string(),
                 CachedNonce {
@@ -1310,7 +1312,7 @@ mod tests {
             None,
         )
         .unwrap();
-        let cache = s.nonce_cache.lock().unwrap();
+        let cache = s.nonce_cache.lock();
         assert!(
             cache.is_empty(),
             "nonce cache must be empty before any prepare() call"
