@@ -12,6 +12,8 @@ use crate::api::breaker_layer::BreakerLayer;
 use crate::api::breaker_state::{Admission, Outcome};
 use crate::api::traits::CircuitBreakerNode;
 
+use crate::api::error::Error as BreakerError;
+
 use super::host_breaker::HostBreaker;
 
 /// Capacity of the per-host breaker cache. Upper bound on the
@@ -79,9 +81,9 @@ impl reqwest_middleware::Middleware for BreakerLayer {
         };
 
         match admission {
-            Admission::RejectOpen => Err(reqwest_middleware::Error::Middleware(anyhow::anyhow!(
-                "swe_edge_egress_breaker: circuit open for {key} — request rejected"
-            ))),
+            Admission::RejectOpen => Err(reqwest_middleware::Error::Middleware(
+                anyhow::Error::new(BreakerError::CircuitOpen { host: key }),
+            )),
             Admission::Proceed => {
                 let result = next.run(req, ext).await;
 
