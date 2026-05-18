@@ -8,15 +8,15 @@
 //!
 //! ```rust,no_run
 //! use std::sync::Arc;
+//! use futures::future::BoxFuture;
 //! use swe_edge_egress_oauth::{builder, OAuthTokenSource, Result};
 //!
 //! #[derive(Debug)]
 //! struct MyTokenSource;
 //!
-//! #[async_trait::async_trait]
 //! impl OAuthTokenSource for MyTokenSource {
-//!     async fn get_access_token(&self) -> Result<String> {
-//!         Ok("my-token".to_string())
+//!     fn get_access_token(&self) -> BoxFuture<'_, Result<String>> {
+//!         Box::pin(async { Ok("my-token".to_string()) })
 //!     }
 //! }
 //!

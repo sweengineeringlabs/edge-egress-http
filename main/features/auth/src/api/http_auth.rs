@@ -6,13 +6,12 @@
 //! `core::auth_middleware` holds an `Arc<dyn HttpAuth>` and
 //! awaits `process` on each request.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::error::Error;
 
 /// Auth processor contract. Every middleware layer this crate
 /// produces implements it.
-#[async_trait]
 pub trait HttpAuth: Send + Sync + std::fmt::Debug {
     /// Identify this processor in log / trace output.
     fn describe(&self) -> &'static str;
@@ -24,5 +23,5 @@ pub trait HttpAuth: Send + Sync + std::fmt::Debug {
     /// shape as synchronous schemes. For the sync strategies
     /// (Bearer/Basic/Header/Noop/AwsSigV4), the async overhead
     /// is trivial — an already-ready future.
-    async fn process(&self, req: &mut reqwest::Request) -> Result<(), Error>;
+    fn process<'a>(&'a self, req: &'a mut reqwest::Request) -> BoxFuture<'a, Result<(), Error>>;
 }

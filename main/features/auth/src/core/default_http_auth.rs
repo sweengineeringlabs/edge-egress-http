@@ -4,7 +4,7 @@
 //! `build()` time from the config + resolver) and delegates
 //! `process()` to it on every request.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::auth_config::AuthConfig;
 use crate::api::auth_strategy::AuthStrategy;
@@ -47,18 +47,19 @@ impl DefaultHttpAuth {
     }
 }
 
-#[async_trait]
 impl HttpAuth for DefaultHttpAuth {
     fn describe(&self) -> &'static str {
         "swe_edge_egress_auth"
     }
 
-    async fn process(&self, req: &mut reqwest::Request) -> Result<(), Error> {
-        // Two-phase: first, any strategy-specific setup (Digest
-        // fetches nonce here), then attach header.
-        let host = req.url().host_str();
-        self.strategy.prepare(host).await?;
-        self.strategy.authorize(req)
+    fn process<'a>(&'a self, req: &'a mut reqwest::Request) -> BoxFuture<'a, Result<(), Error>> {
+        Box::pin(async move {
+            // Two-phase: first, any strategy-specific setup (Digest
+            // fetches nonce here), then attach header.
+            let host = req.url().host_str();
+            self.strategy.prepare(host).await?;
+            self.strategy.authorize(req)
+        })
     }
 }
 
