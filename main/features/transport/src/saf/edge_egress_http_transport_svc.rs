@@ -9,7 +9,7 @@ use swe_observ_metrics::MetricsProvider;
 
 use crate::api::http::HttpOutboundBuildError;
 use crate::api::http::HttpOutboundConfig;
-use crate::api::port::HttpOutbound;
+use crate::api::port::{HttpOutbound, HttpStreamOutbound};
 use crate::api::traits::Validator as _;
 use crate::api::value_object::HttpConfig;
 use crate::core::{DefaultHttpOutbound, MetricsHttpOutbound};
@@ -170,6 +170,24 @@ pub fn observe_http_outbound(
     provider: Arc<dyn MetricsProvider>,
 ) -> impl HttpOutbound {
     MetricsHttpOutbound::new(Arc::new(inner), provider)
+}
+
+/// Build a fully-assembled [`HttpStreamOutbound`] using the SWE defaults.
+///
+/// Returns the same default middleware stack as [`default_http_outbound`]
+/// but typed as [`HttpStreamOutbound`], so callers can use SSE and WebSocket
+/// features without importing or naming the concrete type.
+pub fn default_http_stream_outbound() -> Result<impl HttpStreamOutbound, HttpOutboundBuildError> {
+    assemble(
+        HttpConfig::default(),
+        swe_edge_egress_auth::builder()?.build()?,
+        swe_edge_egress_retry::builder()?.build()?,
+        swe_edge_egress_rate::builder()?.build()?,
+        swe_edge_egress_breaker::builder()?.build()?,
+        swe_edge_egress_cache::builder()?.build()?,
+        swe_edge_egress_cassette::builder()?.build("default")?,
+        swe_edge_egress_tls::builder()?.build()?,
+    )
 }
 
 /// Build a minimal [`HttpOutbound`] from just an [`HttpConfig`] — no middleware layers.
@@ -395,6 +413,17 @@ mod tests {
         let provider: Arc<dyn MetricsProvider> =
             Arc::new(swe_observ_metrics::create_local_metrics_backend());
         let _observed = observe_http_outbound(inner, provider);
+    }
+
+    /// @covers: default_http_stream_outbound
+    #[test]
+    fn test_default_http_stream_outbound_builds_with_swe_defaults() {
+        let result = default_http_stream_outbound();
+        assert!(
+            result.is_ok(),
+            "default_http_stream_outbound must build: {:?}",
+            result.err()
+        );
     }
 
     /// @covers: http_outbound_oauth

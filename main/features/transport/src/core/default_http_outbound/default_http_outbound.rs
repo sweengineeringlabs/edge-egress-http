@@ -5,9 +5,14 @@ use futures::future::BoxFuture;
 use futures::StreamExt as _;
 use reqwest_middleware::ClientWithMiddleware;
 
+use crate::api::port::http::http_stream_outbound::HttpStreamOutbound;
 use crate::api::port::http_outbound::HttpOutbound;
 use crate::api::port::http_outbound_error::HttpOutboundError;
 use crate::api::port::HttpOutboundResult;
+use crate::api::value_object::sse::{SseEvent, SseStream};
+use crate::api::value_object::ws::WsChannel;
+#[cfg(feature = "websocket")]
+use crate::api::value_object::ws::WsMessage;
 use crate::api::value_object::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
 
 pub(crate) struct DefaultHttpOutbound {
@@ -220,18 +225,268 @@ impl HttpOutbound for DefaultHttpOutbound {
     }
 }
 
+impl HttpStreamOutbound for DefaultHttpOutbound {
+    fn subscribe_sse(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<SseStream>> {
+        let url = url.to_string();
+        let client = self.client.clone();
+        Box::pin(async move {
+            let response = client
+                .get(&url)
+                .header("Accept", "text/event-stream")
+                .header("Cache-Control", "no-cache")
+                .send()
+                .await
+                .map_err(|e| HttpOutboundError::ConnectionFailed(e.to_string()))?;
+
+            if !response.status().is_success() {
+                return Err(HttpOutboundError::Internal(format!(
+                    "SSE feed returned HTTP {}",
+                    response.status().as_u16()
+                )));
+            }
+
+            let bytes_stream = response.bytes_stream();
+            let sse_stream = parse_sse_bytes(bytes_stream);
+            Ok(Box::pin(sse_stream) as SseStream)
+        })
+    }
+
+    fn connect_websocket(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<WsChannel>> {
+        let url = url.to_string();
+        Box::pin(async move { connect_ws(url).await })
+    }
+}
+
+/// Parse a raw byte stream from an SSE response into a stream of [`SseEvent`]s.
+///
+/// Spawns a background task that reads bytes, buffers and parses the
+/// `text/event-stream` format, and sends events through an mpsc channel.
+fn parse_sse_bytes(
+    bytes_stream: impl futures::Stream<Item = Result<bytes::Bytes, reqwest::Error>> + Send + 'static,
+) -> impl futures::Stream<Item = Result<SseEvent, HttpOutboundError>> + Send {
+    use futures::StreamExt as _;
+
+    let (tx, rx) = futures::channel::mpsc::unbounded::<Result<SseEvent, HttpOutboundError>>();
+
+    tokio::spawn(async move {
+        futures::pin_mut!(bytes_stream);
+        let mut buf = String::new();
+
+        while let Some(chunk) = bytes_stream.next().await {
+            match chunk {
+                Ok(bytes) => {
+                    buf.push_str(&String::from_utf8_lossy(&bytes));
+                    while let Some(pos) = buf.find("\n\n") {
+                        let block = buf[..pos].to_string();
+                        buf = buf[pos + 2..].to_string();
+                        if let Some(ev) = parse_sse_block(&block) {
+                            if tx.unbounded_send(Ok(ev)).is_err() {
+                                return;
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    let _ = tx.unbounded_send(Err(HttpOutboundError::Internal(e.to_string())));
+                    return;
+                }
+            }
+        }
+        // Flush any trailing partial event.
+        if !buf.trim().is_empty() {
+            if let Some(ev) = parse_sse_block(&buf) {
+                let _ = tx.unbounded_send(Ok(ev));
+            }
+        }
+    });
+
+    rx
+}
+
+fn parse_sse_block(block: &str) -> Option<SseEvent> {
+    let mut data = String::new();
+    let mut event: Option<String> = None;
+    let mut id: Option<String> = None;
+
+    for line in block.lines() {
+        if line.starts_with(':') {
+            continue; // comment
+        }
+        let (field, value) = if let Some(pos) = line.find(':') {
+            let f = &line[..pos];
+            let v = line[pos + 1..].trim_start_matches(' ');
+            (f, v)
+        } else {
+            (line, "")
+        };
+
+        match field {
+            "data" => {
+                if !data.is_empty() {
+                    data.push('\n');
+                }
+                data.push_str(value);
+            }
+            "event" => event = Some(value.to_string()),
+            "id" => id = Some(value.to_string()),
+            _ => {}
+        }
+    }
+
+    if data.is_empty() {
+        None
+    } else {
+        Some(SseEvent { event, data, id })
+    }
+}
+
+/// Connect to a WebSocket server and return a [`WsChannel`].
+///
+/// Requires the `websocket` feature.
+async fn connect_ws(url: String) -> HttpOutboundResult<WsChannel> {
+    #[cfg(feature = "websocket")]
+    {
+        use futures::SinkExt as _;
+        use futures::StreamExt as _;
+        use tokio::sync::mpsc;
+        use tokio_tungstenite::tungstenite::Message as TungMsg;
+
+        let (ws_stream, _) = tokio_tungstenite::connect_async(&url)
+            .await
+            .map_err(|e| HttpOutboundError::ConnectionFailed(e.to_string()))?;
+
+        let (mut ws_sink, ws_read) = ws_stream.split();
+
+        let (out_tx, mut out_rx) = mpsc::unbounded_channel::<WsMessage>();
+
+        // Bridge outgoing mpsc → WebSocket sink.
+        tokio::spawn(async move {
+            while let Some(msg) = out_rx.recv().await {
+                let tung_msg = if msg.binary {
+                    TungMsg::Binary(msg.data.to_vec().into())
+                } else {
+                    TungMsg::Text(String::from_utf8_lossy(&msg.data).into_owned().into())
+                };
+                if ws_sink.send(tung_msg).await.is_err() {
+                    break;
+                }
+            }
+        });
+
+        let incoming: crate::api::value_object::ws::WsReceiver =
+            Box::pin(ws_read.filter_map(|item| async move {
+                match item {
+                    Ok(TungMsg::Text(t)) => Some(Ok(WsMessage::text(t.as_str()))),
+                    Ok(TungMsg::Binary(b)) => {
+                        Some(Ok(WsMessage::binary(bytes::Bytes::from(b.to_vec()))))
+                    }
+                    Ok(TungMsg::Close(_)) => None,
+                    Ok(_) => None,
+                    Err(e) => Some(Err(HttpOutboundError::ConnectionFailed(e.to_string()))),
+                }
+            }));
+
+        Ok(WsChannel {
+            sender: out_tx,
+            receiver: incoming,
+        })
+    }
+
+    #[cfg(not(feature = "websocket"))]
+    {
+        let _ = url;
+        Err(HttpOutboundError::Internal(
+            "WebSocket support requires the 'websocket' feature flag".into(),
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::StreamExt as _;
     use reqwest_middleware::ClientBuilder;
 
     fn client() -> ClientWithMiddleware {
         ClientBuilder::new(reqwest::Client::new()).build()
     }
 
+    fn make_outbound() -> DefaultHttpOutbound {
+        DefaultHttpOutbound::new(client(), Some("http://localhost".into()), None)
+    }
+
     #[test]
     fn test_new_creates_outbound_with_base_url() {
         let out = DefaultHttpOutbound::new(client(), Some("http://localhost".into()), None);
         assert_eq!(out.base_url.as_deref(), Some("http://localhost"));
+    }
+
+    #[test]
+    fn test_parse_sse_block_parses_data_only_event() {
+        let ev = parse_sse_block("data: hello");
+        assert!(ev.is_some());
+        assert_eq!(ev.unwrap().data, "hello");
+    }
+
+    #[test]
+    fn test_parse_sse_block_parses_event_type_and_id() {
+        let block = "event: update\ndata: {}\nid: 42";
+        let ev = parse_sse_block(block).unwrap();
+        assert_eq!(ev.event.as_deref(), Some("update"));
+        assert_eq!(ev.data, "{}");
+        assert_eq!(ev.id.as_deref(), Some("42"));
+    }
+
+    #[test]
+    fn test_parse_sse_block_ignores_comment_lines() {
+        let ev = parse_sse_block(": comment\ndata: real");
+        assert_eq!(ev.unwrap().data, "real");
+    }
+
+    #[test]
+    fn test_parse_sse_block_returns_none_for_empty_block() {
+        assert!(parse_sse_block("").is_none());
+        assert!(parse_sse_block("   ").is_none());
+    }
+
+    #[test]
+    fn test_parse_sse_block_concatenates_multiple_data_lines() {
+        let ev = parse_sse_block("data: line1\ndata: line2").unwrap();
+        assert_eq!(ev.data, "line1\nline2");
+    }
+
+    #[tokio::test]
+    async fn test_parse_sse_bytes_emits_events_from_double_newline_separated_blocks() {
+        use futures::stream;
+        let chunks: Vec<Result<bytes::Bytes, reqwest::Error>> =
+            vec![Ok(bytes::Bytes::from("data: hello\n\ndata: world\n\n"))];
+        let byte_stream = stream::iter(chunks);
+        let events: Vec<_> = parse_sse_bytes(byte_stream).collect().await;
+        assert_eq!(events.len(), 2);
+        assert_eq!(events[0].as_ref().unwrap().data, "hello");
+        assert_eq!(events[1].as_ref().unwrap().data, "world");
+    }
+
+    #[tokio::test]
+    async fn test_subscribe_sse_returns_err_when_no_server() {
+        let out = make_outbound();
+        let result = out.subscribe_sse("http://127.0.0.1:1").await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_connect_websocket_returns_err_when_no_feature() {
+        let out = make_outbound();
+        let result = out.connect_websocket("ws://127.0.0.1:1").await;
+        // Without websocket feature: returns an Internal error.
+        // With websocket feature: returns a ConnectionFailed error.
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_http_stream_outbound_is_implemented_by_default_http_outbound() {
+        fn _assert(_: &dyn HttpStreamOutbound) {}
+        let out = make_outbound();
+        _assert(&out);
     }
 }

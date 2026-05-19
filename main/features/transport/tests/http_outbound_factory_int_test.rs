@@ -4,8 +4,8 @@
 //! and `validate_http_config` which are not tested by other integration test files.
 
 use swe_edge_egress_http_transport::{
-    http_outbound, http_outbound_with_auth, plain_http_outbound, validate_http_config, HttpConfig,
-    HttpOutboundConfig,
+    default_http_stream_outbound, http_outbound, http_outbound_with_auth, plain_http_outbound,
+    validate_http_config, HttpConfig, HttpOutboundConfig, HttpStreamOutbound,
 };
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -113,6 +113,27 @@ fn test_plain_http_outbound_builds_with_custom_base_url() {
         "plain_http_outbound must build with custom base URL: {:?}",
         result.err()
     );
+}
+
+// ─── default_http_stream_outbound ────────────────────────────────────────────
+
+/// @covers: default_http_stream_outbound
+#[test]
+fn test_default_http_stream_outbound_builds_with_swe_defaults() {
+    let result = default_http_stream_outbound();
+    assert!(
+        result.is_ok(),
+        "default_http_stream_outbound must build: {:?}",
+        result.err()
+    );
+}
+
+/// @covers: default_http_stream_outbound
+#[test]
+fn test_default_http_stream_outbound_implements_stream_outbound_trait() {
+    let outbound = default_http_stream_outbound().unwrap();
+    fn _assert(_: &dyn HttpStreamOutbound) {}
+    _assert(&outbound);
 }
 
 // ─── validate_http_config ─────────────────────────────────────────────────────
