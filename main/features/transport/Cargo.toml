@@ -40,7 +40,7 @@ swe-edge-egress-tls.workspace      = true
 swe-edge-egress-oauth.workspace    = true
 bytes.workspace                    = true
 swe-observ-metrics.workspace       = true
-tokio-tungstenite = { version = "0.21", optional = true, features = ["rustls-tls-native-roots"] }
+tokio-tungstenite = { version = "0.26", optional = true, features = ["rustls-tls-native-roots"] }
 
 [[test]]
 name = "default_http_outbound_int_test"
