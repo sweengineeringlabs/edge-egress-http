@@ -4,7 +4,8 @@ use std::time::Instant;
 use futures::future::BoxFuture;
 use swe_observ_metrics::MetricsProvider;
 
-use crate::api::port::http_outbound::{HttpOutbound, HttpOutboundResult};
+use crate::api::port::http_outbound::HttpOutbound;
+use crate::api::port::HttpOutboundResult;
 use crate::api::value_object::{HttpRequest, HttpResponse, HttpStreamResponse};
 
 /// Wraps any [`HttpOutbound`]; records per-call latency, request count, and
@@ -80,8 +81,8 @@ mod tests {
         Arc::new(create_local_metrics_backend())
     }
 
-    struct NoopOutbound;
-    impl HttpOutbound for NoopOutbound {
+    struct MetricsNoopOutbound;
+    impl HttpOutbound for MetricsNoopOutbound {
         fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
             Box::pin(async {
                 Ok(HttpResponse {
@@ -98,7 +99,7 @@ mod tests {
             Box::pin(async {
                 let body: futures::stream::BoxStream<
                     'static,
-                    Result<bytes::Bytes, crate::api::port::http_outbound::HttpOutboundError>,
+                    Result<bytes::Bytes, crate::api::port::http_outbound_error::HttpOutboundError>,
                 > = Box::pin(futures::stream::empty());
                 Ok(HttpStreamResponse {
                     status: 200,
@@ -112,11 +113,10 @@ mod tests {
         }
     }
 
-    /// @covers: new — constructs with the supplied inner outbound and provider.
     #[test]
     fn test_new_stores_inner_and_provider() {
         let p = provider();
-        let inner = Arc::new(NoopOutbound);
+        let inner = Arc::new(MetricsNoopOutbound);
         let m =
             MetricsHttpOutbound::new(Arc::clone(&inner) as Arc<dyn HttpOutbound>, Arc::clone(&p));
         // Verify construction succeeded and the provider is wired by exercising it.
@@ -127,11 +127,10 @@ mod tests {
         );
     }
 
-    /// @covers: send — records edge_egress_requests_total on success.
     #[tokio::test]
     async fn test_send_records_egress_requests_total_on_success() {
         let p = provider();
-        let m = MetricsHttpOutbound::new(Arc::new(NoopOutbound), Arc::clone(&p));
+        let m = MetricsHttpOutbound::new(Arc::new(MetricsNoopOutbound), Arc::clone(&p));
         m.send(HttpRequest::get("/")).await.unwrap();
         let snaps = p.export();
         assert!(
@@ -142,11 +141,10 @@ mod tests {
         );
     }
 
-    /// @covers: send — records edge_egress_latency_us histogram.
     #[tokio::test]
     async fn test_send_records_egress_latency_histogram() {
         let p = provider();
-        let m = MetricsHttpOutbound::new(Arc::new(NoopOutbound), Arc::clone(&p));
+        let m = MetricsHttpOutbound::new(Arc::new(MetricsNoopOutbound), Arc::clone(&p));
         m.send(HttpRequest::get("/")).await.unwrap();
         let snaps = p.export();
         assert!(
@@ -155,12 +153,11 @@ mod tests {
         );
     }
 
-    /// @covers: send — records edge_egress_errors_total on failure.
     #[tokio::test]
     async fn test_send_records_egress_errors_total_on_failure() {
-        use crate::api::port::http_outbound::HttpOutboundError;
-        struct FailOutbound;
-        impl HttpOutbound for FailOutbound {
+        use crate::api::port::http_outbound_error::HttpOutboundError;
+        struct MetricsFailOutbound;
+        impl HttpOutbound for MetricsFailOutbound {
             fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
                 Box::pin(async { Err(HttpOutboundError::ConnectionFailed("refused".into())) })
             }
@@ -175,7 +172,7 @@ mod tests {
             }
         }
         let p = provider();
-        let m = MetricsHttpOutbound::new(Arc::new(FailOutbound), Arc::clone(&p));
+        let m = MetricsHttpOutbound::new(Arc::new(MetricsFailOutbound), Arc::clone(&p));
         let _ = m.send(HttpRequest::get("/")).await;
         let snaps = p.export();
         assert!(

@@ -6,7 +6,7 @@ use std::pin::Pin;
 use bytes::Bytes;
 use futures::Stream;
 
-use crate::api::port::http_outbound::HttpOutboundError;
+use crate::api::port::http_outbound_error::HttpOutboundError;
 
 /// A streaming HTTP response — status and headers are available immediately;
 /// the body arrives as a lazy [`Stream`] of [`Bytes`] chunks.
@@ -44,7 +44,6 @@ mod tests {
     use super::*;
     use futures::stream;
 
-    /// @covers: HttpStreamResponse::debug
     #[test]
     fn test_debug_does_not_expose_stream_internals() {
         let resp = HttpStreamResponse {
