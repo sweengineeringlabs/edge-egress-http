@@ -1,16 +1,10 @@
-//! HTTP body types.
+//! HTTP body variants.
 
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// A multipart form part.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FormPart {
-    pub name: String,
-    pub filename: Option<String>,
-    pub content_type: Option<String>,
-    pub data: Vec<u8>,
-}
+use serde::{Deserialize, Serialize};
+
+use super::form_part::FormPart;
 
 /// HTTP request body variants.
 #[derive(Debug, Clone, Serialize, Deserialize)]

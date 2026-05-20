@@ -156,6 +156,8 @@ mod tests {
     use super::*;
 
     /// @covers: get
+    /// @covers: with_header
+    /// @covers: with_query
     #[test]
     fn test_get_creates_get_request_with_url() {
         let req = HttpRequest::get("https://example.com")
@@ -167,6 +169,7 @@ mod tests {
     }
 
     /// @covers: post
+    /// @covers: with_json
     #[test]
     fn test_post_with_json_body_sets_content_type() {
         let req = HttpRequest::post("/api")
@@ -190,6 +193,19 @@ mod tests {
         assert_eq!(req.method, HttpMethod::Delete);
     }
 
+    /// @covers: with_form
+    #[test]
+    fn test_with_form_sets_form_body_and_content_type() {
+        let mut form = std::collections::HashMap::new();
+        form.insert("key".to_string(), "value".to_string());
+        let req = HttpRequest::post("/x").with_form(form);
+        assert!(matches!(req.body, Some(HttpBody::Form(_))));
+        assert_eq!(
+            req.headers.get("Content-Type").map(String::as_str),
+            Some("application/x-www-form-urlencoded")
+        );
+    }
+
     /// @covers: with_body
     #[test]
     fn test_with_body_sets_raw_body_and_content_type() {
@@ -204,18 +220,21 @@ mod tests {
         assert_eq!(req.timeout, Some(Duration::from_secs(5)));
     }
 
+    /// @covers: patch
     #[test]
     fn test_patch_creates_patch_request() {
         let req = HttpRequest::patch("/resource");
         assert_eq!(req.method, HttpMethod::Patch);
     }
 
+    /// @covers: head
     #[test]
     fn test_head_creates_head_request() {
         let req = HttpRequest::head("/resource");
         assert_eq!(req.method, HttpMethod::Head);
     }
 
+    /// @covers: options
     #[test]
     fn test_options_creates_options_request() {
         let req = HttpRequest::options("/resource");
@@ -248,5 +267,22 @@ mod tests {
     fn test_header_returns_none_for_missing_header() {
         let req = HttpRequest::get("/");
         assert!(req.header("Authorization").is_none());
+    }
+
+    /// @covers: with_header
+    #[test]
+    fn test_with_header_inserts_header_into_request() {
+        let req = HttpRequest::get("/resource").with_header("X-Custom", "value-42");
+        assert_eq!(
+            req.headers.get("X-Custom").map(String::as_str),
+            Some("value-42")
+        );
+    }
+
+    /// @covers: with_query
+    #[test]
+    fn test_with_query_inserts_query_parameter_into_request() {
+        let req = HttpRequest::get("/search").with_query("q", "rust+lang");
+        assert_eq!(req.query.get("q").map(String::as_str), Some("rust+lang"));
     }
 }
