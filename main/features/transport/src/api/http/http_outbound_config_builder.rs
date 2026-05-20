@@ -7,6 +7,7 @@ use crate::api::value_object::HttpConfig;
 ///
 /// Construct via [`HttpOutboundConfigBuilder::new`] and chain setter methods,
 /// then call [`build`](Self::build) to obtain the final [`HttpOutboundConfig`].
+#[allow(dead_code)]
 pub struct HttpOutboundConfigBuilder {
     http: HttpConfig,
     cassette_name: String,
