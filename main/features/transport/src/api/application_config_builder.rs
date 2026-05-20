@@ -7,6 +7,7 @@
 /// Consumers call [`ApplicationConfigBuilder::new`] and chain setter methods,
 /// then call [`build`](Self::build) to obtain the final configuration map.
 #[derive(Debug, Default, Clone)]
+#[allow(dead_code)]
 pub struct ApplicationConfigBuilder {
     name: Option<String>,
     version: Option<String>,
