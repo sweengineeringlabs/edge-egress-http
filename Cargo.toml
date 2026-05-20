@@ -1,16 +1,6 @@
 [workspace]
 resolver = "2"
-members  = [
-    "main/features/auth",
-    "main/features/breaker",
-    "main/features/cache",
-    "main/features/cassette",
-    "main/features/oauth",
-    "main/features/rate",
-    "main/features/retry",
-    "main/features/tls",
-    "main/features/transport",
-]
+members  = ["main/features/*"]
 
 [workspace.package]
 version      = "0.1.0"

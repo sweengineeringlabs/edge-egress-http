@@ -10,18 +10,22 @@ description  = "edge — egress HTTP outbound domain: request/response types, ou
 keywords     = ["gateway", "egress", "http", "sea", "swe"]
 categories   = ["network-programming"]
 
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "transport"
+
 [lib]
 path = "src/lib.rs"
 
 [features]
 default = []
+websocket = ["dep:tokio-tungstenite"]
 
 [dependencies]
 serde.workspace             = true
 serde_json.workspace        = true
 thiserror.workspace         = true
 futures.workspace           = true
-chrono.workspace            = true
 http.workspace              = true
 tokio                       = { workspace = true, features = ["rt", "net"] }
 reqwest.workspace           = true
@@ -36,10 +40,59 @@ swe-edge-egress-tls.workspace      = true
 swe-edge-egress-oauth.workspace    = true
 bytes.workspace                    = true
 swe-observ-metrics.workspace       = true
+tokio-tungstenite = { version = "0.26", optional = true, features = ["rustls-tls-native-roots"] }
+
+[[test]]
+name = "default_http_outbound_int_test"
+path = "tests/default_http_outbound_int_test.rs"
+
+[[test]]
+name = "http_int_test"
+path = "tests/http_int_test.rs"
+
+[[test]]
+name = "http_outbound_int_test"
+path = "tests/http_outbound_int_test.rs"
+
+[[test]]
+name = "metrics_http_outbound_int_test"
+path = "tests/metrics_http_outbound_int_test.rs"
+
+[[test]]
+name = "reqwest_middleware_int_test"
+path = "tests/reqwest_middleware_int_test.rs"
+
+[[test]]
+name = "tls_int_test"
+path = "tests/tls_int_test.rs"
+
+[[test]]
+name = "http_outbound_factory_int_test"
+path = "tests/http_outbound_factory_int_test.rs"
+
+[[test]]
+name = "oauth_int_test"
+path = "tests/oauth_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
 
 [dev-dependencies]
-tokio          = { workspace = true, features = ["rt-multi-thread", "macros", "net", "time"] }
-hyper          = { version = "1", features = ["http1", "server"] }
-hyper-util     = { version = "0.1", features = ["tokio"] }
-http-body-util = "0.1"
-bytes          = "1"
+tokio               = { workspace = true, features = ["rt-multi-thread", "macros", "net", "time"] }
+hyper               = { version = "1", features = ["http1", "server"] }
+hyper-util          = { version = "0.1", features = ["tokio"] }
+http-body-util      = "0.1"
+bytes               = "1"
+serde_json          = { workspace = true }
+http                    = { workspace = true }
+reqwest-middleware      = { workspace = true }
+swe-edge-egress-tls     = { workspace = true }
+swe-edge-egress-auth    = { workspace = true }
+swe-edge-egress-retry   = { workspace = true }
+swe-edge-egress-rate    = { workspace = true }
+swe-edge-egress-breaker = { workspace = true }
+swe-edge-egress-cache   = { workspace = true }
+swe-edge-egress-cassette = { workspace = true }
+swe-edge-egress-oauth    = { workspace = true }
+futures                  = { workspace = true }
