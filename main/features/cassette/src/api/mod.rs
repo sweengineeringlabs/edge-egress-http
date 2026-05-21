@@ -1,5 +1,4 @@
 //! API layer — public schema + trait contracts + public types.
-pub mod application_config_builder;
 pub(crate) mod body_scrubber;
 pub mod builder;
 pub(crate) mod cassette_config;

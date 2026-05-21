@@ -1,5 +1,4 @@
 //! API layer — public schema + trait contracts + public types.
-pub mod application_config_builder;
 pub(crate) mod auth_config;
 pub(crate) mod auth_middleware;
 pub(crate) mod auth_strategy;
