@@ -404,7 +404,6 @@ async fn connect_ws(url: String) -> HttpOutboundResult<WsChannel> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use futures::StreamExt as _;
     use reqwest_middleware::ClientBuilder;
 
     fn client() -> ClientWithMiddleware {
