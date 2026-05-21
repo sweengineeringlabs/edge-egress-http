@@ -1,6 +1,5 @@
 mod edge_egress_http_transport_svc;
 
-pub use crate::api::application_config_builder::ApplicationConfigBuilder;
 pub use crate::api::default_http_outbound::{
     DefaultHttpOutbound as DefaultOutbound, TransportConfig,
 };
