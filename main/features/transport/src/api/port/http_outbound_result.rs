@@ -12,7 +12,8 @@ mod tests {
     #[test]
     fn test_http_outbound_result_ok_wraps_value() {
         let result: HttpOutboundResult<u32> = Ok(42);
-        assert_eq!(result, Ok(42));
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 42);
     }
 
     #[test]
