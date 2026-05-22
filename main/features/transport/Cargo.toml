@@ -43,20 +43,20 @@ swe-observ-metrics.workspace       = true
 tokio-tungstenite = { version = "0.26", optional = true, features = ["rustls-tls-native-roots"] }
 
 [[test]]
-name = "default_http_outbound_int_test"
-path = "tests/default_http_outbound_int_test.rs"
+name = "default_http_egress_int_test"
+path = "tests/default_http_egress_int_test.rs"
 
 [[test]]
 name = "http_int_test"
 path = "tests/http_int_test.rs"
 
 [[test]]
-name = "http_outbound_int_test"
-path = "tests/http_outbound_int_test.rs"
+name = "http_egress_int_test"
+path = "tests/http_egress_int_test.rs"
 
 [[test]]
-name = "metrics_http_outbound_int_test"
-path = "tests/metrics_http_outbound_int_test.rs"
+name = "metrics_http_egress_int_test"
+path = "tests/metrics_http_egress_int_test.rs"
 
 [[test]]
 name = "reqwest_middleware_int_test"
@@ -67,8 +67,8 @@ name = "tls_int_test"
 path = "tests/tls_int_test.rs"
 
 [[test]]
-name = "http_outbound_factory_int_test"
-path = "tests/http_outbound_factory_int_test.rs"
+name = "http_egress_factory_int_test"
+path = "tests/http_egress_factory_int_test.rs"
 
 [[test]]
 name = "oauth_int_test"

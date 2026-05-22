@@ -12,8 +12,8 @@ use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use swe_edge_egress_http_transport::{
-    plain_http_outbound, FormPart, HttpAuth, HttpBody, HttpConfig, HttpMethod, HttpOutbound,
-    HttpOutboundError, HttpRequest, HttpResponse,
+    plain_http_egress, FormPart, HttpAuth, HttpBody, HttpConfig, HttpEgress, HttpEgressError,
+    HttpMethod, HttpRequest, HttpResponse,
 };
 
 // ─── test-server helpers ─────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ fn test_http_auth_bearer_stores_token() {
     assert!(matches!(auth, HttpAuth::Bearer { token } if token == "tok_abc"));
 }
 
-// ─── integration: plain_http_outbound ────────────────────────────────────────
+// ─── integration: plain_http_egress ────────────────────────────────────────
 
 #[tokio::test]
 async fn test_health_check_succeeds_when_server_is_listening() {
@@ -116,7 +116,7 @@ async fn test_health_check_succeeds_when_server_is_listening() {
         spawn_once(|_req| async { Response::new(Full::new(Bytes::from("ok"))) }).await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     client
         .health_check()
         .await
@@ -132,10 +132,10 @@ async fn test_health_check_fails_when_no_server_is_listening() {
     };
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let result = client.health_check().await;
     assert!(
-        matches!(result, Err(HttpOutboundError::ConnectionFailed(_))),
+        matches!(result, Err(HttpEgressError::ConnectionFailed(_))),
         "expected ConnectionFailed, got {result:?}"
     );
 }
@@ -151,10 +151,10 @@ async fn test_health_check_fails_when_server_returns_non_2xx() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let result = client.health_check().await;
     assert!(
-        matches!(result, Err(HttpOutboundError::Internal(ref msg)) if msg.contains("503")),
+        matches!(result, Err(HttpEgressError::Internal(ref msg)) if msg.contains("503")),
         "expected Internal with status 503, got {result:?}"
     );
 }
@@ -173,7 +173,7 @@ async fn test_send_with_json_body_sets_application_json_content_type() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let req = HttpRequest::post("/")
         .with_json(&serde_json::json!({"k": "v"}))
         .unwrap();
@@ -199,7 +199,7 @@ async fn test_send_with_form_body_sets_form_encoded_content_type() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let mut form = HashMap::new();
     form.insert("key".to_string(), "value".to_string());
     let req = HttpRequest::post("/").with_form(form);
@@ -217,13 +217,13 @@ async fn test_send_returns_timeout_error_when_server_hangs() {
         timeout_secs: 60,
         ..Default::default()
     };
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     // Per-request override fires after 50 ms — much shorter than the 60 s client default.
     let req = HttpRequest::get("/").with_timeout(Duration::from_millis(50));
     let result = client.send(req).await;
     jh.abort();
     assert!(
-        matches!(result, Err(HttpOutboundError::Timeout(_))),
+        matches!(result, Err(HttpEgressError::Timeout(_))),
         "expected Timeout, got {result:?}"
     );
 }
@@ -236,10 +236,10 @@ async fn test_send_returns_connection_failed_when_no_server_is_listening() {
     };
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let result = client.send(HttpRequest::get("/")).await;
     assert!(
-        matches!(result, Err(HttpOutboundError::ConnectionFailed(_))),
+        matches!(result, Err(HttpEgressError::ConnectionFailed(_))),
         "expected ConnectionFailed, got {result:?}"
     );
 }
@@ -257,10 +257,10 @@ async fn test_send_rejects_response_when_content_length_exceeds_max_bytes() {
         max_response_bytes: Some(100),
         ..Default::default()
     };
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let result = client.send(HttpRequest::get("/")).await;
     assert!(
-        matches!(result, Err(HttpOutboundError::Internal(ref m)) if m.contains("too large")),
+        matches!(result, Err(HttpEgressError::Internal(ref m)) if m.contains("too large")),
         "expected Internal too-large error, got {result:?}"
     );
 }
@@ -285,7 +285,7 @@ async fn test_send_applies_default_headers_to_every_request() {
             .collect(),
         ..Default::default()
     };
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let resp = client
         .send(HttpRequest::get("/"))
         .await
@@ -305,7 +305,7 @@ async fn test_send_returns_invalid_request_error_for_bad_multipart_mime_type() {
         spawn_once(|_req| async { Response::new(Full::new(Bytes::from("ok"))) }).await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let mut req = HttpRequest::post("/");
     req.body = Some(HttpBody::Multipart(vec![FormPart {
         name: "upload".to_string(),
@@ -315,7 +315,7 @@ async fn test_send_returns_invalid_request_error_for_bad_multipart_mime_type() {
     }]));
     let result = client.send(req).await;
     assert!(
-        matches!(result, Err(HttpOutboundError::InvalidRequest(_))),
+        matches!(result, Err(HttpEgressError::InvalidRequest(_))),
         "expected InvalidRequest for malformed MIME type, got {result:?}"
     );
 }
@@ -328,7 +328,7 @@ async fn test_send_patch_request_reaches_server_with_correct_method() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let resp = client
         .send(HttpRequest::patch("/"))
         .await
@@ -351,7 +351,7 @@ async fn test_send_head_request_reaches_server_with_correct_method() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let resp = client
         .send(HttpRequest::head("/"))
         .await
@@ -370,7 +370,7 @@ async fn test_send_options_request_reaches_server_with_correct_method() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).unwrap();
+    let client = plain_http_egress(cfg).unwrap();
     let resp = client
         .send(HttpRequest::options("/"))
         .await

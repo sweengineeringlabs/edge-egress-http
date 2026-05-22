@@ -1,19 +1,19 @@
-//! Fluent builder for [`HttpOutboundConfig`].
+//! Fluent builder for [`HttpEgressConfig`].
 
-use super::http_outbound_config::HttpOutboundConfig;
+use super::http_egress_config::HttpEgressConfig;
 use crate::api::value_object::HttpConfig;
 
-/// Fluent builder for [`HttpOutboundConfig`].
+/// Fluent builder for [`HttpEgressConfig`].
 ///
-/// Construct via [`HttpOutboundConfigBuilder::new`] and chain setter methods,
-/// then call [`build`](Self::build) to obtain the final [`HttpOutboundConfig`].
+/// Construct via [`HttpEgressConfigBuilder::new`] and chain setter methods,
+/// then call [`build`](Self::build) to obtain the final [`HttpEgressConfig`].
 #[allow(dead_code)]
-pub struct HttpOutboundConfigBuilder {
+pub struct HttpEgressConfigBuilder {
     http: HttpConfig,
     cassette_name: String,
 }
 
-impl HttpOutboundConfigBuilder {
+impl HttpEgressConfigBuilder {
     /// Create a new builder with SWE defaults for all middleware layers.
     pub fn new() -> Self {
         Self {
@@ -34,11 +34,11 @@ impl HttpOutboundConfigBuilder {
         self
     }
 
-    /// Consume the builder and return the configured [`HttpOutboundConfig`].
+    /// Consume the builder and return the configured [`HttpEgressConfig`].
     ///
     /// Uses SWE defaults for all middleware layers.
-    pub fn build(self) -> Result<HttpOutboundConfig, crate::api::http::HttpOutboundBuildError> {
-        Ok(HttpOutboundConfig {
+    pub fn build(self) -> Result<HttpEgressConfig, crate::api::http::HttpEgressBuildError> {
+        Ok(HttpEgressConfig {
             http: self.http,
             auth: swe_edge_egress_auth::AuthConfig::None,
             token_source: None,
@@ -53,7 +53,7 @@ impl HttpOutboundConfigBuilder {
     }
 }
 
-impl Default for HttpOutboundConfigBuilder {
+impl Default for HttpEgressConfigBuilder {
     fn default() -> Self {
         Self::new()
     }
@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn test_new_creates_builder_with_defaults() {
-        let result = HttpOutboundConfigBuilder::new().build();
+        let result = HttpEgressConfigBuilder::new().build();
         assert!(
             result.is_ok(),
             "default builder must build: {:?}",
@@ -76,7 +76,7 @@ mod tests {
     /// @covers: with_http
     #[test]
     fn test_with_http_sets_base_url() {
-        let result = HttpOutboundConfigBuilder::new()
+        let result = HttpEgressConfigBuilder::new()
             .with_http(HttpConfig::with_base_url("https://api.example.com"))
             .build();
         assert!(result.is_ok());
@@ -89,7 +89,7 @@ mod tests {
     /// @covers: with_cassette_name
     #[test]
     fn test_with_cassette_name_sets_name() {
-        let result = HttpOutboundConfigBuilder::new()
+        let result = HttpEgressConfigBuilder::new()
             .with_cassette_name("my-fixture")
             .build();
         assert!(result.is_ok());
@@ -99,7 +99,7 @@ mod tests {
     /// @covers: build
     #[test]
     fn test_build_returns_config_with_defaults() {
-        let cfg = HttpOutboundConfigBuilder::new().build().unwrap();
+        let cfg = HttpEgressConfigBuilder::new().build().unwrap();
         assert!(cfg.token_source.is_none());
     }
 }

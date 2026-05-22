@@ -6,7 +6,7 @@ use std::pin::Pin;
 use bytes::Bytes;
 use futures::Stream;
 
-use crate::api::port::http_outbound_error::HttpOutboundError;
+use crate::api::port::http_egress_error::HttpEgressError;
 
 /// A streaming HTTP response — status and headers are available immediately;
 /// the body arrives as a lazy [`Stream`] of [`Bytes`] chunks.
@@ -26,7 +26,7 @@ pub struct HttpStreamResponse {
     /// Response headers (lowercase keys).
     pub headers: HashMap<String, String>,
     /// Lazy byte stream. Drive with `futures::StreamExt::next`.
-    pub body: Pin<Box<dyn Stream<Item = Result<Bytes, HttpOutboundError>> + Send>>,
+    pub body: Pin<Box<dyn Stream<Item = Result<Bytes, HttpEgressError>> + Send>>,
 }
 
 impl std::fmt::Debug for HttpStreamResponse {

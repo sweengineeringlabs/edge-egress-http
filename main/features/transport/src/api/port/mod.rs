@@ -1,10 +1,10 @@
 //! HTTP port traits.
-pub mod http;
-pub mod http_outbound;
-pub mod http_outbound_error;
-pub mod http_outbound_result;
+pub(crate) mod http;
+pub(crate) mod http_egress;
+pub(crate) mod http_egress_error;
+pub(crate) mod http_egress_result;
 
-pub use http::HttpStreamOutbound;
-pub use http_outbound::HttpOutbound;
-pub use http_outbound_error::HttpOutboundError;
-pub use http_outbound_result::HttpOutboundResult;
+pub use http::HttpStream;
+pub use http_egress::HttpEgress;
+pub use http_egress_error::HttpEgressError;
+pub use http_egress_result::HttpEgressResult;

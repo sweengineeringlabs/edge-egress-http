@@ -1,8 +1,8 @@
-//! HTTP streaming outbound port — SSE consumption and WebSocket connections.
+//! HTTP streaming port — SSE consumption and WebSocket connections.
 
 use futures::future::BoxFuture;
 
-use crate::api::port::HttpOutboundResult;
+use crate::api::port::HttpEgressResult;
 use crate::api::value_object::sse::SseStream;
 use crate::api::value_object::ws::WsChannel;
 
@@ -17,17 +17,17 @@ use crate::api::value_object::ws::WsChannel;
 /// Completes the WebSocket handshake and returns a full-duplex
 /// [`WsChannel`]. The caller may send and receive frames concurrently;
 /// the connection stays open until the channel is dropped.
-pub trait HttpStreamOutbound: Send + Sync {
+pub trait HttpStream: Send + Sync {
     /// Subscribe to an SSE feed at `url`.
     ///
     /// Returns a lazy stream that yields [`SseEvent`](crate::api::value_object::sse::SseEvent)
     /// frames as they arrive from the remote service.
-    fn subscribe_sse(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<SseStream>>;
+    fn subscribe_sse(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<SseStream>>;
 
     /// Open a WebSocket connection to `url`.
     ///
     /// Returns a [`WsChannel`] after the handshake completes.
-    fn connect_websocket(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<WsChannel>>;
+    fn connect_websocket(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<WsChannel>>;
 }
 
 #[cfg(test)]
@@ -35,7 +35,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_http_stream_outbound_is_object_safe() {
-        fn _assert_object_safe(_: &dyn HttpStreamOutbound) {}
+    fn test_http_stream_is_object_safe() {
+        fn _assert_object_safe(_: &dyn HttpStream) {}
     }
 }

@@ -4,7 +4,7 @@ use thiserror::Error;
 
 /// Error type for HTTP outbound operations.
 #[derive(Debug, Error)]
-pub enum HttpOutboundError {
+pub enum HttpEgressError {
     /// Transport-level connection failure.
     #[error("connection failed: {0}")]
     ConnectionFailed(String),
@@ -42,14 +42,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_http_outbound_error_connection_failed_formats_message() {
-        let e = HttpOutboundError::ConnectionFailed("refused".into());
+    fn test_http_egress_error_connection_failed_formats_message() {
+        let e = HttpEgressError::ConnectionFailed("refused".into());
         assert!(e.to_string().contains("refused"));
     }
 
     #[test]
-    fn test_http_outbound_error_timeout_formats_message() {
-        let e = HttpOutboundError::Timeout("deadline".into());
+    fn test_http_egress_error_timeout_formats_message() {
+        let e = HttpEgressError::Timeout("deadline".into());
         assert!(e.to_string().contains("deadline"));
     }
 }

@@ -5,10 +5,10 @@ use crate::api::value_object::ws::ws_sender::WsSender;
 
 /// A full-duplex WebSocket channel to a remote service.
 ///
-/// Returned by [`HttpStreamOutbound::connect_websocket`] after the handshake.
+/// Returned by [`HttpStream::connect_websocket`] after the handshake.
 /// Use [`sender`] to push frames and [`receiver`] to consume them.
 ///
-/// [`HttpStreamOutbound::connect_websocket`]: crate::api::port::http::http_stream_outbound::HttpStreamOutbound::connect_websocket
+/// [`HttpStream::connect_websocket`]: crate::api::port::http::http_stream::HttpStream::connect_websocket
 pub struct WsChannel {
     /// Send frames to the remote WebSocket peer.
     pub sender: WsSender,

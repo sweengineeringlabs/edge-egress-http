@@ -1,7 +1,7 @@
 //! Observability configuration for the metrics HTTP outbound decorator.
 //!
 //! [`ObservationConfig`] carries the observability settings that
-//! `MetricsHttpOutbound` (in `core/`) uses to record per-call metrics.
+//! `MetricsHttpEgress` (in `core/`) uses to record per-call metrics.
 
 use std::sync::Arc;
 

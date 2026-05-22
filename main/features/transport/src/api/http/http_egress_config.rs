@@ -1,12 +1,12 @@
-//! Aggregate configuration for assembling a fully-wired [`HttpOutbound`].
+//! Aggregate configuration for assembling a fully-wired [`HttpEgress`].
 
 use std::sync::Arc;
 
 use crate::api::value_object::HttpConfig;
 
-/// Aggregate middleware config for assembling a [`DefaultHttpOutbound`].
+/// Aggregate middleware config for assembling a [`DefaultHttpEgress`].
 #[derive(Debug, Clone)]
-pub struct HttpOutboundConfig {
+pub struct HttpEgressConfig {
     pub http: HttpConfig,
     /// Static auth strategy (Bearer/Basic/Header/Digest/AwsSigV4).
     /// Ignored when `token_source` is `Some` — OAuth takes precedence.
@@ -29,7 +29,7 @@ pub struct HttpOutboundConfig {
 mod tests {
     use super::*;
 
-    fn make_config(base_url: &str, cassette_name: &str) -> HttpOutboundConfig {
+    fn make_config(base_url: &str, cassette_name: &str) -> HttpEgressConfig {
         let retry = swe_edge_egress_retry::builder()
             .expect("retry builder must load SWE defaults")
             .build()
@@ -50,7 +50,7 @@ mod tests {
         // We do not need an actual running middleware here — just the config values.
         let _ = (retry, rate, breaker, cache);
 
-        HttpOutboundConfig {
+        HttpEgressConfig {
             http: HttpConfig::with_base_url(base_url),
             auth: swe_edge_egress_auth::AuthConfig::None,
             token_source: None,
@@ -77,7 +77,7 @@ mod tests {
     }
 
     #[test]
-    fn test_http_outbound_config_stores_http_config_base_url() {
+    fn test_http_egress_config_stores_http_config_base_url() {
         let cfg = make_config("https://api.example.com", "test");
         assert_eq!(
             cfg.http.base_url.as_deref(),
@@ -87,7 +87,7 @@ mod tests {
     }
 
     #[test]
-    fn test_http_outbound_config_cassette_name_is_independent_on_clone() {
+    fn test_http_egress_config_cassette_name_is_independent_on_clone() {
         let cfg = make_config("https://api.example.com", "original");
         let mut cloned = cfg.clone();
         cloned.cassette_name = "cloned".to_string();

@@ -2,12 +2,12 @@
 
 use futures::future::BoxFuture;
 
-use super::http_outbound_result::HttpOutboundResult;
+use super::http_egress_result::HttpEgressResult;
 use crate::api::value_object::{HttpRequest, HttpResponse, HttpStreamResponse};
 
 /// Makes outbound HTTP requests to external services.
-pub trait HttpOutbound: Send + Sync {
-    fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>>;
+pub trait HttpEgress: Send + Sync {
+    fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>>;
 
     /// Send a request and return a lazy byte stream rather than a buffered body.
     ///
@@ -18,11 +18,11 @@ pub trait HttpOutbound: Send + Sync {
     fn send_stream(
         &self,
         request: HttpRequest,
-    ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>>;
+    ) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>>;
 
-    fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>>;
+    fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>>;
 
-    fn get(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
+    fn get(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
         let req = HttpRequest::get(url.to_string());
         self.send(req)
     }
@@ -33,7 +33,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_http_outbound_is_object_safe() {
-        fn _assert_object_safe(_: &dyn HttpOutbound) {}
+    fn test_http_egress_is_object_safe() {
+        fn _assert_object_safe(_: &dyn HttpEgress) {}
     }
 }

@@ -1,5 +1,5 @@
 //! HTTP value objects.
-pub mod http;
+pub(crate) mod http;
 pub(crate) mod sse;
 pub(crate) mod ws;
 

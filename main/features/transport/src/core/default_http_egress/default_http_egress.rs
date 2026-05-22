@@ -5,23 +5,23 @@ use futures::future::BoxFuture;
 use futures::StreamExt as _;
 use reqwest_middleware::ClientWithMiddleware;
 
-use crate::api::port::http::http_stream_outbound::HttpStreamOutbound;
-use crate::api::port::http_outbound::HttpOutbound;
-use crate::api::port::http_outbound_error::HttpOutboundError;
-use crate::api::port::HttpOutboundResult;
+use crate::api::port::http::http_stream::HttpStream;
+use crate::api::port::http_egress::HttpEgress;
+use crate::api::port::http_egress_error::HttpEgressError;
+use crate::api::port::HttpEgressResult;
 use crate::api::value_object::sse::{SseEvent, SseStream};
 use crate::api::value_object::ws::WsChannel;
 #[cfg(feature = "websocket")]
 use crate::api::value_object::ws::WsMessage;
 use crate::api::value_object::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
 
-pub(crate) struct DefaultHttpOutbound {
+pub(crate) struct DefaultHttpEgress {
     client: ClientWithMiddleware,
     base_url: Option<String>,
     max_response_bytes: Option<usize>,
 }
 
-impl DefaultHttpOutbound {
+impl DefaultHttpEgress {
     pub(crate) fn new(
         client: ClientWithMiddleware,
         base_url: Option<String>,
@@ -41,10 +41,10 @@ impl DefaultHttpOutbound {
     fn build_request_builder(
         &self,
         request: HttpRequest,
-    ) -> HttpOutboundResult<reqwest_middleware::RequestBuilder> {
+    ) -> HttpEgressResult<reqwest_middleware::RequestBuilder> {
         let url = self.resolve_url(&request.url);
         let method = reqwest::Method::from_bytes(request.method.to_string().as_bytes())
-            .map_err(|e| HttpOutboundError::InvalidRequest(e.to_string()))?;
+            .map_err(|e| HttpEgressError::InvalidRequest(e.to_string()))?;
 
         let mut builder = self.client.request(method, &url);
 
@@ -79,7 +79,7 @@ impl DefaultHttpOutbound {
                         if let Some(ct) = part.content_type {
                             mp = mp
                                 .mime_str(&ct)
-                                .map_err(|e| HttpOutboundError::InvalidRequest(e.to_string()))?;
+                                .map_err(|e| HttpEgressError::InvalidRequest(e.to_string()))?;
                         }
                         form = form.part(part.name, mp);
                     }
@@ -109,25 +109,25 @@ impl DefaultHttpOutbound {
     }
 }
 
-impl HttpOutbound for DefaultHttpOutbound {
-    fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
+impl HttpEgress for DefaultHttpEgress {
+    fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
         let max_response_bytes = self.max_response_bytes;
         Box::pin(async move {
             let builder = self.build_request_builder(request)?;
             let response = builder.send().await.map_err(|e| {
                 if let reqwest_middleware::Error::Reqwest(ref re) = e {
                     if re.is_timeout() {
-                        return HttpOutboundError::Timeout(e.to_string());
+                        return HttpEgressError::Timeout(e.to_string());
                     }
                 }
-                HttpOutboundError::ConnectionFailed(e.to_string())
+                HttpEgressError::ConnectionFailed(e.to_string())
             })?;
 
             // Early rejection on content-length hint (avoids buffering huge bodies).
             if let Some(max) = max_response_bytes {
                 if let Some(len) = response.content_length() {
                     if len as usize > max {
-                        return Err(HttpOutboundError::Internal(format!(
+                        return Err(HttpEgressError::Internal(format!(
                             "response too large: content-length {len} bytes exceeds limit of {max} bytes"
                         )));
                     }
@@ -143,11 +143,11 @@ impl HttpOutbound for DefaultHttpOutbound {
             let body_bytes = response
                 .bytes()
                 .await
-                .map_err(|e| HttpOutboundError::Internal(e.to_string()))?;
+                .map_err(|e| HttpEgressError::Internal(e.to_string()))?;
 
             if let Some(max) = max_response_bytes {
                 if body_bytes.len() > max {
-                    return Err(HttpOutboundError::Internal(format!(
+                    return Err(HttpEgressError::Internal(format!(
                         "response too large: {} bytes exceeds limit of {} bytes",
                         body_bytes.len(),
                         max
@@ -166,16 +166,16 @@ impl HttpOutbound for DefaultHttpOutbound {
     fn send_stream(
         &self,
         request: HttpRequest,
-    ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+    ) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
         Box::pin(async move {
             let builder = self.build_request_builder(request)?;
             let response = builder.send().await.map_err(|e| {
                 if let reqwest_middleware::Error::Reqwest(ref re) = e {
                     if re.is_timeout() {
-                        return HttpOutboundError::Timeout(e.to_string());
+                        return HttpEgressError::Timeout(e.to_string());
                     }
                 }
-                HttpOutboundError::ConnectionFailed(e.to_string())
+                HttpEgressError::ConnectionFailed(e.to_string())
             })?;
 
             let status = response.status().as_u16();
@@ -185,10 +185,10 @@ impl HttpOutbound for DefaultHttpOutbound {
                 .filter_map(|(k, v)| v.to_str().ok().map(|v| (k.to_string(), v.to_string())))
                 .collect();
 
-            let body: futures::stream::BoxStream<'static, Result<Bytes, HttpOutboundError>> =
+            let body: futures::stream::BoxStream<'static, Result<Bytes, HttpEgressError>> =
                 response
                     .bytes_stream()
-                    .map(|r| r.map_err(|e| HttpOutboundError::Internal(e.to_string())))
+                    .map(|r| r.map_err(|e| HttpEgressError::Internal(e.to_string())))
                     .boxed();
 
             Ok(HttpStreamResponse {
@@ -199,7 +199,7 @@ impl HttpOutbound for DefaultHttpOutbound {
         })
     }
 
-    fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
         Box::pin(async move {
             let url = match &self.base_url {
                 Some(u) => u.clone(),
@@ -208,15 +208,15 @@ impl HttpOutbound for DefaultHttpOutbound {
             let resp = self.client.get(&url).send().await.map_err(|e| {
                 if let reqwest_middleware::Error::Reqwest(ref re) = e {
                     if re.is_timeout() {
-                        return HttpOutboundError::Timeout(e.to_string());
+                        return HttpEgressError::Timeout(e.to_string());
                     }
                 }
-                HttpOutboundError::ConnectionFailed(e.to_string())
+                HttpEgressError::ConnectionFailed(e.to_string())
             })?;
             if resp.status().is_success() {
                 Ok(())
             } else {
-                Err(HttpOutboundError::Internal(format!(
+                Err(HttpEgressError::Internal(format!(
                     "health check failed: HTTP {}",
                     resp.status().as_u16()
                 )))
@@ -225,8 +225,8 @@ impl HttpOutbound for DefaultHttpOutbound {
     }
 }
 
-impl HttpStreamOutbound for DefaultHttpOutbound {
-    fn subscribe_sse(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<SseStream>> {
+impl HttpStream for DefaultHttpEgress {
+    fn subscribe_sse(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<SseStream>> {
         let url = url.to_string();
         let client = self.client.clone();
         Box::pin(async move {
@@ -236,10 +236,10 @@ impl HttpStreamOutbound for DefaultHttpOutbound {
                 .header("Cache-Control", "no-cache")
                 .send()
                 .await
-                .map_err(|e| HttpOutboundError::ConnectionFailed(e.to_string()))?;
+                .map_err(|e| HttpEgressError::ConnectionFailed(e.to_string()))?;
 
             if !response.status().is_success() {
-                return Err(HttpOutboundError::Internal(format!(
+                return Err(HttpEgressError::Internal(format!(
                     "SSE feed returned HTTP {}",
                     response.status().as_u16()
                 )));
@@ -251,7 +251,7 @@ impl HttpStreamOutbound for DefaultHttpOutbound {
         })
     }
 
-    fn connect_websocket(&self, url: &str) -> BoxFuture<'_, HttpOutboundResult<WsChannel>> {
+    fn connect_websocket(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<WsChannel>> {
         let url = url.to_string();
         Box::pin(async move { connect_ws(url).await })
     }
@@ -263,10 +263,10 @@ impl HttpStreamOutbound for DefaultHttpOutbound {
 /// `text/event-stream` format, and sends events through an mpsc channel.
 fn parse_sse_bytes(
     bytes_stream: impl futures::Stream<Item = Result<bytes::Bytes, reqwest::Error>> + Send + 'static,
-) -> impl futures::Stream<Item = Result<SseEvent, HttpOutboundError>> + Send {
+) -> impl futures::Stream<Item = Result<SseEvent, HttpEgressError>> + Send {
     use futures::StreamExt as _;
 
-    let (tx, rx) = futures::channel::mpsc::unbounded::<Result<SseEvent, HttpOutboundError>>();
+    let (tx, rx) = futures::channel::mpsc::unbounded::<Result<SseEvent, HttpEgressError>>();
 
     tokio::spawn(async move {
         futures::pin_mut!(bytes_stream);
@@ -287,7 +287,7 @@ fn parse_sse_bytes(
                     }
                 }
                 Err(e) => {
-                    let _ = tx.unbounded_send(Err(HttpOutboundError::Internal(e.to_string())));
+                    let _ = tx.unbounded_send(Err(HttpEgressError::Internal(e.to_string())));
                     return;
                 }
             }
@@ -343,7 +343,7 @@ fn parse_sse_block(block: &str) -> Option<SseEvent> {
 /// Connect to a WebSocket server and return a [`WsChannel`].
 ///
 /// Requires the `websocket` feature.
-async fn connect_ws(url: String) -> HttpOutboundResult<WsChannel> {
+async fn connect_ws(url: String) -> HttpEgressResult<WsChannel> {
     #[cfg(feature = "websocket")]
     {
         use futures::SinkExt as _;
@@ -353,7 +353,7 @@ async fn connect_ws(url: String) -> HttpOutboundResult<WsChannel> {
 
         let (ws_stream, _) = tokio_tungstenite::connect_async(&url)
             .await
-            .map_err(|e| HttpOutboundError::ConnectionFailed(e.to_string()))?;
+            .map_err(|e| HttpEgressError::ConnectionFailed(e.to_string()))?;
 
         let (mut ws_sink, ws_read) = ws_stream.split();
 
@@ -382,7 +382,7 @@ async fn connect_ws(url: String) -> HttpOutboundResult<WsChannel> {
                     }
                     Ok(TungMsg::Close(_)) => None,
                     Ok(_) => None,
-                    Err(e) => Some(Err(HttpOutboundError::ConnectionFailed(e.to_string()))),
+                    Err(e) => Some(Err(HttpEgressError::ConnectionFailed(e.to_string()))),
                 }
             }));
 
@@ -395,7 +395,7 @@ async fn connect_ws(url: String) -> HttpOutboundResult<WsChannel> {
     #[cfg(not(feature = "websocket"))]
     {
         let _ = url;
-        Err(HttpOutboundError::Internal(
+        Err(HttpEgressError::Internal(
             "WebSocket support requires the 'websocket' feature flag".into(),
         ))
     }
@@ -410,13 +410,13 @@ mod tests {
         ClientBuilder::new(reqwest::Client::new()).build()
     }
 
-    fn make_outbound() -> DefaultHttpOutbound {
-        DefaultHttpOutbound::new(client(), Some("http://localhost".into()), None)
+    fn make_outbound() -> DefaultHttpEgress {
+        DefaultHttpEgress::new(client(), Some("http://localhost".into()), None)
     }
 
     #[test]
     fn test_new_creates_outbound_with_base_url() {
-        let out = DefaultHttpOutbound::new(client(), Some("http://localhost".into()), None);
+        let out = DefaultHttpEgress::new(client(), Some("http://localhost".into()), None);
         assert_eq!(out.base_url.as_deref(), Some("http://localhost"));
     }
 
@@ -483,8 +483,8 @@ mod tests {
     }
 
     #[test]
-    fn test_http_stream_outbound_is_implemented_by_default_http_outbound() {
-        fn _assert(_: &dyn HttpStreamOutbound) {}
+    fn test_http_stream_outbound_is_implemented_by_default_http_egress() {
+        fn _assert(_: &dyn HttpStream) {}
         let out = make_outbound();
         _assert(&out);
     }

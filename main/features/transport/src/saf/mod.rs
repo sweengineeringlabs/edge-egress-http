@@ -1,15 +1,9 @@
 mod edge_egress_http_transport_svc;
 
-pub use crate::api::default_http_outbound::{
-    DefaultHttpOutbound as DefaultOutbound, TransportConfig,
-};
-pub use crate::api::http::{HttpOutboundBuildError, HttpOutboundConfig, HttpOutboundConfigBuilder};
-pub use crate::api::metrics_http_outbound::{
-    MetricsHttpOutbound as MetricsOutbound, ObservationConfig,
-};
-pub use crate::api::port::{
-    HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamOutbound,
-};
+pub use crate::api::default_http_egress::{DefaultHttpEgress as DefaultEgress, TransportConfig};
+pub use crate::api::http::{HttpEgressBuildError, HttpEgressConfig, HttpEgressConfigBuilder};
+pub use crate::api::metrics_http_egress::{MetricsHttpEgress as MetricsEgress, ObservationConfig};
+pub use crate::api::port::{HttpEgress, HttpEgressError, HttpEgressResult, HttpStream};
 pub use crate::api::validator::{
     AlwaysValidConfig, DefaultValidator as DefaultValidatorAlias,
     HttpConfigValidator as HttpConfigValidatorAlias, ValidatableHttpConfig,
@@ -21,7 +15,7 @@ pub use crate::api::value_object::{
 };
 
 pub use edge_egress_http_transport_svc::{
-    default_http_outbound, default_http_outbound_with_config, default_http_stream_outbound,
-    http_outbound, http_outbound_oauth, http_outbound_with_auth, observe_http_outbound,
-    plain_http_outbound, validate, validate_http_config,
+    default_http_egress, default_http_egress_with_config, default_http_stream_outbound,
+    http_egress, http_egress_oauth, http_egress_with_auth, observe_http_egress, plain_http_egress,
+    validate, validate_http_config,
 };

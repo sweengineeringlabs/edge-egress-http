@@ -1,8 +1,8 @@
-//! Error type for assembling an [`HttpOutbound`] at startup.
+//! Error type for assembling an [`HttpEgress`] at startup.
 
-/// Error returned when assembling an [`HttpOutbound`] fails at startup.
+/// Error returned when assembling an [`HttpEgress`] fails at startup.
 #[derive(Debug, thiserror::Error)]
-pub enum HttpOutboundBuildError {
+pub enum HttpEgressBuildError {
     #[error("auth: {0}")]
     Auth(#[from] swe_edge_egress_auth::Error),
     #[error("retry: {0}")]
@@ -26,10 +26,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_http_outbound_build_error_display_formats_with_prefix() {
+    fn test_http_egress_build_error_display_formats_with_prefix() {
         // The tls::Error::ParseFailed variant is constructible directly.
         let tls_err = swe_edge_egress_tls::Error::ParseFailed("bad config".into());
-        let build_err: HttpOutboundBuildError = tls_err.into();
+        let build_err: HttpEgressBuildError = tls_err.into();
         let msg = build_err.to_string();
         assert!(
             msg.starts_with("tls:"),
@@ -38,9 +38,9 @@ mod tests {
     }
 
     #[test]
-    fn test_http_outbound_build_error_debug_is_non_empty() {
+    fn test_http_egress_build_error_debug_is_non_empty() {
         let tls_err = swe_edge_egress_tls::Error::ParseFailed("x".into());
-        let build_err: HttpOutboundBuildError = tls_err.into();
+        let build_err: HttpEgressBuildError = tls_err.into();
         let dbg = format!("{:?}", build_err);
         assert!(!dbg.is_empty());
     }

@@ -1,11 +1,11 @@
 //! Integration tests covering the `swe-edge-egress-oauth` dependency.
 //!
 //! Verifies that the OAuth token source abstraction integrates correctly with
-//! the SAF layer via `http_outbound_oauth`.
+//! the SAF layer via `http_egress_oauth`.
 
 use std::sync::Arc;
 
-use swe_edge_egress_http_transport::{http_outbound_oauth, HttpConfig};
+use swe_edge_egress_http_transport::{http_egress_oauth, HttpConfig};
 use swe_edge_egress_oauth::{OAuthTokenSource, Result as OAuthResult};
 
 // ─── Noop token source ────────────────────────────────────────────────────────
@@ -25,31 +25,31 @@ impl OAuthTokenSource for StaticTokenSource {
 
 // ─── tests ───────────────────────────────────────────────────────────────────
 
-/// @covers: http_outbound_oauth
+/// @covers: http_egress_oauth
 #[test]
-fn test_http_outbound_oauth_builds_with_static_token_source() {
+fn test_http_egress_oauth_builds_with_static_token_source() {
     let source: Arc<dyn OAuthTokenSource> = Arc::new(StaticTokenSource {
         token: "static-bearer-token".to_string(),
     });
-    let result = http_outbound_oauth(HttpConfig::default(), source);
+    let result = http_egress_oauth(HttpConfig::default(), source);
     assert!(
         result.is_ok(),
-        "http_outbound_oauth must build with a static token source: {:?}",
+        "http_egress_oauth must build with a static token source: {:?}",
         result.err()
     );
 }
 
-/// @covers: http_outbound_oauth
+/// @covers: http_egress_oauth
 #[test]
-fn test_http_outbound_oauth_two_independent_instances_share_no_state() {
+fn test_http_egress_oauth_two_independent_instances_share_no_state() {
     let source_a: Arc<dyn OAuthTokenSource> = Arc::new(StaticTokenSource {
         token: "token-a".to_string(),
     });
     let source_b: Arc<dyn OAuthTokenSource> = Arc::new(StaticTokenSource {
         token: "token-b".to_string(),
     });
-    let a = http_outbound_oauth(HttpConfig::with_base_url("https://a.example.com"), source_a);
-    let b = http_outbound_oauth(HttpConfig::with_base_url("https://b.example.com"), source_b);
+    let a = http_egress_oauth(HttpConfig::with_base_url("https://a.example.com"), source_a);
+    let b = http_egress_oauth(HttpConfig::with_base_url("https://b.example.com"), source_b);
     assert!(a.is_ok(), "first oauth outbound must build");
     assert!(b.is_ok(), "second oauth outbound must build");
 }

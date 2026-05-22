@@ -15,7 +15,7 @@ use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use reqwest_middleware::ClientBuilder;
-use swe_edge_egress_http_transport::{plain_http_outbound, HttpConfig, HttpOutbound, HttpRequest};
+use swe_edge_egress_http_transport::{plain_http_egress, HttpConfig, HttpEgress, HttpRequest};
 
 /// Spawn a single-connection HTTP/1 test server.
 async fn spawn_once<F, Fut>(handler: F) -> (u16, tokio::task::JoinHandle<()>)
@@ -43,7 +43,7 @@ where
     (port, jh)
 }
 
-/// @covers: plain_http_outbound
+/// @covers: plain_http_egress
 #[test]
 fn test_reqwest_middleware_client_builder_constructs_passthrough_client() {
     // Directly exercise reqwest_middleware::ClientBuilder to verify the dep is wired.
@@ -52,14 +52,14 @@ fn test_reqwest_middleware_client_builder_constructs_passthrough_client() {
     // If this compiles and runs, the dep is present and functional.
 }
 
-/// @covers: plain_http_outbound
+/// @covers: plain_http_egress
 #[tokio::test]
 async fn test_reqwest_middleware_client_sends_get_request_and_receives_200() {
     let (port, _jh) =
         spawn_once(|_req| async { Response::new(Full::new(Bytes::from("ok"))) }).await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).expect("plain_http_outbound must build");
+    let client = plain_http_egress(cfg).expect("plain_http_egress must build");
     let resp = client
         .send(HttpRequest::get("/"))
         .await
@@ -68,7 +68,7 @@ async fn test_reqwest_middleware_client_sends_get_request_and_receives_200() {
     assert_eq!(resp.body, b"ok");
 }
 
-/// @covers: plain_http_outbound
+/// @covers: plain_http_egress
 #[tokio::test]
 async fn test_reqwest_middleware_client_forwards_custom_headers() {
     let (port, _jh) = spawn_once(|req| async move {
@@ -83,7 +83,7 @@ async fn test_reqwest_middleware_client_forwards_custom_headers() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).expect("plain_http_outbound must build");
+    let client = plain_http_egress(cfg).expect("plain_http_egress must build");
     let req = HttpRequest::get("/").with_header("x-trace-id", "trace-99");
     let resp = client
         .send(req)
@@ -96,7 +96,7 @@ async fn test_reqwest_middleware_client_forwards_custom_headers() {
     );
 }
 
-/// @covers: plain_http_outbound
+/// @covers: plain_http_egress
 #[tokio::test]
 async fn test_reqwest_middleware_client_sends_post_with_json_body() {
     let (port, _jh) = spawn_once(|req| async move {
@@ -111,7 +111,7 @@ async fn test_reqwest_middleware_client_sends_post_with_json_body() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_outbound(cfg).expect("plain_http_outbound must build");
+    let client = plain_http_egress(cfg).expect("plain_http_egress must build");
     let req = HttpRequest::post("/")
         .with_json(&serde_json::json!({"key": "value"}))
         .unwrap();

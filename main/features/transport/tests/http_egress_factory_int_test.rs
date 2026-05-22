@@ -1,17 +1,17 @@
-//! Integration tests for the SAF factory functions in `http_outbound_factory`.
+//! Integration tests for the SAF factory functions in `http_egress_factory`.
 //!
-//! Covers: `http_outbound`, `http_outbound_with_auth`, `plain_http_outbound`,
+//! Covers: `http_egress`, `http_egress_with_auth`, `plain_http_egress`,
 //! and `validate_http_config` which are not tested by other integration test files.
 
 use swe_edge_egress_http_transport::{
-    default_http_stream_outbound, http_outbound, http_outbound_with_auth, plain_http_outbound,
-    validate_http_config, HttpConfig, HttpOutboundConfig, HttpStreamOutbound,
+    default_http_stream_outbound, http_egress, http_egress_with_auth, plain_http_egress,
+    validate_http_config, HttpConfig, HttpEgressConfig, HttpStream,
 };
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-fn build_outbound_config(base_url: &str) -> HttpOutboundConfig {
-    HttpOutboundConfig {
+fn build_outbound_config(base_url: &str) -> HttpEgressConfig {
+    HttpEgressConfig {
         http: HttpConfig::with_base_url(base_url),
         auth: swe_edge_egress_auth::AuthConfig::None,
         token_source: None,
@@ -37,52 +37,52 @@ fn build_outbound_config(base_url: &str) -> HttpOutboundConfig {
     }
 }
 
-// ─── http_outbound ────────────────────────────────────────────────────────────
+// ─── http_egress ────────────────────────────────────────────────────────────
 
-/// @covers: http_outbound
+/// @covers: http_egress
 #[test]
-fn test_http_outbound_builds_successfully_with_none_auth() {
+fn test_http_egress_builds_successfully_with_none_auth() {
     let cfg = build_outbound_config("https://api.example.com");
-    let result = http_outbound(cfg);
+    let result = http_egress(cfg);
     assert!(
         result.is_ok(),
-        "http_outbound must build with None auth: {:?}",
+        "http_egress must build with None auth: {:?}",
         result.err()
     );
 }
 
-/// @covers: http_outbound
+/// @covers: http_egress
 #[test]
-fn test_http_outbound_builds_two_independent_instances() {
-    let a = http_outbound(build_outbound_config("https://a.example.com"));
-    let b = http_outbound(build_outbound_config("https://b.example.com"));
-    assert!(a.is_ok(), "first http_outbound must build");
-    assert!(b.is_ok(), "second http_outbound must build");
+fn test_http_egress_builds_two_independent_instances() {
+    let a = http_egress(build_outbound_config("https://a.example.com"));
+    let b = http_egress(build_outbound_config("https://b.example.com"));
+    assert!(a.is_ok(), "first http_egress must build");
+    assert!(b.is_ok(), "second http_egress must build");
 }
 
-// ─── http_outbound_with_auth ──────────────────────────────────────────────────
+// ─── http_egress_with_auth ──────────────────────────────────────────────────
 
-/// @covers: http_outbound_with_auth
+/// @covers: http_egress_with_auth
 #[test]
-fn test_http_outbound_with_auth_builds_successfully_with_none_auth() {
+fn test_http_egress_with_auth_builds_successfully_with_none_auth() {
     let cfg = HttpConfig::with_base_url("https://api.example.com");
     let auth = swe_edge_egress_auth::AuthConfig::None;
-    let result = http_outbound_with_auth(cfg, auth);
+    let result = http_egress_with_auth(cfg, auth);
     assert!(
         result.is_ok(),
-        "http_outbound_with_auth must build: {:?}",
+        "http_egress_with_auth must build: {:?}",
         result.err()
     );
 }
 
-/// @covers: http_outbound_with_auth
+/// @covers: http_egress_with_auth
 #[test]
-fn test_http_outbound_with_auth_builds_two_independent_instances() {
-    let a = http_outbound_with_auth(
+fn test_http_egress_with_auth_builds_two_independent_instances() {
+    let a = http_egress_with_auth(
         HttpConfig::with_base_url("https://a.example.com"),
         swe_edge_egress_auth::AuthConfig::None,
     );
-    let b = http_outbound_with_auth(
+    let b = http_egress_with_auth(
         HttpConfig::with_base_url("https://b.example.com"),
         swe_edge_egress_auth::AuthConfig::None,
     );
@@ -90,27 +90,27 @@ fn test_http_outbound_with_auth_builds_two_independent_instances() {
     assert!(b.is_ok(), "second instance must build");
 }
 
-// ─── plain_http_outbound ──────────────────────────────────────────────────────
+// ─── plain_http_egress ──────────────────────────────────────────────────────
 
-/// @covers: plain_http_outbound
+/// @covers: plain_http_egress
 #[test]
-fn test_plain_http_outbound_builds_with_default_config() {
-    let result = plain_http_outbound(HttpConfig::default());
+fn test_plain_http_egress_builds_with_default_config() {
+    let result = plain_http_egress(HttpConfig::default());
     assert!(
         result.is_ok(),
-        "plain_http_outbound must build with default config: {:?}",
+        "plain_http_egress must build with default config: {:?}",
         result.err()
     );
 }
 
-/// @covers: plain_http_outbound
+/// @covers: plain_http_egress
 #[test]
-fn test_plain_http_outbound_builds_with_custom_base_url() {
+fn test_plain_http_egress_builds_with_custom_base_url() {
     let cfg = HttpConfig::with_base_url("https://custom.api.com");
-    let result = plain_http_outbound(cfg);
+    let result = plain_http_egress(cfg);
     assert!(
         result.is_ok(),
-        "plain_http_outbound must build with custom base URL: {:?}",
+        "plain_http_egress must build with custom base URL: {:?}",
         result.err()
     );
 }
@@ -132,7 +132,7 @@ fn test_default_http_stream_outbound_builds_with_swe_defaults() {
 #[test]
 fn test_default_http_stream_outbound_implements_stream_outbound_trait() {
     let outbound = default_http_stream_outbound().unwrap();
-    fn _assert(_: &dyn HttpStreamOutbound) {}
+    fn _assert(_: &dyn HttpStream) {}
     _assert(&outbound);
 }
 

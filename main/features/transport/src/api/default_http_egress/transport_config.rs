@@ -1,15 +1,15 @@
 //! Transport-level configuration for the default HTTP outbound implementation.
 //!
 //! [`TransportConfig`] carries the transport-level settings that
-//! `DefaultHttpOutbound` (in `core/`) consumes when building a reqwest client.
+//! `DefaultHttpEgress` (in `core/`) consumes when building a reqwest client.
 
 use crate::api::value_object::HttpConfig;
 
 /// Transport-level configuration for the default (reqwest-backed) HTTP outbound.
 ///
 /// Callers that need only transport-level settings without the full middleware
-/// stack use this type to configure the `DefaultHttpOutbound` implementation
-/// returned by [`plain_http_outbound`](crate::saf::plain_http_outbound).
+/// stack use this type to configure the `DefaultHttpEgress` implementation
+/// returned by [`plain_http_egress`](crate::saf::plain_http_egress).
 pub struct TransportConfig {
     /// Transport-level configuration (timeouts, headers, redirects, etc.).
     pub http: HttpConfig,

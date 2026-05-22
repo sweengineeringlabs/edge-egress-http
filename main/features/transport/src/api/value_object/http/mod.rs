@@ -1,15 +1,15 @@
 //! HTTP value objects grouped by shared `http_` prefix.
 
-pub mod form_part;
-pub mod http_auth;
-pub mod http_body;
-pub mod http_config;
-pub mod http_config_builder;
-pub mod http_method;
-pub mod http_request;
-pub mod http_request_builder;
-pub mod http_response;
-pub mod http_stream_response;
+pub(crate) mod form_part;
+pub(crate) mod http_auth;
+pub(crate) mod http_body;
+pub(crate) mod http_config;
+pub(crate) mod http_config_builder;
+pub(crate) mod http_method;
+pub(crate) mod http_request;
+pub(crate) mod http_request_builder;
+pub(crate) mod http_response;
+pub(crate) mod http_stream_response;
 
 pub use form_part::FormPart;
 pub use http_auth::HttpAuth;

@@ -1,17 +1,17 @@
 //! Result type for HTTP outbound operations.
 
-use super::http_outbound_error::HttpOutboundError;
+use super::http_egress_error::HttpEgressError;
 
 /// Result type for HTTP outbound operations.
-pub type HttpOutboundResult<T> = Result<T, HttpOutboundError>;
+pub type HttpEgressResult<T> = Result<T, HttpEgressError>;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_http_outbound_result_ok_wraps_value() {
-        let result: HttpOutboundResult<u32> = Ok(42);
+    fn test_http_egress_result_ok_wraps_value() {
+        let result: HttpEgressResult<u32> = Ok(42);
         if let Ok(val) = result {
             assert_eq!(val, 42);
         } else {
@@ -20,9 +20,9 @@ mod tests {
     }
 
     #[test]
-    fn test_http_outbound_result_err_wraps_error() {
-        let result: HttpOutboundResult<u32> =
-            Err(HttpOutboundError::ConnectionFailed("refused".into()));
+    fn test_http_egress_result_err_wraps_error() {
+        let result: HttpEgressResult<u32> =
+            Err(HttpEgressError::ConnectionFailed("refused".into()));
         if let Err(err) = result {
             assert!(err.to_string().contains("refused"));
         } else {
