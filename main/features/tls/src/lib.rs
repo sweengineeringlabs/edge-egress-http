@@ -10,7 +10,8 @@
 //! ## Usage
 //!
 //! ```ignore
-//! let tls = swe_edge_egress_tls::builder()?.with_config(cfg).build()?;
+//! use swe_edge_egress_tls::{build_tls_layer, TlsConfig};
+//! let tls = build_tls_layer(TlsConfig::default())?;
 //! let client = tls.apply_to(reqwest::Client::builder())?.build()?;
 //! ```
 

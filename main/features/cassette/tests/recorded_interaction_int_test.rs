@@ -12,7 +12,7 @@
 //! - The middleware correctly reconstructs a `reqwest::Response` from the
 //!   recorded bytes stored in `body_base64`.
 
-use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig};
+use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
 
 fn replay_cfg(dir: &str, cassette_name: &str) -> (CassetteConfig, String) {
     let cfg = CassetteConfig {
@@ -58,8 +58,7 @@ method=GET|url=https://api.example.test/health:
     std::fs::write(dir.join("schema_stable.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "schema_stable");
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build(&name)
+    let layer = build_cassette_layer(cfg, &name)
         .expect("build must succeed");
     let client = ClientBuilder::new(reqwest::Client::new())
         .with(layer)
@@ -104,8 +103,7 @@ method=GET|url=https://api.example.test/greet:
     std::fs::write(dir.join("with_body_hash.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "with_body_hash");
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build(&name)
+    let layer = build_cassette_layer(cfg, &name)
         .expect("build must succeed");
     let client = ClientBuilder::new(reqwest::Client::new())
         .with(layer)
@@ -147,8 +145,7 @@ method=GET|url=https://api.example.test/missing:
     std::fs::write(dir.join("status_404.yaml"), yaml).unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "status_404");
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build(&name)
+    let layer = build_cassette_layer(cfg, &name)
         .expect("build must succeed");
     let client = ClientBuilder::new(reqwest::Client::new())
         .with(layer)
@@ -172,12 +169,11 @@ fn test_empty_cassette_file_loads_without_error() {
     std::fs::write(dir.join("empty_cassette.yaml"), "   \n").unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "empty_cassette");
-    ApplicationConfigBuilder::with_config(cfg)
-        .build(&name)
+    build_cassette_layer(cfg, &name)
         .expect("empty cassette file must load without error");
 }
 
-/// A malformed YAML cassette file must cause `build` to return an error
+/// A malformed YAML cassette file must cause `build_cassette_layer` to return an error
 /// (not panic), so test infrastructure failures are diagnosed clearly.
 #[test]
 fn test_malformed_cassette_yaml_returns_parse_error() {
@@ -187,9 +183,7 @@ fn test_malformed_cassette_yaml_returns_parse_error() {
     std::fs::write(dir.join("malformed.yaml"), ": invalid: yaml: [[\n").unwrap();
 
     let (cfg, name) = replay_cfg(dir.to_str().unwrap(), "malformed");
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build(&name)
-        .unwrap_err();
+    let err = build_cassette_layer(cfg, &name).unwrap_err();
     let msg = err.to_string();
     assert!(
         msg.contains("swe_edge_egress_cassette") || msg.contains("parse"),

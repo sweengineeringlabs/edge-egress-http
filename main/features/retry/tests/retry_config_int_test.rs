@@ -2,9 +2,9 @@
 //!
 //! `RetryConfig` is a plain struct with all fields public. Tests verify
 //! struct literal construction, field visibility, Clone, and that values
-//! flow through the ApplicationConfigBuilder pipeline to the RetryLayer without mutation.
+//! flow through the build_retry_layer pipeline to the RetryLayer without mutation.
 
-use swe_edge_egress_retry::{ApplicationConfigBuilder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{build_retry_layer, RetryConfig, RetryLayer};
 
 // ---------------------------------------------------------------------------
 // Struct construction — all public fields must be writable
@@ -31,8 +31,7 @@ fn test_retry_config_all_fields_are_public() {
     assert_eq!(cfg.retryable_methods, vec!["GET", "HEAD"]);
 }
 
-/// `RetryConfig` must be `Clone` so it can be moved into a `ApplicationConfigBuilder` while
-/// still being accessible to the caller for inspection or reuse.
+/// `RetryConfig` must be `Clone` so it can be copied for inspection or reuse.
 #[test]
 fn test_retry_config_is_clone() {
     let cfg = RetryConfig {
@@ -53,7 +52,7 @@ fn test_retry_config_is_clone() {
 // max_retries boundary values
 // ---------------------------------------------------------------------------
 
-/// `max_retries=0` is a valid "no-retry" configuration. The builder and
+/// `max_retries=0` is a valid "no-retry" configuration. The factory and
 /// layer must accept it without error.
 #[test]
 fn test_max_retries_zero_is_valid() {
@@ -65,14 +64,11 @@ fn test_max_retries_zero_is_valid() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let _layer: RetryLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("max_retries=0 must build");
+    let _layer: RetryLayer = build_retry_layer(cfg).expect("max_retries=0 must build");
 }
 
 /// `max_retries=u32::MAX` is an extreme value but must not panic or error
-/// at build time — the middleware loop will cap at `total = max_retries + 1`
-/// attempts, bounded by the saturating_add.
+/// at build time.
 #[test]
 fn test_max_retries_max_u32_builds_without_error() {
     let cfg = RetryConfig {
@@ -83,9 +79,7 @@ fn test_max_retries_max_u32_builds_without_error() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("max_retries=u32::MAX must build");
+    build_retry_layer(cfg).expect("max_retries=u32::MAX must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -104,13 +98,11 @@ fn test_retryable_statuses_accepts_full_range_of_u16_values() {
         retryable_statuses: vec![100, 200, 429, 500, 503, 599, 65535],
         retryable_methods: vec!["GET".to_string()],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("wide range of status codes must build");
+    build_retry_layer(cfg).expect("wide range of status codes must build");
 }
 
 /// An empty `retryable_statuses` list must be accepted — it means "never
-/// retry on a received HTTP response" (transport errors may still retry).
+/// retry on a received HTTP response".
 #[test]
 fn test_retryable_statuses_empty_is_valid() {
     let cfg = RetryConfig {
@@ -121,9 +113,7 @@ fn test_retryable_statuses_empty_is_valid() {
         retryable_statuses: vec![],
         retryable_methods: vec!["GET".to_string()],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("empty retryable_statuses must build");
+    build_retry_layer(cfg).expect("empty retryable_statuses must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -131,9 +121,7 @@ fn test_retryable_statuses_empty_is_valid() {
 // ---------------------------------------------------------------------------
 
 /// HTTP method strings must be stored with their original casing. The
-/// `method_retryable` check inside the middleware uses case-insensitive
-/// comparison, but the stored strings must not be silently uppercased or
-/// lowercased by the builder.
+/// config struct holds them verbatim.
 #[test]
 fn test_retryable_methods_stored_with_original_casing() {
     let cfg = RetryConfig {
@@ -144,17 +132,17 @@ fn test_retryable_methods_stored_with_original_casing() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["get".to_string(), "HEAD".to_string(), "Put".to_string()],
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert_eq!(b.config().retryable_methods[0], "get");
-    assert_eq!(b.config().retryable_methods[1], "HEAD");
-    assert_eq!(b.config().retryable_methods[2], "Put");
+    assert_eq!(cfg.retryable_methods[0], "get");
+    assert_eq!(cfg.retryable_methods[1], "HEAD");
+    assert_eq!(cfg.retryable_methods[2], "Put");
+    build_retry_layer(cfg).expect("mixed-case methods must build");
 }
 
 // ---------------------------------------------------------------------------
 // multiplier — positive float values
 // ---------------------------------------------------------------------------
 
-/// `multiplier=1.0` produces constant-interval backoff. The builder must
+/// `multiplier=1.0` produces constant-interval backoff. The factory must
 /// accept this (no validation that multiplier > 1.0).
 #[test]
 fn test_multiplier_one_produces_constant_interval() {
@@ -166,13 +154,11 @@ fn test_multiplier_one_produces_constant_interval() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("multiplier=1.0 must build");
+    build_retry_layer(cfg).expect("multiplier=1.0 must build");
 }
 
 /// `multiplier=0.5` (backoff shrinks over time) is unusual but structurally
-/// valid. The builder must accept it without error.
+/// valid. The factory must accept it without error.
 #[test]
 fn test_multiplier_below_one_builds_successfully() {
     let cfg = RetryConfig {
@@ -183,7 +169,5 @@ fn test_multiplier_below_one_builds_successfully() {
         retryable_statuses: vec![429],
         retryable_methods: vec!["GET".to_string()],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("multiplier=0.5 must build");
+    build_retry_layer(cfg).expect("multiplier=0.5 must build");
 }

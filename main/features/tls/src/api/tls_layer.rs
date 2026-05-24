@@ -9,11 +9,11 @@ use std::sync::Arc;
 use crate::api::http_tls::HttpTls;
 
 /// TLS identity layer. Opaque handle — consumers get one from
-/// `saf::builder()` → `ApplicationConfigBuilder::build()` and apply it to a
-/// `reqwest::ClientBuilder` via `apply_to(..)`.
+/// `build_tls_layer(config)` and apply it to a `reqwest::ClientBuilder`
+/// via `apply_to(..)`.
 ///
 /// ```ignore
-/// let tls = swe_edge_egress_tls::builder()?.with_config(cfg).build()?;
+/// let tls = swe_edge_egress_tls::build_tls_layer(TlsConfig::None)?;
 /// let client = tls.apply_to(reqwest::Client::builder())?.build()?;
 /// ```
 pub struct TlsLayer {

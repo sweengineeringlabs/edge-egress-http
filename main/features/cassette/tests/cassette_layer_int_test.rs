@@ -1,10 +1,10 @@
 //! Integration tests for `CassetteLayer` public surface (api type).
 //!
-//! `CassetteLayer` is an opaque type created via `ApplicationConfigBuilder::build`. Tests
+//! `CassetteLayer` is an opaque type created via `build_cassette_layer`. Tests
 //! exercise observable properties: Debug output, Send+Sync bounds, and
 //! path derivation from `cassette_dir` + cassette name.
 
-use swe_edge_egress_cassette::{ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig, CassetteLayer};
 
 fn make_cfg(dir: &str, mode: &str) -> CassetteConfig {
     CassetteConfig {
@@ -26,8 +26,7 @@ fn make_cfg(dir: &str, mode: &str) -> CassetteConfig {
 fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer: CassetteLayer = ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
-        .build("nonexistent_cassette")
+    let layer: CassetteLayer = build_cassette_layer(make_cfg(dir, "auto"), "nonexistent_cassette")
         .expect("build must succeed");
     // The cassette file should not exist on disk yet — it is only written
     // when the first request is recorded in "record" or "auto" mode.
@@ -45,8 +44,7 @@ fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
 fn test_cassette_layer_debug_contains_mode_and_path() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer = ApplicationConfigBuilder::with_config(make_cfg(dir, "replay"))
-        .build("debug_check")
+    let layer = build_cassette_layer(make_cfg(dir, "replay"), "debug_check")
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -61,18 +59,16 @@ fn test_cassette_layer_debug_contains_mode_and_path() {
     );
 }
 
-/// Two independent `build` calls with different cassette names must produce
+/// Two independent `build_cassette_layer` calls with different cassette names must produce
 /// different on-disk paths. This is essential for test isolation — each
 /// test case must own its own fixture file.
 #[test]
 fn test_two_layers_with_different_names_have_different_paths() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let a = ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
-        .build("cassette_a")
+    let a = build_cassette_layer(make_cfg(dir, "auto"), "cassette_a")
         .expect("build a");
-    let b = ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
-        .build("cassette_b")
+    let b = build_cassette_layer(make_cfg(dir, "auto"), "cassette_b")
         .expect("build b");
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");
@@ -109,8 +105,7 @@ fn test_cassette_layer_is_sync() {
 fn test_build_auto_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    ApplicationConfigBuilder::with_config(make_cfg(dir, "auto"))
-        .build("auto_mode")
+    build_cassette_layer(make_cfg(dir, "auto"), "auto_mode")
         .expect("auto mode must produce a layer");
 }
 
@@ -118,8 +113,7 @@ fn test_build_auto_mode_returns_layer() {
 fn test_build_record_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    ApplicationConfigBuilder::with_config(make_cfg(dir, "record"))
-        .build("record_mode")
+    build_cassette_layer(make_cfg(dir, "record"), "record_mode")
         .expect("record mode must produce a layer");
 }
 
@@ -127,7 +121,6 @@ fn test_build_record_mode_returns_layer() {
 fn test_build_replay_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    ApplicationConfigBuilder::with_config(make_cfg(dir, "replay"))
-        .build("replay_mode")
+    build_cassette_layer(make_cfg(dir, "replay"), "replay_mode")
         .expect("replay mode must produce a layer");
 }

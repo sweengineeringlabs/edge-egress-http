@@ -7,10 +7,10 @@
 //!   bounds on `HttpRetry: Send + Sync`).
 //! - `RetryLayer` implements `reqwest_middleware::Middleware`, which is the
 //!   trait consumed by `reqwest_middleware::ClientBuilder::with(layer)`.
-//! - The layer produced by the builder pipeline is non-trivially wired —
+//! - The layer produced by the factory pipeline is non-trivially wired —
 //!   it has a non-zero `max_retries` field visible in Debug.
 
-use swe_edge_egress_retry::{ApplicationConfigBuilder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{build_retry_layer, RetryConfig, RetryLayer};
 
 // ---------------------------------------------------------------------------
 // reqwest_middleware::Middleware — compile-time proof
@@ -65,9 +65,7 @@ fn test_retry_layer_debug_contains_max_retries() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("build must succeed");
+    let layer = build_retry_layer(cfg).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("max_retries"),
@@ -91,9 +89,7 @@ fn test_retry_layer_attaches_to_reqwest_middleware_client_builder() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("build must succeed");
+    let layer = build_retry_layer(cfg).expect("build must succeed");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();

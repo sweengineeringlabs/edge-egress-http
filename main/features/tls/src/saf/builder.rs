@@ -1,70 +1,56 @@
-//! Public builder entry point.
+//! Public factory entry point.
 
 use std::sync::Arc;
+
+use swe_edge_configbuilder::ConfigBuilder as _;
 
 use crate::api::error::Error;
 use crate::api::tls_config::TlsConfig;
 use crate::api::tls_layer::TlsLayer;
-
 use crate::core::identity::build_provider;
 
-/// Start configuring the TLS layer with the SWE baseline
-/// (`kind = "none"` — pass-through).
-pub fn builder() -> Result<ApplicationConfigBuilder, Error> {
-    let cfg = TlsConfig::swe_default()?;
-    Ok(ApplicationConfigBuilder::with_config(cfg))
+/// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
+pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
+    swe_edge_configbuilder::create_config_builder()
+        .with_name(env!("CARGO_PKG_NAME"))
+        .with_version(env!("CARGO_PKG_VERSION"))
 }
 
-pub use crate::api::builder::ApplicationConfigBuilder;
-
-impl ApplicationConfigBuilder {
-    /// Construct from a caller-supplied config.
-    pub fn with_config(config: TlsConfig) -> Self {
-        Self { config }
-    }
-
-    /// Borrow the current policy.
-    pub fn config(&self) -> &TlsConfig {
-        &self.config
-    }
-
-    /// Finalize into the [`TlsLayer`]. Resolves file paths +
-    /// env-var-backed passwords NOW — missing files or unset
-    /// passwords fail startup rather than first request.
-    pub fn build(self) -> Result<TlsLayer, Error> {
-        let provider = build_provider(&self.config)?;
-        Ok(TlsLayer::new(Arc::from(provider)))
-    }
+/// Build a [`TlsLayer`] from a caller-supplied [`TlsConfig`].
+///
+/// Resolves file paths and env-var-backed passwords at call time so
+/// that missing files or unset passwords fail startup rather than
+/// the first request.
+pub fn build_tls_layer(config: TlsConfig) -> Result<TlsLayer, Error> {
+    let provider = build_provider(&config)?;
+    Ok(TlsLayer::new(Arc::from(provider)))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// @covers: builder
+    /// @covers: create_config_builder
     #[test]
-    fn test_builder_loads_swe_default_none() {
-        let b = builder().expect("baseline parses");
-        assert!(matches!(b.config(), TlsConfig::None));
+    fn test_create_config_builder_builds_loader() {
+        let _loader = create_config_builder().build_loader();
     }
 
-    /// @covers: ApplicationConfigBuilder::build
+    /// @covers: build_tls_layer
     #[test]
-    fn test_build_with_none_config_returns_pass_through_layer() {
-        let layer = builder().expect("baseline").build().expect("build ok");
+    fn test_build_tls_layer_with_none_config_returns_pass_through_layer() {
+        let layer = build_tls_layer(TlsConfig::None).expect("build ok");
         let s = format!("{layer:?}");
         assert!(s.contains("noop"));
     }
 
-    /// @covers: ApplicationConfigBuilder::build
+    /// @covers: build_tls_layer
     #[test]
-    fn test_build_with_missing_pem_file_fails_fast() {
+    fn test_build_tls_layer_with_missing_pem_file_fails_fast() {
         let cfg = TlsConfig::Pem {
             path: "/this/path/does/not/exist.pem".into(),
         };
-        let err = ApplicationConfigBuilder::with_config(cfg)
-            .build()
-            .unwrap_err();
+        let err = build_tls_layer(cfg).unwrap_err();
         match err {
             Error::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),

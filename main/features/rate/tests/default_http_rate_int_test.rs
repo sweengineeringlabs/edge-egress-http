@@ -1,48 +1,46 @@
 //! Integration tests for `core/default_http_rate.rs`.
 //!
 //! `DefaultHttpRate` is `pub(crate)`.  Its observable effect is through the
-//! SAF `builder()` function, which loads the crate-shipped SWE baseline.
+//! SAF `build_rate_layer()` function, which accepts a `RateConfig`.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig};
+use swe_edge_egress_rate::{build_rate_layer, RateConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
 // ---------------------------------------------------------------------------
 
-/// The `builder()` function must load the baseline without error.
+/// `build_rate_layer(RateConfig::default())` must succeed without error.
 #[test]
 fn test_default_http_rate_swe_default_builder_succeeds() {
-    swe_edge_egress_rate::builder().expect("swe_default baseline must parse without error");
+    build_rate_layer(RateConfig::default()).expect("swe_default baseline must parse without error");
 }
 
 /// Default `tokens_per_second` must be >= 1.
 #[test]
 fn test_default_http_rate_swe_default_tokens_per_second_is_positive() {
-    let b = swe_edge_egress_rate::builder().expect("baseline parses");
+    let cfg = RateConfig::default();
     assert!(
-        b.config().tokens_per_second >= 1,
+        cfg.tokens_per_second >= 1,
         "swe_default tokens_per_second must be >= 1, got {}",
-        b.config().tokens_per_second
+        cfg.tokens_per_second
     );
 }
 
 /// Default `burst_capacity` must be >= 1.
 #[test]
 fn test_default_http_rate_swe_default_burst_capacity_is_positive() {
-    let b = swe_edge_egress_rate::builder().expect("baseline parses");
+    let cfg = RateConfig::default();
     assert!(
-        b.config().burst_capacity >= 1,
+        cfg.burst_capacity >= 1,
         "swe_default burst_capacity must be >= 1, got {}",
-        b.config().burst_capacity
+        cfg.burst_capacity
     );
 }
 
 /// Building from the SWE default must produce a valid `RateLayer`.
 #[test]
 fn test_default_http_rate_swe_default_builds_rate_layer() {
-    swe_edge_egress_rate::builder()
-        .expect("baseline parses")
-        .build()
+    build_rate_layer(RateConfig::default())
         .expect("build from swe_default must succeed");
 }
 
@@ -50,8 +48,8 @@ fn test_default_http_rate_swe_default_builds_rate_layer() {
 // Custom config is not overridden by the default-loading path
 // ---------------------------------------------------------------------------
 
-/// A consumer-supplied config must survive `ApplicationConfigBuilder::with_config` without any
-/// field being silently replaced by the SWE default.
+/// A consumer-supplied config must pass through unchanged — no field must
+/// be silently replaced by a SWE default.
 #[test]
 fn test_default_http_rate_custom_config_is_not_overridden_by_swe_default() {
     let custom = RateConfig {
@@ -59,8 +57,7 @@ fn test_default_http_rate_custom_config_is_not_overridden_by_swe_default() {
         burst_capacity: 7,
         per_host: true,
     };
-    let b = ApplicationConfigBuilder::with_config(custom);
-    assert_eq!(b.config().tokens_per_second, 3);
-    assert_eq!(b.config().burst_capacity, 7);
-    assert!(b.config().per_host);
+    assert_eq!(custom.tokens_per_second, 3);
+    assert_eq!(custom.burst_capacity, 7);
+    assert!(custom.per_host);
 }

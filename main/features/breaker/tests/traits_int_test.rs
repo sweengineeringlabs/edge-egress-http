@@ -25,15 +25,14 @@ fn test_breaker_layer_satisfies_sync_required_by_http_breaker_trait() {
 /// the trait-object coercion the `traits.rs` alias models is possible.
 #[test]
 fn test_breaker_layer_coercible_to_boxed_send_sync() {
-    use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig};
+    use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig};
     let cfg = BreakerConfig {
         failure_threshold: 3,
         half_open_after_seconds: 5,
         reset_after_successes: 2,
         failure_statuses: vec![500],
     };
-    let layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer: BreakerLayer = build_breaker_layer(cfg)
         .expect("build");
     let _boxed: Box<dyn Send + Sync> = Box::new(layer);
 }

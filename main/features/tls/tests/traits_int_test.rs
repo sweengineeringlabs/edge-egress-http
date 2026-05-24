@@ -4,29 +4,20 @@
 //! `dyn HttpTls`. The integration-level contract is:
 //!
 //! - The SAF re-export surface is complete: `TlsConfig`, `TlsLayer`,
-//!   `ApplicationConfigBuilder`, `Error`, and `builder()` are all accessible.
+//!   `Error`, and `build_tls_layer()` are all accessible.
 //! - `TlsLayer::apply_to` works end-to-end with a `reqwest::ClientBuilder`.
 //! - `TlsLayer` is `Send + Sync` (flows from `HttpTls: Send + Sync + Debug`).
 
-use swe_edge_egress_tls::{
-    builder, ApplicationConfigBuilder, Error, TlsApplier, TlsConfig, TlsLayer,
-};
+use swe_edge_egress_tls::{build_tls_layer, Error, TlsApplier, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // SAF re-export completeness — compile-time proof
 // ---------------------------------------------------------------------------
 
-/// All five public items exported by the SAF surface must be reachable from
+/// All required public items exported by the SAF surface must be reachable from
 /// the crate root. A missing re-export causes this test to fail to compile.
 #[test]
 fn test_saf_surface_exports_all_required_types() {
-    // builder() — function
-    let _ = builder as fn() -> Result<swe_edge_egress_tls::ApplicationConfigBuilder, Error>;
-
-    // ApplicationConfigBuilder — type
-    fn accept_builder(_: ApplicationConfigBuilder) {}
-    let _ = accept_builder as fn(ApplicationConfigBuilder);
-
     // TlsConfig — type
     let _ = TlsConfig::None;
 
@@ -49,8 +40,7 @@ fn test_saf_surface_exports_all_required_types() {
 #[test]
 fn test_tls_layer_holds_arc_dyn_provider() {
     // The TlsLayer itself proves Arc<dyn HttpTls> works.
-    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
-        .build()
+    let layer: TlsLayer = build_tls_layer(TlsConfig::None)
         .expect("None must build");
     // If Arc<dyn HttpTls> weren't working, build() would fail to compile.
     drop(layer);
@@ -67,16 +57,14 @@ fn test_tls_layer_satisfies_send_sync_from_http_tls_supertraits() {
 }
 
 // ---------------------------------------------------------------------------
-// End-to-end pipeline: builder → layer → apply_to → client
+// End-to-end pipeline: build_tls_layer → layer → apply_to → client
 // ---------------------------------------------------------------------------
 
 /// The full pipeline through the SAF surface must compile and run without
 /// panic for the `TlsConfig::None` case.
 #[test]
 fn test_full_saf_pipeline_none_config_builds_client() {
-    let layer: TlsLayer = builder()
-        .expect("builder() must succeed")
-        .build()
+    let layer: TlsLayer = build_tls_layer(TlsConfig::None)
         .expect("None config must build");
     let cb = layer
         .apply_to(reqwest::Client::builder())
@@ -84,12 +72,11 @@ fn test_full_saf_pipeline_none_config_builds_client() {
     let _client = cb.build().expect("ClientBuilder must build");
 }
 
-/// The full pipeline through `ApplicationConfigBuilder::with_config(TlsConfig::None)` must
+/// The full pipeline through `build_tls_layer(TlsConfig::None)` must
 /// also produce a working client.
 #[test]
 fn test_full_with_config_pipeline_none_config_builds_client() {
-    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
-        .build()
+    let layer = build_tls_layer(TlsConfig::None)
         .expect("None must build");
     let _client = layer
         .apply_to(reqwest::Client::builder())

@@ -1,12 +1,8 @@
-//! Minimal usage: load the SWE baseline and build the layer.
-//! Scaffold phase: `build()` returns NotImplemented.
+//! Minimal usage: build the retry layer with the default config.
 
 fn main() {
-    match swe_edge_egress_retry::builder() {
-        Err(e) => println!("swe_edge_egress_retry: baseline parse failed: {e}"),
-        Ok(b) => match b.build() {
-            Ok(_) => println!("swe_edge_egress_retry layer built"),
-            Err(e) => println!("swe_edge_egress_retry: {e}"),
-        },
+    match swe_edge_egress_retry::build_retry_layer(swe_edge_egress_retry::RetryConfig::default()) {
+        Ok(_) => println!("swe_edge_egress_retry layer built"),
+        Err(e) => println!("swe_edge_egress_retry: {e}"),
     }
 }

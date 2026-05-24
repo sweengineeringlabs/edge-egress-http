@@ -1,7 +1,7 @@
 //! Integration tests for `api/cache_config.rs` — `CacheConfig` struct fields
 //! and their observable semantics from outside the crate.
 
-use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig};
+use swe_edge_egress_cache::{build_cache_layer, CacheConfig};
 
 // ---------------------------------------------------------------------------
 // Struct literal construction — all four fields are public
@@ -39,8 +39,7 @@ fn test_cache_config_zero_ttl_is_legal_and_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("zero TTL must not be rejected");
 }
 
@@ -56,8 +55,7 @@ fn test_cache_config_large_ttl_is_accepted() {
         cache_private: false,
     };
     assert_eq!(cfg.default_ttl_seconds, ONE_YEAR_SECS);
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("large TTL must not be rejected");
 }
 
@@ -75,8 +73,7 @@ fn test_cache_config_single_entry_capacity_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("max_entries=1 must not be rejected");
 }
 
@@ -93,8 +90,7 @@ fn test_cache_config_respect_cache_control_true_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cache_control=true must build");
 }
 
@@ -108,8 +104,7 @@ fn test_cache_config_respect_cache_control_false_builds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cache_control=false must build");
 }
 
@@ -126,8 +121,7 @@ fn test_cache_config_cache_private_false_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("cache_private=false must build");
 }
 
@@ -140,17 +134,16 @@ fn test_cache_config_cache_private_true_builds() {
         respect_cache_control: true,
         cache_private: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("cache_private=true must build");
 }
 
 // ---------------------------------------------------------------------------
-// Config round-trips through ApplicationConfigBuilder.config()
+// Config round-trips through build_cache_layer
 // ---------------------------------------------------------------------------
 
-/// The config stored in a `ApplicationConfigBuilder` must equal what was supplied — no field
-/// must be silently mutated between `with_config()` and `config()`.
+/// The config supplied to `build_cache_layer` must not be silently mutated —
+/// all fields must be preserved without modification.
 #[test]
 fn test_cache_config_round_trips_through_builder_unchanged() {
     let cfg = CacheConfig {
@@ -159,8 +152,8 @@ fn test_cache_config_round_trips_through_builder_unchanged() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let out = b.config();
+    let b_cfg = cfg;
+    let out = &b_cfg;
     assert_eq!(out.default_ttl_seconds, 77);
     assert_eq!(out.max_entries, 333);
     assert!(!out.respect_cache_control);

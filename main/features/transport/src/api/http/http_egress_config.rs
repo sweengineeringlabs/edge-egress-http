@@ -30,46 +30,14 @@ mod tests {
     use super::*;
 
     fn make_config(base_url: &str, cassette_name: &str) -> HttpEgressConfig {
-        let retry = swe_edge_egress_retry::builder()
-            .expect("retry builder must load SWE defaults")
-            .build()
-            .expect("retry layer must build");
-        let rate = swe_edge_egress_rate::builder()
-            .expect("rate builder must load SWE defaults")
-            .build()
-            .expect("rate layer must build");
-        let breaker = swe_edge_egress_breaker::builder()
-            .expect("breaker builder must load SWE defaults")
-            .build()
-            .expect("breaker layer must build");
-        let cache = swe_edge_egress_cache::builder()
-            .expect("cache builder must load SWE defaults")
-            .build()
-            .expect("cache layer must build");
-        // Use a detached RetryConfig from the builder for structuring the aggregate.
-        // We do not need an actual running middleware here — just the config values.
-        let _ = (retry, rate, breaker, cache);
-
         HttpEgressConfig {
             http: HttpConfig::with_base_url(base_url),
             auth: swe_edge_egress_auth::AuthConfig::None,
             token_source: None,
-            retry: swe_edge_egress_retry::builder()
-                .expect("retry")
-                .config()
-                .clone(),
-            rate: swe_edge_egress_rate::builder()
-                .expect("rate")
-                .config()
-                .clone(),
-            breaker: swe_edge_egress_breaker::builder()
-                .expect("breaker")
-                .config()
-                .clone(),
-            cache: swe_edge_egress_cache::builder()
-                .expect("cache")
-                .config()
-                .clone(),
+            retry: swe_edge_egress_retry::RetryConfig::default(),
+            rate: swe_edge_egress_rate::RateConfig::default(),
+            breaker: swe_edge_egress_breaker::BreakerConfig::default(),
+            cache: swe_edge_egress_cache::CacheConfig::default(),
             cassette: swe_edge_egress_cassette::CassetteConfig::disabled(),
             cassette_name: cassette_name.to_string(),
             tls: swe_edge_egress_tls::TlsConfig::None,

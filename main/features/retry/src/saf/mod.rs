@@ -5,4 +5,4 @@ mod builder;
 pub use crate::api::error::Error;
 pub use crate::api::retry_config::RetryConfig;
 pub use crate::api::retry_layer::RetryLayer;
-pub use builder::{builder, ApplicationConfigBuilder};
+pub use builder::{build_retry_layer, create_config_builder};

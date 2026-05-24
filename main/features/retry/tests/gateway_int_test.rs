@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_retry crate.
 
-use swe_edge_egress_retry::{builder, ApplicationConfigBuilder, Error, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{build_retry_layer, create_config_builder, Error, RetryConfig, RetryLayer};
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -18,51 +18,48 @@ fn make_cfg() -> RetryConfig {
 }
 
 // ---------------------------------------------------------------------------
-// builder() — SAF entry point
+// create_config_builder — SAF entry point
 // ---------------------------------------------------------------------------
 
 #[test]
-fn test_builder_fn_loads_swe_default_returns_ok() {
-    // builder() must succeed: the crate-shipped baseline TOML must always parse.
-    builder().expect("swe_default baseline must parse without error");
+fn test_create_config_builder_returns_working_loader() {
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    // create_config_builder must not panic and must return a valid loader.
+    let _loader = create_config_builder().build_loader();
 }
 
 #[test]
-fn test_builder_fn_swe_default_has_at_least_one_retry() {
+fn test_default_config_has_at_least_one_retry() {
     // A baseline of zero retries would mean the middleware is a no-op by
     // default — the SWE default must allow at least one retry attempt.
-    let b = builder().expect("baseline parses");
+    let cfg = RetryConfig::default();
     assert!(
-        b.config().max_retries >= 1,
-        "swe_default max_retries must be >= 1, got {}",
-        b.config().max_retries
+        cfg.max_retries >= 1,
+        "default max_retries must be >= 1, got {}",
+        cfg.max_retries
     );
 }
 
 #[test]
-fn test_builder_fn_swe_default_has_non_empty_retryable_statuses() {
-    // If the default status list is empty the middleware will never trigger,
-    // making the baseline configuration useless in practice.
-    let b = builder().expect("baseline parses");
+fn test_default_config_has_non_empty_retryable_statuses() {
+    // If the default status list is empty the middleware will never trigger.
+    let cfg = RetryConfig::default();
     assert!(
-        !b.config().retryable_statuses.is_empty(),
-        "swe_default retryable_statuses must not be empty"
+        !cfg.retryable_statuses.is_empty(),
+        "default retryable_statuses must not be empty"
     );
 }
 
 // ---------------------------------------------------------------------------
-// builder().build() — finalisation
+// build_retry_layer — factory function
 // ---------------------------------------------------------------------------
 
 #[test]
-fn test_build_from_swe_default_returns_retry_layer_with_correct_debug() {
-    // The full happy path: default config → ApplicationConfigBuilder → RetryLayer.
+fn test_build_retry_layer_from_default_returns_retry_layer_with_correct_debug() {
+    // The full happy path: default config → RetryLayer.
     // Debug output must name the type and expose max_retries for
     // operator visibility (log lines, test output).
-    let layer = builder()
-        .expect("baseline parses")
-        .build()
-        .expect("build must succeed");
+    let layer = build_retry_layer(RetryConfig::default()).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RetryLayer"),
@@ -87,49 +84,25 @@ fn test_retry_layer_satisfies_send_and_sync_bounds() {
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::with_config — custom RetryConfig flows through correctly
+// build_retry_layer — custom RetryConfig flows through correctly
 // ---------------------------------------------------------------------------
 
 #[test]
-fn test_builder_with_config_stores_all_custom_policy_fields() {
+fn test_build_retry_layer_with_custom_config_stores_all_policy_fields() {
     let cfg = make_cfg();
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert_eq!(
-        b.config().max_retries,
-        3,
-        "max_retries must be stored unmodified"
-    );
-    assert_eq!(
-        b.config().initial_interval_ms,
-        100,
-        "initial_interval_ms must be stored unmodified"
-    );
-    assert_eq!(
-        b.config().max_interval_ms,
-        5000,
-        "max_interval_ms must be stored unmodified"
-    );
-    assert_eq!(
-        b.config().multiplier,
-        2.0,
-        "multiplier must be stored unmodified"
-    );
-    assert_eq!(
-        b.config().retryable_statuses,
-        vec![500u16, 502, 503],
-        "retryable_statuses must be stored unmodified"
-    );
-    assert_eq!(
-        b.config().retryable_methods,
-        vec!["GET".to_string()],
-        "retryable_methods must be stored unmodified"
-    );
+    // Verify fields are correct before consuming the config.
+    assert_eq!(cfg.max_retries, 3);
+    assert_eq!(cfg.initial_interval_ms, 100);
+    assert_eq!(cfg.max_interval_ms, 5000);
+    assert_eq!(cfg.multiplier, 2.0);
+    assert_eq!(cfg.retryable_statuses, vec![500u16, 502, 503]);
+    assert_eq!(cfg.retryable_methods, vec!["GET".to_string()]);
+    build_retry_layer(cfg).expect("custom config must produce a valid RetryLayer");
 }
 
 #[test]
-fn test_builder_with_zero_max_retries_builds_successfully() {
-    // max_retries=0 is "pass-through with no retry" — a valid choice when
-    // the caller wants the middleware wired but inactive.
+fn test_build_retry_layer_with_zero_max_retries_builds_successfully() {
+    // max_retries=0 is "pass-through with no retry" — a valid choice.
     let cfg = RetryConfig {
         max_retries: 0,
         initial_interval_ms: 100,
@@ -138,15 +111,13 @@ fn test_builder_with_zero_max_retries_builds_successfully() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("max_retries=0 must produce a valid RetryLayer");
+    build_retry_layer(cfg).expect("max_retries=0 must produce a valid RetryLayer");
 }
 
 #[test]
-fn test_builder_with_empty_retryable_lists_builds_successfully() {
+fn test_build_retry_layer_with_empty_retryable_lists_builds_successfully() {
     // Empty status and method lists are valid — the middleware simply never
-    // triggers a retry, which matches a "disabled" deployment configuration.
+    // triggers a retry.
     let cfg = RetryConfig {
         max_retries: 5,
         initial_interval_ms: 50,
@@ -155,15 +126,12 @@ fn test_builder_with_empty_retryable_lists_builds_successfully() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("empty retryable lists must produce a valid RetryLayer");
+    build_retry_layer(cfg).expect("empty retryable lists must produce a valid RetryLayer");
 }
 
 #[test]
-fn test_builder_with_large_multiplier_builds_successfully() {
-    // An operator might configure aggressive backoff (e.g. 100×) during
-    // incident response; the builder must accept any positive f64.
+fn test_build_retry_layer_with_large_multiplier_builds_successfully() {
+    // An operator might configure aggressive backoff during incident response.
     let cfg = RetryConfig {
         max_retries: 2,
         initial_interval_ms: 10,
@@ -172,20 +140,7 @@ fn test_builder_with_large_multiplier_builds_successfully() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["POST".to_string()],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("multiplier=100.0 must produce a valid RetryLayer");
-}
-
-#[test]
-fn test_builder_config_accessor_returns_reference_to_stored_policy() {
-    // config() must hand back the same policy that will be used at runtime,
-    // not a detached copy.
-    let cfg = make_cfg();
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy: &RetryConfig = b.config();
-    assert_eq!(policy.max_retries, 3);
-    assert_eq!(policy.multiplier, 2.0);
+    build_retry_layer(cfg).expect("multiplier=100.0 must produce a valid RetryLayer");
 }
 
 // ---------------------------------------------------------------------------

@@ -28,15 +28,27 @@ pub struct CacheConfig {
     pub cache_private: bool,
 }
 
+impl Default for CacheConfig {
+    fn default() -> Self {
+        Self {
+            default_ttl_seconds: 300,
+            max_entries: 10000,
+            respect_cache_control: true,
+            cache_private: false,
+        }
+    }
+}
+
+impl swe_edge_configbuilder::ConfigSection for CacheConfig {
+    fn section_name() -> &'static str {
+        "cache"
+    }
+}
+
 impl CacheConfig {
     /// Parse from TOML text.
-    pub(crate) fn from_config(toml_text: &str) -> Result<Self, Error> {
+    pub fn from_config(toml_text: &str) -> Result<Self, Error> {
         toml::from_str(toml_text).map_err(|e| Error::ParseFailed(e.to_string()))
-    }
-
-    /// Load the crate-shipped SWE baseline.
-    pub(crate) fn swe_default() -> Result<Self, Error> {
-        Self::from_config(include_str!("../../config/application.toml"))
     }
 }
 
@@ -73,10 +85,17 @@ mod tests {
         assert!(s.contains("weird_knob") || s.contains("unknown"));
     }
 
-    /// @covers: swe_default
+    /// @covers: Default
     #[test]
-    fn test_swe_default_loads_crate_baseline() {
-        let cfg = CacheConfig::swe_default().unwrap();
+    fn test_cache_config_default_has_positive_max_entries() {
+        let cfg = CacheConfig::default();
         assert!(cfg.max_entries > 0);
+    }
+
+    /// @covers: ConfigSection::section_name
+    #[test]
+    fn test_cache_config_section_name_is_cache() {
+        use swe_edge_configbuilder::ConfigSection as _;
+        assert_eq!(CacheConfig::section_name(), "cache");
     }
 }

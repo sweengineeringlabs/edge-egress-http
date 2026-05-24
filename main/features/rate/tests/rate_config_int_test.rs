@@ -1,7 +1,7 @@
 //! Integration tests for `api/rate_config.rs` — the public `RateConfig`
 //! struct and its field semantics.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig};
+use swe_edge_egress_rate::{build_rate_layer, RateConfig};
 
 // ---------------------------------------------------------------------------
 // Struct literal construction — all three fields are public
@@ -32,8 +32,7 @@ fn test_rate_config_minimum_tokens_per_second_builds() {
         burst_capacity: 1,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("tokens_per_second=1 must build");
 }
 
@@ -45,8 +44,7 @@ fn test_rate_config_high_tokens_per_second_builds() {
         burst_capacity: u32::MAX,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("max tokens_per_second must build");
 }
 
@@ -62,8 +60,7 @@ fn test_rate_config_burst_capacity_one_builds() {
         burst_capacity: 1,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("burst_capacity=1 must build");
 }
 
@@ -75,8 +72,7 @@ fn test_rate_config_burst_larger_than_rate_builds() {
         burst_capacity: 1_000,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("burst > rate must build");
 }
 
@@ -92,8 +88,7 @@ fn test_rate_config_per_host_true_builds() {
         burst_capacity: 10,
         per_host: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=true must build");
 }
 
@@ -105,16 +100,15 @@ fn test_rate_config_per_host_false_builds() {
         burst_capacity: 10,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=false must build");
 }
 
 // ---------------------------------------------------------------------------
-// Config round-trip through ApplicationConfigBuilder
+// Config round-trip through build_rate_layer
 // ---------------------------------------------------------------------------
 
-/// No field must be silently modified between `with_config()` and `config()`.
+/// No field must be silently modified between construction and use.
 #[test]
 fn test_rate_config_round_trips_through_builder_unchanged() {
     let cfg = RateConfig {
@@ -122,8 +116,8 @@ fn test_rate_config_round_trips_through_builder_unchanged() {
         burst_capacity: 333,
         per_host: true,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let out = b.config();
+    let b_cfg = cfg;
+    let out = &b_cfg;
     assert_eq!(out.tokens_per_second, 77);
     assert_eq!(out.burst_capacity, 333);
     assert!(out.per_host);

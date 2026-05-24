@@ -37,19 +37,19 @@ impl HttpEgressConfigBuilder {
     /// Consume the builder and return the configured [`HttpEgressConfig`].
     ///
     /// Uses SWE defaults for all middleware layers.
-    pub fn build(self) -> Result<HttpEgressConfig, crate::api::http::HttpEgressBuildError> {
-        Ok(HttpEgressConfig {
+    pub fn build(self) -> HttpEgressConfig {
+        HttpEgressConfig {
             http: self.http,
             auth: swe_edge_egress_auth::AuthConfig::None,
             token_source: None,
-            retry: swe_edge_egress_retry::builder()?.config().clone(),
-            rate: swe_edge_egress_rate::builder()?.config().clone(),
-            breaker: swe_edge_egress_breaker::builder()?.config().clone(),
-            cache: swe_edge_egress_cache::builder()?.config().clone(),
+            retry: swe_edge_egress_retry::RetryConfig::default(),
+            rate: swe_edge_egress_rate::RateConfig::default(),
+            breaker: swe_edge_egress_breaker::BreakerConfig::default(),
+            cache: swe_edge_egress_cache::CacheConfig::default(),
             cassette: swe_edge_egress_cassette::CassetteConfig::disabled(),
             cassette_name: self.cassette_name,
             tls: swe_edge_egress_tls::TlsConfig::None,
-        })
+        }
     }
 }
 
@@ -65,41 +65,31 @@ mod tests {
 
     #[test]
     fn test_new_creates_builder_with_defaults() {
-        let result = HttpEgressConfigBuilder::new().build();
-        assert!(
-            result.is_ok(),
-            "default builder must build: {:?}",
-            result.err()
-        );
+        let _cfg = HttpEgressConfigBuilder::new().build();
     }
 
     /// @covers: with_http
     #[test]
     fn test_with_http_sets_base_url() {
-        let result = HttpEgressConfigBuilder::new()
+        let cfg = HttpEgressConfigBuilder::new()
             .with_http(HttpConfig::with_base_url("https://api.example.com"))
             .build();
-        assert!(result.is_ok());
-        assert_eq!(
-            result.unwrap().http.base_url.as_deref(),
-            Some("https://api.example.com")
-        );
+        assert_eq!(cfg.http.base_url.as_deref(), Some("https://api.example.com"));
     }
 
     /// @covers: with_cassette_name
     #[test]
     fn test_with_cassette_name_sets_name() {
-        let result = HttpEgressConfigBuilder::new()
+        let cfg = HttpEgressConfigBuilder::new()
             .with_cassette_name("my-fixture")
             .build();
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().cassette_name, "my-fixture");
+        assert_eq!(cfg.cassette_name, "my-fixture");
     }
 
     /// @covers: build
     #[test]
     fn test_build_returns_config_with_defaults() {
-        let cfg = HttpEgressConfigBuilder::new().build().unwrap();
+        let cfg = HttpEgressConfigBuilder::new().build();
         assert!(cfg.token_source.is_none());
     }
 }

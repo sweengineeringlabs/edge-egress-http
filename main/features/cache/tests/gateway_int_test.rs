@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_cache crate.
 
-use swe_edge_egress_cache::{builder, ApplicationConfigBuilder, CacheConfig, CacheLayer, Error};
+use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheLayer, Error};
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -16,24 +16,24 @@ fn make_cfg() -> CacheConfig {
 }
 
 // ---------------------------------------------------------------------------
-// builder() — SAF entry point
+// build_cache_layer — SAF entry point
 // ---------------------------------------------------------------------------
 
 #[test]
 fn test_builder_fn_loads_swe_default_returns_ok() {
-    // builder() must succeed: the crate-shipped baseline TOML must always parse.
-    builder().expect("swe_default baseline must parse without error");
+    // build_cache_layer must succeed: the crate-shipped baseline TOML must always parse.
+    build_cache_layer(CacheConfig::default()).expect("default config must build");
 }
 
 #[test]
 fn test_builder_fn_swe_default_has_positive_max_entries() {
     // A cache with zero capacity would silently drop every response — the
     // baseline must configure a meaningful store size.
-    let b = builder().expect("baseline parses");
+    let cfg = CacheConfig::default();
     assert!(
-        b.config().max_entries >= 1,
+        cfg.max_entries >= 1,
         "swe_default max_entries must be >= 1, got {}",
-        b.config().max_entries
+        cfg.max_entries
     );
 }
 
@@ -41,24 +41,22 @@ fn test_builder_fn_swe_default_has_positive_max_entries() {
 fn test_builder_fn_swe_default_has_positive_ttl() {
     // A zero-second TTL means every cached response expires immediately,
     // making the cache useless.
-    let b = builder().expect("baseline parses");
+    let cfg = CacheConfig::default();
     assert!(
-        b.config().default_ttl_seconds >= 1,
+        cfg.default_ttl_seconds >= 1,
         "swe_default default_ttl_seconds must be >= 1, got {}",
-        b.config().default_ttl_seconds
+        cfg.default_ttl_seconds
     );
 }
 
 // ---------------------------------------------------------------------------
-// builder().build() — finalisation
+// build_cache_layer — produces a CacheLayer
 // ---------------------------------------------------------------------------
 
 #[test]
 fn test_build_from_swe_default_returns_cache_layer() {
-    // The full happy path: default config → ApplicationConfigBuilder → CacheLayer.
-    let layer = builder()
-        .expect("baseline parses")
-        .build()
+    // The full happy path: default config → CacheLayer.
+    let layer = build_cache_layer(CacheConfig::default())
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -74,26 +72,24 @@ fn test_build_from_swe_default_returns_cache_layer() {
 #[test]
 fn test_cache_layer_satisfies_send_and_sync_bounds() {
     // This test fails to compile if CacheLayer stops being Send + Sync.
-    // No runtime assertion needed — the compile itself is the assertion.
     fn require_send_sync<T: Send + Sync>() {}
     require_send_sync::<CacheLayer>();
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::with_config — custom CacheConfig flows through correctly
+// build_cache_layer with config — custom CacheConfig flows through correctly
 // ---------------------------------------------------------------------------
 
 #[test]
 fn test_builder_with_config_stores_custom_ttl_and_max_entries() {
     let cfg = make_cfg();
-    let b = ApplicationConfigBuilder::with_config(cfg);
     assert_eq!(
-        b.config().default_ttl_seconds,
+        cfg.default_ttl_seconds,
         30,
         "custom ttl must be stored unmodified"
     );
     assert_eq!(
-        b.config().max_entries,
+        cfg.max_entries,
         100,
         "custom max_entries must be stored unmodified"
     );
@@ -107,10 +103,9 @@ fn test_builder_with_config_stores_respect_cache_control_flag() {
         respect_cache_control: false, // non-default value
         cache_private: false,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
     assert!(
-        !b.config().respect_cache_control,
-        "respect_cache_control=false must be preserved through ApplicationConfigBuilder"
+        !cfg.respect_cache_control,
+        "respect_cache_control=false must be preserved"
     );
 }
 
@@ -123,8 +118,7 @@ fn test_builder_with_cache_private_true_builds_successfully() {
         respect_cache_control: true,
         cache_private: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("cache_private=true must produce a valid CacheLayer");
 }
 
@@ -137,8 +131,7 @@ fn test_builder_with_respect_cache_control_false_builds_successfully() {
         respect_cache_control: false,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cache_control=false must produce a valid CacheLayer");
 }
 
@@ -151,20 +144,16 @@ fn test_builder_with_very_large_max_entries_builds_successfully() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("max_entries=1_000_000 must produce a valid CacheLayer");
 }
 
 #[test]
 fn test_builder_config_accessor_returns_reference_to_stored_policy() {
-    // config() must return a reference to the policy, not a copy that could
-    // diverge from the one used during build.
+    // config fields must be directly accessible with correct values.
     let cfg = make_cfg();
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy: &CacheConfig = b.config();
-    assert_eq!(policy.max_entries, 100);
-    assert_eq!(policy.default_ttl_seconds, 30);
+    assert_eq!(cfg.max_entries, 100);
+    assert_eq!(cfg.default_ttl_seconds, 30);
 }
 
 // ---------------------------------------------------------------------------

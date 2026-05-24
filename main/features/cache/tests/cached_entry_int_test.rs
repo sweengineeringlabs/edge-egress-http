@@ -13,7 +13,7 @@
 //!   confirming that the layer can be built with configs that would exercise
 //!   different Vary paths at runtime.
 
-use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig, CacheLayer};
+use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheLayer};
 
 // ---------------------------------------------------------------------------
 // TTL-positive layers (entries will be stored)
@@ -29,8 +29,7 @@ fn test_cached_entry_positive_ttl_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer: CacheLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer: CacheLayer = build_cache_layer(cfg)
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -49,8 +48,7 @@ fn test_cached_entry_short_ttl_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("TTL=1 must not be rejected");
 }
 
@@ -69,8 +67,7 @@ fn test_cached_entry_zero_ttl_fallback_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("TTL=0 must not be rejected");
 }
 
@@ -88,8 +85,7 @@ fn test_cached_entry_large_capacity_layer_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("max_entries=500_000 must not be rejected");
 }
 
@@ -107,8 +103,7 @@ fn test_cached_entry_cache_private_true_layer_builds() {
         respect_cache_control: true,
         cache_private: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("cache_private=true must not be rejected");
 }
 
@@ -126,7 +121,6 @@ fn test_cached_entry_ignore_cache_control_layer_builds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cache_control=false must not be rejected");
 }

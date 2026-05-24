@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_breaker SAF builder surface.
 
-use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{build_breaker_layer, create_config_builder, BreakerConfig, BreakerLayer};
 
 fn make_cfg() -> BreakerConfig {
     BreakerConfig {
@@ -11,33 +11,30 @@ fn make_cfg() -> BreakerConfig {
     }
 }
 
-/// @covers: builder
+/// @covers: build_breaker_layer with default config
 #[test]
-fn test_e2e_builder() {
-    let layer: BreakerLayer = swe_edge_egress_breaker::builder()
-        .expect("builder() must succeed")
-        .build()
-        .expect("build() must succeed");
-    assert!(format!("{layer:?}").contains("BreakerLayer"));
+fn test_e2e_builder_default_config_succeeds() {
+    let _layer: BreakerLayer = build_breaker_layer(BreakerConfig::default())
+        .expect("build_breaker_layer with default config must succeed");
 }
 
-/// @covers: ApplicationConfigBuilder::with_config
+/// @covers: build_breaker_layer stores config fields correctly
 #[test]
 fn test_e2e_with_config() {
-    let b = ApplicationConfigBuilder::with_config(make_cfg());
-    assert_eq!(b.config().failure_threshold, 3);
-    b.build().expect("e2e with_config build must succeed");
+    let cfg = make_cfg();
+    assert_eq!(cfg.failure_threshold, 3);
+    build_breaker_layer(cfg).expect("e2e with_config build must succeed");
 }
 
-/// @covers: ApplicationConfigBuilder::config
+/// @covers: BreakerConfig fields are accessible directly
 #[test]
 fn test_e2e_config() {
-    let b = ApplicationConfigBuilder::with_config(make_cfg());
-    assert_eq!(b.config().failure_statuses, vec![500u16, 502, 503]);
-    assert_eq!(b.config().reset_after_successes, 2);
+    let cfg = make_cfg();
+    assert_eq!(cfg.failure_statuses, vec![500u16, 502, 503]);
+    assert_eq!(cfg.reset_after_successes, 2);
 }
 
-/// @covers: ApplicationConfigBuilder::build
+/// @covers: build_breaker_layer with custom config
 #[test]
 fn test_e2e_build() {
     let cfg = BreakerConfig {
@@ -46,8 +43,14 @@ fn test_e2e_build() {
         reset_after_successes: 3,
         failure_statuses: vec![503, 504],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_breaker_layer(cfg)
         .expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
+}
+
+/// @covers: create_config_builder returns a working Loader
+#[test]
+fn test_e2e_create_config_builder_returns_loader() {
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    let _loader = create_config_builder().build_loader();
 }

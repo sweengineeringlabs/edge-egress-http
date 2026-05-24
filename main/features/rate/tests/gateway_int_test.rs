@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_rate crate.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, Error, RateConfig, RateLayer};
+use swe_edge_egress_rate::{build_rate_layer, Error, RateConfig, RateLayer};
 
 fn make_cfg() -> RateConfig {
     RateConfig {
@@ -12,32 +12,30 @@ fn make_cfg() -> RateConfig {
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
-    swe_edge_egress_rate::builder().expect("builder() must succeed");
+    build_rate_layer(RateConfig::default()).expect("builder() must succeed");
 }
 
 #[test]
 fn test_builder_fn_default_config_has_positive_tokens_per_second() {
-    let b = swe_edge_egress_rate::builder().expect("builder() must succeed");
+    let cfg = RateConfig::default();
     assert!(
-        b.config().tokens_per_second >= 1,
+        cfg.tokens_per_second >= 1,
         "swe_default tokens_per_second must be >= 1"
     );
 }
 
 #[test]
 fn test_with_config_custom_config_stores_values() {
-    let b = ApplicationConfigBuilder::with_config(make_cfg());
-    assert_eq!(b.config().tokens_per_second, 10);
-    assert_eq!(b.config().burst_capacity, 20);
-    assert!(!b.config().per_host);
+    let cfg = make_cfg();
+    assert_eq!(cfg.tokens_per_second, 10);
+    assert_eq!(cfg.burst_capacity, 20);
+    assert!(!cfg.per_host);
 }
 
 #[test]
 fn test_build_default_produces_rate_layer() {
-    let layer: RateLayer = swe_edge_egress_rate::builder()
-        .expect("builder() must succeed")
-        .build()
-        .expect("build() must succeed");
+    let layer: RateLayer = build_rate_layer(RateConfig::default())
+        .expect("build must succeed");
     let s = format!("{layer:?}");
     assert!(
         s.contains("RateLayer"),
@@ -47,8 +45,7 @@ fn test_build_default_produces_rate_layer() {
 
 #[test]
 fn test_build_custom_config_produces_layer() {
-    ApplicationConfigBuilder::with_config(make_cfg())
-        .build()
+    build_rate_layer(make_cfg())
         .expect("build with custom cfg must succeed");
 }
 
@@ -65,8 +62,7 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 20,
         per_host: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=true must build");
 }
 
@@ -77,8 +73,7 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 20,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=false must build");
 }
 
@@ -89,8 +84,7 @@ fn test_with_config_high_rate_flows_through_config_accessor() {
         burst_capacity: 5000,
         per_host: false,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert_eq!(b.config().tokens_per_second, 1000);
+    assert_eq!(cfg.tokens_per_second, 1000);
 }
 
 #[test]

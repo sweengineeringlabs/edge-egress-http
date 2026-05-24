@@ -1,37 +1,38 @@
 //! Integration tests for `core/default_http_cache.rs`.
 //!
 //! `DefaultHttpCache` is `pub(crate)`, so we cannot name or construct it
-//! directly from an integration test.  Its observable effect is through the
-//! SAF `builder()` function, which loads the crate-shipped SWE baseline TOML
-//! and returns a `ApplicationConfigBuilder` that carries that default policy.
+//! directly from an integration test. Its observable effect is through the
+//! SAF `build_cache_layer` function, which takes a `CacheConfig` and returns
+//! a `CacheLayer` that carries that policy.
 //!
 //! These tests verify that the default values produced by the SWE baseline are
 //! sane — if `DefaultHttpCache::new` or the underlying config ever regresses,
 //! these assertions catch it.
 
-use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig};
+use swe_edge_egress_cache::{build_cache_layer, CacheConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
 // ---------------------------------------------------------------------------
 
-/// The `builder()` function must load the crate-shipped baseline without
-/// returning an error.  A failure here means the embedded TOML is malformed
-/// or the config schema changed without updating the file.
+/// `build_cache_layer` with the default config must succeed without error. A
+/// failure here means the embedded default is malformed or the config schema
+/// changed without updating the default.
 #[test]
 fn test_default_http_cache_swe_default_builder_succeeds() {
-    swe_edge_egress_cache::builder().expect("swe_default baseline must parse without error");
+    build_cache_layer(CacheConfig::default())
+        .expect("swe_default baseline must parse without error");
 }
 
 /// The default `default_ttl_seconds` must be positive — a zero-second TTL
 /// would make the default configuration a silently broken no-op.
 #[test]
 fn test_default_http_cache_swe_default_ttl_is_positive() {
-    let b = swe_edge_egress_cache::builder().expect("baseline parses");
+    let cfg = CacheConfig::default();
     assert!(
-        b.config().default_ttl_seconds >= 1,
+        cfg.default_ttl_seconds >= 1,
         "swe_default default_ttl_seconds must be >= 1, got {}",
-        b.config().default_ttl_seconds
+        cfg.default_ttl_seconds
     );
 }
 
@@ -39,20 +40,18 @@ fn test_default_http_cache_swe_default_ttl_is_positive() {
 /// discards every response.
 #[test]
 fn test_default_http_cache_swe_default_max_entries_is_positive() {
-    let b = swe_edge_egress_cache::builder().expect("baseline parses");
+    let cfg = CacheConfig::default();
     assert!(
-        b.config().max_entries >= 1,
+        cfg.max_entries >= 1,
         "swe_default max_entries must be >= 1, got {}",
-        b.config().max_entries
+        cfg.max_entries
     );
 }
 
 /// Building from the SWE default must produce a valid `CacheLayer`.
 #[test]
 fn test_default_http_cache_swe_default_builds_cache_layer() {
-    swe_edge_egress_cache::builder()
-        .expect("baseline parses")
-        .build()
+    build_cache_layer(CacheConfig::default())
         .expect("build from swe_default must succeed");
 }
 
@@ -65,29 +64,28 @@ fn test_default_http_cache_swe_default_builds_cache_layer() {
 #[test]
 fn test_default_http_cache_custom_config_is_not_overridden_by_swe_default() {
     // Use values that are deliberately different from any likely SWE default.
-    let custom = CacheConfig {
+    let b_cfg = CacheConfig {
         default_ttl_seconds: 3,
         max_entries: 7,
         respect_cache_control: false,
         cache_private: true,
     };
-    let b = ApplicationConfigBuilder::with_config(custom);
     assert_eq!(
-        b.config().default_ttl_seconds,
+        b_cfg.default_ttl_seconds,
         3,
         "custom TTL must not be overridden by the SWE default"
     );
     assert_eq!(
-        b.config().max_entries,
+        b_cfg.max_entries,
         7,
         "custom max_entries must not be overridden by the SWE default"
     );
     assert!(
-        !b.config().respect_cache_control,
+        !b_cfg.respect_cache_control,
         "custom respect_cache_control must not be overridden"
     );
     assert!(
-        b.config().cache_private,
+        b_cfg.cache_private,
         "custom cache_private must not be overridden"
     );
 }

@@ -12,7 +12,7 @@
 //!   boundary transitions.
 //! - Policy field values are faithfully carried by the layer's `Debug` output.
 
-use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer};
 
 // ---------------------------------------------------------------------------
 // Threshold = 1 — opens on first failure
@@ -28,8 +28,7 @@ fn test_host_breaker_threshold_one_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    let layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer: BreakerLayer = build_breaker_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -51,8 +50,7 @@ fn test_host_breaker_single_success_reset_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("reset_after_successes=1 must not be rejected");
 }
 
@@ -70,8 +68,7 @@ fn test_host_breaker_zero_wait_before_half_open_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("half_open_after_seconds=0 must not be rejected");
 }
 
@@ -90,8 +87,7 @@ fn test_host_breaker_4xx_failure_statuses_layer_builds() {
         reset_after_successes: 3,
         failure_statuses: vec![400, 404, 429],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("4xx failure_statuses must not be rejected");
 }
 
@@ -115,11 +111,9 @@ fn test_host_breaker_two_layers_have_independent_state() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let a = ApplicationConfigBuilder::with_config(cfg_a)
-        .build()
+    let a = build_breaker_layer(cfg_a)
         .expect("build a");
-    let b = ApplicationConfigBuilder::with_config(cfg_b)
-        .build()
+    let b = build_breaker_layer(cfg_b)
         .expect("build b");
 
     let dbg_a = format!("{a:?}");

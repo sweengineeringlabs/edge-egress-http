@@ -1,16 +1,16 @@
 //! Integration tests for `core::default_http_retry::DefaultHttpRetry`.
 //!
-//! `DefaultHttpRetry` is `pub(crate)`. Integration tests verify its contract
-//! through observable effects from the public builder pipeline:
+//! `DefaultHttpRetry` is `pub(crate)`.  Integration tests verify its contract
+//! through observable effects from the public factory pipeline:
 //!
 //! - The layer's Debug output confirms `max_retries` flows from config through
-//!   `DefaultHttpRetry` into the layer (describe() = "swe_edge_egress_retry").
+//!   `DefaultHttpRetry` into the layer.
 //! - `RetryLayer` is `Send + Sync`, which propagates from `DefaultHttpRetry`
 //!   being `Send + Sync` through the `Arc<RetryConfig>` chain.
-//! - The builder pipeline does not modify the config values on the way through
+//! - The factory pipeline does not modify the config values on the way through
 //!   `DefaultHttpRetry::new`.
 
-use swe_edge_egress_retry::{builder, ApplicationConfigBuilder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{build_retry_layer, create_config_builder, RetryConfig, RetryLayer};
 
 fn make_cfg(max_retries: u32, initial_ms: u64) -> RetryConfig {
     RetryConfig {
@@ -24,17 +24,15 @@ fn make_cfg(max_retries: u32, initial_ms: u64) -> RetryConfig {
 }
 
 // ---------------------------------------------------------------------------
-// DefaultHttpRetry::new — indirectly via builder pipeline
+// DefaultHttpRetry::new — indirectly via factory pipeline
 // ---------------------------------------------------------------------------
 
-/// `DefaultHttpRetry::new` is invoked with the config inside `ApplicationConfigBuilder::build`.
+/// `DefaultHttpRetry::new` is invoked with the config inside `build_retry_layer`.
 /// Observable effect: the layer's Debug output must embed `max_retries` and
 /// `initial_interval_ms`, confirming the config was not swapped or reset.
 #[test]
-fn test_builder_pipeline_embeds_config_in_default_http_retry() {
-    let layer: RetryLayer = ApplicationConfigBuilder::with_config(make_cfg(4, 250))
-        .build()
-        .expect("build must succeed");
+fn test_factory_pipeline_embeds_config_in_default_http_retry() {
+    let layer: RetryLayer = build_retry_layer(make_cfg(4, 250)).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains('4'),
@@ -47,7 +45,7 @@ fn test_builder_pipeline_embeds_config_in_default_http_retry() {
 }
 
 // ---------------------------------------------------------------------------
-// DefaultHttpRetry::describe — "swe_edge_egress_retry" embedded in Debug
+// DefaultHttpRetry::describe — values differ between configs
 // ---------------------------------------------------------------------------
 
 /// The `RetryLayer` Debug output shows `max_retries` and `initial_interval_ms`.
@@ -55,12 +53,8 @@ fn test_builder_pipeline_embeds_config_in_default_http_retry() {
 /// confirming `DefaultHttpRetry::new` stores the supplied config verbatim.
 #[test]
 fn test_two_layers_different_configs_have_different_debug() {
-    let l1 = ApplicationConfigBuilder::with_config(make_cfg(1, 100))
-        .build()
-        .unwrap();
-    let l2 = ApplicationConfigBuilder::with_config(make_cfg(5, 500))
-        .build()
-        .unwrap();
+    let l1 = build_retry_layer(make_cfg(1, 100)).unwrap();
+    let l2 = build_retry_layer(make_cfg(5, 500)).unwrap();
     assert_ne!(
         format!("{l1:?}"),
         format!("{l2:?}"),
@@ -82,13 +76,13 @@ fn test_retry_layer_is_send_and_sync() {
 }
 
 // ---------------------------------------------------------------------------
-// DefaultHttpRetry config is not mutated during build
+// Config is not mutated during build
 // ---------------------------------------------------------------------------
 
-/// All config fields must survive the `DefaultHttpRetry::new` call
-/// unchanged. Observed through `ApplicationConfigBuilder::config()` pre-build.
+/// All config fields must be unchanged after passing through `build_retry_layer`.
+/// Verified through the layer's Debug output embedding those values.
 #[test]
-fn test_builder_does_not_mutate_config_in_default_http_retry() {
+fn test_factory_does_not_mutate_config_in_default_http_retry() {
     let retryable_statuses = vec![429u16, 500, 502, 503, 504];
     let retryable_methods = vec!["GET".to_string(), "HEAD".to_string(), "PUT".to_string()];
     let cfg = RetryConfig {
@@ -99,32 +93,44 @@ fn test_builder_does_not_mutate_config_in_default_http_retry() {
         retryable_statuses: retryable_statuses.clone(),
         retryable_methods: retryable_methods.clone(),
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert_eq!(b.config().max_retries, 6);
-    assert_eq!(b.config().initial_interval_ms, 300);
-    assert_eq!(b.config().max_interval_ms, 15_000);
-    assert_eq!(b.config().multiplier, 1.8);
-    assert_eq!(b.config().retryable_statuses, retryable_statuses);
-    assert_eq!(b.config().retryable_methods, retryable_methods);
+    // Clone to verify fields before consuming cfg.
+    let expected_retries = cfg.max_retries;
+    let expected_initial = cfg.initial_interval_ms;
+    let layer = build_retry_layer(cfg).expect("build must succeed");
+    let dbg = format!("{layer:?}");
+    assert!(
+        dbg.contains(&expected_retries.to_string()),
+        "Debug must embed max_retries={}; got: {dbg}",
+        expected_retries
+    );
+    assert!(
+        dbg.contains(&expected_initial.to_string()),
+        "Debug must embed initial_interval_ms={}; got: {dbg}",
+        expected_initial
+    );
 }
 
 // ---------------------------------------------------------------------------
-// builder() convenience function routes through DefaultHttpRetry
+// create_config_builder convenience function routes through DefaultHttpRetry
 // ---------------------------------------------------------------------------
 
-/// The `builder()` entry point must ultimately produce a `RetryLayer`
-/// whose Debug output confirms the crate baseline was loaded into
-/// `DefaultHttpRetry::new`.
+/// The `create_config_builder()` entry point must produce a loader that works —
+/// confirming the crate package name is correctly wired into the config builder.
 #[test]
-fn test_saf_builder_fn_produces_layer_with_baseline_config() {
-    let layer = builder()
-        .expect("baseline parses")
-        .build()
-        .expect("build must succeed");
+fn test_saf_create_config_builder_produces_working_loader() {
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    let _loader = create_config_builder().build_loader();
+}
+
+/// Building from the default config must produce a `RetryLayer`
+/// whose Debug output confirms the wiring is correct.
+#[test]
+fn test_build_retry_layer_from_default_config_produces_valid_layer() {
+    let layer = build_retry_layer(RetryConfig::default()).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RetryLayer"),
-        "builder() pipeline must produce RetryLayer; got: {dbg}"
+        "factory pipeline must produce RetryLayer; got: {dbg}"
     );
     assert!(
         dbg.contains("max_retries"),

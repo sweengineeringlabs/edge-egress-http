@@ -1,6 +1,6 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_breaker crate.
 
-use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer, Error};
+use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer, Error};
 
 fn make_cfg() -> BreakerConfig {
     BreakerConfig {
@@ -13,33 +13,31 @@ fn make_cfg() -> BreakerConfig {
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
-    swe_edge_egress_breaker::builder().expect("builder() must succeed");
+    build_breaker_layer(BreakerConfig::default()).expect("builder() must succeed");
 }
 
 #[test]
 fn test_builder_fn_default_config_has_positive_failure_threshold() {
-    let b = swe_edge_egress_breaker::builder().expect("builder() must succeed");
+    let cfg = BreakerConfig::default();
     assert!(
-        b.config().failure_threshold >= 1,
+        cfg.failure_threshold >= 1,
         "swe_default failure_threshold must be >= 1"
     );
 }
 
 #[test]
 fn test_with_config_custom_config_stores_values() {
-    let b = ApplicationConfigBuilder::with_config(make_cfg());
-    assert_eq!(b.config().failure_threshold, 3);
-    assert_eq!(b.config().half_open_after_seconds, 60);
-    assert_eq!(b.config().reset_after_successes, 2);
-    assert_eq!(b.config().failure_statuses, vec![500u16, 502, 503]);
+    let cfg = make_cfg();
+    assert_eq!(cfg.failure_threshold, 3);
+    assert_eq!(cfg.half_open_after_seconds, 60);
+    assert_eq!(cfg.reset_after_successes, 2);
+    assert_eq!(cfg.failure_statuses, vec![500u16, 502, 503]);
 }
 
 #[test]
 fn test_build_default_produces_breaker_layer() {
-    let layer: BreakerLayer = swe_edge_egress_breaker::builder()
-        .expect("builder() must succeed")
-        .build()
-        .expect("build() must succeed");
+    let layer: BreakerLayer = build_breaker_layer(BreakerConfig::default())
+        .expect("build must succeed");
     let s = format!("{layer:?}");
     assert!(
         s.contains("BreakerLayer"),
@@ -49,8 +47,7 @@ fn test_build_default_produces_breaker_layer() {
 
 #[test]
 fn test_build_custom_config_produces_layer() {
-    ApplicationConfigBuilder::with_config(make_cfg())
-        .build()
+    build_breaker_layer(make_cfg())
         .expect("build with custom cfg must succeed");
 }
 
@@ -68,8 +65,7 @@ fn test_with_config_high_threshold_flows_through_config_accessor() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert_eq!(b.config().failure_threshold, 10);
+    assert_eq!(cfg.failure_threshold, 10);
 }
 
 #[test]
@@ -80,8 +76,7 @@ fn test_build_empty_failure_statuses_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("empty failure_statuses must build");
 }
 
@@ -98,7 +93,5 @@ fn test_error_parse_failed_display_contains_crate_name() {
 #[test]
 fn test_builder_config_method_borrows_current_policy() {
     let cfg = make_cfg();
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let c = b.config();
-    assert_eq!(c.failure_threshold, 3);
+    assert_eq!(cfg.failure_threshold, 3);
 }

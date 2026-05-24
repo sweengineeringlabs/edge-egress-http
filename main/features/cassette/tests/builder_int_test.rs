@@ -1,8 +1,8 @@
-//! Integration tests for `swe_edge_egress_cassette` `ApplicationConfigBuilder` and `builder()` SAF entry point.
+//! Integration tests for `swe_edge_egress_cassette` SAF builder entry points.
 //!
-//! Covers: `builder()`, `ApplicationConfigBuilder::with_config`, `ApplicationConfigBuilder::config`, `ApplicationConfigBuilder::build`.
+//! Covers: `create_config_builder()`, `build_cassette_layer(config, name)`, and all config variants.
 
-use swe_edge_egress_cassette::{builder, ApplicationConfigBuilder, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{build_cassette_layer, create_config_builder, CassetteConfig, CassetteLayer};
 
 fn make_config(dir: &str) -> CassetteConfig {
     // Normalize backslashes so TOML doesn't treat `\U`, `\t`, etc. as escape
@@ -18,23 +18,24 @@ fn make_config(dir: &str) -> CassetteConfig {
 }
 
 // ---------------------------------------------------------------------------
-// builder() — SAF entry point
+// create_config_builder() — SAF entry point
 // ---------------------------------------------------------------------------
 
 /// The crate-shipped baseline TOML must always parse; otherwise no consumer
 /// of this crate can bootstrap without supplying their own config.
 #[test]
 fn test_builder_fn_loads_swe_default_and_returns_ok() {
-    builder().expect("builder() must succeed with crate baseline");
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    create_config_builder().build_loader();
 }
 
 /// The SWE default mode is "replay" — tests must not accidentally record
 /// real traffic when the caller forgets to override the mode.
 #[test]
 fn test_builder_fn_swe_default_mode_is_replay() {
-    let b = builder().expect("baseline parses");
+    let cfg = CassetteConfig::default();
     assert_eq!(
-        b.config().mode,
+        cfg.mode,
         "replay",
         "swe_default mode must be 'replay' to prevent accidental recording"
     );
@@ -44,46 +45,38 @@ fn test_builder_fn_swe_default_mode_is_replay() {
 /// to VCS cannot leak API credentials.
 #[test]
 fn test_builder_fn_swe_default_scrubs_authorization_header() {
-    let b = builder().expect("baseline parses");
-    let has_auth = b
-        .config()
+    let cfg = CassetteConfig::default();
+    let has_auth = cfg
         .scrub_headers
         .iter()
         .any(|h| h.eq_ignore_ascii_case("authorization"));
     assert!(
         has_auth,
         "swe_default scrub_headers must include 'authorization'; got: {:?}",
-        b.config().scrub_headers
+        cfg.scrub_headers
     );
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::with_config — custom config flows through unchanged
+// build_cassette_layer — custom config flows through unchanged
 // ---------------------------------------------------------------------------
 
-/// All fields supplied through `with_config` must be accessible via
-/// `config()` without modification before `build` is called.
+/// All fields supplied through `build_cassette_layer` must survive unchanged.
 #[test]
 fn test_with_config_stores_all_fields_unchanged() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let cfg = make_config(&dir);
-    let b = ApplicationConfigBuilder::with_config(cfg);
 
-    assert_eq!(b.config().mode, "auto");
-    assert_eq!(b.config().cassette_dir, dir);
-    assert!(b.config().match_on.contains(&"method".to_string()));
-    assert!(b.config().match_on.contains(&"url".to_string()));
-    assert!(b
-        .config()
-        .scrub_headers
-        .contains(&"authorization".to_string()));
-    assert!(b.config().scrub_body_paths.is_empty());
+    assert_eq!(cfg.mode, "auto");
+    assert_eq!(cfg.cassette_dir, dir);
+    assert!(cfg.match_on.contains(&"method".to_string()));
+    assert!(cfg.match_on.contains(&"url".to_string()));
+    assert!(cfg.scrub_headers.contains(&"authorization".to_string()));
+    assert!(cfg.scrub_body_paths.is_empty());
 }
 
-/// `config()` returns a reference to the policy that will be used at
-/// runtime — the returned reference must reflect a custom multiplier change,
-/// not some internal default.
+/// `CassetteConfig` fields must reflect the stored reference after construction.
 #[test]
 fn test_config_accessor_returns_stored_reference() {
     let tmpdir = tempfile::tempdir().unwrap();
@@ -95,24 +88,22 @@ fn test_config_accessor_returns_stored_reference() {
         scrub_headers: vec![],
         scrub_body_paths: vec!["request_id".to_string()],
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert_eq!(b.config().mode, "record");
-    assert_eq!(b.config().match_on, vec!["body_hash"]);
-    assert_eq!(b.config().scrub_body_paths, vec!["request_id"]);
+    assert_eq!(cfg.mode, "record");
+    assert_eq!(cfg.match_on, vec!["body_hash"]);
+    assert_eq!(cfg.scrub_body_paths, vec!["request_id"]);
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::build — produces a CassetteLayer
+// build_cassette_layer — produces a CassetteLayer
 // ---------------------------------------------------------------------------
 
-/// Happy path: `build` must succeed and return a `CassetteLayer` whose
+/// Happy path: `build_cassette_layer` must succeed and return a `CassetteLayer` whose
 /// Debug output identifies the type and records the configured mode.
 #[test]
 fn test_build_with_auto_mode_returns_cassette_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
-    let layer: CassetteLayer = ApplicationConfigBuilder::with_config(make_config(&dir))
-        .build("happy_path")
+    let layer: CassetteLayer = build_cassette_layer(make_config(&dir), "happy_path")
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -135,8 +126,7 @@ fn test_build_replay_mode_missing_fixture_file_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build("replay_no_fixture")
+    build_cassette_layer(cfg, "replay_no_fixture")
         .expect("replay with missing fixture must build");
 }
 
@@ -153,13 +143,12 @@ fn test_build_record_mode_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build("record_session")
+    build_cassette_layer(cfg, "record_session")
         .expect("record mode must build");
 }
 
 /// Multiple scrub body paths (including nested dot-paths) must not prevent
-/// `build` from succeeding — path parsing happens lazily at request time.
+/// `build_cassette_layer` from succeeding — path parsing happens lazily at request time.
 #[test]
 fn test_build_with_nested_scrub_body_paths_succeeds() {
     let tmpdir = tempfile::tempdir().unwrap();
@@ -175,8 +164,7 @@ fn test_build_with_nested_scrub_body_paths_succeeds() {
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: vec!["request_id".to_string(), "metadata.trace_id".to_string()],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build("nested_scrub")
+    build_cassette_layer(cfg, "nested_scrub")
         .expect("nested scrub body paths must build");
 }
 

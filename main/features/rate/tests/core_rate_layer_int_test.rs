@@ -7,7 +7,7 @@
 //! - `Debug` output must reflect the configured policy.
 //! - `Send + Sync` must hold after construction.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig, RateLayer};
+use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // Global bucket (per_host = false)
@@ -22,8 +22,7 @@ fn test_core_rate_layer_global_bucket_builds() {
         burst_capacity: 20,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=false (global bucket) must build");
 }
 
@@ -35,8 +34,7 @@ fn test_core_rate_layer_global_bucket_visible_in_debug() {
         burst_capacity: 20,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_rate_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -57,8 +55,7 @@ fn test_core_rate_layer_per_host_bucket_builds() {
         burst_capacity: 15,
         per_host: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=true must build");
 }
 
@@ -75,8 +72,7 @@ fn test_core_rate_layer_high_rate_builds() {
         burst_capacity: 500_000,
         per_host: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("very high rate must not be rejected");
 }
 
@@ -92,8 +88,7 @@ fn test_core_rate_layer_debug_includes_tokens_per_second() {
         burst_capacity: 84,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_rate_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -110,8 +105,7 @@ fn test_core_rate_layer_debug_includes_burst_capacity() {
         burst_capacity: 777,
         per_host: true,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_rate_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(

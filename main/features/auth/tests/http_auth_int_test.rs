@@ -10,7 +10,7 @@
 //! We exercise `describe()` via `AuthMiddleware`'s `Debug` impl, which
 //! calls `self.processor.describe()` as its single field value.
 
-use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware};
+use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // describe() — visible through AuthMiddleware's Debug impl
@@ -18,8 +18,7 @@ use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware}
 
 #[test]
 fn test_http_auth_describe_is_non_empty_for_none_config() {
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    let mw = build_auth_middleware(AuthConfig::None)
         .expect("None config must build");
     // AuthMiddleware::fmt uses processor.describe() as the field value.
     let s = format!("{mw:?}");
@@ -32,8 +31,7 @@ fn test_http_auth_describe_is_non_empty_for_none_config() {
 
 #[test]
 fn test_http_auth_describe_identifies_crate_for_none_config() {
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    let mw = build_auth_middleware(AuthConfig::None)
         .expect("build ok");
     let s = format!("{mw:?}");
     assert!(
@@ -46,10 +44,9 @@ fn test_http_auth_describe_identifies_crate_for_none_config() {
 fn test_http_auth_describe_identifies_crate_for_bearer_config() {
     let env_name = "SWE_AUTH_HTTPAUTH_BRR_01";
     std::env::set_var(env_name, "describe-bearer-tok");
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    let mw = build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
-    .build()
     .expect("Bearer with env set must build");
     let s = format!("{mw:?}");
     assert!(
@@ -67,13 +64,11 @@ fn test_http_auth_describe_same_across_configs() {
     let env_name = "SWE_AUTH_HTTPAUTH_SAME_01";
     std::env::set_var(env_name, "tok");
 
-    let mw_none = ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    let mw_none = build_auth_middleware(AuthConfig::None)
         .unwrap();
-    let mw_bearer = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    let mw_bearer = build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
-    .build()
     .unwrap();
 
     let desc_none = format!("{mw_none:?}");
@@ -99,8 +94,7 @@ async fn test_http_auth_process_none_does_not_add_authorization_header() {
     use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 
     // Build a middleware client with None config (noop strategy).
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    let mw = build_auth_middleware(AuthConfig::None)
         .expect("None config must build");
 
     // We can't send a real HTTP request in CI, but we CAN verify the
@@ -116,10 +110,9 @@ async fn test_http_auth_process_bearer_can_be_wired_into_reqwest_middleware() {
 
     let env_name = "SWE_AUTH_HTTPAUTH_WIRE_BRR_01";
     std::env::set_var(env_name, "wire-bearer-tok");
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    let mw = build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
-    .build()
     .expect("Bearer with env set must build");
 
     let _client = ClientBuilder::new(reqwest::Client::new()).with(mw).build();

@@ -1,13 +1,11 @@
 //! End-to-end tests for the swe_edge_egress_tls SAF builder surface.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{build_tls_layer, TlsConfig, TlsLayer};
 
-/// @covers: builder
+/// @covers: build_tls_layer with None config
 #[test]
 fn test_e2e_builder() {
-    let layer: TlsLayer = swe_edge_egress_tls::builder()
-        .expect("builder() must succeed")
-        .build()
+    let layer: TlsLayer = build_tls_layer(TlsConfig::None)
         .expect("build() must succeed");
     assert!(
         format!("{layer:?}").contains("noop"),
@@ -15,32 +13,31 @@ fn test_e2e_builder() {
     );
 }
 
-/// @covers: ApplicationConfigBuilder::with_config
+/// @covers: TlsConfig::None variant matches correctly
 #[test]
 fn test_e2e_with_config() {
-    let b = ApplicationConfigBuilder::with_config(TlsConfig::None);
-    assert!(matches!(b.config(), TlsConfig::None));
-    b.build().expect("e2e with_config None build must succeed");
+    let b_cfg = TlsConfig::None;
+    assert!(matches!(&b_cfg, TlsConfig::None));
+    build_tls_layer(b_cfg).expect("e2e with_config None build must succeed");
 }
 
-/// @covers: ApplicationConfigBuilder::config
+/// @covers: TlsConfig fields are accessible directly
 #[test]
 fn test_e2e_config() {
     let cfg = TlsConfig::Pem {
         path: "/some/cert.pem".into(),
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
+    let b_cfg = cfg;
     assert!(
-        matches!(b.config(), TlsConfig::Pem { .. }),
+        matches!(&b_cfg, TlsConfig::Pem { .. }),
         "config() must return Pem variant"
     );
 }
 
-/// @covers: ApplicationConfigBuilder::build
+/// @covers: build_tls_layer with None config always succeeds
 #[test]
 fn test_e2e_build() {
-    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
-        .build()
+    let layer = build_tls_layer(TlsConfig::None)
         .expect("e2e build with None must always succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

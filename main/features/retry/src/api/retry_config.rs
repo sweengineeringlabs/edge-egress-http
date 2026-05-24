@@ -16,7 +16,7 @@ use crate::api::error::Error;
 
 /// Retry policy schema. Deserialized from TOML via
 /// [`RetryConfig::from_config`]. Consumers compose this into a
-/// middleware layer through the `saf::builder()` entry point.
+/// middleware layer via `build_retry_layer(config)`.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RetryConfig {
@@ -39,6 +39,30 @@ pub struct RetryConfig {
     pub retryable_methods: Vec<String>,
 }
 
+impl Default for RetryConfig {
+    fn default() -> Self {
+        Self {
+            max_retries: 3,
+            initial_interval_ms: 200,
+            max_interval_ms: 10000,
+            multiplier: 2.0,
+            retryable_statuses: vec![408, 425, 429, 500, 502, 503, 504],
+            retryable_methods: vec![
+                "GET".into(),
+                "HEAD".into(),
+                "PUT".into(),
+                "DELETE".into(),
+            ],
+        }
+    }
+}
+
+impl swe_edge_configbuilder::ConfigSection for RetryConfig {
+    fn section_name() -> &'static str {
+        "retry"
+    }
+}
+
 impl RetryConfig {
     /// Parse a retry config from TOML text.
     ///
@@ -47,16 +71,8 @@ impl RetryConfig {
     /// missing, or when an unknown key is present
     /// (`deny_unknown_fields` is set — typos fail loudly rather
     /// than silently reverting to some default).
-    pub(crate) fn from_config(toml_text: &str) -> Result<Self, Error> {
+    pub fn from_config(toml_text: &str) -> Result<Self, Error> {
         toml::from_str(toml_text).map_err(|e| Error::ParseFailed(e.to_string()))
-    }
-
-    /// Load the SWE-standard baseline (the crate-shipped
-    /// `config/application.toml`). The file is embedded at build
-    /// time via `include_str!`; if that file stops parsing, the
-    /// crate's own test suite catches it.
-    pub(crate) fn swe_default() -> Result<Self, Error> {
-        Self::from_config(include_str!("../../config/application.toml"))
     }
 }
 
@@ -121,17 +137,18 @@ mod tests {
         );
     }
 
-    /// @covers: swe_default
+    /// @covers: Default
     #[test]
-    fn test_swe_default_loads_crate_baseline() {
-        let cfg = RetryConfig::swe_default().expect("baseline must parse");
-        // Values come from config/application.toml — NOT asserted
-        // against hardcoded numbers here. The point of the test
-        // is that the file exists and parses cleanly.
-        assert!(
-            cfg.max_retries >= 1,
-            "baseline must allow at least one attempt"
-        );
+    fn test_retry_config_default_has_positive_max_retries() {
+        let cfg = RetryConfig::default();
+        assert!(cfg.max_retries >= 1, "baseline must allow at least one attempt");
         assert!(!cfg.retryable_statuses.is_empty());
+    }
+
+    /// @covers: ConfigSection::section_name
+    #[test]
+    fn test_retry_config_section_name_is_retry() {
+        use swe_edge_configbuilder::ConfigSection as _;
+        assert_eq!(RetryConfig::section_name(), "retry");
     }
 }

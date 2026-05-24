@@ -1,9 +1,9 @@
 //! Integration tests for `api/rate_layer.rs` — the public `RateLayer` type.
 //!
-//! Covers: constructability via `ApplicationConfigBuilder::build()`, `Debug` output, and
+//! Covers: constructability via `build_rate_layer(config)`, `Debug` output, and
 //! `Send + Sync` bounds required by `reqwest_middleware::ClientBuilder::with()`.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig, RateLayer};
+use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -17,17 +17,14 @@ fn test_rate_layer_builds_from_custom_config() {
         burst_capacity: 40,
         per_host: true,
     };
-    let _layer: RateLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let _layer: RateLayer = build_rate_layer(cfg)
         .expect("build() must succeed");
 }
 
 /// Building from the SWE default must also succeed.
 #[test]
 fn test_rate_layer_builds_from_swe_default() {
-    let _layer: RateLayer = swe_edge_egress_rate::builder()
-        .expect("builder() must succeed")
-        .build()
+    let _layer: RateLayer = build_rate_layer(RateConfig::default())
         .expect("build() must succeed");
 }
 
@@ -43,8 +40,7 @@ fn test_rate_layer_debug_contains_type_name() {
         burst_capacity: 20,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_rate_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -61,8 +57,7 @@ fn test_rate_layer_debug_includes_tokens_per_second() {
         burst_capacity: 100,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_rate_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -79,8 +74,7 @@ fn test_rate_layer_debug_includes_burst_capacity() {
         burst_capacity: 333,
         per_host: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_rate_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -117,11 +111,9 @@ fn test_two_rate_layers_from_different_configs_are_independent() {
         burst_capacity: 1000,
         per_host: true,
     };
-    let layer_a = ApplicationConfigBuilder::with_config(cfg_a)
-        .build()
+    let layer_a = build_rate_layer(cfg_a)
         .expect("build a");
-    let layer_b = ApplicationConfigBuilder::with_config(cfg_b)
-        .build()
+    let layer_b = build_rate_layer(cfg_b)
         .expect("build b");
 
     let dbg_a = format!("{layer_a:?}");

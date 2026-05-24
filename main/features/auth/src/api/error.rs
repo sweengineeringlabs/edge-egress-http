@@ -9,9 +9,8 @@ pub enum Error {
 
     /// Config references an env var that isn't set. Includes
     /// the missing var name so operators know what to export.
-    /// This fails at `ApplicationConfigBuilder::build()` (or equivalent config
-    /// realization) — the middleware refuses to construct with
-    /// a dangling credential reference.
+    /// This fails at `build_auth_middleware(config)` — the middleware refuses
+    /// to construct with a dangling credential reference.
     #[error("swe_edge_egress_auth: required env var {name} is not set")]
     MissingEnvVar {
         /// Name of the missing env var.

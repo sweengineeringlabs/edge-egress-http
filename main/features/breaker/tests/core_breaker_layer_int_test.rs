@@ -7,14 +7,14 @@
 //! - `Debug` output must reflect the configured policy fields.
 //! - `Send + Sync` must hold after construction.
 
-use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer};
 
 // ---------------------------------------------------------------------------
 // Low threshold — breaker trips quickly
 // ---------------------------------------------------------------------------
 
 /// A threshold of 1 means the breaker opens after the very first failure.
-/// `BreakerLayer::new` (called by `ApplicationConfigBuilder::build`) must not reject it.
+/// `BreakerLayer::new` (called by `build_breaker_layer`) must not reject it.
 #[test]
 fn test_core_breaker_layer_threshold_one_builds() {
     let cfg = BreakerConfig {
@@ -23,8 +23,7 @@ fn test_core_breaker_layer_threshold_one_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("failure_threshold=1 must build");
 }
 
@@ -42,8 +41,7 @@ fn test_core_breaker_layer_zero_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("half_open_after_seconds=0 must build");
 }
 
@@ -61,8 +59,7 @@ fn test_core_breaker_layer_many_failure_statuses_builds() {
         reset_after_successes: 3,
         failure_statuses: statuses,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("many failure_statuses must build");
 }
 
@@ -80,8 +77,7 @@ fn test_core_breaker_layer_debug_includes_failure_threshold() {
         reset_after_successes: 3,
         failure_statuses: vec![500],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_breaker_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -99,8 +95,7 @@ fn test_core_breaker_layer_debug_includes_reset_after_successes() {
         reset_after_successes: 6,
         failure_statuses: vec![503],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_breaker_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -136,7 +131,6 @@ fn test_core_breaker_layer_builds_for_high_host_count_workload() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 502, 503, 504],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("build for high-host-count workload");
 }

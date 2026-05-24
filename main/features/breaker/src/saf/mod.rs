@@ -5,4 +5,4 @@ mod builder;
 pub use crate::api::breaker_config::BreakerConfig;
 pub use crate::api::breaker_layer::BreakerLayer;
 pub use crate::api::error::Error;
-pub use builder::{builder, ApplicationConfigBuilder};
+pub use builder::{build_breaker_layer, create_config_builder};

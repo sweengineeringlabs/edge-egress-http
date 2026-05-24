@@ -25,15 +25,34 @@ pub struct CassetteConfig {
     pub scrub_body_paths: Vec<String>,
 }
 
+impl Default for CassetteConfig {
+    fn default() -> Self {
+        Self {
+            mode: "replay".into(),
+            cassette_dir: "tests/cassettes".into(),
+            match_on: vec!["method".into(), "url".into(), "body_hash".into()],
+            scrub_headers: vec![
+                "authorization".into(),
+                "x-api-key".into(),
+                "cookie".into(),
+                "set-cookie".into(),
+                "proxy-authorization".into(),
+            ],
+            scrub_body_paths: vec![],
+        }
+    }
+}
+
+impl swe_edge_configbuilder::ConfigSection for CassetteConfig {
+    fn section_name() -> &'static str {
+        "cassette"
+    }
+}
+
 impl CassetteConfig {
     /// Parse from TOML text.
-    pub(crate) fn from_config(toml_text: &str) -> Result<Self, Error> {
+    pub fn from_config(toml_text: &str) -> Result<Self, Error> {
         toml::from_str(toml_text).map_err(|e| Error::ParseFailed(e.to_string()))
-    }
-
-    /// Load the crate-shipped SWE baseline.
-    pub(crate) fn swe_default() -> Result<Self, Error> {
-        Self::from_config(include_str!("../../config/application.toml"))
     }
 
     /// A config that passes every request straight through — no recording,
@@ -68,14 +87,20 @@ mod tests {
         assert_eq!(cfg.mode, "auto");
     }
 
-    /// @covers: swe_default
+    /// @covers: Default
     #[test]
-    fn test_swe_default_loads_crate_baseline() {
-        let cfg = CassetteConfig::swe_default().unwrap();
-        // `authorization` must be scrubbed by default — it's the
-        // header the Anthropic/OpenAI SDKs use to carry the API
-        // key, so committing a cassette that leaks it would leak
-        // credentials.
-        assert!(cfg.scrub_headers.iter().any(|h| h == "authorization"));
+    fn test_cassette_config_default_scrubs_authorization_header() {
+        let cfg = CassetteConfig::default();
+        assert!(
+            cfg.scrub_headers.iter().any(|h| h == "authorization"),
+            "authorization must be scrubbed by default to prevent credential leaks"
+        );
+    }
+
+    /// @covers: ConfigSection::section_name
+    #[test]
+    fn test_cassette_config_section_name_is_cassette() {
+        use swe_edge_configbuilder::ConfigSection as _;
+        assert_eq!(CassetteConfig::section_name(), "cassette");
     }
 }

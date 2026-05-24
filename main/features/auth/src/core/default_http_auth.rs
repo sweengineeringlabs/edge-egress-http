@@ -86,7 +86,7 @@ mod tests {
     /// @covers: DefaultHttpAuth::describe
     #[test]
     fn test_describe_returns_crate_name() {
-        let cfg = AuthConfig::swe_default().expect("baseline parses");
+        let cfg = AuthConfig::None;
         let d = DefaultHttpAuth::new(cfg, &StubResolver("x")).expect("build ok");
         assert_eq!(d.describe(), "swe_edge_egress_auth");
     }

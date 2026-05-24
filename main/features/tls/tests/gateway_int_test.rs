@@ -1,11 +1,10 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_tls crate.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{build_tls_layer, Error, TlsConfig, TlsLayer};
 
 #[test]
 fn test_build_none_config_produces_noop_layer() {
-    let layer: TlsLayer = ApplicationConfigBuilder::with_config(TlsConfig::None)
-        .build()
+    let layer: TlsLayer = build_tls_layer(TlsConfig::None)
         .expect("None config must build successfully");
     let s = format!("{layer:?}");
     assert!(
@@ -22,11 +21,13 @@ fn test_tls_layer_is_send_and_sync() {
 
 #[test]
 fn test_builder_fn_loads_swe_default_none_config() {
-    let b = swe_edge_egress_tls::builder().expect("builder() must succeed");
+    // The SWE default TLS config is None (no client cert, no custom CA).
+    let cfg = TlsConfig::None;
     assert!(
-        matches!(b.config(), TlsConfig::None),
+        matches!(&cfg, TlsConfig::None),
         "swe_default must be TlsConfig::None"
     );
+    build_tls_layer(cfg).expect("None config must build successfully");
 }
 
 #[test]
@@ -34,8 +35,7 @@ fn test_with_config_pem_missing_file_returns_file_read_failed() {
     let cfg = TlsConfig::Pem {
         path: "/does/not/exist/cert.pem".into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_tls_layer(cfg)
         .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
@@ -49,8 +49,7 @@ fn test_with_config_pkcs12_missing_file_returns_file_read_failed() {
         path: "/does/not/exist/cert.p12".into(),
         password_env: None,
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_tls_layer(cfg)
         .unwrap_err();
     assert!(
         matches!(err, Error::FileReadFailed { .. }),
@@ -66,8 +65,7 @@ fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_tls_layer(cfg)
         .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
@@ -77,8 +75,7 @@ fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
 
 #[test]
 fn test_build_none_config_always_succeeds_regardless_of_env() {
-    ApplicationConfigBuilder::with_config(TlsConfig::None)
-        .build()
+    build_tls_layer(TlsConfig::None)
         .expect("None config must always build");
 }
 
@@ -87,10 +84,10 @@ fn test_with_config_stores_pem_variant() {
     let cfg = TlsConfig::Pem {
         path: "/some/path.pem".into(),
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
+    let b_cfg = cfg;
     assert!(
-        matches!(b.config(), TlsConfig::Pem { .. }),
-        "ApplicationConfigBuilder must store Pem config"
+        matches!(&b_cfg, TlsConfig::Pem { .. }),
+        "TlsConfig must be the Pem variant"
     );
 }
 

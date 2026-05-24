@@ -5,7 +5,7 @@
 //! supertrait bounds so it can be installed in a
 //! `reqwest_middleware::ClientBuilder`.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig, RateLayer};
+use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time proof that HttpRate's supertrait bounds hold
@@ -44,8 +44,7 @@ fn test_rate_layer_built_from_builder_is_usable() {
         burst_capacity: 20,
         per_host: true,
     };
-    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer: RateLayer = build_rate_layer(cfg)
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(

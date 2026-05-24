@@ -15,7 +15,7 @@ pub use crate::api::value_object::{
 };
 
 pub use edge_egress_http_transport_svc::{
-    default_http_egress, default_http_egress_with_config, default_http_stream_outbound,
-    http_egress, http_egress_oauth, http_egress_with_auth, observe_http_egress, plain_http_egress,
-    validate, validate_http_config,
+    create_config_builder, default_http_egress, default_http_egress_with_config,
+    default_http_stream_outbound, http_egress, http_egress_oauth, http_egress_with_auth,
+    observe_http_egress, plain_http_egress, validate, validate_http_config,
 };

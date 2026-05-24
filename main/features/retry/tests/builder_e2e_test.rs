@@ -1,6 +1,6 @@
 //! End-to-end tests for the swe_edge_egress_retry SAF builder surface.
 
-use swe_edge_egress_retry::{ApplicationConfigBuilder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{build_retry_layer, create_config_builder, RetryConfig, RetryLayer};
 
 fn make_cfg() -> RetryConfig {
     RetryConfig {
@@ -13,35 +13,33 @@ fn make_cfg() -> RetryConfig {
     }
 }
 
-/// @covers: builder
+/// @covers: build_retry_layer with default config
 #[test]
-fn test_e2e_builder() {
-    let layer: RetryLayer = swe_edge_egress_retry::builder()
-        .expect("builder() must succeed")
-        .build()
-        .expect("build() must succeed");
+fn test_e2e_build_default() {
+    let layer: RetryLayer = build_retry_layer(RetryConfig::default()).expect("build must succeed");
     assert!(format!("{layer:?}").contains("RetryLayer"));
 }
 
-/// @covers: ApplicationConfigBuilder::with_config
+/// @covers: build_retry_layer with custom config
 #[test]
-fn test_e2e_with_config() {
-    let b = ApplicationConfigBuilder::with_config(make_cfg());
-    assert_eq!(b.config().max_retries, 3);
-    b.build().expect("e2e with_config build must succeed");
+fn test_e2e_build_with_custom_config() {
+    let cfg = make_cfg();
+    assert_eq!(cfg.max_retries, 3);
+    let _layer = build_retry_layer(cfg).expect("e2e with custom config build must succeed");
 }
 
-/// @covers: ApplicationConfigBuilder::config
+/// @covers: config fields flow through to build
 #[test]
-fn test_e2e_config() {
-    let b = ApplicationConfigBuilder::with_config(make_cfg());
-    assert_eq!(b.config().initial_interval_ms, 100);
-    assert!(b.config().retryable_statuses.contains(&429));
+fn test_e2e_config_fields() {
+    let cfg = make_cfg();
+    assert_eq!(cfg.initial_interval_ms, 100);
+    assert!(cfg.retryable_statuses.contains(&429));
+    build_retry_layer(cfg).expect("build must succeed");
 }
 
-/// @covers: ApplicationConfigBuilder::build
+/// @covers: build_retry_layer with varied config
 #[test]
-fn test_e2e_build() {
+fn test_e2e_build_varied_config() {
     let cfg = RetryConfig {
         max_retries: 5,
         initial_interval_ms: 50,
@@ -50,8 +48,13 @@ fn test_e2e_build() {
         retryable_statuses: vec![503, 504],
         retryable_methods: vec!["GET".to_string(), "HEAD".to_string()],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("e2e build must succeed");
+    let layer = build_retry_layer(cfg).expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
+}
+
+/// @covers: create_config_builder returns a Loader
+#[test]
+fn test_e2e_create_config_builder_returns_loader() {
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    let _loader = create_config_builder().build_loader();
 }

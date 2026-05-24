@@ -15,22 +15,10 @@ fn build_outbound_config(base_url: &str) -> HttpEgressConfig {
         http: HttpConfig::with_base_url(base_url),
         auth: swe_edge_egress_auth::AuthConfig::None,
         token_source: None,
-        retry: swe_edge_egress_retry::builder()
-            .expect("retry builder")
-            .config()
-            .clone(),
-        rate: swe_edge_egress_rate::builder()
-            .expect("rate builder")
-            .config()
-            .clone(),
-        breaker: swe_edge_egress_breaker::builder()
-            .expect("breaker builder")
-            .config()
-            .clone(),
-        cache: swe_edge_egress_cache::builder()
-            .expect("cache builder")
-            .config()
-            .clone(),
+        retry: swe_edge_egress_retry::RetryConfig::default(),
+        rate: swe_edge_egress_rate::RateConfig::default(),
+        breaker: swe_edge_egress_breaker::BreakerConfig::default(),
+        cache: swe_edge_egress_cache::CacheConfig::default(),
         cassette: swe_edge_egress_cassette::CassetteConfig::disabled(),
         cassette_name: "unused".to_string(),
         tls: swe_edge_egress_tls::TlsConfig::None,

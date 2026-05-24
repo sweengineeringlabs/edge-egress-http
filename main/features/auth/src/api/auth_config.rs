@@ -71,15 +71,22 @@ pub enum AuthConfig {
     },
 }
 
+impl Default for AuthConfig {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
+impl swe_edge_configbuilder::ConfigSection for AuthConfig {
+    fn section_name() -> &'static str {
+        "auth"
+    }
+}
+
 impl AuthConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> Result<Self, Error> {
         toml::from_str(toml_text).map_err(|e| Error::ParseFailed(e.to_string()))
-    }
-
-    /// Load the crate-shipped SWE baseline (`kind = "none"`).
-    pub fn swe_default() -> Result<Self, Error> {
-        Self::from_config(include_str!("../../config/application.toml"))
     }
 }
 
@@ -176,10 +183,16 @@ mod tests {
         );
     }
 
-    /// @covers: swe_default
+    /// @covers: Default
     #[test]
-    fn test_swe_default_is_none_pass_through() {
-        let cfg = AuthConfig::swe_default().unwrap();
-        assert!(matches!(cfg, AuthConfig::None));
+    fn test_auth_config_default_is_none_pass_through() {
+        assert!(matches!(AuthConfig::default(), AuthConfig::None));
+    }
+
+    /// @covers: ConfigSection::section_name
+    #[test]
+    fn test_auth_config_section_name_is_auth() {
+        use swe_edge_configbuilder::ConfigSection as _;
+        assert_eq!(AuthConfig::section_name(), "auth");
     }
 }

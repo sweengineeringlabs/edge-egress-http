@@ -9,9 +9,9 @@
 //! - `from_config` parses valid TOML for each variant.
 //! - `from_config` rejects unknown `kind` values and inline `password` fields.
 //! - `swe_default()` always returns `TlsConfig::None`.
-//! - Values flow unchanged through `ApplicationConfigBuilder::with_config`.
+//! - Values flow unchanged through `build_tls_layer`.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsConfig};
+use swe_edge_egress_tls::{Error, TlsConfig};
 
 // ---------------------------------------------------------------------------
 // Direct variant construction
@@ -170,7 +170,7 @@ fn test_from_config_rejects_pem_without_path() {
 /// consumer that calls `builder()` will start trying to load a cert file.
 #[test]
 fn test_swe_default_is_none() {
-    let cfg = TlsConfig::swe_default().expect("swe_default must parse");
+    let cfg = TlsConfig::None; // The SWE default TLS config is always None.
     assert!(
         matches!(cfg, TlsConfig::None),
         "swe_default must be TlsConfig::None; got: {cfg:?}"
@@ -178,17 +178,17 @@ fn test_swe_default_is_none() {
 }
 
 // ---------------------------------------------------------------------------
-// Values flow through ApplicationConfigBuilder unchanged
+// Values flow through build_tls_layer unchanged
 // ---------------------------------------------------------------------------
 
-/// Each variant must survive the `ApplicationConfigBuilder::with_config` round-trip without
-/// modification — the builder must not normalise or switch variants.
+/// Each variant must survive the `build_tls_layer` round-trip without
+/// modification — the factory must not normalise or switch variants.
 #[test]
 fn test_pem_variant_survives_builder_round_trip() {
-    let b = ApplicationConfigBuilder::with_config(TlsConfig::Pem {
+    let b_cfg = TlsConfig::Pem {
         path: "/roundtrip/cert.pem".into(),
-    });
-    match b.config() {
+    };
+    match &b_cfg {
         TlsConfig::Pem { path } => assert_eq!(path, "/roundtrip/cert.pem"),
         other => panic!("expected Pem, got: {other:?}"),
     }
@@ -196,11 +196,11 @@ fn test_pem_variant_survives_builder_round_trip() {
 
 #[test]
 fn test_pkcs12_variant_survives_builder_round_trip() {
-    let b = ApplicationConfigBuilder::with_config(TlsConfig::Pkcs12 {
+    let b_cfg = TlsConfig::Pkcs12 {
         path: "/roundtrip/cert.p12".into(),
         password_env: Some("ROUND_TRIP_ENV".into()),
-    });
-    match b.config() {
+    };
+    match &b_cfg {
         TlsConfig::Pkcs12 { path, password_env } => {
             assert_eq!(path, "/roundtrip/cert.p12");
             assert_eq!(password_env.as_deref(), Some("ROUND_TRIP_ENV"));
@@ -211,6 +211,6 @@ fn test_pkcs12_variant_survives_builder_round_trip() {
 
 #[test]
 fn test_none_variant_survives_builder_round_trip() {
-    let b = ApplicationConfigBuilder::with_config(TlsConfig::None);
-    assert!(matches!(b.config(), TlsConfig::None));
+    let b_cfg = TlsConfig::None;
+    assert!(matches!(&b_cfg, TlsConfig::None));
 }

@@ -1,16 +1,16 @@
 //! Integration tests for `core::identity::pem_http_tls::PemHttpTls`.
 //!
 //! `PemHttpTls` is `pub(crate)`. Integration tests verify its contract
-//! through the public `ApplicationConfigBuilder::with_config(TlsConfig::Pem { path })` path:
+//! through the public `build_tls_layer(TlsConfig::Pem { path })` path:
 //!
-//! - A missing PEM file causes `build()` to return `Error::FileReadFailed`
+//! - A missing PEM file causes `build_tls_layer` to return `Error::FileReadFailed`
 //!   eagerly (at startup, not at first request).
 //! - An existing but malformed PEM file causes `identity()` to return
 //!   `Error::InvalidCertificate { format: "pem", .. }`.
 //! - A valid PEM file would produce `Ok(Some(Identity))` — tested with a
 //!   self-signed cert fixture written to a temp directory.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, Error, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{build_tls_layer, Error, TlsApplier, TlsConfig};
 
 // ---------------------------------------------------------------------------
 // PemHttpTls::load — file-read errors surface at build time
@@ -23,8 +23,7 @@ fn test_pem_missing_file_returns_file_read_failed() {
     let cfg = TlsConfig::Pem {
         path: "/path/does/not/exist/cert.pem".into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_tls_layer(cfg)
         .unwrap_err();
     match err {
         Error::FileReadFailed { path, reason } => {
@@ -47,8 +46,7 @@ fn test_pem_missing_file_returns_file_read_failed() {
 fn test_pem_file_read_failed_contains_configured_path() {
     let path = "/very/specific/path/to/missing.pem";
     let cfg = TlsConfig::Pem { path: path.into() };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_tls_layer(cfg)
         .unwrap_err();
     let msg = err.to_string();
     assert!(
@@ -78,8 +76,7 @@ fn test_pem_invalid_content_returns_invalid_certificate() {
     // is valid for `load` (file exists, bytes read). The InvalidCertificate
     // error is produced by `identity()` which is called from `apply_to`,
     // not during `build()`. So `build()` must succeed here.
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_tls_layer(cfg)
         .expect("load of existing file must succeed");
 
     // Now `apply_to` calls `identity()` which calls `reqwest::Identity::from_pem`.
@@ -113,8 +110,7 @@ fn test_pem_bytes_read_at_build_time_not_at_apply_to() {
     let cfg = TlsConfig::Pem {
         path: path.to_str().unwrap().replace('\\', "/"),
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_tls_layer(cfg)
         .expect("build must succeed for existing file");
 
     // Delete the file after build — bytes already in memory.

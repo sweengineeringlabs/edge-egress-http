@@ -4,14 +4,13 @@
 //! (noop, PEM, PKCS#12) are correctly wired through the SAF builder
 //! surface and honour the `HttpTls` contract.
 
-use swe_edge_egress_tls::{ApplicationConfigBuilder, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig};
 
 /// `TlsConfig::None` produces a provider that returns no identity,
 /// so `apply_to` passes the ClientBuilder through unmodified.
 #[test]
 fn test_identity_none_config_produces_no_identity() {
-    let layer = ApplicationConfigBuilder::with_config(TlsConfig::None)
-        .build()
+    let layer = build_tls_layer(TlsConfig::None)
         .expect("None config must build without error");
     let _ = layer
         .apply_to(reqwest::Client::builder())
@@ -31,7 +30,7 @@ fn test_identity_provider_is_send_sync() {
 /// `core::identity::tls_factory` must not return an error for None.
 #[test]
 fn test_identity_factory_none_variant_succeeds() {
-    let result = ApplicationConfigBuilder::with_config(TlsConfig::None).build();
+    let result = build_tls_layer(TlsConfig::None);
     assert!(
         result.is_ok(),
         "identity factory must succeed for TlsConfig::None"

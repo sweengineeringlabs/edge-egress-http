@@ -5,7 +5,7 @@
 //! SAF re-export surface is complete and `RetryLayer` satisfies all trait
 //! bounds required for use inside `reqwest_middleware::ClientBuilder`.
 
-use swe_edge_egress_retry::{ApplicationConfigBuilder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{build_retry_layer, RetryConfig, RetryLayer};
 
 fn make_cfg() -> RetryConfig {
     RetryConfig {
@@ -50,14 +50,12 @@ fn test_retry_layer_is_arc_send_sync() {
 // Full pipeline: layer attaches to reqwest_middleware::ClientBuilder
 // ---------------------------------------------------------------------------
 
-/// The full type chain: `RetryConfig` → `ApplicationConfigBuilder` → `RetryLayer` →
+/// The full type chain: `RetryConfig` → `build_retry_layer` → `RetryLayer` →
 /// `reqwest_middleware::ClientBuilder::with` must compile and run without
 /// panic. No real HTTP call is made.
 #[test]
 fn test_retry_layer_attaches_to_reqwest_middleware_client_builder_via_trait_chain() {
-    let layer = ApplicationConfigBuilder::with_config(make_cfg())
-        .build()
-        .expect("build must succeed");
+    let layer = build_retry_layer(make_cfg()).expect("build must succeed");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();
@@ -72,8 +70,6 @@ fn test_retry_layer_attaches_to_reqwest_middleware_client_builder_via_trait_chai
 #[test]
 fn test_retry_layer_usable_as_arc_dyn_middleware() {
     use std::sync::Arc;
-    let layer = ApplicationConfigBuilder::with_config(make_cfg())
-        .build()
-        .expect("build");
+    let layer = build_retry_layer(make_cfg()).expect("build");
     let _arc: Arc<dyn reqwest_middleware::Middleware> = Arc::new(layer);
 }

@@ -1,10 +1,10 @@
 //! Integration tests for `api/breaker_layer.rs` — the public `BreakerLayer` type.
 //!
-//! Covers: constructability via `ApplicationConfigBuilder::build()`, `Debug` output, and
+//! Covers: constructability via `build_breaker_layer(config)`, `Debug` output, and
 //! `Send + Sync` bounds that allow the layer to be installed in a
 //! `reqwest_middleware::ClientBuilder`.
 
-use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -19,17 +19,14 @@ fn test_breaker_layer_builds_from_custom_config() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    let _layer: BreakerLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let _layer: BreakerLayer = build_breaker_layer(cfg)
         .expect("build() must succeed");
 }
 
 /// Building from the SWE default must also succeed.
 #[test]
 fn test_breaker_layer_builds_from_swe_default() {
-    let _layer: BreakerLayer = swe_edge_egress_breaker::builder()
-        .expect("builder() must succeed")
-        .build()
+    let _layer: BreakerLayer = build_breaker_layer(BreakerConfig::default())
         .expect("build() must succeed");
 }
 
@@ -46,8 +43,7 @@ fn test_breaker_layer_debug_contains_type_name() {
         reset_after_successes: 2,
         failure_statuses: vec![500],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_breaker_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -66,8 +62,7 @@ fn test_breaker_layer_debug_includes_failure_threshold() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_breaker_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -85,8 +80,7 @@ fn test_breaker_layer_debug_includes_half_open_wait() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_breaker_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -127,11 +121,9 @@ fn test_two_breaker_layers_from_different_configs_are_independent() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let layer_a = ApplicationConfigBuilder::with_config(cfg_a)
-        .build()
+    let layer_a = build_breaker_layer(cfg_a)
         .expect("build a");
-    let layer_b = ApplicationConfigBuilder::with_config(cfg_b)
-        .build()
+    let layer_b = build_breaker_layer(cfg_b)
         .expect("build b");
 
     let dbg_a = format!("{layer_a:?}");

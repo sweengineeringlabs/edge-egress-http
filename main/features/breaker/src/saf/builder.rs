@@ -1,52 +1,40 @@
-//! Public builder entry point.
+//! Public factory entry point.
+
+use swe_edge_configbuilder::ConfigBuilder as _;
 
 use crate::api::breaker_config::BreakerConfig;
 use crate::api::breaker_layer::BreakerLayer;
 use crate::api::error::Error;
 
-/// Start configuring the breaker with the SWE baseline
-/// loaded from the crate-shipped `config/application.toml`.
-pub fn builder() -> Result<ApplicationConfigBuilder, Error> {
-    let cfg = BreakerConfig::swe_default()?;
-    Ok(ApplicationConfigBuilder::with_config(cfg))
+/// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
+pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
+    swe_edge_configbuilder::create_config_builder()
+        .with_name(env!("CARGO_PKG_NAME"))
+        .with_version(env!("CARGO_PKG_VERSION"))
 }
 
-pub use crate::api::builder::ApplicationConfigBuilder;
-
-impl ApplicationConfigBuilder {
-    /// Construct from a caller-supplied config.
-    pub fn with_config(config: BreakerConfig) -> Self {
-        Self { config }
-    }
-
-    /// Borrow the current policy.
-    pub fn config(&self) -> &BreakerConfig {
-        &self.config
-    }
-
-    /// Finalize into the [`BreakerLayer`]. The returned layer
-    /// implements `reqwest_middleware::Middleware` and carries
-    /// its own per-host state cache (bounded moka cache).
-    pub fn build(self) -> Result<BreakerLayer, Error> {
-        Ok(BreakerLayer::new(self.config))
-    }
+/// Build a [`BreakerLayer`] from a caller-supplied [`BreakerConfig`].
+///
+/// The returned layer implements `reqwest_middleware::Middleware` and
+/// carries its own per-host state cache (bounded moka cache).
+pub fn build_breaker_layer(config: BreakerConfig) -> Result<BreakerLayer, Error> {
+    Ok(BreakerLayer::new(config))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// @covers: builder
+    /// @covers: create_config_builder
     #[test]
-    fn test_builder_loads_swe_default() {
-        let b = builder().expect("baseline parses");
-        assert!(b.config().failure_threshold >= 1);
+    fn test_create_config_builder_builds_loader() {
+        let _loader = create_config_builder().build_loader();
     }
 
-    /// @covers: ApplicationConfigBuilder::build
+    /// @covers: build_breaker_layer
     #[test]
-    fn test_build_returns_breaker_layer() {
-        let layer = builder().expect("baseline").build().expect("build ok");
+    fn test_build_breaker_layer_with_default_config_returns_layer() {
+        let layer = build_breaker_layer(BreakerConfig::default()).expect("build ok");
         let s = format!("{layer:?}");
         assert!(s.contains("BreakerLayer"));
     }

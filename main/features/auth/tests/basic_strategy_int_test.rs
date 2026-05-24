@@ -1,6 +1,6 @@
 //! Integration tests for the Basic auth strategy path.
 //!
-//! The strategy is `pub(crate)`.  Observable effects through `ApplicationConfigBuilder::build()`:
+//! The strategy is `pub(crate)`.  Observable effects through `build_auth_middleware()`:
 //! - Missing user_env → `Error::MissingEnvVar { name: user_env }`
 //! - Missing pass_env (when user_env present) → `Error::MissingEnvVar { name: pass_env }`
 //! - Both envs set → build succeeds and the middleware attaches a
@@ -10,7 +10,7 @@
 //! Header-value correctness (RFC 7617 base64 encoding) is covered by
 //! the core-unit tests inside `basic_strategy.rs`.
 
-use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
+use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // Missing env vars
@@ -22,11 +22,10 @@ fn test_basic_strategy_missing_user_env_returns_missing_env_var() {
     let pass_env = "SWE_AUTH_BASIC_MISS_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    let err = build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, user_env),
@@ -40,11 +39,10 @@ fn test_basic_strategy_missing_pass_env_returns_missing_env_var() {
     let pass_env = "SWE_AUTH_BASIC_MISS_P_02";
     std::env::set_var(user_env, "alice");
     std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    let err = build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, pass_env),
@@ -63,11 +61,10 @@ fn test_basic_strategy_builds_when_both_envs_set() {
     let pass_env = "SWE_AUTH_BASIC_OK_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "wonderland");
-    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .expect("Basic with both envs set must build");
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
@@ -85,11 +82,10 @@ async fn test_basic_strategy_attaches_authorization_basic_header() {
     let pass_env = "SWE_AUTH_BASIC_HDR_P_01";
     std::env::set_var(user_env, "bob");
     std::env::set_var(pass_env, "password123");
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    let mw = build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .expect("Basic with both envs set must build");
 
     // Process a request manually through the HttpAuth processor.
@@ -127,11 +123,10 @@ fn test_basic_strategy_middleware_debug_does_not_expose_credentials() {
     let secret_pass = "BASIC_SECRET_PASS_UNIQUE_MARKER";
     std::env::set_var(user_env, "dbg-user");
     std::env::set_var(pass_env, secret_pass);
-    let mw = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    let mw = build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .expect("build ok");
     let s = format!("{mw:?}");
     assert!(
@@ -152,11 +147,10 @@ fn test_basic_strategy_accepts_utf8_credentials() {
     let pass_env = "SWE_AUTH_BASIC_UTF8_P_01";
     std::env::set_var(user_env, "ünïcödé_user");
     std::env::set_var(pass_env, "pässwörd");
-    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .expect("UTF-8 credentials must be accepted by the Basic strategy");
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);

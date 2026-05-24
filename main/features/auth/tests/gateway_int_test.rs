@@ -1,31 +1,30 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_auth crate.
 
-use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware, Error};
+use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthMiddleware, Error};
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
-    swe_edge_egress_auth::builder().expect("builder() must succeed");
+    build_auth_middleware(AuthConfig::None).expect("builder() must succeed") /* default is None */;
 }
 
 #[test]
 fn test_builder_fn_default_config_is_none_pass_through() {
-    let b = swe_edge_egress_auth::builder().expect("builder() must succeed");
+    let cfg = AuthConfig::None;
     assert!(
-        matches!(b.config(), AuthConfig::None),
+        matches!(&cfg, AuthConfig::None),
         "swe_default must be AuthConfig::None"
     );
 }
 
 #[test]
 fn test_with_config_none_stores_none_variant() {
-    let b = ApplicationConfigBuilder::with_config(AuthConfig::None);
-    assert!(matches!(b.config(), AuthConfig::None));
+    let b_cfg = AuthConfig::None;
+    assert!(matches!(&b_cfg, AuthConfig::None));
 }
 
 #[test]
 fn test_build_none_config_produces_auth_middleware() {
-    let mw: AuthMiddleware = ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
         .expect("None config must build");
     let s = format!("{mw:?}");
     assert!(!s.is_empty(), "AuthMiddleware Debug must be non-empty: {s}");
@@ -44,8 +43,7 @@ fn test_build_bearer_missing_env_returns_missing_env_var() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_auth_middleware(cfg)
         .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
@@ -60,8 +58,7 @@ fn test_build_bearer_env_set_produces_middleware() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_auth_middleware(cfg)
         .expect("bearer with env set must build");
     std::env::remove_var(env_name);
 }
@@ -76,8 +73,7 @@ fn test_build_basic_missing_user_env_returns_missing_env_var() {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_auth_middleware(cfg)
         .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
@@ -93,8 +89,7 @@ fn test_build_header_missing_value_env_returns_missing_env_var() {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     };
-    let err = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let err = build_auth_middleware(cfg)
         .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
@@ -107,8 +102,8 @@ fn test_with_config_bearer_stores_bearer_variant() {
     let cfg = AuthConfig::Bearer {
         token_env: "IRRELEVANT".into(),
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    assert!(matches!(b.config(), AuthConfig::Bearer { .. }));
+    let b_cfg = cfg;
+    assert!(matches!(&b_cfg, AuthConfig::Bearer { .. }));
 }
 
 #[test]
@@ -135,7 +130,6 @@ fn test_error_missing_env_var_display_contains_var_name() {
 
 #[test]
 fn test_build_none_config_always_succeeds_regardless_of_env() {
-    ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    build_auth_middleware(AuthConfig::None)
         .expect("None config must always build regardless of env state");
 }

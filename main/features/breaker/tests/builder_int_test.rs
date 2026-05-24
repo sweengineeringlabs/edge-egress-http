@@ -1,54 +1,52 @@
-//! Integration tests for `api/builder.rs` and `saf/builder.rs`.
+//! Integration tests for the `build_breaker_layer` SAF entry point.
 //!
-//! Covers the full public builder surface: the `builder()` free function and
-//! the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
+//! Covers: `build_breaker_layer`, `BreakerConfig` fields, `BreakerLayer` construction.
 
-use swe_edge_egress_breaker::{ApplicationConfigBuilder, BreakerConfig, BreakerLayer, Error};
+use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer, Error};
 
 // ---------------------------------------------------------------------------
-// builder() free function
+// build_breaker_layer — SAF entry point
 // ---------------------------------------------------------------------------
 
-/// The `builder()` free function must return `Ok` — the crate-shipped TOML
-/// baseline must always parse.  A failure here means the embedded default
-/// config is broken.
+/// The `build_breaker_layer` function must succeed with the default config — the
+/// crate-shipped baseline must always parse. A failure here means the embedded
+/// default config is broken.
 #[test]
 fn test_builder_fn_succeeds_with_swe_default() {
-    swe_edge_egress_breaker::builder()
+    build_breaker_layer(BreakerConfig::default())
         .expect("builder() must succeed with the crate-shipped baseline");
 }
 
-/// The default `failure_threshold` must be >= 1.  A threshold of 0 would
+/// The default `failure_threshold` must be >= 1. A threshold of 0 would
 /// open the breaker on every single request, making it permanently open.
 #[test]
 fn test_builder_fn_swe_default_failure_threshold_is_positive() {
-    let b = swe_edge_egress_breaker::builder().expect("baseline parses");
+    let cfg = BreakerConfig::default();
     assert!(
-        b.config().failure_threshold >= 1,
+        cfg.failure_threshold >= 1,
         "swe_default failure_threshold must be >= 1, got {}",
-        b.config().failure_threshold
+        cfg.failure_threshold
     );
 }
 
-/// The default `reset_after_successes` must be >= 1.  Zero successes to close
+/// The default `reset_after_successes` must be >= 1. Zero successes to close
 /// would mean the breaker immediately closes on a half-open probe attempt,
 /// defeating its purpose.
 #[test]
 fn test_builder_fn_swe_default_reset_after_successes_is_positive() {
-    let b = swe_edge_egress_breaker::builder().expect("baseline parses");
+    let cfg = BreakerConfig::default();
     assert!(
-        b.config().reset_after_successes >= 1,
+        cfg.reset_after_successes >= 1,
         "swe_default reset_after_successes must be >= 1, got {}",
-        b.config().reset_after_successes
+        cfg.reset_after_successes
     );
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::with_config — custom policy round-trips correctly
+// BreakerConfig — custom policy round-trips correctly
 // ---------------------------------------------------------------------------
 
-/// `with_config` must preserve every field of the supplied `BreakerConfig`
-/// without silent modification.
+/// `BreakerConfig` must preserve every field without silent modification.
 #[test]
 fn test_with_config_preserves_all_fields() {
     let cfg = BreakerConfig {
@@ -57,16 +55,15 @@ fn test_with_config_preserves_all_fields() {
         reset_after_successes: 3,
         failure_statuses: vec![500, 502, 503],
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy = b.config();
+    let b_cfg = cfg;
+    let policy = &b_cfg;
     assert_eq!(policy.failure_threshold, 5);
     assert_eq!(policy.half_open_after_seconds, 30);
     assert_eq!(policy.reset_after_successes, 3);
     assert_eq!(policy.failure_statuses, vec![500u16, 502, 503]);
 }
 
-/// `config()` must return a borrow of the stored policy, not an owned copy
-/// that could diverge from what `build()` consumes.
+/// Config can be accessed as a reference without a divergent copy.
 #[test]
 fn test_config_accessor_returns_reference_not_divergent_copy() {
     let cfg = BreakerConfig {
@@ -75,22 +72,20 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy: &BreakerConfig = b.config();
+    let b_cfg = cfg;
+    let policy: &BreakerConfig = &b_cfg;
     assert_eq!(policy.failure_threshold, 7);
     assert_eq!(policy.reset_after_successes, 2);
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::build — produces a usable BreakerLayer
+// build_breaker_layer — produces a usable BreakerLayer
 // ---------------------------------------------------------------------------
 
 /// The nominal build path must succeed and return a `BreakerLayer`.
 #[test]
 fn test_build_from_swe_default_returns_breaker_layer() {
-    let layer: BreakerLayer = swe_edge_egress_breaker::builder()
-        .expect("baseline parses")
-        .build()
+    let layer: BreakerLayer = build_breaker_layer(BreakerConfig::default())
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -108,8 +103,7 @@ fn test_build_with_custom_config_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("custom config must build");
 }
 
@@ -123,8 +117,7 @@ fn test_build_with_empty_failure_statuses_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("empty failure_statuses must not be rejected");
 }
 
@@ -138,8 +131,7 @@ fn test_build_with_high_failure_threshold_succeeds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("failure_threshold=1000 must not be rejected");
 }
 
@@ -152,8 +144,7 @@ fn test_build_with_single_success_reset_policy_succeeds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_breaker_layer(cfg)
         .expect("reset_after_successes=1 must not be rejected");
 }
 

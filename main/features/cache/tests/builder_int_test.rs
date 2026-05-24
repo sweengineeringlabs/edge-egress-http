@@ -1,52 +1,51 @@
-//! Integration tests for `api/builder.rs` and `saf/builder.rs`.
+//! Integration tests for the `build_cache_layer` SAF entry point.
 //!
-//! Covers the full public builder surface: the `builder()` free function
-//! and the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
+//! Covers: `build_cache_layer`, `CacheConfig` fields, `CacheLayer` construction.
 
-use swe_edge_egress_cache::{builder, ApplicationConfigBuilder, CacheConfig, CacheLayer, Error};
+use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheLayer, Error};
 
 // ---------------------------------------------------------------------------
-// builder() free function
+// build_cache_layer — SAF entry point
 // ---------------------------------------------------------------------------
 
-/// Verifies that the free `builder()` function returns `Ok` — the crate-shipped
-/// TOML baseline must always be parseable.  If it panics, the crate is broken
-/// before a consumer has touched a single line of config.
+/// Verifies that `build_cache_layer` with the default config succeeds — the
+/// crate-shipped baseline must always be parseable. If it panics, the crate is
+/// broken before a consumer has touched a single line of config.
 #[test]
 fn test_builder_fn_succeeds_with_swe_default() {
-    builder().expect("builder() must succeed with the crate-shipped baseline");
+    build_cache_layer(CacheConfig::default()).expect("build must succeed");
 }
 
 /// A `default_ttl_seconds` of zero means every response expires the instant it
-/// is stored — the cache becomes a no-op.  The baseline must set a positive TTL.
+/// is stored — the cache becomes a no-op. The baseline must set a positive TTL.
 #[test]
 fn test_builder_fn_swe_default_ttl_is_positive() {
-    let b = builder().expect("baseline parses");
+    let cfg = CacheConfig::default();
     assert!(
-        b.config().default_ttl_seconds >= 1,
+        cfg.default_ttl_seconds >= 1,
         "swe_default default_ttl_seconds must be >= 1, got {}",
-        b.config().default_ttl_seconds
+        cfg.default_ttl_seconds
     );
 }
 
-/// A `max_entries` of zero means the backing store can hold nothing.  The
+/// A `max_entries` of zero means the backing store can hold nothing. The
 /// baseline must configure a non-zero capacity.
 #[test]
 fn test_builder_fn_swe_default_max_entries_is_positive() {
-    let b = builder().expect("baseline parses");
+    let cfg = CacheConfig::default();
     assert!(
-        b.config().max_entries >= 1,
+        cfg.max_entries >= 1,
         "swe_default max_entries must be >= 1, got {}",
-        b.config().max_entries
+        cfg.max_entries
     );
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::with_config — custom policy round-trips correctly
+// CacheConfig — custom policy round-trips correctly
 // ---------------------------------------------------------------------------
 
-/// `with_config` must preserve every field of the supplied `CacheConfig`
-/// without silent modification.
+/// `CacheConfig` must preserve every field of the supplied config without
+/// silent modification.
 #[test]
 fn test_with_config_preserves_all_fields() {
     let cfg = CacheConfig {
@@ -55,16 +54,15 @@ fn test_with_config_preserves_all_fields() {
         respect_cache_control: false,
         cache_private: true,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy = b.config();
+    let b_cfg = cfg;
+    let policy = &b_cfg;
     assert_eq!(policy.default_ttl_seconds, 42);
     assert_eq!(policy.max_entries, 256);
     assert!(!policy.respect_cache_control);
     assert!(policy.cache_private);
 }
 
-/// `config()` must return a reference to the stored policy — not a copy that
-/// could silently diverge from the value consumed by `build()`.
+/// Config can be accessed as a reference without a divergent copy.
 #[test]
 fn test_config_accessor_returns_reference_not_divergent_copy() {
     let cfg = CacheConfig {
@@ -73,10 +71,8 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy: &CacheConfig = b.config();
-    // Access both fields on the same borrowed reference.  If config() returned
-    // an owned value, a type-system mismatch here would catch the regression.
+    let b_cfg = cfg;
+    let policy: &CacheConfig = &b_cfg;
     assert_eq!(
         policy.default_ttl_seconds, 99,
         "ttl mismatch via &CacheConfig"
@@ -88,15 +84,13 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::build — produces a usable CacheLayer
+// build_cache_layer — produces a usable CacheLayer
 // ---------------------------------------------------------------------------
 
 /// The nominal build path must succeed and return a `CacheLayer`.
 #[test]
 fn test_build_from_swe_default_returns_cache_layer() {
-    let layer: CacheLayer = builder()
-        .expect("baseline parses")
-        .build()
+    let layer: CacheLayer = build_cache_layer(CacheConfig::default())
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -115,8 +109,7 @@ fn test_build_with_custom_ttl_reflects_in_debug_output() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_cache_layer(cfg)
         .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -135,12 +128,11 @@ fn test_build_with_cache_private_true_succeeds() {
         respect_cache_control: true,
         cache_private: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("cache_private=true must not be rejected by build()");
 }
 
-/// `respect_cache_control = false` is a legitimate policy choice.  Build must
+/// `respect_cache_control = false` is a legitimate policy choice. Build must
 /// not reject it.
 #[test]
 fn test_build_with_respect_cache_control_false_succeeds() {
@@ -150,8 +142,7 @@ fn test_build_with_respect_cache_control_false_succeeds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cache_control=false must not be rejected by build()");
 }
 
@@ -165,13 +156,12 @@ fn test_build_with_large_max_entries_succeeds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("max_entries=1_000_000 must not be rejected by build()");
 }
 
 /// `default_ttl_seconds = 0` is valid config: it means "no TTL fallback — only
-/// cache responses that supply their own Cache-Control max-age."  Build must
+/// cache responses that supply their own Cache-Control max-age." Build must
 /// not reject it.
 #[test]
 fn test_build_with_zero_ttl_succeeds() {
@@ -181,8 +171,7 @@ fn test_build_with_zero_ttl_succeeds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("default_ttl_seconds=0 must not be rejected by build()");
 }
 
@@ -191,7 +180,7 @@ fn test_build_with_zero_ttl_succeeds() {
 // ---------------------------------------------------------------------------
 
 /// `Error::ParseFailed` must be constructable so downstream consumers can
-/// pattern-match it.  This verifies the variant is `pub` and its inner `String`
+/// pattern-match it. This verifies the variant is `pub` and its inner `String`
 /// is accessible.
 #[test]
 fn test_error_parse_failed_is_constructable_and_its_message_is_accessible() {

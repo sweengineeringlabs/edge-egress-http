@@ -24,14 +24,13 @@ fn test_rate_layer_satisfies_sync_required_by_http_rate_trait() {
 /// `RateLayer` can be coerced to a `Box<dyn Send + Sync>`.
 #[test]
 fn test_rate_layer_coercible_to_boxed_send_sync() {
-    use swe_edge_egress_rate::{ApplicationConfigBuilder, RateConfig};
+    use swe_edge_egress_rate::{build_rate_layer, RateConfig};
     let cfg = RateConfig {
         tokens_per_second: 5,
         burst_capacity: 10,
         per_host: false,
     };
-    let layer: RateLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer: RateLayer = build_rate_layer(cfg)
         .expect("build");
     let _boxed: Box<dyn Send + Sync> = Box::new(layer);
 }

@@ -11,7 +11,7 @@
 //!   immediately after the first attempt.
 //! - The `backoff_for` cap (`max_interval_ms`) is respected in timing.
 
-use swe_edge_egress_retry::{ApplicationConfigBuilder, RetryConfig};
+use swe_edge_egress_retry::{build_retry_layer, RetryConfig};
 
 fn make_cfg_with(
     max_retries: u32,
@@ -45,9 +45,7 @@ async fn test_core_non_retryable_method_does_not_retry() {
     // POST is not in the retryable list; 5 retries × 100ms back-off sleeps
     // would add >500ms, but a single attempt with 50ms connect_timeout is ~50ms.
     let cfg = make_cfg_with(5, 10, 100, 2.0, vec![503], vec!["GET"]);
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("build");
+    let layer = build_retry_layer(cfg).expect("build");
     let client = reqwest_middleware::ClientBuilder::new(
         reqwest::Client::builder()
             .connect_timeout(std::time::Duration::from_millis(50))
@@ -85,9 +83,7 @@ async fn test_core_retryable_method_non_retryable_status_returns_immediately() {
     // 5 retries × (50ms connect + 100ms sleep) = 5 × 150ms = 750ms max.
     // Allow 5s headroom for slow CI; no sane retry loop exceeds this.
     let cfg = make_cfg_with(5, 10, 100, 2.0, vec![503], vec!["GET"]);
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("build");
+    let layer = build_retry_layer(cfg).expect("build");
     let client = reqwest_middleware::ClientBuilder::new(
         reqwest::Client::builder()
             .connect_timeout(std::time::Duration::from_millis(50))
@@ -117,9 +113,7 @@ async fn test_core_retryable_method_non_retryable_status_returns_immediately() {
 #[test]
 fn test_core_retry_layer_middleware_impl_type_chain_compiles() {
     let cfg = make_cfg_with(2, 50, 500, 2.0, vec![503], vec!["GET"]);
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("build");
+    let layer = build_retry_layer(cfg).expect("build");
     fn assert_middleware<T: reqwest_middleware::Middleware>(_: T) {}
     assert_middleware(layer);
 }
@@ -135,9 +129,7 @@ fn test_core_retry_layer_middleware_impl_type_chain_compiles() {
 #[tokio::test]
 async fn test_core_backoff_capped_at_max_interval_bounded_total_time() {
     let cfg = make_cfg_with(3, 20, 20, 100.0, vec![503], vec!["GET"]);
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
-        .expect("build");
+    let layer = build_retry_layer(cfg).expect("build");
     let client = reqwest_middleware::ClientBuilder::new(
         reqwest::Client::builder()
             .connect_timeout(std::time::Duration::from_millis(50))

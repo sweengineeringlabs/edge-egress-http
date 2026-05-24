@@ -1,19 +1,18 @@
 //! Integration tests for `api/builder.rs` and `saf/builder.rs`.
 //!
-//! Covers the full public builder surface: the `builder()` free function and
-//! the `ApplicationConfigBuilder` type's `with_config`, `config`, and `build` methods.
+//! Covers the full public builder surface: `build_rate_layer` and `create_config_builder`.
 
-use swe_edge_egress_rate::{ApplicationConfigBuilder, Error, RateConfig, RateLayer};
+use swe_edge_egress_rate::{build_rate_layer, create_config_builder, Error, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
-// builder() free function
+// build_rate_layer with default config
 // ---------------------------------------------------------------------------
 
-/// The `builder()` free function must return `Ok` — the crate-shipped TOML
-/// baseline must always be parseable.
+/// `build_rate_layer(RateConfig::default())` must return Ok — the crate-shipped
+/// TOML baseline must always be parseable.
 #[test]
 fn test_builder_fn_succeeds_with_swe_default() {
-    swe_edge_egress_rate::builder()
+    build_rate_layer(RateConfig::default())
         .expect("builder() must succeed with the crate-shipped baseline");
 }
 
@@ -21,11 +20,11 @@ fn test_builder_fn_succeeds_with_swe_default() {
 /// would block all requests permanently.
 #[test]
 fn test_builder_fn_swe_default_tokens_per_second_is_positive() {
-    let b = swe_edge_egress_rate::builder().expect("baseline parses");
+    let cfg = RateConfig::default();
     assert!(
-        b.config().tokens_per_second >= 1,
+        cfg.tokens_per_second >= 1,
         "swe_default tokens_per_second must be >= 1, got {}",
-        b.config().tokens_per_second
+        cfg.tokens_per_second
     );
 }
 
@@ -33,19 +32,19 @@ fn test_builder_fn_swe_default_tokens_per_second_is_positive() {
 /// deny every request that does not arrive exactly at the refill moment.
 #[test]
 fn test_builder_fn_swe_default_burst_capacity_is_positive() {
-    let b = swe_edge_egress_rate::builder().expect("baseline parses");
+    let cfg = RateConfig::default();
     assert!(
-        b.config().burst_capacity >= 1,
+        cfg.burst_capacity >= 1,
         "swe_default burst_capacity must be >= 1, got {}",
-        b.config().burst_capacity
+        cfg.burst_capacity
     );
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::with_config — custom policy round-trips correctly
+// build_rate_layer with custom config — custom policy round-trips correctly
 // ---------------------------------------------------------------------------
 
-/// `with_config` must preserve every field without modification.
+/// `build_rate_layer` must preserve every field without modification.
 #[test]
 fn test_with_config_preserves_all_fields() {
     let cfg = RateConfig {
@@ -53,14 +52,12 @@ fn test_with_config_preserves_all_fields() {
         burst_capacity: 100,
         per_host: true,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy = b.config();
-    assert_eq!(policy.tokens_per_second, 50);
-    assert_eq!(policy.burst_capacity, 100);
-    assert!(policy.per_host);
+    assert_eq!(cfg.tokens_per_second, 50);
+    assert_eq!(cfg.burst_capacity, 100);
+    assert!(cfg.per_host);
 }
 
-/// `with_config` with `per_host = false` must preserve the flag.
+/// `per_host = false` must be preserved.
 #[test]
 fn test_with_config_per_host_false_preserved() {
     let cfg = RateConfig {
@@ -68,14 +65,13 @@ fn test_with_config_per_host_false_preserved() {
         burst_capacity: 20,
         per_host: false,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
     assert!(
-        !b.config().per_host,
+        !cfg.per_host,
         "per_host=false must survive with_config"
     );
 }
 
-/// `config()` must return a reference to the stored policy.
+/// Config fields must be directly accessible after construction.
 #[test]
 fn test_config_accessor_returns_reference_not_divergent_copy() {
     let cfg = RateConfig {
@@ -83,22 +79,18 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
         burst_capacity: 14,
         per_host: true,
     };
-    let b = ApplicationConfigBuilder::with_config(cfg);
-    let policy: &RateConfig = b.config();
-    assert_eq!(policy.tokens_per_second, 7);
-    assert_eq!(policy.burst_capacity, 14);
+    assert_eq!(cfg.tokens_per_second, 7);
+    assert_eq!(cfg.burst_capacity, 14);
 }
 
 // ---------------------------------------------------------------------------
-// ApplicationConfigBuilder::build — produces a usable RateLayer
+// build_rate_layer — produces a usable RateLayer
 // ---------------------------------------------------------------------------
 
 /// The nominal build path must succeed.
 #[test]
 fn test_build_from_swe_default_returns_rate_layer() {
-    let layer: RateLayer = swe_edge_egress_rate::builder()
-        .expect("baseline parses")
-        .build()
+    let layer: RateLayer = build_rate_layer(RateConfig::default())
         .expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
@@ -115,8 +107,7 @@ fn test_build_with_custom_config_succeeds() {
         burst_capacity: 40,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("custom config must build");
 }
 
@@ -128,8 +119,7 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 10,
         per_host: true,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=true must build");
 }
 
@@ -141,8 +131,7 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 10,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("per_host=false must build");
 }
 
@@ -154,9 +143,19 @@ fn test_build_with_high_rate_and_burst_succeeds() {
         burst_capacity: 50_000,
         per_host: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_rate_layer(cfg)
         .expect("high rate + burst must build");
+}
+
+// ---------------------------------------------------------------------------
+// create_config_builder — SAF entry point
+// ---------------------------------------------------------------------------
+
+/// `create_config_builder().build_loader()` must return a working loader.
+#[test]
+fn test_create_config_builder_returns_working_loader() {
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    let _loader = create_config_builder().build_loader();
 }
 
 // ---------------------------------------------------------------------------

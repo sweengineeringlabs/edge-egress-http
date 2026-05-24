@@ -29,15 +29,14 @@ fn test_cache_layer_satisfies_sync_required_by_http_cache_trait() {
 /// the trait-object coercion the `traits.rs` alias models is possible.
 #[test]
 fn test_cache_layer_coercible_to_boxed_send_sync() {
-    use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig};
+    use swe_edge_egress_cache::{build_cache_layer, CacheConfig};
     let cfg = CacheConfig {
         default_ttl_seconds: 5,
         max_entries: 10,
         respect_cache_control: false,
         cache_private: false,
     };
-    let layer: CacheLayer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer: CacheLayer = build_cache_layer(cfg)
         .expect("build must succeed");
     // Coerce to a boxed `Send + Sync` object — this fails to compile if either
     // bound is absent.

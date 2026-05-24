@@ -3,10 +3,10 @@
 //! `core::cache_layer` contains `CacheLayer::new`, `ttl_for`, and the
 //! `reqwest_middleware::Middleware` impl.  All of those are `pub(crate)`.
 //! From an integration test we exercise the observable surface: the layer
-//! produced by `ApplicationConfigBuilder::build()` must correctly reflect the policy supplied at
+//! produced by `build_cache_layer(config)` must correctly reflect the policy supplied at
 //! construction, and edge-case configs must be accepted without error.
 
-use swe_edge_egress_cache::{ApplicationConfigBuilder, CacheConfig, CacheLayer};
+use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheLayer};
 
 // ---------------------------------------------------------------------------
 // Zero TTL — "cache only when upstream provides Cache-Control max-age"
@@ -23,8 +23,7 @@ fn test_core_cache_layer_zero_ttl_builds_without_error() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("zero TTL must not cause build to fail");
 }
 
@@ -38,8 +37,7 @@ fn test_core_cache_layer_zero_ttl_visible_in_debug() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_cache_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -63,8 +61,7 @@ fn test_core_cache_layer_large_max_entries_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("max_entries=1_000_000 must not be rejected by CacheLayer::new");
 }
 
@@ -77,8 +74,7 @@ fn test_core_cache_layer_large_max_entries_visible_in_debug() {
         respect_cache_control: false,
         cache_private: false,
     };
-    let layer = ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    let layer = build_cache_layer(cfg)
         .expect("build");
     let dbg = format!("{layer:?}");
     assert!(
@@ -101,8 +97,7 @@ fn test_core_cache_layer_respect_cc_true_long_ttl_builds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cc=true + 3600s must build");
 }
 
@@ -116,8 +111,7 @@ fn test_core_cache_layer_respect_cc_false_builds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    ApplicationConfigBuilder::with_config(cfg)
-        .build()
+    build_cache_layer(cfg)
         .expect("respect_cc=false must build");
 }
 
@@ -126,7 +120,7 @@ fn test_core_cache_layer_respect_cc_false_builds() {
 // ---------------------------------------------------------------------------
 
 /// `CacheLayer` built via `core::cache_layer::CacheLayer::new` (the path
-/// `ApplicationConfigBuilder::build` uses) must satisfy `Send + Sync`.
+/// `build_cache_layer` uses) must satisfy `Send + Sync`.
 #[test]
 fn test_core_cache_layer_is_send_and_sync() {
     fn require_send_sync<T: Send + Sync>() {}

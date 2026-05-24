@@ -2,17 +2,16 @@
 //!
 //! `build_strategy` is `pub(crate)`.  Its effect is the selection of the
 //! correct concrete strategy for each `AuthConfig` variant, observable through:
-//! 1. `ApplicationConfigBuilder::build()` success/failure (each variant has different env deps).
+//! 1. `build_auth_middleware()` success/failure (each variant has different env deps).
 //! 2. The header attached to a request (indirect — we can't call `authorize()`
 //!    from outside, but we can observe `AuthMiddleware::handle()` effects by
-//!    wiring the middleware and processing a local request via a mock server-like
-//!    pattern using `reqwest_middleware`).
+//!    wiring the middleware).
 //!
 //! For header-value correctness, the per-strategy test files apply.  This
 //! file verifies the factory's dispatch: "config variant X → correct strategy
 //! selected → correct build outcome."
 
-use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
+use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
 
 // ---------------------------------------------------------------------------
 // None → NoopStrategy (no env needed, no header attached)
@@ -20,8 +19,7 @@ use swe_edge_egress_auth::{ApplicationConfigBuilder, AuthConfig, Error};
 
 #[test]
 fn test_factory_none_config_builds_without_env_vars() {
-    ApplicationConfigBuilder::with_config(AuthConfig::None)
-        .build()
+    build_auth_middleware(AuthConfig::None)
         .expect("None→NoopStrategy must build without any env vars");
 }
 
@@ -33,10 +31,9 @@ fn test_factory_none_config_builds_without_env_vars() {
 fn test_factory_bearer_config_fails_without_token_env() {
     let env_name = "SWE_AUTH_FACTORY_BRR_MISS_01";
     std::env::remove_var(env_name);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    let err = build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
-    .build()
     .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
@@ -48,10 +45,9 @@ fn test_factory_bearer_config_fails_without_token_env() {
 fn test_factory_bearer_config_builds_with_token_env() {
     let env_name = "SWE_AUTH_FACTORY_BRR_OK_01";
     std::env::set_var(env_name, "factory-bearer-token");
-    ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
-    .build()
     .expect("Bearer with env set must build");
     std::env::remove_var(env_name);
 }
@@ -66,11 +62,10 @@ fn test_factory_basic_config_fails_without_user_env() {
     let pass_env = "SWE_AUTH_FACTORY_BASIC_P_MISS_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    let err = build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
@@ -84,11 +79,10 @@ fn test_factory_basic_config_builds_with_both_envs() {
     let pass_env = "SWE_AUTH_FACTORY_BASIC_P_OK_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "wonderland");
-    ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
-    .build()
     .expect("Basic with both envs must build");
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
@@ -102,11 +96,10 @@ fn test_factory_basic_config_builds_with_both_envs() {
 fn test_factory_header_config_fails_without_value_env() {
     let env_name = "SWE_AUTH_FACTORY_HDR_MISS_01";
     std::env::remove_var(env_name);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    let err = build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
-    .build()
     .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
@@ -118,11 +111,10 @@ fn test_factory_header_config_fails_without_value_env() {
 fn test_factory_header_config_builds_with_valid_name_and_env() {
     let env_name = "SWE_AUTH_FACTORY_HDR_OK_01";
     std::env::set_var(env_name, "factory-api-key");
-    ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
-    .build()
     .expect("Header with valid name + env must build");
     std::env::remove_var(env_name);
 }
@@ -131,11 +123,10 @@ fn test_factory_header_config_builds_with_valid_name_and_env() {
 fn test_factory_header_config_rejects_invalid_header_name_at_build() {
     let env_name = "SWE_AUTH_FACTORY_HDR_BADNAME_01";
     std::env::set_var(env_name, "some-value");
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    let err = build_auth_middleware(AuthConfig::Header {
         name: "bad name spaces".into(),
         value_env: env_name.into(),
     })
-    .build()
     .unwrap_err();
     assert!(
         matches!(err, Error::InvalidHeaderName { .. }),
@@ -144,7 +135,6 @@ fn test_factory_header_config_rejects_invalid_header_name_at_build() {
     std::env::remove_var(env_name);
 }
 
-// ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // AwsSigV4 → AwsSigV4Strategy (two required + one optional env var)
 // ---------------------------------------------------------------------------
@@ -155,14 +145,13 @@ fn test_factory_aws_sigv4_config_fails_without_access_key_env() {
     let sk_env = "SWE_AUTH_FACTORY_AWS_SK_MISS_01";
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    let err = build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
         region: "us-east-1".into(),
         service: "s3".into(),
     })
-    .build()
     .unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
@@ -176,14 +165,13 @@ fn test_factory_aws_sigv4_config_builds_with_required_envs() {
     let sk_env = "SWE_AUTH_FACTORY_AWS_SK_OK_01";
     std::env::set_var(ak_env, "AKIA_FACTORY_TEST");
     std::env::set_var(sk_env, "SECRET_FACTORY_TEST");
-    ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
         region: "us-west-2".into(),
         service: "s3".into(),
     })
-    .build()
     .expect("AwsSigV4 with required envs must build");
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
@@ -203,10 +191,9 @@ fn test_factory_each_config_variant_fails_on_its_own_missing_env_not_others() {
     std::env::set_var("SWE_AUTH_FACTORY_DISPATCH_BASIC_U_01", "alice");
     std::env::set_var("SWE_AUTH_FACTORY_DISPATCH_BASIC_P_01", "pass");
 
-    let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    let err = build_auth_middleware(AuthConfig::Bearer {
         token_env: bearer_env.into(),
     })
-    .build()
     .unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(

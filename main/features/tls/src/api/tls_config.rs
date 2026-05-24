@@ -32,15 +32,22 @@ pub enum TlsConfig {
     },
 }
 
+impl Default for TlsConfig {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
+impl swe_edge_configbuilder::ConfigSection for TlsConfig {
+    fn section_name() -> &'static str {
+        "tls"
+    }
+}
+
 impl TlsConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> Result<Self, Error> {
         toml::from_str(toml_text).map_err(|e| Error::ParseFailed(e.to_string()))
-    }
-
-    /// Load the crate-shipped SWE baseline (`kind = "none"`).
-    pub fn swe_default() -> Result<Self, Error> {
-        Self::from_config(include_str!("../../config/application.toml"))
     }
 }
 
@@ -138,10 +145,16 @@ mod tests {
         assert!(err.to_string().contains("jks") || err.to_string().contains("variant"));
     }
 
-    /// @covers: swe_default
+    /// @covers: Default
     #[test]
-    fn test_swe_default_is_none() {
-        let cfg = TlsConfig::swe_default().unwrap();
-        assert!(matches!(cfg, TlsConfig::None));
+    fn test_tls_config_default_is_none() {
+        assert!(matches!(TlsConfig::default(), TlsConfig::None));
+    }
+
+    /// @covers: ConfigSection::section_name
+    #[test]
+    fn test_tls_config_section_name_is_tls() {
+        use swe_edge_configbuilder::ConfigSection as _;
+        assert_eq!(TlsConfig::section_name(), "tls");
     }
 }

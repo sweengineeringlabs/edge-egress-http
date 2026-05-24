@@ -15,7 +15,7 @@ use crate::api::error::Error;
 /// [`SecretString`] at middleware-build time.
 ///
 /// Sync on purpose: env resolution is trivially sync, and
-/// resolution happens exactly once per `ApplicationConfigBuilder::build()` call
+/// resolution happens exactly once per `build_auth_middleware(config)` call
 /// (not per request). If a future resolver needs async I/O
 /// (vault, secret manager), the trait signature bumps and the
 /// change propagates through every impl — acceptable one-time
