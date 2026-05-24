@@ -1,0 +1,217 @@
+    Checking swe-edge-egress-rate v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\rate)
+    Checking swe-edge-egress-auth v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\auth)
+    Checking swe-edge-egress-breaker v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\breaker)
+    Checking swe-edge-egress-cassette v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\cassette)
+    Checking swe-edge-egress-http-transport v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\transport)
+error: mismatched closing delimiter: `)`
+  --> main\features\cassette\tests\cassette_layer_int_test.rs:68:64
+   |
+68 | fn test_two_layers_with_different_names_have_different_paths() {
+   |                                                                ^ unclosed delimiter
+...
+74 |     let b_cfg = make_cfg(dir, "auto"))
+   |                                      ^ mismatched closing delimiter
+
+error: mismatched closing delimiter: `}`
+  --> main\features\cassette\tests\cassette_layer_int_test.rs:76:16
+   |
+76 |         .expect("build b";
+   |                ^ unclosed delimiter
+...
+84 | }
+   | ^ mismatched closing delimiter
+
+error: could not compile `swe-edge-egress-cassette` (test "cassette_layer_int_test") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0432]: unresolved import `swe_edge_egress_cassette::builder`
+ --> main\features\cassette\tests\builder_int_test.rs:5:54
+  |
+5 | use swe_edge_egress_cassette::{build_cassette_layer, builder, CassetteConfig, CassetteLayer};
+  |                                                      ^^^^^^^ no `builder` in the root
+
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\cassette\tests\builder_int_test.rs:37:10
+   |
+37 |         &b_cfg.mode,
+   |          ^^^^^ not found in this scope
+
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\cassette\tests\builder_int_test.rs:56:10
+   |
+56 |         &b_cfg.scrub_headers
+   |          ^^^^^ not found in this scope
+
+error[E0425]: cannot find value `b` in this scope
+  --> main\features\cassette\tests\builder_int_test.rs:77:13
+   |
+77 |     assert!(b
+   |             ^ not found in this scope
+
+error[E0425]: cannot find function `create_config_builder` in this scope
+  --> main\features\cassette\tests\builder_int_test.rs:28:5
+   |
+28 |     create_config_builder().build_loader();
+   |     ^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find function `create_config_builder` in this scope
+  --> main\features\cassette\tests\builder_int_test.rs:35:13
+   |
+35 |     let b = create_config_builder().build_loader();
+   |             ^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\http_auth_int_test.rs:47:14
+   |
+47 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\http_auth_int_test.rs:70:21
+   |
+70 |     let mw_bearer = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0425]: cannot find function `create_config_builder` in this scope
+  --> main\features\cassette\tests\builder_int_test.rs:47:13
+   |
+47 |     let b = create_config_builder().build_loader();
+   |             ^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\http_auth_int_test.rs:115:14
+    |
+115 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0277]: can't compare `&String` with `String`
+  --> main\features\cassette\tests\builder_int_test.rs:74:5
+   |
+74 |     assert_eq!(&b_cfg.cassette_dir, dir);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&String == String`
+   |
+   = help: the trait `PartialEq<String>` is not implemented for `&String`
+help: consider dereferencing here
+  --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+   |
+46 |                 if !(**left_val == *right_val) {
+   |                      +
+
+error[E0277]: can't compare `&Vec<String>` with `Vec<&str>`
+   --> main\features\cassette\tests\builder_int_test.rs:100:5
+    |
+100 |     assert_eq!(&b_cfg.match_on, vec!["body_hash"]);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Vec<String> == Vec<&str>`
+    |
+    = help: the trait `PartialEq<Vec<&str>>` is not implemented for `&Vec<String>`
+help: consider dereferencing here
+   --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+    |
+ 46 |                 if !(**left_val == *right_val) {
+    |                      +
+
+error[E0277]: can't compare `&Vec<String>` with `Vec<&str>`
+   --> main\features\cassette\tests\builder_int_test.rs:101:5
+    |
+101 |     assert_eq!(&b_cfg.scrub_body_paths, vec!["request_id"]);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Vec<String> == Vec<&str>`
+    |
+    = help: the trait `PartialEq<Vec<&str>>` is not implemented for `&Vec<String>`
+help: consider dereferencing here
+   --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+    |
+ 46 |                 if !(**left_val == *right_val) {
+    |                      +
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\cassette\tests\builder_int_test.rs:114:32
+    |
+114 |     let layer: CassetteLayer = ApplicationConfigBuilder::with_config(make_config(&dir))
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `swe-edge-egress-auth` (test "http_auth_int_test") due to 3 previous errors
+Some errors have detailed explanations: E0277, E0425, E0432, E0433.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `swe-edge-egress-cassette` (test "builder_int_test") due to 11 previous errors
+warning: unused import: `build_auth_middleware`
+  --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:15:28
+   |
+15 | use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
+   |                            ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:37:15
+   |
+37 |     let err = ApplicationConfigBuilder::with_config(sigv4_config(ak_env, sk_env, None))
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:53:15
+   |
+53 |     let err = ApplicationConfigBuilder::with_config(sigv4_config(ak_env, sk_env, None))
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:71:15
+   |
+71 |     let err = ApplicationConfigBuilder::with_config(sigv4_config(ak_env, sk_env, Some(st_env)))
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:92:5
+   |
+92 |     ApplicationConfigBuilder::with_config(sigv4_config(ak_env, sk_env, None))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:107:5
+    |
+107 |     ApplicationConfigBuilder::with_config(sigv4_config(ak_env, sk_env, Some(st_env)))
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:125:5
+    |
+125 |     ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:151:5
+    |
+151 |     ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\aws_sigv4_strategy_int_test.rs:175:14
+    |
+175 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+warning: `swe-edge-egress-auth` (test "aws_sigv4_strategy_int_test") generated 1 warning
+error: could not compile `swe-edge-egress-auth` (test "aws_sigv4_strategy_int_test") due to 8 previous errors; 1 warning emitted
+error[E0599]: no variant or associated item named `swe_default` found for enum `auth_config::AuthConfig` in the current scope
+  --> main\features\auth\src\core\default_http_auth.rs:89:31
+   |
+89 |         let cfg = AuthConfig::swe_default().expect("baseline parses");
+   |                               ^^^^^^^^^^^ variant or associated item not found in `auth_config::AuthConfig`
+   |
+  ::: main\features\auth\src\api\auth_config.rs:18:1
+   |
+18 | pub enum AuthConfig {
+   | ------------------- variant or associated item `swe_default` not found for this enum
+   |
+note: if you're trying to build a new `auth_config::AuthConfig`, consider using `auth_config::AuthConfig::from_config` which returns `Result<auth_config::AuthConfig, api::error::Error>`
+  --> main\features\auth\src\api\auth_config.rs:88:5
+   |
+88 |     pub fn from_config(toml_text: &str) -> Result<Self, Error> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is an associated function `default` with a similar name
+   |
+89 -         let cfg = AuthConfig::swe_default().expect("baseline parses");
+89 +         let cfg = AuthConfig::default().expect("baseline parses");
+   |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `swe-edge-egress-auth` (lib test) due to 1 previous error

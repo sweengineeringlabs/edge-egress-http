@@ -1,0 +1,184 @@
+    Checking swe-edge-egress-tls v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\tls)
+    Checking swe-edge-egress-auth v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\auth)
+    Checking swe-edge-egress-cache v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\cache)
+    Checking swe-edge-egress-rate v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\rate)
+error[E0432]: unresolved import `swe_edge_egress_tls::builder`
+ --> main\features\tls\tests\builder_int_test.rs:5:44
+  |
+5 | use swe_edge_egress_tls::{build_tls_layer, builder, Error, TlsConfig, TlsLayer};
+  |                                            ^^^^^^^ no `builder` in the root
+
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\tls\tests\builder_int_test.rs:24:19
+   |
+24 |         matches!(&b_cfg, TlsConfig::None),
+   |                   ^^^^^ not found in this scope
+
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\tls\tests\builder_int_test.rs:26:10
+   |
+26 |         &b_cfg
+   |          ^^^^^ not found in this scope
+
+Some errors have detailed explanations: E0425, E0432.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `swe-edge-egress-tls` (test "builder_int_test") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0425]: cannot find function `builder` in crate `swe_edge_egress_auth`
+  --> main\features\auth\tests\auth_middleware_int_test.rs:24:36
+   |
+24 |     let mw = swe_edge_egress_auth::builder()
+   |                                    ^^^^^^^ not found in `swe_edge_egress_auth`
+
+error[E0599]: no method named `build` found for struct `RateLayer` in the current scope
+  --> main\features\rate\tests\rate_layer_int_test.rs:29:10
+   |
+27 |       let _layer: RateLayer = build_rate_layer(RateConfig::default())
+   |  _____________________________-
+28 | |         .expect("builder() must succeed")
+29 | |         .build()
+   | |         -^^^^^ method not found in `RateLayer`
+   | |_________|
+   |
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\auth_middleware_int_test.rs:93:16
+   |
+93 |     let mw_a = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\auth_middleware_int_test.rs:98:16
+   |
+98 |     let mw_b = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+For more information about this error, try `rustc --explain E0599`.
+Some errors have detailed explanations: E0425, E0433.
+error: could not compile `swe-edge-egress-rate` (test "rate_layer_int_test") due to 1 previous error
+error: could not compile `swe-edge-egress-auth` (test "auth_middleware_int_test") due to 3 previous errors
+warning: unused import: `build_auth_middleware`
+  --> main\features\auth\tests\basic_strategy_int_test.rs:13:28
+   |
+13 | use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
+   |                            ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\basic_strategy_int_test.rs:25:15
+   |
+25 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+warning: unused import: `build_auth_middleware`
+  --> main\features\auth\tests\credential_source_int_test.rs:16:28
+   |
+16 | use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
+   |                            ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\basic_strategy_int_test.rs:43:15
+   |
+43 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\basic_strategy_int_test.rs:66:5
+   |
+66 |     ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\basic_strategy_int_test.rs:88:14
+   |
+88 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\credential_source_int_test.rs:26:15
+   |
+26 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\basic_strategy_int_test.rs:130:14
+    |
+130 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\basic_strategy_int_test.rs:155:5
+    |
+155 |     ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\credential_source_int_test.rs:44:5
+   |
+44 |     ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\credential_source_int_test.rs:62:15
+   |
+62 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\credential_source_int_test.rs:84:5
+   |
+84 |     ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\credential_source_int_test.rs:102:15
+    |
+102 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\credential_source_int_test.rs:124:15
+    |
+124 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+For more information about this error, try `rustc --explain E0433`.
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\credential_source_int_test.rs:147:5
+    |
+147 |     ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\credential_source_int_test.rs:168:5
+    |
+168 |     ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\auth\tests\auth_config_int_test.rs:25:19
+   |
+25 |         matches!(&b_cfg, AuthConfig::None),
+   |                   ^^^^^ not found in this scope
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\credential_source_int_test.rs:190:15
+    |
+190 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\auth\tests\auth_config_int_test.rs:27:10
+   |
+27 |         &b_cfg
+   |          ^^^^^ not found in this scope
+
+warning: `swe-edge-egress-auth` (test "basic_strategy_int_test") generated 1 warning
+error: could not compile `swe-edge-egress-auth` (test "basic_strategy_int_test") due to 6 previous errors; 1 warning emitted
+warning: `swe-edge-egress-auth` (test "credential_source_int_test") generated 1 warning
+error: could not compile `swe-edge-egress-auth` (test "credential_source_int_test") due to 9 previous errors; 1 warning emitted
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `swe-edge-egress-auth` (test "auth_config_int_test") due to 2 previous errors

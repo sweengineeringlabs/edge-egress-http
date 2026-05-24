@@ -9,6 +9,8 @@
 #   "replay" — read-only, fail loudly on cache miss (CI default)
 #   "record" — always hit the real upstream, overwrite cassette
 #   "auto"   — replay on hit, record on miss (local dev default)
+
+[cassette]
 mode = "replay"
 
 # Directory cassettes live in, relative to CARGO_MANIFEST_DIR of

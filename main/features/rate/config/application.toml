@@ -6,6 +6,8 @@
 # consuming the budget of another host.
 
 # Sustained refill rate, in tokens per second.
+
+[rate]
 tokens_per_second = 10
 
 # Maximum tokens in the bucket (burst tolerance). Higher values

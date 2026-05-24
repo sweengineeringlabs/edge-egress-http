@@ -6,6 +6,8 @@
 # traffic from a legitimately-down upstream within seconds.
 
 # Consecutive failure count that trips the breaker open.
+
+[breaker]
 failure_threshold = 5
 
 # Seconds to wait after opening before allowing a probe request.

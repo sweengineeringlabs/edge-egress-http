@@ -31,6 +31,7 @@ async-trait = { workspace = true }
 # literals in source.
 serde = { workspace = true }
 toml = { workspace = true }
+swe-edge-configbuilder.workspace = true
 tracing = { workspace = true, optional = true }
 # `tokio::spawn` fires the stale-while-revalidate background
 # refresh task. Only `rt` is needed at runtime — the caller's

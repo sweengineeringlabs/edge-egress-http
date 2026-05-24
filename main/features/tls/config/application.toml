@@ -10,6 +10,8 @@
 # referenced, not stored.
 
 # Pass-through — no client cert attached.
+
+[tls]
 kind = "none"
 
 # --- pkcs12 scheme -------------------------------------------

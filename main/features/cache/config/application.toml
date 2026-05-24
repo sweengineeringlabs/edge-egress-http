@@ -8,6 +8,8 @@
 # Fallback TTL in seconds when the upstream response has no
 # Cache-Control max-age. Set to 0 to refuse caching on
 # non-annotated responses (stricter, fewer hits).
+
+[cache]
 default_ttl_seconds = 300
 
 # Maximum entries in the in-memory store (LRU eviction via moka).

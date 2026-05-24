@@ -1,0 +1,232 @@
+    Checking swe-edge-egress-breaker v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\breaker)
+    Checking swe-edge-egress-cache v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\cache)
+    Checking swe-edge-egress-rate v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\rate)
+    Checking swe-edge-egress-auth v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\auth)
+    Checking swe-edge-egress-http-transport v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\transport)
+error[E0425]: cannot find value `b_cfg` in this scope
+  --> main\features\breaker\tests\gateway_int_test.rs:23:10
+   |
+23 |         &b_cfg.failure_threshold >= 1,
+   |          ^^^^^ not found in this scope
+
+    Checking swe-edge-egress-cassette v0.1.0 (C:\phd-systems\swelabs\edge\egress\http\main\features\cassette)
+error[E0277]: can't compare `&u32` with `{integer}`
+  --> main\features\breaker\tests\gateway_int_test.rs:31:5
+   |
+31 |     assert_eq!(&b_cfg.failure_threshold, 3);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&u32 == {integer}`
+   |
+   = help: the trait `PartialEq<{integer}>` is not implemented for `&u32`
+help: consider dereferencing here
+  --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+   |
+46 |                 if !(**left_val == *right_val) {
+   |                      +
+
+error[E0277]: can't compare `&u64` with `{integer}`
+  --> main\features\breaker\tests\gateway_int_test.rs:32:5
+   |
+32 |     assert_eq!(&b_cfg.half_open_after_seconds, 60);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&u64 == {integer}`
+   |
+   = help: the trait `PartialEq<{integer}>` is not implemented for `&u64`
+help: consider dereferencing here
+  --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+   |
+46 |                 if !(**left_val == *right_val) {
+   |                      +
+
+error[E0277]: can't compare `&u32` with `{integer}`
+  --> main\features\breaker\tests\gateway_int_test.rs:33:5
+   |
+33 |     assert_eq!(&b_cfg.reset_after_successes, 2);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&u32 == {integer}`
+   |
+   = help: the trait `PartialEq<{integer}>` is not implemented for `&u32`
+help: consider dereferencing here
+  --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+   |
+46 |                 if !(**left_val == *right_val) {
+   |                      +
+
+error[E0277]: can't compare `&Vec<u16>` with `Vec<u16>`
+  --> main\features\breaker\tests\gateway_int_test.rs:34:5
+   |
+34 |     assert_eq!(&b_cfg.failure_statuses, vec![500u16, 502, 503]);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&Vec<u16> == Vec<u16>`
+   |
+   = help: the trait `PartialEq<Vec<u16>>` is not implemented for `&Vec<u16>`
+help: consider dereferencing here
+  --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+   |
+46 |                 if !(**left_val == *right_val) {
+   |                      +
+
+error[E0599]: no method named `build` found for struct `BreakerLayer` in the current scope
+  --> main\features\breaker\tests\gateway_int_test.rs:41:10
+   |
+39 |       let layer: BreakerLayer = build_breaker_layer(BreakerConfig::default())
+   |  _______________________________-
+40 | |         .expect("builder() must succeed")
+41 | |         .build()
+   | |         -^^^^^ method not found in `BreakerLayer`
+   | |_________|
+   |
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\breaker\tests\gateway_int_test.rs:52:5
+   |
+52 |     ApplicationConfigBuilder::with_config(make_cfg())
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0277]: can't compare `&u32` with `{integer}`
+  --> main\features\breaker\tests\gateway_int_test.rs:72:5
+   |
+72 |     assert_eq!(&b_cfg.failure_threshold, 10);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `&u32 == {integer}`
+   |
+   = help: the trait `PartialEq<{integer}>` is not implemented for `&u32`
+help: consider dereferencing here
+  --> C:\Users\elvis\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\macros\mod.rs:46:22
+   |
+46 |                 if !(**left_val == *right_val) {
+   |                      +
+
+Some errors have detailed explanations: E0277, E0425, E0433, E0599.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `swe-edge-egress-breaker` (test "gateway_int_test") due to 8 previous errors
+warning: build failed, waiting for other jobs to finish...
+warning: unused import: `build_auth_middleware`
+ --> main\features\auth\tests\header_strategy_int_test.rs:9:28
+  |
+9 | use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
+  |                            ^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0425]: cannot find value `b` in this scope
+   --> main\features\cassette\tests\cassette_config_int_test.rs:169:13
+    |
+169 |     assert!(b
+    |             ^ not found in this scope
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\header_strategy_int_test.rs:19:15
+   |
+19 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\header_strategy_int_test.rs:39:15
+   |
+39 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\header_strategy_int_test.rs:61:15
+   |
+61 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\header_strategy_int_test.rs:87:15
+   |
+87 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\header_strategy_int_test.rs:108:5
+    |
+108 |     ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\header_strategy_int_test.rs:122:5
+    |
+122 |     ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\header_strategy_int_test.rs:135:5
+    |
+135 |     ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\header_strategy_int_test.rs:152:14
+    |
+152 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\header_strategy_int_test.rs:173:14
+    |
+173 |     let mw = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+For more information about this error, try `rustc --explain E0433`.
+warning: `swe-edge-egress-auth` (test "header_strategy_int_test") generated 1 warning
+error: could not compile `swe-edge-egress-auth` (test "header_strategy_int_test") due to 9 previous errors; 1 warning emitted
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `swe-edge-egress-cassette` (test "cassette_config_int_test") due to 1 previous error
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\strategy_factory_int_test.rs:35:15
+   |
+35 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\strategy_factory_int_test.rs:50:5
+   |
+50 |     ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\strategy_factory_int_test.rs:68:15
+   |
+68 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+  --> main\features\auth\tests\strategy_factory_int_test.rs:86:5
+   |
+86 |     ApplicationConfigBuilder::with_config(AuthConfig::Basic {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\strategy_factory_int_test.rs:104:15
+    |
+104 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\strategy_factory_int_test.rs:120:5
+    |
+120 |     ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\strategy_factory_int_test.rs:133:15
+    |
+133 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Header {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\strategy_factory_int_test.rs:157:15
+    |
+157 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\strategy_factory_int_test.rs:178:5
+    |
+178 |     ApplicationConfigBuilder::with_config(AuthConfig::AwsSigV4 {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error[E0433]: cannot find type `ApplicationConfigBuilder` in this scope
+   --> main\features\auth\tests\strategy_factory_int_test.rs:205:15
+    |
+205 |     let err = ApplicationConfigBuilder::with_config(AuthConfig::Bearer {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ApplicationConfigBuilder`
+
+error: could not compile `swe-edge-egress-auth` (test "strategy_factory_int_test") due to 10 previous errors
