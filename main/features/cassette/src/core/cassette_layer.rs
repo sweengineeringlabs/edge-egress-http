@@ -14,7 +14,7 @@ use crate::api::error::CassetteError;
 use crate::api::types::cassette_config::CassetteConfig;
 use crate::api::types::cassette_layer::CassetteLayer;
 
-use super::body_scrubber::scrub_body;
+use super::body_scrubber::BodyScrubber;
 use super::recorded_interaction::{RecordedInteraction, RecordedRequest, RecordedResponse};
 
 impl CassetteLayer {
@@ -49,7 +49,7 @@ impl CassetteLayer {
                 "url" => parts.push(format!("url={}", req.url())),
                 "body_hash" => {
                     let raw = req.body().and_then(|b| b.as_bytes()).unwrap_or(&[]);
-                    let scrubbed = scrub_body(raw, &self.config.scrub_body_paths);
+                    let scrubbed = BodyScrubber::scrub_body(raw, &self.config.scrub_body_paths);
                     let body_hex = sha256_hex(&scrubbed);
                     parts.push(format!("body_hash={body_hex}"));
                 }
@@ -151,7 +151,7 @@ impl reqwest_middleware::Middleware for CassetteLayer {
             url: req.url().to_string(),
             body_hash: if self.config.match_on.iter().any(|m| m == "body_hash") {
                 let raw = req.body().and_then(|b| b.as_bytes()).unwrap_or(&[]);
-                let scrubbed = scrub_body(raw, &self.config.scrub_body_paths);
+                let scrubbed = BodyScrubber::scrub_body(raw, &self.config.scrub_body_paths);
                 Some(sha256_hex(&scrubbed))
             } else {
                 None

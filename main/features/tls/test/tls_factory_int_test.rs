@@ -9,13 +9,14 @@
 //! - `TlsConfig::Pkcs12 { path, password_env: None }` → `Pkcs12HttpTls` —
 //!   file-read error at build (no password check needed).
 //! - `TlsConfig::Pkcs12 { path, password_env: Some(var) }` where `var` is
-//!   unset → `Error::MissingEnvVar` at build.
+//!   unset → `TlsError::MissingEnvVar` at build.
 //! - `TlsConfig::Pkcs12 { path, password_env: Some(var) }` where `var` is
-//!   set but file is missing → `Error::FileReadFailed` at build.
+//!   set but file is missing → `TlsError::FileReadFailed` at build.
 //! - Each variant selects the correct provider (`describe()` embedded in
 //!   the `TlsLayer` Debug).
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, Error, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // None variant → noop provider
@@ -56,7 +57,7 @@ fn test_factory_pem_variant_returns_file_read_failed_for_missing_file() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, Error::FileReadFailed { .. }),
+        matches!(err, TlsError::FileReadFailed { .. }),
         "factory must produce FileReadFailed for missing PEM; got: {err:?}"
     );
 }
@@ -75,7 +76,7 @@ fn test_factory_pkcs12_no_password_missing_file_returns_file_read_failed() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, Error::FileReadFailed { .. }),
+        matches!(err, TlsError::FileReadFailed { .. }),
         "factory must produce FileReadFailed for missing PKCS12 file; got: {err:?}"
     );
 }
@@ -92,7 +93,7 @@ fn test_factory_pkcs12_unset_password_env_returns_missing_env_var() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     match err {
-        Error::MissingEnvVar { name } => assert_eq!(name, env),
+        TlsError::MissingEnvVar { name } => assert_eq!(name, env),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
     }
 }
@@ -109,7 +110,7 @@ fn test_factory_pkcs12_set_password_env_missing_file_returns_file_read_failed() 
     };
     let err = build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, Error::FileReadFailed { .. }),
+        matches!(err, TlsError::FileReadFailed { .. }),
         "factory must return FileReadFailed when env is set but file is missing; got: {err:?}"
     );
     std::env::remove_var(env);

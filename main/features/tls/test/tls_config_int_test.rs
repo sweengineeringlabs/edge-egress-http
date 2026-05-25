@@ -10,8 +10,9 @@
 //! - `from_config` rejects unknown `kind` values and inline `password` fields.
 //! - `swe_default()` always returns `TlsConfig::None`.
 //! - Values flow unchanged through `build_tls_layer`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{Error, TlsConfig};
+use swe_edge_egress_tls::{TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // Direct variant construction
@@ -156,7 +157,7 @@ fn test_from_config_rejects_inline_password_field() {
 fn test_from_config_rejects_pem_without_path() {
     let err = TlsConfig::from_config(r#"kind = "pem""#).unwrap_err();
     assert!(
-        matches!(err, Error::ParseFailed(_)),
+        matches!(err, TlsError::ParseFailed(_)),
         "pem without path must produce ParseFailed; got: {err:?}"
     );
 }

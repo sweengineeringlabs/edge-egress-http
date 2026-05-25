@@ -5,8 +5,9 @@
 //! - `apply_to` for the `None` (pass-through) case.
 //! - Send + Sync bounds.
 //! - That the layer is usable in the standard `apply_to + ClientBuilder` pattern.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, Error, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // TlsLayer construction via build_tls_layer
@@ -37,7 +38,7 @@ fn test_build_pem_missing_file_fails_eagerly() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, Error::FileReadFailed { .. }),
+        matches!(err, TlsError::FileReadFailed { .. }),
         "missing PEM must fail at build time; got: {err:?}"
     );
 }
@@ -51,7 +52,7 @@ fn test_build_pkcs12_missing_file_fails_eagerly() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, Error::FileReadFailed { .. }),
+        matches!(err, TlsError::FileReadFailed { .. }),
         "missing PKCS12 file must fail at build time; got: {err:?}"
     );
 }
@@ -68,7 +69,7 @@ fn test_build_pkcs12_unset_password_env_fails_eagerly() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     match err {
-        Error::MissingEnvVar { name } => assert_eq!(name, env_name),
+        TlsError::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
     }
 }

@@ -19,76 +19,80 @@
 //!   segment into an array is a no-op (we bail rather than
 //!   pretending it matched).
 
-/// Apply each path to the raw body and return the resulting
-/// bytes. If the body isn't valid JSON, returns the raw bytes
-/// unchanged — scrubbing is best-effort and doesn't gate hashing.
-pub(crate) fn scrub_body(raw: &[u8], paths: &[String]) -> Vec<u8> {
-    if paths.is_empty() {
-        return raw.to_vec();
-    }
-    let mut value: serde_json::Value = match serde_json::from_slice(raw) {
-        Ok(v) => v,
-        Err(_) => return raw.to_vec(), // not JSON → no scrub
-    };
-    for path in paths {
-        remove_path(&mut value, path);
-    }
-    // Re-serialize. `to_vec` preserves object key order as
-    // serde_json emits it (sorted by insertion if the value is
-    // from parsing; stable enough for hash reproducibility
-    // across runs with the same scrub paths).
-    serde_json::to_vec(&value).unwrap_or_else(|_| raw.to_vec())
-}
+pub(crate) struct BodyScrubber;
 
-/// Descend into `value` following `path` (dot-separated) and
-/// remove the terminal field or element. No-op if the path
-/// doesn't exist, an intermediate segment doesn't match the
-/// current value's shape (object key missing, array index OOB,
-/// non-numeric segment into an array, scalar encountered
-/// mid-path), or the terminal is missing.
-fn remove_path(value: &mut serde_json::Value, path: &str) {
-    let mut segments: Vec<&str> = path.split('.').collect();
-    if segments.is_empty() {
-        return;
+impl BodyScrubber {
+    /// Apply each path to the raw body and return the resulting
+    /// bytes. If the body isn't valid JSON, returns the raw bytes
+    /// unchanged — scrubbing is best-effort and doesn't gate hashing.
+    pub(crate) fn scrub_body(raw: &[u8], paths: &[String]) -> Vec<u8> {
+        if paths.is_empty() {
+            return raw.to_vec();
+        }
+        let mut value: serde_json::Value = match serde_json::from_slice(raw) {
+            Ok(v) => v,
+            Err(_) => return raw.to_vec(), // not JSON → no scrub
+        };
+        for path in paths {
+            Self::remove_path(&mut value, path);
+        }
+        // Re-serialize. `to_vec` preserves object key order as
+        // serde_json emits it (sorted by insertion if the value is
+        // from parsing; stable enough for hash reproducibility
+        // across runs with the same scrub paths).
+        serde_json::to_vec(&value).unwrap_or_else(|_| raw.to_vec())
     }
-    let terminal = segments.pop().unwrap();
-    let mut current = value;
-    for seg in segments {
-        match current {
-            serde_json::Value::Object(map) => match map.get_mut(seg) {
-                Some(next) => current = next,
-                None => return, // path doesn't exist, no-op
-            },
-            serde_json::Value::Array(arr) => {
-                // Array descent: segment must parse as usize and
-                // be in bounds. Non-numeric or OOB → bail.
-                let idx: usize = match seg.parse() {
-                    Ok(i) => i,
-                    Err(_) => return,
-                };
-                match arr.get_mut(idx) {
+
+    /// Descend into `value` following `path` (dot-separated) and
+    /// remove the terminal field or element. No-op if the path
+    /// doesn't exist, an intermediate segment doesn't match the
+    /// current value's shape (object key missing, array index OOB,
+    /// non-numeric segment into an array, scalar encountered
+    /// mid-path), or the terminal is missing.
+    pub(crate) fn remove_path(value: &mut serde_json::Value, path: &str) {
+        let mut segments: Vec<&str> = path.split('.').collect();
+        if segments.is_empty() {
+            return;
+        }
+        let terminal = segments.pop().unwrap();
+        let mut current = value;
+        for seg in segments {
+            match current {
+                serde_json::Value::Object(map) => match map.get_mut(seg) {
                     Some(next) => current = next,
-                    None => return,
+                    None => return, // path doesn't exist, no-op
+                },
+                serde_json::Value::Array(arr) => {
+                    // Array descent: segment must parse as usize and
+                    // be in bounds. Non-numeric or OOB → bail.
+                    let idx: usize = match seg.parse() {
+                        Ok(i) => i,
+                        Err(_) => return,
+                    };
+                    match arr.get_mut(idx) {
+                        Some(next) => current = next,
+                        None => return,
+                    }
                 }
-            }
-            _ => return, // scalar mid-path, bail
-        }
-    }
-    match current {
-        serde_json::Value::Object(map) => {
-            map.remove(terminal);
-        }
-        serde_json::Value::Array(arr) => {
-            // Terminal array removal: numeric in-bounds removes
-            // the element (array shrinks). Anything else is a
-            // no-op.
-            if let Ok(idx) = terminal.parse::<usize>() {
-                if idx < arr.len() {
-                    arr.remove(idx);
-                }
+                _ => return, // scalar mid-path, bail
             }
         }
-        _ => {}
+        match current {
+            serde_json::Value::Object(map) => {
+                map.remove(terminal);
+            }
+            serde_json::Value::Array(arr) => {
+                // Terminal array removal: numeric in-bounds removes
+                // the element (array shrinks). Anything else is a
+                // no-op.
+                if let Ok(idx) = terminal.parse::<usize>() {
+                    if idx < arr.len() {
+                        arr.remove(idx);
+                    }
+                }
+            }
+            _ => {}
+        }
     }
 }
 
@@ -100,7 +104,7 @@ mod tests {
     #[test]
     fn test_remove_path_removes_top_level_key() {
         let mut v = serde_json::json!({"a": 1, "b": 2});
-        remove_path(&mut v, "a");
+        BodyScrubber::remove_path(&mut v, "a");
         assert!(v.get("a").is_none(), "key 'a' must be removed");
         assert_eq!(v.get("b").and_then(|x| x.as_i64()), Some(2));
     }

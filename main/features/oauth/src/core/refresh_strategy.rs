@@ -38,7 +38,7 @@ impl OAuthRefreshStrategy {
     }
 
     async fn fresh_token(&self) -> Result<String, Error> {
-        let now = now_ms();
+        let now = OAuthTimeHelper::now_ms();
         let mut guard = self.cached.lock().await;
 
         let needs_refresh = match guard.as_ref() {
@@ -94,11 +94,15 @@ impl reqwest_middleware::Middleware for OAuthRefreshStrategy {
     }
 }
 
-fn now_ms() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis() as u64
+pub(crate) struct OAuthTimeHelper;
+
+impl OAuthTimeHelper {
+    pub(crate) fn now_ms() -> u64 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64
+    }
 }
 
 #[cfg(test)]

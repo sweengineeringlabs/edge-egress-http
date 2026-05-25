@@ -3,20 +3,21 @@
 //! `PemHttpTls` is `pub(crate)`. Integration tests verify its contract
 //! through the public `build_tls_layer(TlsConfig::Pem { path })` path:
 //!
-//! - A missing PEM file causes `build_tls_layer` to return `Error::FileReadFailed`
+//! - A missing PEM file causes `build_tls_layer` to return `TlsError::FileReadFailed`
 //!   eagerly (at startup, not at first request).
 //! - An existing but malformed PEM file causes `identity()` to return
-//!   `Error::InvalidCertificate { format: "pem", .. }`.
+//!   `TlsError::InvalidCertificate { format: "pem", .. }`.
 //! - A valid PEM file would produce `Ok(Some(Identity))` — tested with a
 //!   self-signed cert fixture written to a temp directory.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, Error, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // PemHttpTls::load — file-read errors surface at build time
 // ---------------------------------------------------------------------------
 
-/// A missing PEM file must cause `build()` to return `Error::FileReadFailed`
+/// A missing PEM file must cause `build()` to return `TlsError::FileReadFailed`
 /// before any requests are attempted.
 #[test]
 fn test_pem_missing_file_returns_file_read_failed() {
@@ -25,7 +26,7 @@ fn test_pem_missing_file_returns_file_read_failed() {
     };
     let err = build_tls_layer(cfg).unwrap_err();
     match err {
-        Error::FileReadFailed { path, reason } => {
+        TlsError::FileReadFailed { path, reason } => {
             assert!(
                 path.contains("does/not/exist"),
                 "FileReadFailed path must contain the configured path; got: {path}"
@@ -58,7 +59,7 @@ fn test_pem_file_read_failed_contains_configured_path() {
 // ---------------------------------------------------------------------------
 
 /// A file that exists but does not contain valid PEM data must cause
-/// `build()` or `identity()` to return `Error::InvalidCertificate` with
+/// `build()` or `identity()` to return `TlsError::InvalidCertificate` with
 /// `format = "pem"`. We simulate this by writing a non-PEM file to a temp
 /// directory and passing its path as the PEM source.
 #[test]
@@ -79,7 +80,7 @@ fn test_pem_invalid_content_returns_invalid_certificate() {
     // Now `apply_to` calls `identity()` which calls `reqwest::Identity::from_pem`.
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        Error::InvalidCertificate { format, reason } => {
+        TlsError::InvalidCertificate { format, reason } => {
             assert_eq!(format, "pem", "format must be 'pem'; got: {format}");
             assert!(
                 !reason.is_empty(),
@@ -116,7 +117,7 @@ fn test_pem_bytes_read_at_build_time_not_at_apply_to() {
     // FileReadFailed (because the file was already read).
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     assert!(
-        matches!(err, Error::InvalidCertificate { .. }),
+        matches!(err, TlsError::InvalidCertificate { .. }),
         "after file deletion, error must be InvalidCertificate (bytes already read); got: {err:?}"
     );
 }
