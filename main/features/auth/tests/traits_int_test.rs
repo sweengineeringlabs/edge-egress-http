@@ -82,9 +82,7 @@ fn test_auth_middleware_can_be_moved_across_thread_boundary() {
 #[test]
 fn test_auth_middleware_can_be_shared_across_threads_via_arc() {
     use std::sync::Arc;
-    let mw = Arc::new(
-        build_auth_middleware(AuthConfig::None).expect("None config builds"),
-    );
+    let mw = Arc::new(build_auth_middleware(AuthConfig::None).expect("None config builds"));
     let mw2 = Arc::clone(&mw);
     let handle = std::thread::spawn(move || {
         let s = format!("{mw2:?}");

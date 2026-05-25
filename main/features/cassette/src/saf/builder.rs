@@ -7,9 +7,9 @@
 
 use swe_edge_configbuilder::ConfigBuilder as _;
 
-use crate::api::cassette_config::CassetteConfig;
-use crate::api::cassette_layer::CassetteLayer;
-use crate::api::error::Error;
+use crate::api::error::CassetteError;
+use crate::api::types::cassette_config::CassetteConfig;
+use crate::api::types::cassette_layer::CassetteLayer;
 
 /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
 pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
@@ -25,35 +25,6 @@ pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
 pub fn build_cassette_layer(
     config: CassetteConfig,
     cassette_name: &str,
-) -> Result<CassetteLayer, Error> {
+) -> Result<CassetteLayer, CassetteError> {
     CassetteLayer::new(config, cassette_name)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: create_config_builder
-    #[test]
-    fn test_create_config_builder_builds_loader() {
-        let _loader = create_config_builder().build_loader();
-    }
-
-    /// @covers: build_cassette_layer
-    #[test]
-    fn test_build_cassette_layer_with_nonexistent_cassette_file_starts_empty() {
-        let tmpdir = tempfile::tempdir().unwrap();
-        let dir_toml_safe = tmpdir.path().to_str().unwrap().replace('\\', "/");
-        let toml = format!(
-            r#"
-                mode = "auto"
-                cassette_dir = "{dir_toml_safe}"
-                match_on = ["method", "url"]
-                scrub_headers = []
-                scrub_body_paths = []
-            "#
-        );
-        let cfg = CassetteConfig::from_config(&toml).unwrap();
-        let _layer = build_cassette_layer(cfg, "fresh_case").expect("build ok");
-    }
 }

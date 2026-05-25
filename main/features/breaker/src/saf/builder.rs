@@ -2,9 +2,9 @@
 
 use swe_edge_configbuilder::ConfigBuilder as _;
 
-use crate::api::breaker_config::BreakerConfig;
-use crate::api::breaker_layer::BreakerLayer;
-use crate::api::error::Error;
+use crate::api::error::BreakerError;
+use crate::api::types::breaker_config::BreakerConfig;
+use crate::api::types::breaker_layer::BreakerLayer;
 
 /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
 pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
@@ -17,7 +17,7 @@ pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
 ///
 /// The returned layer implements `reqwest_middleware::Middleware` and
 /// carries its own per-host state cache (bounded moka cache).
-pub fn build_breaker_layer(config: BreakerConfig) -> Result<BreakerLayer, Error> {
+pub fn build_breaker_layer(config: BreakerConfig) -> Result<BreakerLayer, BreakerError> {
     Ok(BreakerLayer::new(config))
 }
 

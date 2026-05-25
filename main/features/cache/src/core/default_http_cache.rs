@@ -5,7 +5,7 @@
 //! when the crate's `Middleware` impl is written — at that
 //! point the strategy/policy state moves in here too.
 
-use crate::api::cache_config::CacheConfig;
+use crate::api::types::cache_config::CacheConfig;
 use crate::api::http_cache::HttpCache;
 
 /// Default HttpCache implementation. `pub(crate)` — consumers

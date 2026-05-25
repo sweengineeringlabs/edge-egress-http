@@ -40,8 +40,8 @@ use async_trait::async_trait;
 use moka::future::Cache;
 use reqwest::header::{HeaderMap, HeaderValue, CACHE_CONTROL, ETAG, IF_NONE_MATCH, VARY};
 
-use crate::api::cache_config::CacheConfig;
-use crate::api::cache_layer::CacheLayer;
+use crate::api::types::cache_config::CacheConfig;
+use crate::api::types::cache_layer::CacheLayer;
 use crate::core::cached_entry::{
     entry_matches_vary, extract_max_age, extract_stale_while_revalidate, in_swr_window, parse_vary,
     should_revalidate, CachedEntry, VaryDirective,

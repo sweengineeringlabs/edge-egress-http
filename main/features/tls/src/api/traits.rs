@@ -11,5 +11,5 @@ pub trait TlsApplier {
     fn apply_to(
         &self,
         builder: reqwest::ClientBuilder,
-    ) -> Result<reqwest::ClientBuilder, crate::api::error::Error>;
+    ) -> Result<reqwest::ClientBuilder, crate::api::error::TlsError>;
 }

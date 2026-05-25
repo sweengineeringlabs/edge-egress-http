@@ -1688,8 +1688,11 @@ dependencies = [
  "http",
  "reqwest",
  "reqwest-middleware",
+ "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
+ "toml",
  "tracing",
 ]
 

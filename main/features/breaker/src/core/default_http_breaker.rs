@@ -5,7 +5,7 @@
 //! when the crate's `Middleware` impl is written — at that
 //! point the strategy/policy state moves in here too.
 
-use crate::api::breaker_config::BreakerConfig;
+use crate::api::types::breaker_config::BreakerConfig;
 use crate::api::http_breaker::HttpBreaker;
 
 /// Default HttpBreaker implementation. `pub(crate)` — consumers

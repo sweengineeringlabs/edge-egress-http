@@ -10,3 +10,6 @@ pub(crate) mod error;
 pub(crate) mod http_auth;
 pub(crate) mod strategy;
 pub(crate) mod traits;
+pub mod types;
+
+pub use types::AuthMiddleware;

@@ -13,8 +13,8 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 
-use crate::api::retry_config::RetryConfig;
-use crate::api::retry_layer::RetryLayer;
+use crate::api::types::retry_config::RetryConfig;
+use crate::api::types::retry_layer::RetryLayer;
 
 impl RetryLayer {
     /// Construct from a resolved config.

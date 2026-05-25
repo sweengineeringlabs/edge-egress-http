@@ -1,6 +1,6 @@
 //! Pass-through — no client identity attached.
 
-use crate::api::error::Error;
+use crate::api::error::TlsError;
 use crate::api::http_tls::HttpTls;
 
 #[derive(Debug, Default)]
@@ -11,7 +11,7 @@ impl HttpTls for NoopHttpTls {
         "noop"
     }
 
-    fn identity(&self) -> Result<Option<reqwest::Identity>, Error> {
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
         Ok(None)
     }
 }

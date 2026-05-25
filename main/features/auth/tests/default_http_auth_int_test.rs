@@ -16,8 +16,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthMiddleware, Er
 
 #[test]
 fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
-        .expect("None must build");
+    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None).expect("None must build");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -100,8 +99,7 @@ fn test_default_http_auth_build_fails_with_missing_env_var_for_basic() {
 
 #[test]
 fn test_default_http_auth_build_succeeds_for_none() {
-    build_auth_middleware(AuthConfig::None)
-        .expect("None config must always build");
+    build_auth_middleware(AuthConfig::None).expect("None config must always build");
 }
 
 #[test]
@@ -141,8 +139,7 @@ async fn test_default_http_auth_process_none_attaches_no_auth_headers() {
     // None config → NoopStrategy → process() must add no headers.
     // We can't send a real request, but we can wire the middleware into
     // a ClientBuilder and verify it doesn't panic during wiring.
-    let mw = build_auth_middleware(AuthConfig::None)
-        .expect("build ok");
+    let mw = build_auth_middleware(AuthConfig::None).expect("build ok");
     let _client = ClientBuilder::new(reqwest::Client::new()).with(mw).build();
     // Reaching here without panic proves the process() pathway compiles
     // and the middleware is correctly wired.

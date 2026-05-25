@@ -34,8 +34,7 @@ fn test_aws_sigv4_missing_access_key_env_returns_missing_env_var() {
     let sk_env = "SWE_AUTH_AWS_MISS_SK_01";
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
-    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, None))
-        .unwrap_err();
+    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, None)).unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, ak_env),
         other => panic!("expected MissingEnvVar for access key, got {other:?}"),
@@ -49,8 +48,7 @@ fn test_aws_sigv4_missing_secret_key_env_returns_missing_env_var() {
     // Only access key is present; secret key is absent.
     std::env::set_var(ak_env, "AKID");
     std::env::remove_var(sk_env);
-    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, None))
-        .unwrap_err();
+    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, None)).unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, sk_env),
         other => panic!("expected MissingEnvVar for secret key, got {other:?}"),
@@ -66,8 +64,7 @@ fn test_aws_sigv4_missing_session_token_env_returns_missing_env_var() {
     std::env::set_var(ak_env, "AKID");
     std::env::set_var(sk_env, "SECRET");
     std::env::remove_var(st_env); // declared but absent
-    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env)))
-        .unwrap_err();
+    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env))).unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, st_env),
         other => panic!("expected MissingEnvVar for session token, got {other:?}"),

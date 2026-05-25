@@ -13,16 +13,16 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthMiddleware};
 #[test]
 fn test_auth_middleware_builds_from_none_config() {
     // Simplest path: None config needs no env vars. Must always succeed.
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
-        .expect("None config must produce AuthMiddleware");
+    let mw: AuthMiddleware =
+        build_auth_middleware(AuthConfig::None).expect("None config must produce AuthMiddleware");
     // Verify the returned value is usable (debug at minimum).
     let _ = format!("{mw:?}");
 }
 
 #[test]
 fn test_auth_middleware_builds_from_builder_fn_default() {
-    let mw = build_auth_middleware(AuthConfig::None)
-        .expect("default config must build to middleware");
+    let mw =
+        build_auth_middleware(AuthConfig::None).expect("default config must build to middleware");
     let _ = format!("{mw:?}");
 }
 
@@ -33,8 +33,7 @@ fn test_auth_middleware_builds_from_bearer_config_when_env_set() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let mw = build_auth_middleware(cfg)
-        .expect("Bearer with env set must produce AuthMiddleware");
+    let mw = build_auth_middleware(cfg).expect("Bearer with env set must produce AuthMiddleware");
     let _ = format!("{mw:?}");
     std::env::remove_var(env_name);
 }
@@ -45,8 +44,7 @@ fn test_auth_middleware_builds_from_bearer_config_when_env_set() {
 
 #[test]
 fn test_auth_middleware_debug_contains_auth_middleware_type_name() {
-    let mw = build_auth_middleware(AuthConfig::None)
-        .expect("build ok");
+    let mw = build_auth_middleware(AuthConfig::None).expect("build ok");
     let s = format!("{mw:?}");
     assert!(
         s.contains("AuthMiddleware"),
@@ -58,8 +56,7 @@ fn test_auth_middleware_debug_contains_auth_middleware_type_name() {
 fn test_auth_middleware_debug_contains_processor_description() {
     // The processor for any real config identifies itself as
     // "swe_edge_egress_auth" via DefaultHttpAuth::describe().
-    let mw = build_auth_middleware(AuthConfig::None)
-        .expect("build ok");
+    let mw = build_auth_middleware(AuthConfig::None).expect("build ok");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),

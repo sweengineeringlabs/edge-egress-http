@@ -1,8 +1,8 @@
 //! SAF factory functions for assembling [`HttpEgress`] instances.
 
-use swe_edge_configbuilder::ConfigBuilder as _;
 use std::sync::Arc;
 use std::time::Duration;
+use swe_edge_configbuilder::ConfigBuilder as _;
 
 use reqwest_middleware::{ClientBuilder, Middleware};
 use swe_edge_egress_tls::TlsApplier;
@@ -34,7 +34,8 @@ pub fn http_egress(config: HttpEgressConfig) -> Result<impl HttpEgress, HttpEgre
     let rate = swe_edge_egress_rate::build_rate_layer(config.rate)?;
     let breaker = swe_edge_egress_breaker::build_breaker_layer(config.breaker)?;
     let cache = swe_edge_egress_cache::build_cache_layer(config.cache)?;
-    let cassette = swe_edge_egress_cassette::build_cassette_layer(config.cassette, &config.cassette_name)?;
+    let cassette =
+        swe_edge_egress_cassette::build_cassette_layer(config.cassette, &config.cassette_name)?;
     let tls = swe_edge_egress_tls::build_tls_layer(config.tls)?;
 
     if let Some(source) = config.token_source {

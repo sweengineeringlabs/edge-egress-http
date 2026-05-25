@@ -2,7 +2,7 @@
 
 use secrecy::{ExposeSecret, SecretString};
 
-use crate::api::error::Error;
+use crate::api::error::TlsError;
 use crate::api::http_tls::HttpTls;
 
 pub(crate) struct Pkcs12HttpTls {
@@ -35,8 +35,8 @@ impl Pkcs12HttpTls {
     /// Construct by reading the .p12 / .pfx file into memory.
     /// Password (if any) is pre-resolved from env var before
     /// this call; see `tls_factory::build_provider`.
-    pub(crate) fn new(path: String, password: Option<SecretString>) -> Result<Self, Error> {
-        let der_bytes = std::fs::read(&path).map_err(|e| Error::FileReadFailed {
+    pub(crate) fn new(path: String, password: Option<SecretString>) -> Result<Self, TlsError> {
+        let der_bytes = std::fs::read(&path).map_err(|e| TlsError::FileReadFailed {
             path: path.clone(),
             reason: e.to_string(),
         })?;
@@ -53,7 +53,7 @@ impl HttpTls for Pkcs12HttpTls {
         "pkcs12"
     }
 
-    fn identity(&self) -> Result<Option<reqwest::Identity>, Error> {
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
         let password = self
             .password
             .as_ref()
@@ -61,7 +61,7 @@ impl HttpTls for Pkcs12HttpTls {
             .unwrap_or_default();
         let identity =
             reqwest::Identity::from_pkcs12_der(&self.der_bytes, &password).map_err(|e| {
-                Error::InvalidCertificate {
+                TlsError::InvalidCertificate {
                     format: "pkcs12",
                     reason: e.to_string(),
                 }
@@ -123,7 +123,7 @@ mod tests {
         let err =
             Pkcs12HttpTls::new("/path/definitely/does/not/exist.p12".into(), None).unwrap_err();
         match err {
-            Error::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
+            TlsError::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),
         }
     }
@@ -141,7 +141,7 @@ mod tests {
         };
         let err = p.identity().unwrap_err();
         match err {
-            Error::InvalidCertificate { format, .. } => assert_eq!(format, "pkcs12"),
+            TlsError::InvalidCertificate { format, .. } => assert_eq!(format, "pkcs12"),
             other => panic!("expected InvalidCertificate, got {other:?}"),
         }
     }

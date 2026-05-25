@@ -15,8 +15,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthMiddleware};
 #[test]
 fn test_noop_strategy_builds_without_any_env_vars() {
     // Deliberately do not set any env vars. None config must succeed.
-    build_auth_middleware(AuthConfig::None)
-        .expect("AuthConfig::None must build unconditionally");
+    build_auth_middleware(AuthConfig::None).expect("AuthConfig::None must build unconditionally");
 }
 
 #[test]
@@ -35,8 +34,7 @@ fn test_noop_strategy_builds_even_when_common_env_vars_are_unset() {
 
 #[test]
 fn test_noop_strategy_build_returns_auth_middleware() {
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
-        .expect("None must build");
+    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None).expect("None must build");
     // Verify the type is a real AuthMiddleware by exercising its Debug impl.
     let s = format!("{mw:?}");
     assert!(
@@ -52,8 +50,7 @@ fn test_noop_strategy_build_returns_auth_middleware() {
 #[tokio::test]
 async fn test_noop_strategy_middleware_wires_into_reqwest_middleware_without_panic() {
     // Wiring the noop middleware into a ClientBuilder must not panic or error.
-    let mw = build_auth_middleware(AuthConfig::None)
-        .expect("None must build");
+    let mw = build_auth_middleware(AuthConfig::None).expect("None must build");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(mw)
         .build();
@@ -72,8 +69,7 @@ fn test_noop_strategy_auth_middleware_is_send_and_sync() {
 
 #[test]
 fn test_noop_strategy_auth_middleware_can_be_moved_across_threads() {
-    let mw = build_auth_middleware(AuthConfig::None)
-        .expect("None must build");
+    let mw = build_auth_middleware(AuthConfig::None).expect("None must build");
     let handle = std::thread::spawn(move || {
         // Confirm the middleware is usable in the spawned thread.
         let s = format!("{mw:?}");
@@ -88,10 +84,8 @@ fn test_noop_strategy_auth_middleware_can_be_moved_across_threads() {
 
 #[test]
 fn test_noop_strategy_two_independent_instances_both_build_and_debug() {
-    let mw1 = build_auth_middleware(AuthConfig::None)
-        .unwrap();
-    let mw2 = build_auth_middleware(AuthConfig::None)
-        .unwrap();
+    let mw1 = build_auth_middleware(AuthConfig::None).unwrap();
+    let mw2 = build_auth_middleware(AuthConfig::None).unwrap();
     // Both must be independently usable.
     let s1 = format!("{mw1:?}");
     let s2 = format!("{mw2:?}");

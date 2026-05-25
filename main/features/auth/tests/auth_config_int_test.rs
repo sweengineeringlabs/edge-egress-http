@@ -14,8 +14,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, Error};
 fn test_auth_config_none_variant_builds_without_env() {
     // None requires no env vars — must always succeed even in a
     // stripped environment. If this fails the baseline is broken.
-    build_auth_middleware(AuthConfig::None)
-        .expect("AuthConfig::None must always build");
+    build_auth_middleware(AuthConfig::None).expect("AuthConfig::None must always build");
 }
 
 #[test]
@@ -54,8 +53,7 @@ fn test_auth_config_bearer_missing_env_fails_at_build_time() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -69,8 +67,7 @@ fn test_auth_config_bearer_env_set_builds_successfully() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    build_auth_middleware(cfg)
-        .expect("Bearer with env set must build");
+    build_auth_middleware(cfg).expect("Bearer with env set must build");
     std::env::remove_var(env_name);
 }
 
@@ -103,8 +100,7 @@ fn test_auth_config_basic_missing_user_env_fails_at_build() {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing basic user env must fail: {err:?}"
@@ -121,8 +117,7 @@ fn test_auth_config_basic_both_envs_set_builds_successfully() {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     };
-    build_auth_middleware(cfg)
-        .expect("Basic with both envs set must build");
+    build_auth_middleware(cfg).expect("Basic with both envs set must build");
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
 }
@@ -154,8 +149,7 @@ fn test_auth_config_header_missing_value_env_fails_at_build() {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing header value env must fail: {err:?}"
@@ -224,8 +218,7 @@ fn test_auth_config_aws_sigv4_missing_access_key_env_fails_at_build() {
         region: "us-east-1".into(),
         service: "s3".into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing AWS access key env must fail: {err:?}"

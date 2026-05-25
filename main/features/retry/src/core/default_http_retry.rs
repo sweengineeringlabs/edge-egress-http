@@ -5,7 +5,7 @@
 //! when the crate's `Middleware` impl is written — at that
 //! point the strategy/policy state moves in here too.
 
-use crate::api::retry_config::RetryConfig;
+use crate::api::types::retry_config::RetryConfig;
 use crate::api::http_retry::HttpRetry;
 
 /// Default HttpRetry implementation. `pub(crate)` — consumers

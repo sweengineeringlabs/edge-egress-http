@@ -1,11 +1,11 @@
 //! Default impl of [`HttpRate`](crate::api::http_rate::HttpRate).
 //!
-//! Scaffold phase: holds a resolved [`RateConfig`](crate::api::rate_config::RateConfig)
+//! Scaffold phase: holds a resolved [`RateConfig`](crate::api::types::rate_config::RateConfig)
 //! and answers `describe()`. Real middleware behavior lands
 //! when the crate's `Middleware` impl is written — at that
 //! point the strategy/policy state moves in here too.
 
-use crate::api::rate_config::RateConfig;
+use crate::api::types::rate_config::RateConfig;
 use crate::api::http_rate::HttpRate;
 
 /// Default HttpRate implementation. `pub(crate)` — consumers
@@ -36,7 +36,7 @@ mod tests {
     /// @covers: DefaultHttpRate::new
     #[test]
     fn test_new_constructs_and_stores_config() {
-        let cfg = RateConfig::swe_default().expect("baseline parses");
+        let cfg = RateConfig::default();
         let d = DefaultHttpRate::new(cfg);
         let dbg = format!("{d:?}");
         assert!(dbg.contains("DefaultHttpRate"), "debug output: {dbg}");
@@ -45,7 +45,7 @@ mod tests {
     /// @covers: describe
     #[test]
     fn test_describe_returns_crate_name() {
-        let cfg = RateConfig::swe_default().expect("baseline parses");
+        let cfg = RateConfig::default();
         let d = DefaultHttpRate::new(cfg);
         assert_eq!(d.describe(), "swe_edge_egress_rate");
     }

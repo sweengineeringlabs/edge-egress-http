@@ -7,12 +7,12 @@ use async_trait::async_trait;
 use moka::future::Cache;
 use tokio::sync::Mutex;
 
-use crate::api::breaker_config::BreakerConfig;
-use crate::api::breaker_layer::BreakerLayer;
 use crate::api::breaker_state::{Admission, Outcome};
 use crate::api::traits::CircuitBreakerNode;
+use crate::api::types::breaker_config::BreakerConfig;
+use crate::api::types::breaker_layer::BreakerLayer;
 
-use crate::api::error::Error as BreakerError;
+use crate::api::error::BreakerError;
 
 use super::host_breaker::HostBreaker;
 

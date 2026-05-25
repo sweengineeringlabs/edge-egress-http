@@ -74,7 +74,10 @@ mod tests {
         let cfg = HttpEgressConfigBuilder::new()
             .with_http(HttpConfig::with_base_url("https://api.example.com"))
             .build();
-        assert_eq!(cfg.http.base_url.as_deref(), Some("https://api.example.com"));
+        assert_eq!(
+            cfg.http.base_url.as_deref(),
+            Some("https://api.example.com")
+        );
     }
 
     /// @covers: with_cassette_name

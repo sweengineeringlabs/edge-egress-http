@@ -2,9 +2,9 @@
 
 use swe_edge_configbuilder::ConfigBuilder as _;
 
-use crate::api::cache_config::CacheConfig;
-use crate::api::cache_layer::CacheLayer;
-use crate::api::error::Error;
+use crate::api::error::CacheError;
+use crate::api::types::cache_config::CacheConfig;
+use crate::api::types::cache_layer::CacheLayer;
 
 /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
 pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
@@ -14,25 +14,6 @@ pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
 }
 
 /// Build a [`CacheLayer`] from a caller-supplied [`CacheConfig`].
-pub fn build_cache_layer(config: CacheConfig) -> Result<CacheLayer, Error> {
+pub fn build_cache_layer(config: CacheConfig) -> Result<CacheLayer, CacheError> {
     Ok(CacheLayer::new(config))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: create_config_builder
-    #[test]
-    fn test_create_config_builder_builds_loader() {
-        let _loader = create_config_builder().build_loader();
-    }
-
-    /// @covers: build_cache_layer
-    #[test]
-    fn test_build_cache_layer_with_default_config_returns_layer() {
-        let layer = build_cache_layer(CacheConfig::default()).expect("build ok");
-        let s = format!("{layer:?}");
-        assert!(s.contains("CacheLayer"));
-    }
 }

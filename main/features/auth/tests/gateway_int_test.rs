@@ -24,8 +24,8 @@ fn test_with_config_none_stores_none_variant() {
 
 #[test]
 fn test_build_none_config_produces_auth_middleware() {
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
-        .expect("None config must build");
+    let mw: AuthMiddleware =
+        build_auth_middleware(AuthConfig::None).expect("None config must build");
     let s = format!("{mw:?}");
     assert!(!s.is_empty(), "AuthMiddleware Debug must be non-empty: {s}");
 }
@@ -43,8 +43,7 @@ fn test_build_bearer_missing_env_returns_missing_env_var() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     match err {
         Error::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -58,8 +57,7 @@ fn test_build_bearer_env_set_produces_middleware() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    build_auth_middleware(cfg)
-        .expect("bearer with env set must build");
+    build_auth_middleware(cfg).expect("bearer with env set must build");
     std::env::remove_var(env_name);
 }
 
@@ -73,8 +71,7 @@ fn test_build_basic_missing_user_env_returns_missing_env_var() {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing basic env must fail: {err:?}"
@@ -89,8 +86,7 @@ fn test_build_header_missing_value_env_returns_missing_env_var() {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     };
-    let err = build_auth_middleware(cfg)
-        .unwrap_err();
+    let err = build_auth_middleware(cfg).unwrap_err();
     assert!(
         matches!(err, Error::MissingEnvVar { .. }),
         "missing header env must fail: {err:?}"

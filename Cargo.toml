@@ -61,3 +61,7 @@ swe-edge-egress-oauth    = { path = "main/features/oauth" }
 [workspace.lints.rust]
 unsafe_code  = "deny"
 missing_docs = "warn"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"

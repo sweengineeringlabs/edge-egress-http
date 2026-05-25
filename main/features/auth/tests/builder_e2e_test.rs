@@ -1,12 +1,14 @@
 //! End-to-end tests for the swe_edge_egress_auth SAF builder surface.
 
-use swe_edge_egress_auth::{build_auth_middleware, create_config_builder, AuthConfig, AuthMiddleware};
+use swe_edge_egress_auth::{
+    build_auth_middleware, create_config_builder, AuthConfig, AuthMiddleware,
+};
 
 /// @covers: build_auth_middleware with None config
 #[test]
 fn test_e2e_build_none_config() {
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
-        .expect("None config must always build");
+    let mw: AuthMiddleware =
+        build_auth_middleware(AuthConfig::None).expect("None config must always build");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -31,8 +33,7 @@ fn test_e2e_build_bearer_with_env_set() {
     let cfg = AuthConfig::Bearer {
         token_env: env.into(),
     };
-    let mw = build_auth_middleware(cfg)
-        .expect("bearer e2e build must succeed when env set");
+    let mw = build_auth_middleware(cfg).expect("bearer e2e build must succeed when env set");
     assert!(!format!("{mw:?}").is_empty());
     std::env::remove_var(env);
 }

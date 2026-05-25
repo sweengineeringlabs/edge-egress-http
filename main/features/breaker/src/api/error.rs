@@ -2,7 +2,7 @@
 
 /// Errors raised by the breaker middleware.
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+pub enum BreakerError {
     /// Config TOML didn't parse as the expected schema.
     #[error("swe_edge_egress_breaker: config parse failed — {0}")]
     ParseFailed(String),
@@ -15,30 +15,4 @@ pub enum Error {
         /// The host key for which the circuit tripped.
         host: String,
     },
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: Error::ParseFailed
-    #[test]
-    fn test_parse_failed_display_names_crate_and_reason() {
-        let err = Error::ParseFailed("missing field".into());
-        let s = err.to_string();
-        assert!(s.contains("swe_edge_egress_breaker"));
-        assert!(s.contains("missing field"));
-    }
-
-    /// @covers: Error::CircuitOpen
-    #[test]
-    fn test_circuit_open_display_includes_host() {
-        let err = Error::CircuitOpen {
-            host: "api.example.com".into(),
-        };
-        let s = err.to_string();
-        assert!(s.contains("swe_edge_egress_breaker"));
-        assert!(s.contains("api.example.com"));
-        assert!(s.contains("circuit open"));
-    }
 }

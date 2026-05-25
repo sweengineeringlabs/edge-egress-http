@@ -7,9 +7,9 @@
 
 use std::time::{Duration, Instant};
 
-use crate::api::breaker_config::BreakerConfig;
 use crate::api::breaker_state::{Admission, Outcome};
 use crate::api::traits::CircuitBreakerNode;
+use crate::api::types::breaker_config::BreakerConfig;
 
 /// Breaker state for a single host. Protected by an async
 /// `Mutex` inside [`BreakerLayer`](crate::api::breaker_layer::BreakerLayer)

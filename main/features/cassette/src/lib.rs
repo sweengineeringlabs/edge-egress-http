@@ -61,7 +61,7 @@
 //! ```rust,no_run
 //! use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
 //!
-//! # fn main() -> Result<(), swe_edge_egress_cassette::Error> {
+//! # fn main() -> Result<(), swe_edge_egress_cassette::CassetteError> {
 //! // SWE default: replay mode, tests/cassettes/, scrubs auth headers.
 //! let cassette = build_cassette_layer(CassetteConfig::default(), "my_test")?;
 //!
@@ -77,7 +77,7 @@
 //! ```rust,no_run
 //! use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
 //!
-//! # fn main() -> Result<(), swe_edge_egress_cassette::Error> {
+//! # fn main() -> Result<(), swe_edge_egress_cassette::CassetteError> {
 //! let cassette = build_cassette_layer(CassetteConfig::disabled(), "unused")?;
 //! # Ok(())
 //! # }

@@ -9,6 +9,6 @@ pub(crate) trait RateBucketOps {
     /// token will be ready.
     fn try_consume(
         &mut self,
-        config: &crate::api::rate_config::RateConfig,
+        config: &crate::api::types::rate_config::RateConfig,
     ) -> Result<(), std::time::Duration>;
 }

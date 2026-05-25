@@ -3,7 +3,9 @@
 //! Covers the full public factory surface: `build_auth_middleware`, `create_config_builder`,
 //! and config variant handling.
 
-use swe_edge_egress_auth::{build_auth_middleware, create_config_builder, AuthConfig, AuthMiddleware, Error};
+use swe_edge_egress_auth::{
+    build_auth_middleware, create_config_builder, AuthConfig, AuthMiddleware, Error,
+};
 
 // ---------------------------------------------------------------------------
 // create_config_builder — SAF entry point
@@ -31,8 +33,7 @@ fn test_default_auth_config_is_none() {
 
 #[test]
 fn test_build_auth_middleware_none_variant_succeeds() {
-    build_auth_middleware(AuthConfig::None)
-        .expect("None config must build unconditionally");
+    build_auth_middleware(AuthConfig::None).expect("None config must build unconditionally");
 }
 
 // ---------------------------------------------------------------------------
@@ -41,8 +42,8 @@ fn test_build_auth_middleware_none_variant_succeeds() {
 
 #[test]
 fn test_build_auth_middleware_none_variant_builds() {
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None)
-        .expect("with_config(None) must build");
+    let mw: AuthMiddleware =
+        build_auth_middleware(AuthConfig::None).expect("with_config(None) must build");
     let _ = format!("{mw:?}");
 }
 

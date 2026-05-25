@@ -5,7 +5,7 @@
 //! when the crate's `Middleware` impl is written — at that
 //! point the strategy/policy state moves in here too.
 
-use crate::api::cassette_config::CassetteConfig;
+use crate::api::types::cassette_config::CassetteConfig;
 use crate::api::http_cassette::HttpCassette;
 
 /// Default HttpCassette implementation. `pub(crate)` — consumers

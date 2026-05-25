@@ -3,7 +3,7 @@
 
 use secrecy::SecretString;
 
-use crate::api::error::Error;
+use crate::api::error::TlsError;
 use crate::api::http_tls::HttpTls;
 use crate::api::tls_config::TlsConfig;
 
@@ -14,9 +14,9 @@ use super::pkcs12_http_tls::Pkcs12HttpTls;
 /// Realize a [`TlsConfig`] into the right provider impl.
 ///
 /// File reads + env-var resolution happen NOW. Missing files
-/// return [`Error::FileReadFailed`]; missing passwords (when
-/// the config specifies one) return [`Error::MissingEnvVar`].
-pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, Error> {
+/// return [`TlsError::FileReadFailed`]; missing passwords (when
+/// the config specifies one) return [`TlsError::MissingEnvVar`].
+pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, TlsError> {
     match config {
         TlsConfig::None => Ok(Box::new(NoopHttpTls)),
 
@@ -24,7 +24,7 @@ pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, Err
             let password = match password_env {
                 Some(var) => {
                     let v = std::env::var(var)
-                        .map_err(|_| Error::MissingEnvVar { name: var.clone() })?;
+                        .map_err(|_| TlsError::MissingEnvVar { name: var.clone() })?;
                     Some(SecretString::from(v))
                 }
                 None => None,
@@ -58,7 +58,7 @@ mod tests {
         };
         let err = build_provider(&cfg).unwrap_err();
         match err {
-            Error::MissingEnvVar { name } => {
+            TlsError::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_TLS_PKCS_PW_ABSENT_01");
             }
             other => panic!("expected MissingEnvVar, got {other:?}"),
@@ -74,7 +74,7 @@ mod tests {
         };
         let err = build_provider(&cfg).unwrap_err();
         match err {
-            Error::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
+            TlsError::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),
         }
     }
@@ -86,7 +86,7 @@ mod tests {
             path: "/path/definitely/does/not/exist.pem".into(),
         };
         let err = build_provider(&cfg).unwrap_err();
-        assert!(matches!(err, Error::FileReadFailed { .. }));
+        assert!(matches!(err, TlsError::FileReadFailed { .. }));
     }
 
     #[test]

@@ -7,9 +7,9 @@ use async_trait::async_trait;
 use moka::future::Cache;
 use tokio::sync::Mutex;
 
-use crate::api::rate_config::RateConfig;
-use crate::api::rate_layer::RateLayer;
 use crate::api::traits::RateBucketOps;
+use crate::api::types::rate_config::RateConfig;
+use crate::api::types::rate_layer::RateLayer;
 
 use super::token_bucket::TokenBucket;
 

@@ -7,8 +7,8 @@
 
 use std::time::{Duration, Instant};
 
-use crate::api::rate_config::RateConfig;
 use crate::api::traits::RateBucketOps;
+use crate::api::types::rate_config::RateConfig;
 
 /// Token bucket state. Not thread-safe on its own — wrap in a
 /// mutex for concurrent use (the middleware does this via moka
@@ -26,7 +26,7 @@ pub(crate) struct TokenBucket {
 impl RateBucketOps for TokenBucket {
     fn try_consume(
         &mut self,
-        config: &crate::api::rate_config::RateConfig,
+        config: &crate::api::types::rate_config::RateConfig,
     ) -> Result<(), std::time::Duration> {
         self.try_acquire(config)
     }

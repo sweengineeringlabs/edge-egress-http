@@ -1,13 +1,13 @@
 //! Impl blocks for [`TlsLayer`] — constructor + the
 //! `apply_to(reqwest::ClientBuilder)` augmentation method.
-//! Struct lives in `api::tls_layer` per rule 160; impls here.
+//! Struct lives in `api::types::tls_layer` per rule 160; impls here.
 
 use std::sync::Arc;
 
-use crate::api::error::Error;
+use crate::api::error::TlsError;
 use crate::api::http_tls::HttpTls;
-use crate::api::tls_layer::TlsLayer;
 use crate::api::traits::TlsApplier;
+use crate::api::types::tls_layer::TlsLayer;
 
 impl TlsLayer {
     /// Construct from an already-resolved identity provider.
@@ -17,7 +17,10 @@ impl TlsLayer {
 }
 
 impl TlsApplier for TlsLayer {
-    fn apply_to(&self, builder: reqwest::ClientBuilder) -> Result<reqwest::ClientBuilder, Error> {
+    fn apply_to(
+        &self,
+        builder: reqwest::ClientBuilder,
+    ) -> Result<reqwest::ClientBuilder, TlsError> {
         match self.provider.identity()? {
             Some(identity) => Ok(builder.identity(identity)),
             None => Ok(builder),
@@ -36,7 +39,7 @@ mod tests {
         fn describe(&self) -> &'static str {
             "noop-stub"
         }
-        fn identity(&self) -> Result<Option<reqwest::Identity>, Error> {
+        fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
             Ok(None)
         }
     }

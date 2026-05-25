@@ -1,7 +1,7 @@
 //! PEM-bundle identity provider. Expects a single file
 //! containing BOTH the certificate chain and the private key.
 
-use crate::api::error::Error;
+use crate::api::error::TlsError;
 use crate::api::http_tls::HttpTls;
 
 pub(crate) struct PemHttpTls {
@@ -20,8 +20,8 @@ impl std::fmt::Debug for PemHttpTls {
 
 impl PemHttpTls {
     /// Construct by reading the .pem file into memory.
-    pub(crate) fn new(path: String) -> Result<Self, Error> {
-        let pem_bytes = std::fs::read(&path).map_err(|e| Error::FileReadFailed {
+    pub(crate) fn new(path: String) -> Result<Self, TlsError> {
+        let pem_bytes = std::fs::read(&path).map_err(|e| TlsError::FileReadFailed {
             path: path.clone(),
             reason: e.to_string(),
         })?;
@@ -34,9 +34,9 @@ impl HttpTls for PemHttpTls {
         "pem"
     }
 
-    fn identity(&self) -> Result<Option<reqwest::Identity>, Error> {
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
         let identity = reqwest::Identity::from_pem(&self.pem_bytes).map_err(|e| {
-            Error::InvalidCertificate {
+            TlsError::InvalidCertificate {
                 format: "pem",
                 reason: e.to_string(),
             }
@@ -69,7 +69,7 @@ mod tests {
     #[test]
     fn test_load_missing_file_returns_file_read_failed() {
         let err = PemHttpTls::new("/path/definitely/does/not/exist.pem".into()).unwrap_err();
-        assert!(matches!(err, Error::FileReadFailed { .. }));
+        assert!(matches!(err, TlsError::FileReadFailed { .. }));
     }
 
     /// @covers: PemHttpTls::identity
@@ -81,7 +81,7 @@ mod tests {
         };
         let err = p.identity().unwrap_err();
         match err {
-            Error::InvalidCertificate { format, .. } => assert_eq!(format, "pem"),
+            TlsError::InvalidCertificate { format, .. } => assert_eq!(format, "pem"),
             other => panic!("expected InvalidCertificate, got {other:?}"),
         }
     }

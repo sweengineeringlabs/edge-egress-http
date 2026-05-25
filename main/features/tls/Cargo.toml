@@ -38,3 +38,62 @@ tempfile = "3"
 [features]
 default = []
 tracing = ["dep:tracing"]
+
+[lints]
+workspace = true
+
+[[test]]
+name = "builder_e2e_test"
+path = "test/builder_e2e_test.rs"
+
+[[test]]
+name = "builder_int_test"
+path = "test/builder_int_test.rs"
+
+[[test]]
+name = "core_tls_layer_int_test"
+path = "test/core_tls_layer_int_test.rs"
+
+[[test]]
+name = "error_int_test"
+path = "test/error_int_test.rs"
+
+[[test]]
+name = "gateway_int_test"
+path = "test/gateway_int_test.rs"
+
+[[test]]
+name = "http_tls_int_test"
+path = "test/http_tls_int_test.rs"
+
+[[test]]
+name = "identity_int_test"
+path = "test/identity_int_test.rs"
+
+[[test]]
+name = "noop_http_tls_int_test"
+path = "test/noop_http_tls_int_test.rs"
+
+[[test]]
+name = "pem_http_tls_int_test"
+path = "test/pem_http_tls_int_test.rs"
+
+[[test]]
+name = "pkcs12_http_tls_int_test"
+path = "test/pkcs12_http_tls_int_test.rs"
+
+[[test]]
+name = "tls_config_int_test"
+path = "test/tls_config_int_test.rs"
+
+[[test]]
+name = "tls_factory_int_test"
+path = "test/tls_factory_int_test.rs"
+
+[[test]]
+name = "tls_layer_int_test"
+path = "test/tls_layer_int_test.rs"
+
+[[test]]
+name = "traits_int_test"
+path = "test/traits_int_test.rs"

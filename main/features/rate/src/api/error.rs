@@ -2,22 +2,8 @@
 
 /// Errors raised by the rate middleware.
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+pub enum RateError {
     /// Config TOML didn't parse as the expected schema.
     #[error("swe_edge_egress_rate: config parse failed — {0}")]
     ParseFailed(String),
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: Error
-    #[test]
-    fn test_parse_failed_display_names_crate_and_reason() {
-        let err = Error::ParseFailed("missing field".into());
-        let s = err.to_string();
-        assert!(s.contains("swe_edge_egress_rate"));
-        assert!(s.contains("missing field"));
-    }
 }

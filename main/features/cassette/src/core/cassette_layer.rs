@@ -10,9 +10,9 @@ use base64::Engine;
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 
-use crate::api::cassette_config::CassetteConfig;
-use crate::api::cassette_layer::CassetteLayer;
-use crate::api::error::Error;
+use crate::api::error::CassetteError;
+use crate::api::types::cassette_config::CassetteConfig;
+use crate::api::types::cassette_layer::CassetteLayer;
 
 use super::body_scrubber::scrub_body;
 use super::recorded_interaction::{RecordedInteraction, RecordedRequest, RecordedResponse};
@@ -25,7 +25,7 @@ impl CassetteLayer {
     /// produce the on-disk path. By convention one cassette
     /// per test case — cassettes are the HTTP equivalent of
     /// golden files.
-    pub(crate) fn new(config: CassetteConfig, cassette_name: &str) -> Result<Self, Error> {
+    pub(crate) fn new(config: CassetteConfig, cassette_name: &str) -> Result<Self, CassetteError> {
         let path = PathBuf::from(&config.cassette_dir).join(format!("{cassette_name}.yaml"));
         let fixtures = load_fixtures_from_disk(&path)?;
         Ok(Self {
@@ -63,7 +63,7 @@ impl CassetteLayer {
     async fn flush_to_disk(
         &self,
         fixtures: &HashMap<String, RecordedInteraction>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), CassetteError> {
         // Convert to a sorted Vec for stable on-disk ordering.
         let mut entries: Vec<(&String, &RecordedInteraction)> = fixtures.iter().collect();
         entries.sort_by(|a, b| a.0.cmp(b.0));
@@ -72,16 +72,16 @@ impl CassetteLayer {
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         let yaml = serde_yaml::to_string(&as_map)
-            .map_err(|e| Error::ParseFailed(format!("serialize cassette: {e}")))?;
+            .map_err(|e| CassetteError::ParseFailed(format!("serialize cassette: {e}")))?;
 
         if let Some(parent) = self.cassette_path.parent() {
             tokio::fs::create_dir_all(parent).await.map_err(|e| {
-                Error::ParseFailed(format!("create cassette dir {}: {e}", parent.display()))
+                CassetteError::ParseFailed(format!("create cassette dir {}: {e}", parent.display()))
             })?;
         }
         tokio::fs::write(&self.cassette_path, yaml)
             .await
-            .map_err(|e| Error::ParseFailed(format!("write cassette: {e}")))?;
+            .map_err(|e| CassetteError::ParseFailed(format!("write cassette: {e}")))?;
         Ok(())
     }
 
@@ -211,17 +211,20 @@ impl reqwest_middleware::Middleware for CassetteLayer {
 
 /// Load previously-recorded fixtures from disk. Missing file
 /// yields an empty map; malformed YAML yields an error.
-fn load_fixtures_from_disk(path: &Path) -> Result<HashMap<String, RecordedInteraction>, Error> {
+fn load_fixtures_from_disk(
+    path: &Path,
+) -> Result<HashMap<String, RecordedInteraction>, CassetteError> {
     if !path.is_file() {
         return Ok(HashMap::new());
     }
-    let yaml = std::fs::read_to_string(path)
-        .map_err(|e| Error::ParseFailed(format!("read cassette {}: {e}", path.display())))?;
+    let yaml = std::fs::read_to_string(path).map_err(|e| {
+        CassetteError::ParseFailed(format!("read cassette {}: {e}", path.display()))
+    })?;
     if yaml.trim().is_empty() {
         return Ok(HashMap::new());
     }
     let as_map: BTreeMap<String, RecordedInteraction> = serde_yaml::from_str(&yaml)
-        .map_err(|e| Error::ParseFailed(format!("parse cassette: {e}")))?;
+        .map_err(|e| CassetteError::ParseFailed(format!("parse cassette: {e}")))?;
     Ok(as_map.into_iter().collect())
 }
 

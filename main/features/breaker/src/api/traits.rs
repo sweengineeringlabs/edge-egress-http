@@ -8,14 +8,14 @@ pub(crate) trait CircuitBreakerNode {
     /// proceed or reject fast; may promote Open → HalfOpen.
     fn admit(
         &mut self,
-        config: &crate::api::breaker_config::BreakerConfig,
+        config: &crate::api::types::breaker_config::BreakerConfig,
     ) -> crate::api::breaker_state::Admission;
 
     /// Called AFTER dispatching a request that `admit` approved.
     /// Updates internal state based on outcome.
     fn record(
         &mut self,
-        config: &crate::api::breaker_config::BreakerConfig,
+        config: &crate::api::types::breaker_config::BreakerConfig,
         outcome: crate::api::breaker_state::Outcome,
     );
 }
