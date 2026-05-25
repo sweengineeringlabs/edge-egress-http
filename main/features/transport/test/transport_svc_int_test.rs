@@ -1,0 +1,27 @@
+//! Integration tests for transport SAF factory functions not covered elsewhere.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use swe_edge_configbuilder::ConfigBuilder as _;
+use swe_edge_egress_http_transport::create_config_builder;
+
+/// @covers: create_config_builder
+#[test]
+fn test_create_config_builder_returns_builder_with_package_name() {
+    let builder = create_config_builder();
+    let name = builder.name();
+    assert!(
+        !name.is_empty(),
+        "config builder must carry the package name"
+    );
+}
+
+/// @covers: create_config_builder
+#[test]
+fn test_create_config_builder_returns_builder_with_package_version() {
+    let builder = create_config_builder();
+    let version = builder.version();
+    assert!(
+        !version.is_empty(),
+        "config builder must carry the package version"
+    );
+}

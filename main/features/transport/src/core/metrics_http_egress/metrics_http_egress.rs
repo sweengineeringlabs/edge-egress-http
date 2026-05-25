@@ -6,7 +6,7 @@ use swe_observ_metrics::MetricsProvider;
 
 use crate::api::port::http_egress::HttpEgress;
 use crate::api::port::HttpEgressResult;
-use crate::api::value_object::{HttpRequest, HttpResponse, HttpStreamResponse};
+use crate::api::types::{HttpRequest, HttpResponse, HttpStreamResponse};
 
 /// Wraps any [`HttpEgress`]; records per-call latency, request count, and
 /// error count using the supplied [`MetricsProvider`].

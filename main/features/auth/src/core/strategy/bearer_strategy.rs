@@ -8,7 +8,7 @@ use http::header::{HeaderValue, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::api::auth_strategy::AuthStrategy;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// `Authorization: Bearer <token>` strategy.
 pub(crate) struct BearerStrategy {
@@ -33,17 +33,17 @@ impl BearerStrategy {
     /// [`Error::InvalidHeaderValue`] if the token contains
     /// characters forbidden in an HTTP header value (CR, LF,
     /// NUL, non-visible ASCII).
-    pub(crate) fn new(token: SecretString) -> Result<Self, Error> {
+    pub(crate) fn new(token: SecretString) -> Result<Self, AuthError> {
         let raw = format!("Bearer {}", token.expose_secret());
-        let mut hv =
-            HeaderValue::from_str(&raw).map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+        let mut hv = HeaderValue::from_str(&raw)
+            .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
         hv.set_sensitive(true);
         Ok(Self { header_value: hv })
     }
 }
 
 impl AuthStrategy for BearerStrategy {
-    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
+    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), AuthError> {
         req.headers_mut()
             .insert(AUTHORIZATION, self.header_value.clone());
         Ok(())
@@ -92,7 +92,7 @@ mod tests {
     fn test_new_rejects_token_with_newline() {
         // \n is forbidden in header values per RFC 7230.
         let err = BearerStrategy::new(SecretString::from("bad\ntoken".to_string())).unwrap_err();
-        assert!(matches!(err, Error::InvalidHeaderValue(_)));
+        assert!(matches!(err, AuthError::InvalidHeaderValue(_)));
     }
 
     /// @covers: BearerStrategy::fmt

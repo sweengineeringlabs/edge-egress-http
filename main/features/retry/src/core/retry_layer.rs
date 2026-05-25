@@ -87,7 +87,6 @@ impl reqwest_middleware::Middleware for RetryLayer {
             return next.run(req, ext).await;
         }
 
-        let mut last_result: Option<reqwest_middleware::Result<reqwest::Response>> = None;
         for attempt in 0..total {
             if attempt > 0 {
                 let delay = self.backoff_for(attempt - 1);
@@ -95,9 +94,9 @@ impl reqwest_middleware::Middleware for RetryLayer {
             }
 
             // try_clone succeeds because we pre-checked above.
-            let attempt_req = req
-                .try_clone()
-                .expect("body is cloneable — checked earlier");
+            let Some(attempt_req) = req.try_clone() else {
+                return next.run(req, ext).await;
+            };
             let attempt_next = next.clone();
             let result = attempt_next.run(attempt_req, ext).await;
 
@@ -106,23 +105,13 @@ impl reqwest_middleware::Middleware for RetryLayer {
                 Err(e) => RetryErrorClassifier::is_transient(e),
             };
 
-            // Last attempt — return whatever we got.
-            if attempt + 1 == total {
+            // Last attempt or non-retryable — return immediately.
+            if attempt + 1 == total || !retry {
                 return result;
             }
-
-            if !retry {
-                // Don't retry — return immediately.
-                return result;
-            }
-
-            last_result = Some(result);
         }
 
-        // Unreachable: the `attempt + 1 == total` branch above
-        // returns on the final iteration. Keep a sensible value
-        // to satisfy the type checker.
-        last_result.expect("loop always populates on the final iteration")
+        unreachable!("loop must return on final attempt")
     }
 }
 
@@ -284,7 +273,7 @@ mod tests {
         impl std::error::Error for ConfigErr {}
         let err = reqwest_middleware::Error::middleware(ConfigErr);
         assert!(
-            !is_transient_error(&err),
+            !RetryErrorClassifier::is_transient(&err),
             "Middleware-level errors must NOT be retried"
         );
     }

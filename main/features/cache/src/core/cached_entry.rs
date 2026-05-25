@@ -53,129 +53,133 @@ pub(crate) enum VaryDirective {
     Names(Vec<String>),
 }
 
-/// Parse a response's `Vary` header value.
-///
-/// `Vary` is a comma-separated list of request-header names, or
-/// the single wildcard `*`. `vary_raw` is the raw header value
-/// (possibly multiple comma-joined values). Whitespace-tolerant.
-///
-/// - Empty / all-whitespace → [`VaryDirective::None`].
-/// - Any token equal to `*` (even alongside other tokens) →
-///   [`VaryDirective::Star`] (conservative — if ANY variant axis
-///   is uncacheable, the whole response is).
-/// - Else normalizes to lowercase, deduplicates, sorts, and
-///   returns [`VaryDirective::Names`].
-pub(crate) fn parse_vary(vary_raw: Option<&str>) -> VaryDirective {
-    let raw = match vary_raw {
-        Some(s) if !s.trim().is_empty() => s,
-        _ => return VaryDirective::None,
-    };
-    let mut names: Vec<String> = Vec::new();
-    for part in raw.split(',') {
-        let token = part.trim();
-        if token.is_empty() {
-            continue;
-        }
-        if token == "*" {
-            return VaryDirective::Star;
-        }
-        names.push(token.to_ascii_lowercase());
-    }
-    if names.is_empty() {
-        return VaryDirective::None;
-    }
-    names.sort();
-    names.dedup();
-    VaryDirective::Names(names)
-}
+pub(crate) struct CacheEntryHelper;
 
-/// Extract `max-age=N` from a lowercased Cache-Control value.
-/// Malformed numeric values are ignored (returns `None`), NOT
-/// propagated as errors — RFC 7234 says unparseable directives
-/// are treated as absent.
-pub(crate) fn extract_max_age(cc: &str) -> Option<u64> {
-    for part in cc.split(',') {
-        let part = part.trim();
-        if let Some(v) = part.strip_prefix("max-age=") {
-            return v.parse().ok();
-        }
-    }
-    None
-}
-
-/// Extract `stale-while-revalidate=N` (RFC 5861) from a
-/// lowercased Cache-Control value.
-///
-/// Returns `None` when the directive is absent, when N is zero,
-/// or when N is unparseable. Zero-is-none matches the spec's
-/// "no SWR window" semantics — callers can treat `Some` as
-/// "SWR applies" without a separate bool.
-pub(crate) fn extract_stale_while_revalidate(cc: &str) -> Option<Duration> {
-    for part in cc.split(',') {
-        let part = part.trim();
-        if let Some(v) = part.strip_prefix("stale-while-revalidate=") {
-            let secs: u64 = v.parse().ok()?;
-            if secs == 0 {
-                return None;
+impl CacheEntryHelper {
+    /// Parse a response's `Vary` header value.
+    ///
+    /// `Vary` is a comma-separated list of request-header names, or
+    /// the single wildcard `*`. `vary_raw` is the raw header value
+    /// (possibly multiple comma-joined values). Whitespace-tolerant.
+    ///
+    /// - Empty / all-whitespace → [`VaryDirective::None`].
+    /// - Any token equal to `*` (even alongside other tokens) →
+    ///   [`VaryDirective::Star`] (conservative — if ANY variant axis
+    ///   is uncacheable, the whole response is).
+    /// - Else normalizes to lowercase, deduplicates, sorts, and
+    ///   returns [`VaryDirective::Names`].
+    pub(crate) fn parse_vary(vary_raw: Option<&str>) -> VaryDirective {
+        let raw = match vary_raw {
+            Some(s) if !s.trim().is_empty() => s,
+            _ => return VaryDirective::None,
+        };
+        let mut names: Vec<String> = Vec::new();
+        for part in raw.split(',') {
+            let token = part.trim();
+            if token.is_empty() {
+                continue;
             }
-            return Some(Duration::from_secs(secs));
+            if token == "*" {
+                return VaryDirective::Star;
+            }
+            names.push(token.to_ascii_lowercase());
         }
+        if names.is_empty() {
+            return VaryDirective::None;
+        }
+        names.sort();
+        names.dedup();
+        VaryDirective::Names(names)
     }
-    None
-}
 
-/// Is a cached entry a match for this request, per the entry's
-/// captured `Vary` headers?
-///
-/// Matches when EVERY `(name, expected_value)` pair recorded on
-/// the entry at store time matches the corresponding value on
-/// the incoming request. Missing request header is treated as
-/// the empty string — the entry stores `""` for
-/// missing-at-store-time, so missing-at-lookup-time on BOTH
-/// sides matches.
-pub(crate) fn entry_matches_vary(
-    entry: &CachedEntry,
-    req_header_values: &dyn Fn(&str) -> String,
-) -> bool {
-    for (name, expected) in &entry.vary_headers {
-        let actual = req_header_values(name);
-        if actual != *expected {
+    /// Extract `max-age=N` from a lowercased Cache-Control value.
+    /// Malformed numeric values are ignored (returns `None`), NOT
+    /// propagated as errors — RFC 7234 says unparseable directives
+    /// are treated as absent.
+    pub(crate) fn extract_max_age(cc: &str) -> Option<u64> {
+        for part in cc.split(',') {
+            let part = part.trim();
+            if let Some(v) = part.strip_prefix("max-age=") {
+                return v.parse().ok();
+            }
+        }
+        None
+    }
+
+    /// Extract `stale-while-revalidate=N` (RFC 5861) from a
+    /// lowercased Cache-Control value.
+    ///
+    /// Returns `None` when the directive is absent, when N is zero,
+    /// or when N is unparseable. Zero-is-none matches the spec's
+    /// "no SWR window" semantics — callers can treat `Some` as
+    /// "SWR applies" without a separate bool.
+    pub(crate) fn extract_stale_while_revalidate(cc: &str) -> Option<Duration> {
+        for part in cc.split(',') {
+            let part = part.trim();
+            if let Some(v) = part.strip_prefix("stale-while-revalidate=") {
+                let secs: u64 = v.parse().ok()?;
+                if secs == 0 {
+                    return None;
+                }
+                return Some(Duration::from_secs(secs));
+            }
+        }
+        None
+    }
+
+    /// Is a cached entry a match for this request, per the entry's
+    /// captured `Vary` headers?
+    ///
+    /// Matches when EVERY `(name, expected_value)` pair recorded on
+    /// the entry at store time matches the corresponding value on
+    /// the incoming request. Missing request header is treated as
+    /// the empty string — the entry stores `""` for
+    /// missing-at-store-time, so missing-at-lookup-time on BOTH
+    /// sides matches.
+    pub(crate) fn entry_matches_vary(
+        entry: &CachedEntry,
+        req_header_values: &dyn Fn(&str) -> String,
+    ) -> bool {
+        for (name, expected) in &entry.vary_headers {
+            let actual = req_header_values(name);
+            if actual != *expected {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Should we revalidate this entry (send `If-None-Match`) instead
+    /// of serving it directly?
+    ///
+    /// - Fresh (`now < expires_at`) → false (serve as-is, no revalidation).
+    /// - Within SWR window (`now < expires_at + swr`) → false (serve
+    ///   stale; background refresh handled separately).
+    /// - Beyond SWR window → true (must revalidate or refetch).
+    ///
+    /// When the entry has no SWR, stale means immediately
+    /// revalidate-eligible.
+    pub(crate) fn should_revalidate(entry: &CachedEntry, now: Instant) -> bool {
+        if now < entry.expires_at {
             return false;
         }
+        match entry.stale_while_revalidate {
+            None => true,
+            Some(swr) => now >= entry.expires_at + swr,
+        }
     }
-    true
-}
 
-/// Should we revalidate this entry (send `If-None-Match`) instead
-/// of serving it directly?
-///
-/// - Fresh (`now < expires_at`) → false (serve as-is, no revalidation).
-/// - Within SWR window (`now < expires_at + swr`) → false (serve
-///   stale; background refresh handled separately).
-/// - Beyond SWR window → true (must revalidate or refetch).
-///
-/// When the entry has no SWR, stale means immediately
-/// revalidate-eligible.
-pub(crate) fn should_revalidate(entry: &CachedEntry, now: Instant) -> bool {
-    if now < entry.expires_at {
-        return false;
-    }
-    match entry.stale_while_revalidate {
-        None => true,
-        Some(swr) => now >= entry.expires_at + swr,
-    }
-}
-
-/// Is this entry within its stale-while-revalidate window?
-/// True only when stale AND SWR is set AND SWR window not
-/// exceeded.
-pub(crate) fn in_swr_window(entry: &CachedEntry, now: Instant) -> bool {
-    if now < entry.expires_at {
-        return false; // fresh, not stale
-    }
-    match entry.stale_while_revalidate {
-        None => false,
-        Some(swr) => now < entry.expires_at + swr,
+    /// Is this entry within its stale-while-revalidate window?
+    /// True only when stale AND SWR is set AND SWR window not
+    /// exceeded.
+    pub(crate) fn in_swr_window(entry: &CachedEntry, now: Instant) -> bool {
+        if now < entry.expires_at {
+            return false; // fresh, not stale
+        }
+        match entry.stale_while_revalidate {
+            None => false,
+            Some(swr) => now < entry.expires_at + swr,
+        }
     }
 }
 
@@ -198,30 +202,39 @@ mod tests {
     /// @covers: parse_vary
     #[test]
     fn test_parse_vary_absent_returns_none() {
-        assert_eq!(parse_vary(None), VaryDirective::None);
-        assert_eq!(parse_vary(Some("")), VaryDirective::None);
-        assert_eq!(parse_vary(Some("   ")), VaryDirective::None);
+        assert_eq!(CacheEntryHelper::parse_vary(None), VaryDirective::None);
+        assert_eq!(CacheEntryHelper::parse_vary(Some("")), VaryDirective::None);
+        assert_eq!(
+            CacheEntryHelper::parse_vary(Some("   ")),
+            VaryDirective::None
+        );
     }
 
     /// @covers: parse_vary
     #[test]
     fn test_parse_vary_star_alone_returns_star() {
-        assert_eq!(parse_vary(Some("*")), VaryDirective::Star);
-        assert_eq!(parse_vary(Some("  *  ")), VaryDirective::Star);
+        assert_eq!(CacheEntryHelper::parse_vary(Some("*")), VaryDirective::Star);
+        assert_eq!(
+            CacheEntryHelper::parse_vary(Some("  *  ")),
+            VaryDirective::Star
+        );
     }
 
     /// @covers: parse_vary
     #[test]
     fn test_parse_vary_star_among_names_returns_star() {
         // Conservative: any star axis makes the whole thing uncacheable.
-        assert_eq!(parse_vary(Some("Accept-Encoding, *")), VaryDirective::Star);
+        assert_eq!(
+            CacheEntryHelper::parse_vary(Some("Accept-Encoding, *")),
+            VaryDirective::Star
+        );
     }
 
     /// @covers: parse_vary
     #[test]
     fn test_parse_vary_names_normalized_sorted_deduped() {
         assert_eq!(
-            parse_vary(Some("Accept-Language, Accept-Encoding, accept-language")),
+            CacheEntryHelper::parse_vary(Some("Accept-Language, Accept-Encoding, accept-language")),
             VaryDirective::Names(vec![
                 "accept-encoding".to_string(),
                 "accept-language".to_string(),
@@ -233,7 +246,7 @@ mod tests {
     #[test]
     fn test_parse_vary_empty_tokens_ignored() {
         assert_eq!(
-            parse_vary(Some("Accept-Encoding,, , Accept-Language")),
+            CacheEntryHelper::parse_vary(Some("Accept-Encoding,, , Accept-Language")),
             VaryDirective::Names(vec![
                 "accept-encoding".to_string(),
                 "accept-language".to_string(),
@@ -244,14 +257,14 @@ mod tests {
     /// @covers: extract_max_age
     #[test]
     fn test_extract_max_age_from_simple_directive() {
-        assert_eq!(extract_max_age("max-age=600"), Some(600));
+        assert_eq!(CacheEntryHelper::extract_max_age("max-age=600"), Some(600));
     }
 
     /// @covers: extract_max_age
     #[test]
     fn test_extract_max_age_from_mixed_directives() {
         assert_eq!(
-            extract_max_age("public, max-age=300, must-revalidate"),
+            CacheEntryHelper::extract_max_age("public, max-age=300, must-revalidate"),
             Some(300)
         );
     }
@@ -259,37 +272,42 @@ mod tests {
     /// @covers: extract_max_age
     #[test]
     fn test_extract_max_age_absent_returns_none() {
-        assert!(extract_max_age("no-cache").is_none());
-        assert!(extract_max_age("").is_none());
+        assert!(CacheEntryHelper::extract_max_age("no-cache").is_none());
+        assert!(CacheEntryHelper::extract_max_age("").is_none());
     }
 
     /// @covers: extract_max_age
     #[test]
     fn test_extract_max_age_malformed_returns_none() {
         // Non-numeric value — per RFC 7234 we must not panic.
-        assert_eq!(extract_max_age("max-age=abc"), None);
-        assert_eq!(extract_max_age("max-age="), None);
+        assert_eq!(CacheEntryHelper::extract_max_age("max-age=abc"), None);
+        assert_eq!(CacheEntryHelper::extract_max_age("max-age="), None);
     }
 
     /// @covers: extract_stale_while_revalidate
     #[test]
     fn test_extract_stale_while_revalidate_parses_and_ignores_zero() {
         assert_eq!(
-            extract_stale_while_revalidate("stale-while-revalidate=120"),
+            CacheEntryHelper::extract_stale_while_revalidate("stale-while-revalidate=120"),
             Some(Duration::from_secs(120))
         );
         assert_eq!(
-            extract_stale_while_revalidate("stale-while-revalidate=0"),
+            CacheEntryHelper::extract_stale_while_revalidate("stale-while-revalidate=0"),
             None
         );
-        assert_eq!(extract_stale_while_revalidate("no-directive"), None);
+        assert_eq!(
+            CacheEntryHelper::extract_stale_while_revalidate("no-directive"),
+            None
+        );
     }
 
     /// @covers: extract_stale_while_revalidate
     #[test]
     fn test_extract_swr_parses_nonzero() {
         assert_eq!(
-            extract_stale_while_revalidate("max-age=60, stale-while-revalidate=300"),
+            CacheEntryHelper::extract_stale_while_revalidate(
+                "max-age=60, stale-while-revalidate=300"
+            ),
             Some(Duration::from_secs(300))
         );
     }
@@ -299,7 +317,9 @@ mod tests {
     fn test_extract_swr_zero_is_none() {
         // RFC: "stale-while-revalidate=0" means no SWR window.
         assert_eq!(
-            extract_stale_while_revalidate("max-age=60, stale-while-revalidate=0"),
+            CacheEntryHelper::extract_stale_while_revalidate(
+                "max-age=60, stale-while-revalidate=0"
+            ),
             None
         );
     }
@@ -307,9 +327,15 @@ mod tests {
     /// @covers: extract_stale_while_revalidate
     #[test]
     fn test_extract_swr_absent_is_none() {
-        assert_eq!(extract_stale_while_revalidate("max-age=60"), None);
-        assert_eq!(extract_stale_while_revalidate("public"), None);
-        assert_eq!(extract_stale_while_revalidate(""), None);
+        assert_eq!(
+            CacheEntryHelper::extract_stale_while_revalidate("max-age=60"),
+            None
+        );
+        assert_eq!(
+            CacheEntryHelper::extract_stale_while_revalidate("public"),
+            None
+        );
+        assert_eq!(CacheEntryHelper::extract_stale_while_revalidate(""), None);
     }
 
     /// @covers: extract_stale_while_revalidate
@@ -317,7 +343,7 @@ mod tests {
     fn test_extract_swr_malformed_returns_none() {
         // Non-numeric tail — log-and-ignore, never panic.
         assert_eq!(
-            extract_stale_while_revalidate("stale-while-revalidate=abc"),
+            CacheEntryHelper::extract_stale_while_revalidate("stale-while-revalidate=abc"),
             None
         );
     }
@@ -328,7 +354,7 @@ mod tests {
         let entry = sample_entry(Instant::now() + Duration::from_secs(60), None);
         // No vary_headers recorded → any request matches.
         let req = |_: &str| "whatever".to_string();
-        assert!(entry_matches_vary(&entry, &req));
+        assert!(CacheEntryHelper::entry_matches_vary(&entry, &req));
     }
 
     /// @covers: entry_matches_vary
@@ -344,7 +370,7 @@ mod tests {
             "accept-language" => "en".to_string(),
             _ => String::new(),
         };
-        assert!(entry_matches_vary(&entry, &req));
+        assert!(CacheEntryHelper::entry_matches_vary(&entry, &req));
     }
 
     /// @covers: entry_matches_vary
@@ -353,7 +379,7 @@ mod tests {
         let mut entry = sample_entry(Instant::now() + Duration::from_secs(60), None);
         entry.vary_headers = vec![("accept-encoding".to_string(), "gzip".to_string())];
         let req = |_: &str| "br".to_string();
-        assert!(!entry_matches_vary(&entry, &req));
+        assert!(!CacheEntryHelper::entry_matches_vary(&entry, &req));
     }
 
     /// @covers: should_revalidate
@@ -361,7 +387,7 @@ mod tests {
     fn test_should_revalidate_fresh_returns_false() {
         let now = Instant::now();
         let entry = sample_entry(now + Duration::from_secs(60), None);
-        assert!(!should_revalidate(&entry, now));
+        assert!(!CacheEntryHelper::should_revalidate(&entry, now));
     }
 
     /// @covers: should_revalidate
@@ -370,7 +396,7 @@ mod tests {
         let now = Instant::now();
         // Make the entry definitively stale: expires_at is in the past.
         let entry = sample_entry(now - Duration::from_secs(1), None);
-        assert!(should_revalidate(&entry, now));
+        assert!(CacheEntryHelper::should_revalidate(&entry, now));
     }
 
     /// @covers: should_revalidate
@@ -379,7 +405,7 @@ mod tests {
         let now = Instant::now();
         // expired 1s ago, SWR window = 60s → still reusable.
         let entry = sample_entry(now - Duration::from_secs(1), Some(Duration::from_secs(60)));
-        assert!(!should_revalidate(&entry, now));
+        assert!(!CacheEntryHelper::should_revalidate(&entry, now));
     }
 
     /// @covers: should_revalidate
@@ -391,7 +417,7 @@ mod tests {
             now - Duration::from_secs(120),
             Some(Duration::from_secs(60)),
         );
-        assert!(should_revalidate(&entry, now));
+        assert!(CacheEntryHelper::should_revalidate(&entry, now));
     }
 
     /// @covers: in_swr_window
@@ -400,7 +426,7 @@ mod tests {
         let now = Instant::now();
         // Stale (expired 5s ago) but within 30s SWR window.
         let entry = sample_entry(now - Duration::from_secs(5), Some(Duration::from_secs(30)));
-        assert!(in_swr_window(&entry, now));
+        assert!(CacheEntryHelper::in_swr_window(&entry, now));
     }
 
     /// @covers: in_swr_window
@@ -409,7 +435,7 @@ mod tests {
         // Fresh entries are not "in SWR window" — they're just fresh.
         let now = Instant::now();
         let entry = sample_entry(now + Duration::from_secs(60), Some(Duration::from_secs(30)));
-        assert!(!in_swr_window(&entry, now));
+        assert!(!CacheEntryHelper::in_swr_window(&entry, now));
     }
 
     /// @covers: in_swr_window
@@ -417,6 +443,6 @@ mod tests {
     fn test_in_swr_window_no_swr_returns_false() {
         let now = Instant::now();
         let entry = sample_entry(now - Duration::from_secs(1), None);
-        assert!(!in_swr_window(&entry, now));
+        assert!(!CacheEntryHelper::in_swr_window(&entry, now));
     }
 }

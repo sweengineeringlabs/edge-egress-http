@@ -1,10 +1,11 @@
-//! API layer — public types and extension trait.
+//! API layer — public types and extension traits.
 
 pub mod error;
-pub mod token_source;
+pub mod traits;
 pub mod types;
 
-pub use error::{Error, Result};
-pub use token_source::OAuthTokenSource;
+pub use error::{OAuthError, Result};
+pub use traits::token_source::OAuthTokenSource;
+pub use traits::OAuthBuilderOps;
 pub use types::{OAuthConfig, OAuthCredentials, OAuthProvider};
 pub(crate) mod refresh_strategy;

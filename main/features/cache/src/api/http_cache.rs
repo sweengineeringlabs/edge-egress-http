@@ -13,6 +13,7 @@
 
 /// The cache crate's primary trait. Every middleware layer
 /// produced by this crate implements it.
+#[allow(dead_code)]
 pub trait HttpCache: Send + Sync {
     /// Identify this processor in log / trace output.
     ///

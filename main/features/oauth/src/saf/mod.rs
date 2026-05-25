@@ -8,6 +8,8 @@ use std::sync::Arc;
 
 use crate::core::OAuthRefreshStrategy;
 
+pub use crate::api::{OAuthBuilderOps, OAuthError, OAuthTokenSource, Result};
+
 // ── OAuthMiddleware ───────────────────────────────────────────────────────────
 
 /// reqwest-middleware layer that injects a proactively-refreshed OAuth bearer
@@ -54,21 +56,17 @@ pub struct Builder {
     source: Option<Arc<dyn OAuthTokenSource>>,
 }
 
-impl Builder {
-    /// Set the token source implementation.
-    pub fn with_token_source(mut self, source: Arc<dyn OAuthTokenSource>) -> Self {
+impl OAuthBuilderOps for Builder {
+    type Middleware = OAuthMiddleware;
+
+    fn with_token_source(mut self, source: Arc<dyn OAuthTokenSource>) -> Self {
         self.source = Some(source);
         self
     }
 
-    /// Build the middleware.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`Error::Configuration`] if no token source was provided.
-    pub fn build(self) -> std::result::Result<OAuthMiddleware, crate::api::Error> {
+    fn build(self) -> std::result::Result<OAuthMiddleware, OAuthError> {
         let source = self.source.ok_or_else(|| {
-            crate::api::Error::Configuration(
+            OAuthError::Configuration(
                 "no OAuthTokenSource provided — call with_token_source first".into(),
             )
         })?;
@@ -78,34 +76,11 @@ impl Builder {
     }
 }
 
-/// Create a [`Builder`] with no defaults.
-pub fn builder() -> Builder {
+/// Create a builder for [`OAuthMiddleware`].
+pub fn builder() -> impl OAuthBuilderOps<Middleware = OAuthMiddleware> {
     Builder::default()
 }
 
 // ── re-exports ────────────────────────────────────────────────────────────────
 
-pub use crate::api::{Error, OAuthTokenSource, Result};
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::api::token_source::StaticTokenSource;
-
-    #[test]
-    fn test_builder_without_source_returns_error() {
-        let result = builder().build();
-        assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("no OAuthTokenSource"));
-    }
-
-    #[test]
-    fn test_builder_with_source_builds_middleware() {
-        let src = Arc::new(StaticTokenSource("tok".into()));
-        let result = builder().with_token_source(src).build();
-        assert!(result.is_ok());
-    }
-}
+pub use crate::api::{OAuthConfig, OAuthCredentials, OAuthProvider};

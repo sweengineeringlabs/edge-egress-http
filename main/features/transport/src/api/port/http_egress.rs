@@ -3,7 +3,7 @@
 use futures::future::BoxFuture;
 
 use super::http_egress_result::HttpEgressResult;
-use crate::api::value_object::{HttpRequest, HttpResponse, HttpStreamResponse};
+use crate::api::types::{HttpRequest, HttpResponse, HttpStreamResponse};
 
 /// Makes outbound HTTP requests to external services.
 pub trait HttpEgress: Send + Sync {

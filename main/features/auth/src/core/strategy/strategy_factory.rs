@@ -9,7 +9,7 @@ use crate::api::auth_config::AuthConfig;
 use crate::api::auth_strategy::AuthStrategy;
 use crate::api::credential_resolver::CredentialResolver;
 use crate::api::credential_source::CredentialSource;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 use super::aws_sigv4_strategy::AwsSigV4Strategy;
 use super::basic_strategy::BasicStrategy;
@@ -17,56 +17,62 @@ use super::bearer_strategy::BearerStrategy;
 use super::header_strategy::HeaderStrategy;
 use super::noop_strategy::NoopStrategy;
 
-/// Realize an [`AuthConfig`] against a [`CredentialResolver`].
-///
-/// Env vars referenced by the config are resolved NOW (at
-/// build time). If any are missing, the call fails with
-/// [`Error::MissingEnvVar`] naming the offender — startup
-/// surfaces the misconfiguration rather than letting it leak
-/// into the first request.
-pub(crate) fn build_strategy(
-    config: &AuthConfig,
-    resolver: &dyn CredentialResolver,
-) -> Result<Box<dyn AuthStrategy>, Error> {
-    match config {
-        AuthConfig::None => Ok(Box::new(NoopStrategy)),
+pub(crate) struct StrategyFactory;
 
-        AuthConfig::Bearer { token_env } => {
-            let token = resolver.resolve(&CredentialSource::EnvVar(token_env.clone()))?;
-            Ok(Box::new(BearerStrategy::new(token)?))
-        }
+impl StrategyFactory {
+    /// Realize an [`AuthConfig`] against a [`CredentialResolver`].
+    ///
+    /// Env vars referenced by the config are resolved NOW (at
+    /// build time). If any are missing, the call fails with
+    /// [`Error::MissingEnvVar`] naming the offender — startup
+    /// surfaces the misconfiguration rather than letting it leak
+    /// into the first request.
+    pub(crate) fn build_strategy(
+        config: &AuthConfig,
+        resolver: &dyn CredentialResolver,
+    ) -> Result<Box<dyn AuthStrategy>, AuthError> {
+        match config {
+            AuthConfig::None => Ok(Box::new(NoopStrategy)),
 
-        AuthConfig::Basic { user_env, pass_env } => {
-            let user = resolver.resolve(&CredentialSource::EnvVar(user_env.clone()))?;
-            let pass = resolver.resolve(&CredentialSource::EnvVar(pass_env.clone()))?;
-            Ok(Box::new(BasicStrategy::new(user, pass)?))
-        }
+            AuthConfig::Bearer { token_env } => {
+                let token = resolver.resolve(&CredentialSource::EnvVar(token_env.clone()))?;
+                Ok(Box::new(BearerStrategy::new(token)?))
+            }
 
-        AuthConfig::Header { name, value_env } => {
-            let value = resolver.resolve(&CredentialSource::EnvVar(value_env.clone()))?;
-            Ok(Box::new(HeaderStrategy::new(name.clone(), value)?))
-        }
+            AuthConfig::Basic { user_env, pass_env } => {
+                let user = resolver.resolve(&CredentialSource::EnvVar(user_env.clone()))?;
+                let pass = resolver.resolve(&CredentialSource::EnvVar(pass_env.clone()))?;
+                Ok(Box::new(BasicStrategy::new(user, pass)?))
+            }
 
-        AuthConfig::AwsSigV4 {
-            access_key_env,
-            secret_key_env,
-            session_token_env,
-            region,
-            service,
-        } => {
-            let access_key = resolver.resolve(&CredentialSource::EnvVar(access_key_env.clone()))?;
-            let secret_key = resolver.resolve(&CredentialSource::EnvVar(secret_key_env.clone()))?;
-            let session_token = match session_token_env {
-                Some(var) => Some(resolver.resolve(&CredentialSource::EnvVar(var.clone()))?),
-                None => None,
-            };
-            Ok(Box::new(AwsSigV4Strategy::new(
-                access_key,
-                secret_key,
-                session_token,
-                region.clone(),
-                service.clone(),
-            )))
+            AuthConfig::Header { name, value_env } => {
+                let value = resolver.resolve(&CredentialSource::EnvVar(value_env.clone()))?;
+                Ok(Box::new(HeaderStrategy::new(name.clone(), value)?))
+            }
+
+            AuthConfig::AwsSigV4 {
+                access_key_env,
+                secret_key_env,
+                session_token_env,
+                region,
+                service,
+            } => {
+                let access_key =
+                    resolver.resolve(&CredentialSource::EnvVar(access_key_env.clone()))?;
+                let secret_key =
+                    resolver.resolve(&CredentialSource::EnvVar(secret_key_env.clone()))?;
+                let session_token = match session_token_env {
+                    Some(var) => Some(resolver.resolve(&CredentialSource::EnvVar(var.clone()))?),
+                    None => None,
+                };
+                Ok(Box::new(AwsSigV4Strategy::new(
+                    access_key,
+                    secret_key,
+                    session_token,
+                    region.clone(),
+                    service.clone(),
+                )))
+            }
         }
     }
 }
@@ -81,18 +87,18 @@ mod tests {
     /// touching process env.
     struct StubResolver(&'static str);
     impl CredentialResolver for StubResolver {
-        fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, Error> {
+        fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, AuthError> {
             Ok(SecretString::from(self.0.to_string()))
         }
     }
 
     struct MissingResolver;
     impl CredentialResolver for MissingResolver {
-        fn resolve(&self, source: &CredentialSource) -> Result<SecretString, Error> {
+        fn resolve(&self, source: &CredentialSource) -> Result<SecretString, AuthError> {
             let name = match source {
                 CredentialSource::EnvVar(n) => n.clone(),
             };
-            Err(Error::MissingEnvVar { name })
+            Err(AuthError::MissingEnvVar { name })
         }
     }
 
@@ -102,15 +108,15 @@ mod tests {
         // Smoke: every variant constructs without panic when
         // the resolver supplies a placeholder credential.
         let r = &StubResolver("x");
-        assert!(build_strategy(&AuthConfig::None, r).is_ok());
-        assert!(build_strategy(
+        assert!(StrategyFactory::build_strategy(&AuthConfig::None, r).is_ok());
+        assert!(StrategyFactory::build_strategy(
             &AuthConfig::Bearer {
                 token_env: "T".into()
             },
             r
         )
         .is_ok());
-        assert!(build_strategy(
+        assert!(StrategyFactory::build_strategy(
             &AuthConfig::Basic {
                 user_env: "U".into(),
                 pass_env: "P".into()
@@ -118,7 +124,7 @@ mod tests {
             r
         )
         .is_ok());
-        assert!(build_strategy(
+        assert!(StrategyFactory::build_strategy(
             &AuthConfig::Header {
                 name: "x-k".into(),
                 value_env: "V".into()
@@ -131,7 +137,8 @@ mod tests {
     /// @covers: build_strategy
     #[test]
     fn test_none_builds_noop_strategy() {
-        let strategy = build_strategy(&AuthConfig::None, &StubResolver("x")).unwrap();
+        let strategy =
+            StrategyFactory::build_strategy(&AuthConfig::None, &StubResolver("x")).unwrap();
         // Applying it to a request must not attach any auth.
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
@@ -147,7 +154,7 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "WHATEVER".into(),
         };
-        let strategy = build_strategy(&cfg, &StubResolver("tok-42")).unwrap();
+        let strategy = StrategyFactory::build_strategy(&cfg, &StubResolver("tok-42")).unwrap();
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
             reqwest::Url::parse("http://example.test/").unwrap(),
@@ -172,7 +179,7 @@ mod tests {
         };
         // Resolver returns "same" for BOTH env vars; verify
         // that strategy authorizes with a valid basic header.
-        let strategy = build_strategy(&cfg, &StubResolver("same")).unwrap();
+        let strategy = StrategyFactory::build_strategy(&cfg, &StubResolver("same")).unwrap();
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
             reqwest::Url::parse("http://example.test/").unwrap(),
@@ -194,7 +201,7 @@ mod tests {
             name: "x-api-key".into(),
             value_env: "K".into(),
         };
-        let strategy = build_strategy(&cfg, &StubResolver("key-99")).unwrap();
+        let strategy = StrategyFactory::build_strategy(&cfg, &StubResolver("key-99")).unwrap();
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
             reqwest::Url::parse("http://example.test/").unwrap(),
@@ -212,9 +219,9 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "DOES_NOT_EXIST".into(),
         };
-        let err = build_strategy(&cfg, &MissingResolver).unwrap_err();
+        let err = StrategyFactory::build_strategy(&cfg, &MissingResolver).unwrap_err();
         match err {
-            Error::MissingEnvVar { name } => assert_eq!(name, "DOES_NOT_EXIST"),
+            AuthError::MissingEnvVar { name } => assert_eq!(name, "DOES_NOT_EXIST"),
             other => panic!("expected MissingEnvVar, got {other:?}"),
         }
     }

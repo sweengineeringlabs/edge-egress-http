@@ -9,10 +9,11 @@ use crate::api::error::TlsError;
 /// TLS client-identity schema. Tagged enum on `kind` so
 /// `kind = "pkcs12"; path = "..."; password_env = "..."`
 /// deserializes into the right variant.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum TlsConfig {
     /// Pass-through — no client cert attached. Baseline.
+    #[default]
     None,
 
     /// PKCS#12 bundle (.p12 / .pfx) with cert + private key.
@@ -30,12 +31,6 @@ pub enum TlsConfig {
         /// Path to the .pem file.
         path: String,
     },
-}
-
-impl Default for TlsConfig {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 impl swe_edge_configbuilder::ConfigSection for TlsConfig {

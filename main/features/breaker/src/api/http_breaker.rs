@@ -13,6 +13,7 @@
 
 /// The breaker crate's primary trait. Every middleware layer
 /// produced by this crate implements it.
+#[allow(dead_code)]
 pub trait HttpBreaker: Send + Sync {
     /// Identify this processor in log / trace output.
     ///

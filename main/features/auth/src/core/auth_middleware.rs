@@ -38,7 +38,7 @@ impl reqwest_middleware::Middleware for AuthMiddleware {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::error::Error;
+    use crate::api::error::AuthError;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     /// Stub HttpAuth that records how many times `process` fired
@@ -56,7 +56,7 @@ mod tests {
         fn process<'a>(
             &'a self,
             req: &'a mut reqwest::Request,
-        ) -> futures::future::BoxFuture<'a, Result<(), Error>> {
+        ) -> futures::future::BoxFuture<'a, Result<(), AuthError>> {
             Box::pin(async move {
                 self.calls.fetch_add(1, Ordering::SeqCst);
                 req.headers_mut().insert(

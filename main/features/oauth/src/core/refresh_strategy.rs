@@ -8,8 +8,8 @@ use async_trait::async_trait;
 use tokio::sync::Mutex;
 use tracing::debug;
 
-use crate::api::token_source::OAuthTokenSource;
-use crate::api::Error;
+use crate::api::error::OAuthError as Error;
+use crate::api::traits::token_source::OAuthTokenSource;
 
 /// Refresh proactively this many milliseconds before actual expiry.
 const REFRESH_WINDOW_MS: u64 = 60_000;
@@ -57,8 +57,12 @@ impl OAuthRefreshStrategy {
                 expires_at_ms: now + 3_600_000, // 1-hour fallback
             });
             Ok(token)
+        } else if let Some(cached) = guard.as_ref() {
+            Ok(cached.value.clone())
         } else {
-            Ok(guard.as_ref().unwrap().value.clone())
+            Err(Error::RefreshFailed(
+                "cached token missing despite fresh check".into(),
+            ))
         }
     }
 }
@@ -83,12 +87,12 @@ impl reqwest_middleware::Middleware for OAuthRefreshStrategy {
             .await
             .map_err(|e| reqwest_middleware::Error::Middleware(anyhow::anyhow!("{}", e)))?;
 
-        req.headers_mut().insert(
-            reqwest::header::AUTHORIZATION,
-            format!("Bearer {}", token)
-                .parse()
-                .expect("Bearer token value is valid ASCII"),
-        );
+        let auth_value = reqwest::header::HeaderValue::from_str(&format!("Bearer {token}"))
+            .map_err(|e| {
+                reqwest_middleware::Error::Middleware(anyhow::anyhow!("invalid bearer token: {e}"))
+            })?;
+        req.headers_mut()
+            .insert(reqwest::header::AUTHORIZATION, auth_value);
 
         next.run(req, ext).await
     }
@@ -108,7 +112,7 @@ impl OAuthTimeHelper {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::token_source::{FailingTokenSource, StaticTokenSource};
+    use crate::api::traits::token_source::{FailingTokenSource, StaticTokenSource};
 
     #[tokio::test]
     async fn test_fresh_token_returns_source_token() {
@@ -137,7 +141,7 @@ mod tests {
 #[cfg(test)]
 mod sync_coverage {
     use super::OAuthRefreshStrategy;
-    use crate::api::token_source::StaticTokenSource;
+    use crate::api::traits::token_source::StaticTokenSource;
     use std::sync::Arc;
 
     /// @covers: new

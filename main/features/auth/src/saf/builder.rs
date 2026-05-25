@@ -6,7 +6,7 @@ use swe_edge_configbuilder::ConfigBuilder as _;
 
 use crate::api::auth_config::AuthConfig;
 use crate::api::auth_middleware::AuthMiddleware;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 use crate::core::credential::EnvCredentialResolver;
 use crate::core::default_http_auth::DefaultHttpAuth;
 
@@ -27,7 +27,7 @@ pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
 /// The returned [`AuthMiddleware`] implements
 /// `reqwest_middleware::Middleware` — plug into a
 /// `reqwest_middleware::ClientBuilder` via `.with(mw)`.
-pub fn build_auth_middleware(config: AuthConfig) -> Result<AuthMiddleware, Error> {
+pub fn build_auth_middleware(config: AuthConfig) -> Result<AuthMiddleware, AuthError> {
     let resolver = EnvCredentialResolver;
     let processor = DefaultHttpAuth::new(config, &resolver)?;
     Ok(AuthMiddleware::new(Arc::new(processor)))
@@ -61,7 +61,7 @@ mod tests {
         std::env::remove_var("EDGE_TEST_DEFINITELY_NOT_SET_99");
         let err = build_auth_middleware(cfg).unwrap_err();
         match err {
-            Error::MissingEnvVar { name } => {
+            AuthError::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_DEFINITELY_NOT_SET_99");
             }
             other => panic!("expected MissingEnvVar, got {other:?}"),

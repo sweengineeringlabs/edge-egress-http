@@ -51,10 +51,9 @@ impl BodyScrubber {
     /// mid-path), or the terminal is missing.
     pub(crate) fn remove_path(value: &mut serde_json::Value, path: &str) {
         let mut segments: Vec<&str> = path.split('.').collect();
-        if segments.is_empty() {
+        let Some(terminal) = segments.pop() else {
             return;
-        }
-        let terminal = segments.pop().unwrap();
+        };
         let mut current = value;
         for seg in segments {
             match current {
@@ -113,7 +112,7 @@ mod tests {
     #[test]
     fn test_remove_path_noop_on_missing_key() {
         let mut v = serde_json::json!({"a": 1});
-        remove_path(&mut v, "nonexistent");
+        BodyScrubber::remove_path(&mut v, "nonexistent");
         // Value must be unchanged.
         assert_eq!(v.get("a").and_then(|x| x.as_i64()), Some(1));
     }
@@ -122,7 +121,7 @@ mod tests {
     #[test]
     fn test_remove_path_removes_nested_key() {
         let mut v = serde_json::json!({"outer": {"inner": "secret", "keep": "yes"}});
-        remove_path(&mut v, "outer.inner");
+        BodyScrubber::remove_path(&mut v, "outer.inner");
         let outer = v.get("outer").unwrap();
         assert!(outer.get("inner").is_none(), "nested key must be removed");
         assert_eq!(outer.get("keep").and_then(|x| x.as_str()), Some("yes"));
@@ -133,7 +132,7 @@ mod tests {
     fn test_remove_path_noop_on_scalar_mid_path() {
         // "a" is a scalar, not an object; descending into it must bail.
         let mut v = serde_json::json!({"a": 42});
-        remove_path(&mut v, "a.b");
+        BodyScrubber::remove_path(&mut v, "a.b");
         // Original value unchanged.
         assert_eq!(v.get("a").and_then(|x| x.as_i64()), Some(42));
     }
@@ -143,7 +142,7 @@ mod tests {
     fn test_scrub_body_removes_specified_path() {
         let body = br#"{"id":"abc","keep":"yes"}"#;
         let paths = vec!["id".to_string()];
-        let result = scrub_body(body, &paths);
+        let result = BodyScrubber::scrub_body(body, &paths);
         let v: serde_json::Value = serde_json::from_slice(&result).unwrap();
         assert!(v.get("id").is_none());
         assert_eq!(v.get("keep").and_then(|x| x.as_str()), Some("yes"));
@@ -153,7 +152,7 @@ mod tests {
     #[test]
     fn test_empty_paths_returns_raw_unchanged() {
         let body = br#"{"a": 1}"#;
-        assert_eq!(scrub_body(body, &[]), body.to_vec());
+        assert_eq!(BodyScrubber::scrub_body(body, &[]), body.to_vec());
     }
 
     /// @covers: scrub_body
@@ -161,7 +160,7 @@ mod tests {
     fn test_non_json_body_returns_raw_unchanged() {
         let body = b"not actual json";
         let paths = vec!["some.path".to_string()];
-        assert_eq!(scrub_body(body, &paths), body.to_vec());
+        assert_eq!(BodyScrubber::scrub_body(body, &paths), body.to_vec());
     }
 
     /// @covers: scrub_body
@@ -169,7 +168,7 @@ mod tests {
     fn test_removes_top_level_field() {
         let body = br#"{"request_id":"abc-123","payload":"data"}"#;
         let paths = vec!["request_id".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         assert!(parsed.get("request_id").is_none());
         assert_eq!(parsed.get("payload").and_then(|v| v.as_str()), Some("data"));
@@ -180,7 +179,7 @@ mod tests {
     fn test_removes_nested_field_via_dot_path() {
         let body = br#"{"metadata":{"trace_id":"t-1","version":"v2"},"payload":"ok"}"#;
         let paths = vec!["metadata.trace_id".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         let meta = parsed.get("metadata").unwrap();
         assert!(meta.get("trace_id").is_none());
@@ -192,7 +191,7 @@ mod tests {
     fn test_nonexistent_path_is_noop() {
         let body = br#"{"a":1}"#;
         let paths = vec!["nonexistent.field".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         assert_eq!(parsed.get("a").and_then(|v| v.as_i64()), Some(1));
     }
@@ -202,7 +201,7 @@ mod tests {
     fn test_multiple_paths_all_removed() {
         let body = br#"{"request_id":"r","trace_id":"t","keep":"yes"}"#;
         let paths = vec!["request_id".to_string(), "trace_id".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         assert!(parsed.get("request_id").is_none());
         assert!(parsed.get("trace_id").is_none());
@@ -217,7 +216,7 @@ mod tests {
         // and we bail without touching anything.
         let body = br#"{"results":[{"id":1}]}"#;
         let paths = vec!["results.0.id".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         // Raw is preserved (or at least parses back to the same
         // thing — serde may reorder keys but the array is
         // intact).
@@ -233,7 +232,7 @@ mod tests {
         // `metadata.*`, they pass "metadata" as the path.
         let body = br#"{"metadata":{"x":1,"y":2},"payload":"ok"}"#;
         let paths = vec!["metadata".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         assert!(parsed.get("metadata").is_none());
         assert_eq!(parsed.get("payload").and_then(|v| v.as_str()), Some("ok"));
@@ -246,7 +245,7 @@ mod tests {
         // key is then removed from the object at that index.
         let body = br#"{"results":[{"id":1,"name":"a"},{"id":2}]}"#;
         let paths = vec!["results.0.id".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         let arr = parsed.get("results").and_then(|v| v.as_array()).unwrap();
         assert_eq!(arr.len(), 2);
@@ -267,7 +266,7 @@ mod tests {
         // element at that index; the array shrinks.
         let body = br#"{"results":[{"a":1},{"b":2}]}"#;
         let paths = vec!["results.0".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         let arr = parsed.get("results").and_then(|v| v.as_array()).unwrap();
         assert_eq!(arr.len(), 1, "array should shrink by one");
@@ -286,7 +285,7 @@ mod tests {
         // without mutating anything.
         let body = br#"{"results":[{"id":1}]}"#;
         let paths = vec!["results.99.id".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         let arr = parsed.get("results").and_then(|v| v.as_array()).unwrap();
         assert_eq!(arr.len(), 1);
@@ -300,7 +299,7 @@ mod tests {
         // without touching the array.
         let body = br#"{"results":[1,2,3]}"#;
         let paths = vec!["results.nope".to_string()];
-        let scrubbed = scrub_body(body, &paths);
+        let scrubbed = BodyScrubber::scrub_body(body, &paths);
         let parsed: serde_json::Value = serde_json::from_slice(&scrubbed).unwrap();
         let arr = parsed.get("results").and_then(|v| v.as_array()).unwrap();
         assert_eq!(arr.len(), 3);
@@ -318,8 +317,8 @@ mod tests {
         let a = br#"{"request_id":"first","payload":"same"}"#;
         let b = br#"{"request_id":"second","payload":"same"}"#;
         let paths = vec!["request_id".to_string()];
-        let scrubbed_a = scrub_body(a, &paths);
-        let scrubbed_b = scrub_body(b, &paths);
+        let scrubbed_a = BodyScrubber::scrub_body(a, &paths);
+        let scrubbed_b = BodyScrubber::scrub_body(b, &paths);
         // After scrubbing the request_id, both collapse to
         // the same remaining object.
         let parsed_a: serde_json::Value = serde_json::from_slice(&scrubbed_a).unwrap();

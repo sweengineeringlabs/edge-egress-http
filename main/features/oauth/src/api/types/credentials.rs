@@ -55,7 +55,8 @@ impl Default for OAuthConfig {
 impl OAuthConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> crate::api::Result<Self> {
-        toml::from_str(toml_text).map_err(|e| crate::api::Error::Configuration(e.to_string()))
+        toml::from_str(toml_text)
+            .map_err(|e| crate::api::error::OAuthError::Configuration(e.to_string()))
     }
 }
 

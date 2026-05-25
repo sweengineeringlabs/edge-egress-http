@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 use swe_edge_configbuilder::ConfigBuilder as _;
+use swe_edge_egress_oauth::OAuthBuilderOps as _;
 
 use reqwest_middleware::{ClientBuilder, Middleware};
 use swe_edge_egress_tls::TlsApplier;
@@ -12,7 +13,7 @@ use crate::api::http::HttpEgressBuildError;
 use crate::api::http::HttpEgressConfig;
 use crate::api::port::{HttpEgress, HttpStream};
 use crate::api::traits::Validator as _;
-use crate::api::value_object::HttpConfig;
+use crate::api::types::HttpConfig;
 use crate::core::{DefaultHttpEgress, MetricsHttpEgress};
 
 /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
@@ -39,12 +40,12 @@ pub fn http_egress(config: HttpEgressConfig) -> Result<impl HttpEgress, HttpEgre
     let tls = swe_edge_egress_tls::build_tls_layer(config.tls)?;
 
     if let Some(source) = config.token_source {
+        let oauth = swe_edge_egress_oauth::builder()
+            .with_token_source(source)
+            .build()?;
         assemble(
             config.http,
-            swe_edge_egress_oauth::builder()
-                .with_token_source(source)
-                .build()
-                .expect("token_source was Some so build cannot fail"),
+            oauth,
             retry,
             rate,
             breaker,
@@ -76,12 +77,12 @@ pub fn http_egress_oauth(
     http: HttpConfig,
     source: Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>,
 ) -> Result<impl HttpEgress, HttpEgressBuildError> {
+    let oauth = swe_edge_egress_oauth::builder()
+        .with_token_source(source)
+        .build()?;
     assemble(
         http,
-        swe_edge_egress_oauth::builder()
-            .with_token_source(source)
-            .build()
-            .expect("token_source is Some — build cannot fail"),
+        oauth,
         swe_edge_egress_retry::build_retry_layer(Default::default())?,
         swe_edge_egress_rate::build_rate_layer(Default::default())?,
         swe_edge_egress_breaker::build_breaker_layer(Default::default())?,

@@ -15,7 +15,7 @@ use http::header::{HeaderValue, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::api::auth_strategy::AuthStrategy;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// `Authorization: Basic base64(user:pass)` strategy.
 pub(crate) struct BasicStrategy {
@@ -35,20 +35,20 @@ impl BasicStrategy {
     /// [`Error::InvalidHeaderValue`] if the resulting header
     /// value has forbidden bytes (the base64 output itself is
     /// always valid, but this is defense-in-depth).
-    pub(crate) fn new(user: SecretString, pass: SecretString) -> Result<Self, Error> {
+    pub(crate) fn new(user: SecretString, pass: SecretString) -> Result<Self, AuthError> {
         // Combine as `user:pass` BEFORE base64 per RFC 7617 §2.
         let combined = format!("{}:{}", user.expose_secret(), pass.expose_secret());
         let encoded = base64::engine::general_purpose::STANDARD.encode(combined);
         let raw = format!("Basic {encoded}");
-        let mut hv =
-            HeaderValue::from_str(&raw).map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+        let mut hv = HeaderValue::from_str(&raw)
+            .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
         hv.set_sensitive(true);
         Ok(Self { header_value: hv })
     }
 }
 
 impl AuthStrategy for BasicStrategy {
-    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
+    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), AuthError> {
         req.headers_mut()
             .insert(AUTHORIZATION, self.header_value.clone());
         Ok(())

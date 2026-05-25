@@ -9,11 +9,11 @@ use crate::api::port::http::http_stream::HttpStream;
 use crate::api::port::http_egress::HttpEgress;
 use crate::api::port::http_egress_error::HttpEgressError;
 use crate::api::port::HttpEgressResult;
-use crate::api::value_object::sse::{SseEvent, SseStream};
-use crate::api::value_object::ws::WsChannel;
+use crate::api::types::sse::{SseEvent, SseStream};
+use crate::api::types::ws::WsChannel;
 #[cfg(feature = "websocket")]
-use crate::api::value_object::ws::WsMessage;
-use crate::api::value_object::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
+use crate::api::types::ws::WsMessage;
+use crate::api::types::{HttpBody, HttpRequest, HttpResponse, HttpStreamResponse};
 
 pub(crate) struct DefaultHttpEgress {
     client: ClientWithMiddleware,
@@ -373,7 +373,7 @@ async fn connect_ws(url: String) -> HttpEgressResult<WsChannel> {
             }
         });
 
-        let incoming: crate::api::value_object::ws::WsReceiver =
+        let incoming: crate::api::types::ws::WsReceiver =
             Box::pin(ws_read.filter_map(|item| async move {
                 match item {
                     Ok(TungMsg::Text(t)) => Some(Ok(WsMessage::text(t.as_str()))),

@@ -8,17 +8,18 @@
 
 use serde::Deserialize;
 
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// Auth policy schema. A tagged enum on the `kind` field so
 /// config like `kind = "bearer"; token_env = "..."` deserializes
 /// into the right variant.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum AuthConfig {
     /// Pass-through — middleware attached but attaches no
     /// credential. The baseline; consumers must explicitly
     /// switch to a real scheme to activate auth.
+    #[default]
     None,
 
     /// `Authorization: Bearer <token>`. Token is read from the
@@ -71,12 +72,6 @@ pub enum AuthConfig {
     },
 }
 
-impl Default for AuthConfig {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
 impl swe_edge_configbuilder::ConfigSection for AuthConfig {
     fn section_name() -> &'static str {
         "auth"
@@ -85,8 +80,8 @@ impl swe_edge_configbuilder::ConfigSection for AuthConfig {
 
 impl AuthConfig {
     /// Parse from TOML text.
-    pub fn from_config(toml_text: &str) -> Result<Self, Error> {
-        toml::from_str(toml_text).map_err(|e| Error::ParseFailed(e.to_string()))
+    pub fn from_config(toml_text: &str) -> Result<Self, AuthError> {
+        toml::from_str(toml_text).map_err(|e| AuthError::ParseFailed(e.to_string()))
     }
 }
 

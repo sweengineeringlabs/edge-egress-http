@@ -33,3 +33,10 @@ swe-edge-configbuilder.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt"] }
+
+[lints]
+workspace = true
+
+[[test]]
+name = "refresh_strategy_int_test"
+path = "test/refresh_strategy_int_test.rs"

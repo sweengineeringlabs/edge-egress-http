@@ -1,7 +1,7 @@
 //! Pass-through strategy for `AuthConfig::None`.
 
 use crate::api::auth_strategy::AuthStrategy;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// Attaches no credential. Returned by the factory when
 /// `AuthConfig::None` is configured (the baseline).
@@ -9,7 +9,7 @@ use crate::api::error::Error;
 pub(crate) struct NoopStrategy;
 
 impl AuthStrategy for NoopStrategy {
-    fn authorize(&self, _req: &mut reqwest::Request) -> Result<(), Error> {
+    fn authorize(&self, _req: &mut reqwest::Request) -> Result<(), AuthError> {
         Ok(())
     }
 }

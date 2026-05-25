@@ -6,7 +6,7 @@ use http::header::{HeaderName, HeaderValue};
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::api::auth_strategy::AuthStrategy;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// Attaches `<name>: <value>` to every outbound request.
 pub(crate) struct HeaderStrategy {
@@ -28,15 +28,16 @@ impl HeaderStrategy {
     /// credential value. The name is lowercased before parse
     /// so consumer configs don't need to worry about casing
     /// (HTTP headers are case-insensitive on the wire anyway).
-    pub(crate) fn new(name: String, value: SecretString) -> Result<Self, Error> {
+    pub(crate) fn new(name: String, value: SecretString) -> Result<Self, AuthError> {
         let lower = name.to_lowercase();
-        let header_name =
-            HeaderName::from_lowercase(lower.as_bytes()).map_err(|e| Error::InvalidHeaderName {
+        let header_name = HeaderName::from_lowercase(lower.as_bytes()).map_err(|e| {
+            AuthError::InvalidHeaderName {
                 name: name.clone(),
                 reason: e.to_string(),
-            })?;
+            }
+        })?;
         let mut header_value = HeaderValue::from_str(value.expose_secret())
-            .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+            .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
         header_value.set_sensitive(true);
         Ok(Self {
             name: header_name,
@@ -46,7 +47,7 @@ impl HeaderStrategy {
 }
 
 impl AuthStrategy for HeaderStrategy {
-    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
+    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), AuthError> {
         req.headers_mut()
             .insert(self.name.clone(), self.value.clone());
         Ok(())
@@ -99,7 +100,7 @@ mod tests {
         let err = HeaderStrategy::new("bad name".into(), SecretString::from("v".to_string()))
             .unwrap_err();
         match err {
-            Error::InvalidHeaderName { name, .. } => assert_eq!(name, "bad name"),
+            AuthError::InvalidHeaderName { name, .. } => assert_eq!(name, "bad name"),
             other => panic!("expected InvalidHeaderName, got {other:?}"),
         }
     }
@@ -109,7 +110,7 @@ mod tests {
     fn test_new_rejects_invalid_header_value() {
         let err = HeaderStrategy::new("x-key".into(), SecretString::from("bad\nvalue".to_string()))
             .unwrap_err();
-        assert!(matches!(err, Error::InvalidHeaderValue(_)));
+        assert!(matches!(err, AuthError::InvalidHeaderValue(_)));
     }
 
     /// @covers: HeaderStrategy::fmt

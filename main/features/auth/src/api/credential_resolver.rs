@@ -9,7 +9,7 @@
 use secrecy::SecretString;
 
 use crate::api::credential_source::CredentialSource;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// Resolves an abstract [`CredentialSource`] to its concrete
 /// [`SecretString`] at middleware-build time.
@@ -28,7 +28,7 @@ pub(crate) trait CredentialResolver: Send + Sync {
     /// format, empty value) are not this trait's concern —
     /// resolvers return whatever was at the named location; the
     /// scheme validates shape.
-    fn resolve(&self, source: &CredentialSource) -> Result<SecretString, Error>;
+    fn resolve(&self, source: &CredentialSource) -> Result<SecretString, AuthError>;
 }
 
 #[cfg(test)]
@@ -38,7 +38,7 @@ mod tests {
 
     struct StubResolver(String);
     impl CredentialResolver for StubResolver {
-        fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, Error> {
+        fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, AuthError> {
             Ok(SecretString::from(self.0.clone()))
         }
     }

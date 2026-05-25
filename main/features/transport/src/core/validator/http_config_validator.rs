@@ -1,7 +1,7 @@
 //! Concrete [`Validator`] implementation for [`HttpConfig`].
 
 use crate::api::traits::Validator;
-use crate::api::value_object::HttpConfig;
+use crate::api::types::HttpConfig;
 
 /// Validates an [`HttpConfig`] value for production use.
 pub(crate) struct HttpConfigValidator<'a> {

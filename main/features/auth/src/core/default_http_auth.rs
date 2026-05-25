@@ -9,9 +9,9 @@ use futures::future::BoxFuture;
 use crate::api::auth_config::AuthConfig;
 use crate::api::auth_strategy::AuthStrategy;
 use crate::api::credential_resolver::CredentialResolver;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 use crate::api::http_auth::HttpAuth;
-use crate::core::strategy::build_strategy;
+use crate::core::strategy::strategy_factory::StrategyFactory;
 
 /// Default HTTP auth processor. Holds the resolved strategy;
 /// per-request work is just `strategy.authorize(req)`.
@@ -41,8 +41,8 @@ impl DefaultHttpAuth {
     pub(crate) fn new(
         config: AuthConfig,
         resolver: &dyn CredentialResolver,
-    ) -> Result<Self, Error> {
-        let strategy = build_strategy(&config, resolver)?;
+    ) -> Result<Self, AuthError> {
+        let strategy = StrategyFactory::build_strategy(&config, resolver)?;
         Ok(Self { config, strategy })
     }
 }
@@ -52,7 +52,10 @@ impl HttpAuth for DefaultHttpAuth {
         "swe_edge_egress_auth"
     }
 
-    fn process<'a>(&'a self, req: &'a mut reqwest::Request) -> BoxFuture<'a, Result<(), Error>> {
+    fn process<'a>(
+        &'a self,
+        req: &'a mut reqwest::Request,
+    ) -> BoxFuture<'a, Result<(), AuthError>> {
         Box::pin(async move {
             // Two-phase: first, any strategy-specific setup (Digest
             // fetches nonce here), then attach header.
@@ -71,7 +74,7 @@ mod tests {
 
     struct StubResolver(&'static str);
     impl CredentialResolver for StubResolver {
-        fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, Error> {
+        fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, AuthError> {
             Ok(SecretString::from(self.0.to_string()))
         }
     }
@@ -157,9 +160,11 @@ mod tests {
     fn test_build_fails_fast_on_missing_env_var() {
         struct MissingResolver;
         impl CredentialResolver for MissingResolver {
-            fn resolve(&self, source: &CredentialSource) -> Result<SecretString, Error> {
+            fn resolve(&self, source: &CredentialSource) -> Result<SecretString, AuthError> {
                 match source {
-                    CredentialSource::EnvVar(n) => Err(Error::MissingEnvVar { name: n.clone() }),
+                    CredentialSource::EnvVar(n) => {
+                        Err(AuthError::MissingEnvVar { name: n.clone() })
+                    }
                 }
             }
         }
@@ -168,7 +173,7 @@ mod tests {
         };
         let err = DefaultHttpAuth::new(cfg, &MissingResolver).unwrap_err();
         match err {
-            Error::MissingEnvVar { name } => assert_eq!(name, "NOT_SET"),
+            AuthError::MissingEnvVar { name } => assert_eq!(name, "NOT_SET"),
             other => panic!("expected MissingEnvVar, got {other:?}"),
         }
     }

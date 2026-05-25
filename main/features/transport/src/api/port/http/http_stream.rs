@@ -3,14 +3,14 @@
 use futures::future::BoxFuture;
 
 use crate::api::port::HttpEgressResult;
-use crate::api::value_object::sse::SseStream;
-use crate::api::value_object::ws::WsChannel;
+use crate::api::types::sse::SseStream;
+use crate::api::types::ws::WsChannel;
 
 /// Makes HTTP transport-level streaming connections to external services.
 ///
 /// # SSE (Server-Sent Events)
 /// Opens an HTTP connection and returns a lazy stream of
-/// [`SseEvent`](crate::api::value_object::sse::SseEvent) frames parsed from
+/// [`SseEvent`](crate::api::types::sse::SseEvent) frames parsed from
 /// the `text/event-stream` response body.
 ///
 /// # WebSocket
@@ -20,7 +20,7 @@ use crate::api::value_object::ws::WsChannel;
 pub trait HttpStream: Send + Sync {
     /// Subscribe to an SSE feed at `url`.
     ///
-    /// Returns a lazy stream that yields [`SseEvent`](crate::api::value_object::sse::SseEvent)
+    /// Returns a lazy stream that yields [`SseEvent`](crate::api::types::sse::SseEvent)
     /// frames as they arrive from the remote service.
     fn subscribe_sse(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<SseStream>>;
 

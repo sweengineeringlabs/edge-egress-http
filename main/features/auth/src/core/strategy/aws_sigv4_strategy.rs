@@ -23,7 +23,7 @@ use time::format_description::FormatItem;
 use time::{macros::format_description, OffsetDateTime};
 
 use crate::api::auth_strategy::AuthStrategy;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -135,13 +135,13 @@ impl AwsSigV4Strategy {
     /// Perform the signing pass on `req`. Extracted so tests
     /// can call it with a fixed `OffsetDateTime` to verify
     /// against known AWS test vectors.
-    fn sign(&self, req: &mut reqwest::Request, now: OffsetDateTime) -> Result<(), Error> {
+    fn sign(&self, req: &mut reqwest::Request, now: OffsetDateTime) -> Result<(), AuthError> {
         let amz_date = now
             .format(AMZ_DATE_FMT)
-            .map_err(|e| Error::InvalidHeaderValue(format!("format amz-date: {e}")))?;
+            .map_err(|e| AuthError::InvalidHeaderValue(format!("format amz-date: {e}")))?;
         let date_scope = now
             .format(AMZ_DATE_ONLY_FMT)
-            .map_err(|e| Error::InvalidHeaderValue(format!("format amz-date-only: {e}")))?;
+            .map_err(|e| AuthError::InvalidHeaderValue(format!("format amz-date-only: {e}")))?;
 
         // --- Mutations happen here so canonical-headers sees
         // --- the final request shape.
@@ -149,14 +149,14 @@ impl AwsSigV4Strategy {
 
         // x-amz-date must be in the signed set.
         let amz_date_hv = HeaderValue::from_str(&amz_date)
-            .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+            .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
         headers.insert(HeaderName::from_static("x-amz-date"), amz_date_hv);
 
         // Session token (if present) is also signed. AWS STS /
         // IMDSv2-issued credentials require this.
         if let Some(token) = &self.session_token {
             let mut hv = HeaderValue::from_str(token.expose_secret())
-                .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+                .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
             hv.set_sensitive(true);
             headers.insert(HeaderName::from_static("x-amz-security-token"), hv);
         }
@@ -172,10 +172,10 @@ impl AwsSigV4Strategy {
                     None => h.to_string(),
                 };
                 HeaderValue::from_str(&host_value)
-                    .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?
+                    .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?
             }
             None => {
-                return Err(Error::InvalidHeaderValue(
+                return Err(AuthError::InvalidHeaderValue(
                     "SigV4 requires a URL with a host".into(),
                 ))
             }
@@ -184,8 +184,9 @@ impl AwsSigV4Strategy {
 
         // --- Build canonical request ---
         let method = req.method().as_str().to_string();
-        let canonical_uri = canonical_uri(req.url().path());
-        let canonical_query = canonical_query_string(req.url().query().unwrap_or(""));
+        let canonical_uri = AwsSigV4Helper::canonical_uri(req.url().path());
+        let canonical_query =
+            AwsSigV4Helper::canonical_query_string(req.url().query().unwrap_or(""));
 
         let mut header_pairs: Vec<(String, String)> = req
             .headers()
@@ -237,7 +238,7 @@ impl AwsSigV4Strategy {
             format!("AWS4-HMAC-SHA256\n{amz_date}\n{credential_scope}\n{hashed_canonical}");
 
         // --- Derive signing key ---
-        let signing_key = derive_signing_key(
+        let signing_key = AwsSigV4Helper::derive_signing_key(
             self.secret_access_key.expose_secret(),
             &date_scope,
             &self.region,
@@ -245,7 +246,7 @@ impl AwsSigV4Strategy {
         )?;
 
         // --- Final signature ---
-        let signature = hmac_sha256(&signing_key, string_to_sign.as_bytes())?;
+        let signature = AwsSigV4Helper::hmac_sha256(&signing_key, string_to_sign.as_bytes())?;
         let signature_hex = hex::encode(signature);
 
         // --- Authorization header ---
@@ -257,7 +258,7 @@ impl AwsSigV4Strategy {
             sig = signature_hex,
         );
         let mut auth_hv = HeaderValue::from_str(&auth_value)
-            .map_err(|e| Error::InvalidHeaderValue(e.to_string()))?;
+            .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
         auth_hv.set_sensitive(true);
         req.headers_mut().insert(AUTHORIZATION, auth_hv);
 
@@ -266,66 +267,70 @@ impl AwsSigV4Strategy {
 }
 
 impl AuthStrategy for AwsSigV4Strategy {
-    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
+    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), AuthError> {
         self.sign(req, Self::now())
     }
 }
 
 /// Canonical URI per SigV4 spec: path with each segment
-/// percent-encoded, slash-preserving.
-fn canonical_uri(path: &str) -> String {
-    if path.is_empty() {
-        return "/".into();
+pub(crate) struct AwsSigV4Helper;
+
+impl AwsSigV4Helper {
+    /// Canonical URI: percent-encoded, slash-preserving.
+    pub(crate) fn canonical_uri(path: &str) -> String {
+        if path.is_empty() {
+            return "/".into();
+        }
+        utf8_percent_encode(path, ENCODE_FOR_PATH).to_string()
     }
-    utf8_percent_encode(path, ENCODE_FOR_PATH).to_string()
-}
 
-/// Canonical query string: key=value pairs percent-encoded,
-/// sorted by key.
-fn canonical_query_string(query: &str) -> String {
-    if query.is_empty() {
-        return String::new();
+    /// Canonical query string: key=value pairs percent-encoded,
+    /// sorted by key.
+    pub(crate) fn canonical_query_string(query: &str) -> String {
+        if query.is_empty() {
+            return String::new();
+        }
+        let mut pairs: Vec<(String, String)> = query
+            .split('&')
+            .filter(|p| !p.is_empty())
+            .map(|pair| match pair.split_once('=') {
+                Some((k, v)) => (
+                    utf8_percent_encode(k, ENCODE_FOR_QUERY).to_string(),
+                    utf8_percent_encode(v, ENCODE_FOR_QUERY).to_string(),
+                ),
+                None => (
+                    utf8_percent_encode(pair, ENCODE_FOR_QUERY).to_string(),
+                    String::new(),
+                ),
+            })
+            .collect();
+        pairs.sort();
+        pairs
+            .into_iter()
+            .map(|(k, v)| format!("{k}={v}"))
+            .collect::<Vec<_>>()
+            .join("&")
     }
-    let mut pairs: Vec<(String, String)> = query
-        .split('&')
-        .filter(|p| !p.is_empty())
-        .map(|pair| match pair.split_once('=') {
-            Some((k, v)) => (
-                utf8_percent_encode(k, ENCODE_FOR_QUERY).to_string(),
-                utf8_percent_encode(v, ENCODE_FOR_QUERY).to_string(),
-            ),
-            None => (
-                utf8_percent_encode(pair, ENCODE_FOR_QUERY).to_string(),
-                String::new(),
-            ),
-        })
-        .collect();
-    pairs.sort();
-    pairs
-        .into_iter()
-        .map(|(k, v)| format!("{k}={v}"))
-        .collect::<Vec<_>>()
-        .join("&")
-}
 
-fn hmac_sha256(key: &[u8], data: &[u8]) -> Result<Vec<u8>, Error> {
-    let mut mac = HmacSha256::new_from_slice(key)
-        .map_err(|e| Error::InvalidHeaderValue(format!("HMAC key len: {e}")))?;
-    mac.update(data);
-    Ok(mac.finalize().into_bytes().to_vec())
-}
+    pub(crate) fn hmac_sha256(key: &[u8], data: &[u8]) -> Result<Vec<u8>, AuthError> {
+        let mut mac = HmacSha256::new_from_slice(key)
+            .map_err(|e| AuthError::InvalidHeaderValue(format!("HMAC key len: {e}")))?;
+        mac.update(data);
+        Ok(mac.finalize().into_bytes().to_vec())
+    }
 
-fn derive_signing_key(
-    secret: &str,
-    date: &str,
-    region: &str,
-    service: &str,
-) -> Result<Vec<u8>, Error> {
-    let k_secret = format!("AWS4{secret}");
-    let k_date = hmac_sha256(k_secret.as_bytes(), date.as_bytes())?;
-    let k_region = hmac_sha256(&k_date, region.as_bytes())?;
-    let k_service = hmac_sha256(&k_region, service.as_bytes())?;
-    hmac_sha256(&k_service, b"aws4_request")
+    pub(crate) fn derive_signing_key(
+        secret: &str,
+        date: &str,
+        region: &str,
+        service: &str,
+    ) -> Result<Vec<u8>, AuthError> {
+        let k_secret = format!("AWS4{secret}");
+        let k_date = Self::hmac_sha256(k_secret.as_bytes(), date.as_bytes())?;
+        let k_region = Self::hmac_sha256(&k_date, region.as_bytes())?;
+        let k_service = Self::hmac_sha256(&k_region, service.as_bytes())?;
+        Self::hmac_sha256(&k_service, b"aws4_request")
+    }
 }
 
 #[cfg(test)]
@@ -353,16 +358,16 @@ mod tests {
     /// @covers: canonical_uri
     #[test]
     fn test_canonical_uri_preserves_slashes() {
-        assert_eq!(canonical_uri("/foo/bar"), "/foo/bar");
-        assert_eq!(canonical_uri("/"), "/");
-        assert_eq!(canonical_uri(""), "/");
+        assert_eq!(AwsSigV4Helper::canonical_uri("/foo/bar"), "/foo/bar");
+        assert_eq!(AwsSigV4Helper::canonical_uri("/"), "/");
+        assert_eq!(AwsSigV4Helper::canonical_uri(""), "/");
     }
 
     /// @covers: canonical_uri
     #[test]
     fn test_canonical_uri_percent_encodes_spaces_and_unicode() {
         // Path segments with spaces get percent-encoded.
-        let encoded = canonical_uri("/name with space");
+        let encoded = AwsSigV4Helper::canonical_uri("/name with space");
         assert!(encoded.contains("%20") || encoded.contains("%2520"));
     }
 
@@ -371,7 +376,7 @@ mod tests {
     fn test_canonical_query_string_sorts_params_alphabetically() {
         // AWS requires params sorted by key.
         assert_eq!(
-            canonical_query_string("Zparam=1&Aparam=2"),
+            AwsSigV4Helper::canonical_query_string("Zparam=1&Aparam=2"),
             "Aparam=2&Zparam=1"
         );
     }
@@ -379,7 +384,7 @@ mod tests {
     /// @covers: canonical_query_string
     #[test]
     fn test_canonical_query_string_empty_returns_empty() {
-        assert_eq!(canonical_query_string(""), "");
+        assert_eq!(AwsSigV4Helper::canonical_query_string(""), "");
     }
 
     /// @covers: derive_signing_key
@@ -387,14 +392,14 @@ mod tests {
     fn test_derive_signing_key_is_deterministic() {
         // Two calls with the same inputs MUST produce the same
         // key. Locks in that derivation is pure.
-        let k1 = derive_signing_key(
+        let k1 = AwsSigV4Helper::derive_signing_key(
             "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
             "20130524",
             "us-east-1",
             "s3",
         )
         .unwrap();
-        let k2 = derive_signing_key(
+        let k2 = AwsSigV4Helper::derive_signing_key(
             "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
             "20130524",
             "us-east-1",
@@ -537,23 +542,23 @@ mod tests {
     #[test]
     fn test_hmac_sha256_produces_32_byte_output() {
         // HMAC-SHA256 always outputs exactly 32 bytes regardless of input.
-        let result = hmac_sha256(b"key", b"data").unwrap();
+        let result = AwsSigV4Helper::hmac_sha256(b"key", b"data").unwrap();
         assert_eq!(result.len(), 32);
     }
 
     /// @covers: hmac_sha256
     #[test]
     fn test_hmac_sha256_different_data_produces_different_output() {
-        let a = hmac_sha256(b"key", b"data1").unwrap();
-        let b = hmac_sha256(b"key", b"data2").unwrap();
+        let a = AwsSigV4Helper::hmac_sha256(b"key", b"data1").unwrap();
+        let b = AwsSigV4Helper::hmac_sha256(b"key", b"data2").unwrap();
         assert_ne!(a, b);
     }
 
     /// @covers: hmac_sha256
     #[test]
     fn test_hmac_sha256_different_keys_produces_different_output() {
-        let a = hmac_sha256(b"key1", b"data").unwrap();
-        let b = hmac_sha256(b"key2", b"data").unwrap();
+        let a = AwsSigV4Helper::hmac_sha256(b"key1", b"data").unwrap();
+        let b = AwsSigV4Helper::hmac_sha256(b"key2", b"data").unwrap();
         assert_ne!(a, b);
     }
 
@@ -561,8 +566,8 @@ mod tests {
     #[test]
     fn test_hmac_sha256_is_deterministic() {
         // Same inputs always yield the same output.
-        let r1 = hmac_sha256(b"secret", b"message").unwrap();
-        let r2 = hmac_sha256(b"secret", b"message").unwrap();
+        let r1 = AwsSigV4Helper::hmac_sha256(b"secret", b"message").unwrap();
+        let r2 = AwsSigV4Helper::hmac_sha256(b"secret", b"message").unwrap();
         assert_eq!(r1, r2);
     }
 

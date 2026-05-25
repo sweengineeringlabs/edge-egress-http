@@ -12,7 +12,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// Attaches configured credentials to an outbound HTTP request.
 ///
@@ -35,13 +35,13 @@ pub(crate) trait AuthStrategy: Send + Sync + std::fmt::Debug {
     /// per-host state (Digest's nonce cache) override this.
     /// `host` is the URL host of the outbound request — `None`
     /// when the URL is hostless (unlikely in practice).
-    fn prepare<'a>(&'a self, _host: Option<&'a str>) -> BoxFuture<'a, Result<(), Error>> {
+    fn prepare<'a>(&'a self, _host: Option<&'a str>) -> BoxFuture<'a, Result<(), AuthError>> {
         Box::pin(async { Ok(()) })
     }
 
     /// Apply the strategy to `req` in place. Called once per
     /// outbound request AFTER `prepare` completes.
-    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error>;
+    fn authorize(&self, req: &mut reqwest::Request) -> Result<(), AuthError>;
 }
 
 #[cfg(test)]
@@ -52,7 +52,7 @@ mod tests {
     #[derive(Debug)]
     struct StubStrategy;
     impl AuthStrategy for StubStrategy {
-        fn authorize(&self, req: &mut reqwest::Request) -> Result<(), Error> {
+        fn authorize(&self, req: &mut reqwest::Request) -> Result<(), AuthError> {
             req.headers_mut()
                 .insert("x-stub", "applied".parse().unwrap());
             Ok(())
@@ -64,11 +64,11 @@ mod tests {
         calls: std::sync::atomic::AtomicUsize,
     }
     impl AuthStrategy for PrepareCountingStrategy {
-        fn prepare<'a>(&'a self, _host: Option<&'a str>) -> BoxFuture<'a, Result<(), Error>> {
+        fn prepare<'a>(&'a self, _host: Option<&'a str>) -> BoxFuture<'a, Result<(), AuthError>> {
             self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             Box::pin(async { Ok(()) })
         }
-        fn authorize(&self, _req: &mut reqwest::Request) -> Result<(), Error> {
+        fn authorize(&self, _req: &mut reqwest::Request) -> Result<(), AuthError> {
             Ok(())
         }
     }

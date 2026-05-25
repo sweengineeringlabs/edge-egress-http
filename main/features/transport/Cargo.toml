@@ -45,39 +45,46 @@ swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.g
 
 [[test]]
 name = "default_http_egress_int_test"
-path = "tests/default_http_egress_int_test.rs"
+path = "test/default_http_egress_int_test.rs"
 
 [[test]]
 name = "http_int_test"
-path = "tests/http_int_test.rs"
+path = "test/http_int_test.rs"
 
 [[test]]
 name = "http_egress_int_test"
-path = "tests/http_egress_int_test.rs"
+path = "test/http_egress_int_test.rs"
 
 [[test]]
 name = "metrics_http_egress_int_test"
-path = "tests/metrics_http_egress_int_test.rs"
+path = "test/metrics_http_egress_int_test.rs"
 
 [[test]]
 name = "reqwest_middleware_int_test"
-path = "tests/reqwest_middleware_int_test.rs"
+path = "test/reqwest_middleware_int_test.rs"
 
 [[test]]
 name = "tls_int_test"
-path = "tests/tls_int_test.rs"
+path = "test/tls_int_test.rs"
 
 [[test]]
 name = "http_egress_factory_int_test"
-path = "tests/http_egress_factory_int_test.rs"
+path = "test/http_egress_factory_int_test.rs"
 
 [[test]]
 name = "oauth_int_test"
-path = "tests/oauth_int_test.rs"
+path = "test/oauth_int_test.rs"
 
 [[test]]
 name = "validator_int_test"
-path = "tests/validator_int_test.rs"
+path = "test/validator_int_test.rs"
+
+[[test]]
+name = "transport_svc_int_test"
+path = "test/transport_svc_int_test.rs"
+
+[lints]
+workspace = true
 
 [dev-dependencies]
 tokio               = { workspace = true, features = ["rt-multi-thread", "macros", "net", "time"] }

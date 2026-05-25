@@ -4,7 +4,7 @@ use secrecy::SecretString;
 
 use crate::api::credential_resolver::CredentialResolver;
 use crate::api::credential_source::CredentialSource;
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// [`CredentialResolver`] impl that reads values from process
 /// env vars via [`std::env::var`].
@@ -16,11 +16,11 @@ use crate::api::error::Error;
 pub(crate) struct EnvCredentialResolver;
 
 impl CredentialResolver for EnvCredentialResolver {
-    fn resolve(&self, source: &CredentialSource) -> Result<SecretString, Error> {
+    fn resolve(&self, source: &CredentialSource) -> Result<SecretString, AuthError> {
         match source {
             CredentialSource::EnvVar(name) => std::env::var(name)
                 .map(SecretString::from)
-                .map_err(|_| Error::MissingEnvVar { name: name.clone() }),
+                .map_err(|_| AuthError::MissingEnvVar { name: name.clone() }),
         }
     }
 }
@@ -53,7 +53,7 @@ mod tests {
         let src = CredentialSource::EnvVar("EDGE_TEST_TOKEN_ABSENT_01".into());
         let err = resolver.resolve(&src).unwrap_err();
         match err {
-            Error::MissingEnvVar { name } => {
+            AuthError::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_TOKEN_ABSENT_01");
             }
             other => panic!("expected MissingEnvVar, got {other:?}"),

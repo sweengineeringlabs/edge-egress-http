@@ -1,0 +1,1 @@
+//! HTTP egress error types.

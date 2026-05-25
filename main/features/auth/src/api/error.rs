@@ -2,7 +2,7 @@
 
 /// Errors raised by the auth middleware.
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+pub enum AuthError {
     /// Config TOML didn't parse as the expected schema.
     #[error("swe_edge_egress_auth: config parse failed — {0}")]
     ParseFailed(String),
@@ -42,40 +42,4 @@ pub enum Error {
         /// Underlying parse error.
         reason: String,
     },
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: Error
-    #[test]
-    fn test_missing_env_var_names_the_variable() {
-        let err = Error::MissingEnvVar {
-            name: "EDGE_API_TOKEN".into(),
-        };
-        let s = err.to_string();
-        assert!(s.contains("EDGE_API_TOKEN"));
-    }
-
-    /// @covers: Error
-    #[test]
-    fn test_unsupported_kind_names_valid_options() {
-        let err = Error::UnsupportedKind {
-            kind: "digest".into(),
-        };
-        let s = err.to_string();
-        assert!(s.contains("digest"));
-        assert!(s.contains("bearer"));
-        assert!(s.contains("basic"));
-    }
-
-    /// @covers: Error
-    #[test]
-    fn test_parse_failed_display_names_crate_and_reason() {
-        let err = Error::ParseFailed("missing field".into());
-        let s = err.to_string();
-        assert!(s.contains("swe_edge_egress_auth"));
-        assert!(s.contains("missing field"));
-    }
 }

@@ -8,7 +8,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::error::Error;
+use crate::api::error::AuthError;
 
 /// Auth processor contract. Every middleware layer this crate
 /// produces implements it.
@@ -23,5 +23,6 @@ pub trait HttpAuth: Send + Sync + std::fmt::Debug {
     /// shape as synchronous schemes. For the sync strategies
     /// (Bearer/Basic/Header/Noop/AwsSigV4), the async overhead
     /// is trivial — an already-ready future.
-    fn process<'a>(&'a self, req: &'a mut reqwest::Request) -> BoxFuture<'a, Result<(), Error>>;
+    fn process<'a>(&'a self, req: &'a mut reqwest::Request)
+        -> BoxFuture<'a, Result<(), AuthError>>;
 }

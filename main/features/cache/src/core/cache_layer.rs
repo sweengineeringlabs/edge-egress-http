@@ -42,10 +42,7 @@ use reqwest::header::{HeaderMap, HeaderValue, CACHE_CONTROL, ETAG, IF_NONE_MATCH
 
 use crate::api::types::cache_config::CacheConfig;
 use crate::api::types::cache_layer::CacheLayer;
-use crate::core::cached_entry::{
-    entry_matches_vary, extract_max_age, extract_stale_while_revalidate, in_swr_window, parse_vary,
-    should_revalidate, CachedEntry, VaryDirective,
-};
+use crate::core::cached_entry::{CacheEntryHelper, CachedEntry, VaryDirective};
 
 /// The result of inspecting a response for cacheability: a fresh
 /// TTL plus an optional SWR window. `None` means "do not cache."
@@ -113,14 +110,14 @@ impl CacheLayer {
                 if cc.contains("private") && !self.config.cache_private {
                     return None;
                 }
-                if let Some(max_age) = extract_max_age(&cc) {
+                if let Some(max_age) = CacheEntryHelper::extract_max_age(&cc) {
                     ttl = Some(Duration::from_secs(max_age));
                 }
                 // SWR is independent of respect_cache_control
                 // for TTL, but conceptually SWR is itself a
                 // Cache-Control directive — only honor it when
                 // we're honoring the header at all.
-                swr = extract_stale_while_revalidate(&cc);
+                swr = CacheEntryHelper::extract_stale_while_revalidate(&cc);
             }
         }
 
@@ -155,7 +152,7 @@ pub(crate) fn vary_from_headers(headers: &HeaderMap) -> VaryDirective {
             joined.push_str(v);
         }
     }
-    parse_vary(Some(joined.as_str()))
+    CacheEntryHelper::parse_vary(Some(joined.as_str()))
 }
 
 /// Extract the `ETag` header verbatim (preserving quoted-string
@@ -195,7 +192,7 @@ async fn find_matching_variant(
             .to_string()
     };
     for entry in variants.iter() {
-        if entry_matches_vary(entry, &req_lookup) {
+        if CacheEntryHelper::entry_matches_vary(entry, &req_lookup) {
             return Some(entry.clone());
         }
     }
@@ -479,7 +476,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
                     ))
                 });
             }
-            if in_swr_window(&entry, now) {
+            if CacheEntryHelper::in_swr_window(&entry, now) {
                 // Stale-but-serveable. Serve immediately; fire
                 // background refresh.
                 let rebuilt = reconstruct(&entry).map_err(|e| {
@@ -498,7 +495,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
             // Stale beyond SWR (or no SWR). `should_revalidate`
             // is the single source of truth for this decision
             // and is also used by tests.
-            debug_assert!(should_revalidate(&entry, now));
+            debug_assert!(CacheEntryHelper::should_revalidate(&entry, now));
             // Revalidate if we have an ETag.
             if let Some(etag) = entry.etag.clone() {
                 if let Ok(value) = HeaderValue::from_str(&etag) {
@@ -536,7 +533,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::cached_entry::should_revalidate;
+    use crate::core::cached_entry::CacheEntryHelper;
     use reqwest::header::HeaderName;
 
     fn test_config() -> CacheConfig {
@@ -949,9 +946,9 @@ mod tests {
             vary_headers: Vec::new(),
             stale_while_revalidate: Some(Duration::from_secs(30)),
         };
-        assert!(in_swr_window(&entry, now));
+        assert!(CacheEntryHelper::in_swr_window(&entry, now));
         // And it should NOT trigger revalidation yet.
-        assert!(!should_revalidate(&entry, now));
+        assert!(!CacheEntryHelper::should_revalidate(&entry, now));
     }
 
     /// @covers: should_revalidate (conditional-revalidation gate)
@@ -971,13 +968,13 @@ mod tests {
             vary_headers: Vec::new(),
             stale_while_revalidate: None,
         };
-        assert!(!should_revalidate(&fresh, now));
+        assert!(!CacheEntryHelper::should_revalidate(&fresh, now));
 
         let stale = CachedEntry {
             expires_at: now - Duration::from_secs(1),
             ..fresh
         };
-        assert!(should_revalidate(&stale, now));
+        assert!(CacheEntryHelper::should_revalidate(&stale, now));
     }
 
     /// @covers: vary_from_headers (dispatcher for parse_vary)

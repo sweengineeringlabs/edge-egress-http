@@ -54,3 +54,82 @@ tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 [features]
 default = []
 tracing = ["dep:tracing"]
+
+[lints]
+workspace = true
+
+[[test]]
+name = "auth_config_int_test"
+path = "test/auth_config_int_test.rs"
+
+[[test]]
+name = "auth_middleware_int_test"
+path = "test/auth_middleware_int_test.rs"
+
+[[test]]
+name = "auth_strategy_int_test"
+path = "test/auth_strategy_int_test.rs"
+
+[[test]]
+name = "aws_sigv4_strategy_int_test"
+path = "test/aws_sigv4_strategy_int_test.rs"
+
+[[test]]
+name = "basic_strategy_int_test"
+path = "test/basic_strategy_int_test.rs"
+
+[[test]]
+name = "bearer_strategy_int_test"
+path = "test/bearer_strategy_int_test.rs"
+
+[[test]]
+name = "builder_e2e_test"
+path = "test/builder_e2e_test.rs"
+
+[[test]]
+name = "builder_int_test"
+path = "test/builder_int_test.rs"
+
+[[test]]
+name = "credential_resolver_int_test"
+path = "test/credential_resolver_int_test.rs"
+
+[[test]]
+name = "credential_source_int_test"
+path = "test/credential_source_int_test.rs"
+
+[[test]]
+name = "default_http_auth_int_test"
+path = "test/default_http_auth_int_test.rs"
+
+[[test]]
+name = "env_credential_resolver_int_test"
+path = "test/env_credential_resolver_int_test.rs"
+
+[[test]]
+name = "error_int_test"
+path = "test/error_int_test.rs"
+
+[[test]]
+name = "gateway_int_test"
+path = "test/gateway_int_test.rs"
+
+[[test]]
+name = "header_strategy_int_test"
+path = "test/header_strategy_int_test.rs"
+
+[[test]]
+name = "http_auth_int_test"
+path = "test/http_auth_int_test.rs"
+
+[[test]]
+name = "noop_strategy_int_test"
+path = "test/noop_strategy_int_test.rs"
+
+[[test]]
+name = "strategy_factory_int_test"
+path = "test/strategy_factory_int_test.rs"
+
+[[test]]
+name = "traits_int_test"
+path = "test/traits_int_test.rs"
