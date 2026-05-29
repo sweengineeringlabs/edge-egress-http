@@ -41,7 +41,7 @@ swe-edge-egress-oauth.workspace    = true
 bytes.workspace                    = true
 swe-observ-metrics.workspace       = true
 tokio-tungstenite      = { version = "0.26", optional = true, features = ["rustls-tls-native-roots"] }
-swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-configbuilder = { path = "../../../../../configbuilder/main/features/configbuilder" }
 
 [[test]]
 name = "default_http_egress_int_test"
