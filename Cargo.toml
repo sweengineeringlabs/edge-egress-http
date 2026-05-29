@@ -42,7 +42,7 @@ toml        = "0.8"
 chrono      = { version = "0.4", features = ["serde"] }
 
 # Config infrastructure
-swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.2" }
+swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
 
 # Observability
 swe-observ-metrics = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
