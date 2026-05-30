@@ -3,7 +3,7 @@
 //!
 //! Covers: `build_retry_layer`, `create_config_builder`, and config defaults.
 
-use swe_edge_egress_retry::{build_retry_layer, create_config_builder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{HttpRetrySvc, RetryConfig, RetryLayer};
 
 fn make_cfg(max_retries: u32) -> RetryConfig {
     RetryConfig {
@@ -25,8 +25,7 @@ fn make_cfg(max_retries: u32) -> RetryConfig {
 /// correctly wired.
 #[test]
 fn test_create_config_builder_returns_working_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpRetrySvc::create_config_builder().build_loader();
 }
 
 /// The SWE default config must have at least one retry so the middleware
@@ -73,7 +72,7 @@ fn test_default_config_initial_interval_is_positive() {
 #[test]
 fn test_build_retry_layer_stores_all_fields_in_layer() {
     let cfg = make_cfg(5);
-    let layer = build_retry_layer(cfg).expect("build must succeed");
+    let layer = HttpRetrySvc::build_retry_layer(cfg).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("5"),
@@ -85,7 +84,8 @@ fn test_build_retry_layer_stores_all_fields_in_layer() {
 /// the type and exposes `max_retries` for operator visibility.
 #[test]
 fn test_build_retry_layer_returns_retry_layer_with_correct_debug() {
-    let layer: RetryLayer = build_retry_layer(make_cfg(3)).expect("build must succeed");
+    let layer: RetryLayer =
+        HttpRetrySvc::build_retry_layer(make_cfg(3)).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RetryLayer"),
@@ -101,7 +101,7 @@ fn test_build_retry_layer_returns_retry_layer_with_correct_debug() {
 /// visible in Debug.
 #[test]
 fn test_build_retry_layer_from_default_debug_contains_max_retries() {
-    let layer = build_retry_layer(RetryConfig::default()).expect("build ok");
+    let layer = HttpRetrySvc::build_retry_layer(RetryConfig::default()).expect("build ok");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("max_retries"),
@@ -121,7 +121,7 @@ fn test_build_retry_layer_with_zero_max_retries_succeeds() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    build_retry_layer(cfg).expect("max_retries=0 must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("max_retries=0 must build");
 }
 
 /// Empty `retryable_statuses` and `retryable_methods` are valid — the
@@ -136,7 +136,7 @@ fn test_build_retry_layer_with_empty_retryable_lists_succeeds() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    build_retry_layer(cfg).expect("empty retryable lists must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("empty retryable lists must build");
 }
 
 /// A very large multiplier (e.g. 100x) is a valid operator choice for
@@ -151,7 +151,7 @@ fn test_build_retry_layer_with_large_multiplier_succeeds() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["POST".to_string()],
     };
-    build_retry_layer(cfg).expect("multiplier=100.0 must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("multiplier=100.0 must build");
 }
 
 // ---------------------------------------------------------------------------

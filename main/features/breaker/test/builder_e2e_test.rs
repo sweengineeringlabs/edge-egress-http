@@ -2,9 +2,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{
-    build_breaker_layer, create_config_builder, BreakerConfig, BreakerLayer,
-};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 
 fn make_cfg() -> BreakerConfig {
     BreakerConfig {
@@ -18,7 +16,7 @@ fn make_cfg() -> BreakerConfig {
 /// @covers: build_breaker_layer with default config
 #[test]
 fn test_e2e_builder_default_config_succeeds() {
-    let _layer: BreakerLayer = build_breaker_layer(BreakerConfig::default())
+    let _layer: BreakerLayer = HttpBreakerSvc::build_breaker_layer(BreakerConfig::default())
         .expect("build_breaker_layer with default config must succeed");
 }
 
@@ -27,7 +25,7 @@ fn test_e2e_builder_default_config_succeeds() {
 fn test_e2e_with_config() {
     let cfg = make_cfg();
     assert_eq!(cfg.failure_threshold, 3);
-    build_breaker_layer(cfg).expect("e2e with_config build must succeed");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("e2e with_config build must succeed");
 }
 
 /// @covers: BreakerConfig fields are accessible directly
@@ -47,13 +45,12 @@ fn test_e2e_build() {
         reset_after_successes: 3,
         failure_statuses: vec![503, 504],
     };
-    let layer = build_breaker_layer(cfg).expect("e2e build must succeed");
+    let layer = HttpBreakerSvc::build_breaker_layer(cfg).expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }
 
 /// @covers: create_config_builder returns a working Loader
 #[test]
 fn test_e2e_create_config_builder_returns_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpBreakerSvc::create_config_builder().build_loader();
 }

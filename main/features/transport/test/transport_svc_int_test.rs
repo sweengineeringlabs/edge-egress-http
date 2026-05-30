@@ -1,7 +1,6 @@
 //! Integration tests for transport SAF factory functions not covered elsewhere.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_configbuilder::ConfigBuilder as _;
 use swe_edge_egress_http_transport::create_config_builder;
 
 /// @covers: create_config_builder

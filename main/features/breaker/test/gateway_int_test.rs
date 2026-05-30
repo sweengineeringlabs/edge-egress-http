@@ -2,7 +2,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerError, BreakerLayer};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerError, BreakerLayer, HttpBreakerSvc};
 
 fn make_cfg() -> BreakerConfig {
     BreakerConfig {
@@ -15,7 +15,7 @@ fn make_cfg() -> BreakerConfig {
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
-    build_breaker_layer(BreakerConfig::default()).expect("builder() must succeed");
+    HttpBreakerSvc::build_breaker_layer(BreakerConfig::default()).expect("builder() must succeed");
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn test_with_config_custom_config_stores_values() {
 #[test]
 fn test_build_default_produces_breaker_layer() {
     let layer: BreakerLayer =
-        build_breaker_layer(BreakerConfig::default()).expect("build must succeed");
+        HttpBreakerSvc::build_breaker_layer(BreakerConfig::default()).expect("build must succeed");
     let s = format!("{layer:?}");
     assert!(
         s.contains("BreakerLayer"),
@@ -49,7 +49,7 @@ fn test_build_default_produces_breaker_layer() {
 
 #[test]
 fn test_build_custom_config_produces_layer() {
-    build_breaker_layer(make_cfg()).expect("build with custom cfg must succeed");
+    HttpBreakerSvc::build_breaker_layer(make_cfg()).expect("build with custom cfg must succeed");
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn test_build_empty_failure_statuses_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    build_breaker_layer(cfg).expect("empty failure_statuses must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("empty failure_statuses must build");
 }
 
 #[test]

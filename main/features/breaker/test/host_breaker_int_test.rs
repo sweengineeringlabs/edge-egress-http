@@ -14,7 +14,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 
 // ---------------------------------------------------------------------------
 // Threshold = 1 — opens on first failure
@@ -30,7 +30,7 @@ fn test_host_breaker_threshold_one_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    let layer: BreakerLayer = build_breaker_layer(cfg).expect("build");
+    let layer: BreakerLayer = HttpBreakerSvc::build_breaker_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("1"),
@@ -51,7 +51,7 @@ fn test_host_breaker_single_success_reset_layer_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    build_breaker_layer(cfg).expect("reset_after_successes=1 must not be rejected");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("reset_after_successes=1 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -68,7 +68,8 @@ fn test_host_breaker_zero_wait_before_half_open_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    build_breaker_layer(cfg).expect("half_open_after_seconds=0 must not be rejected");
+    HttpBreakerSvc::build_breaker_layer(cfg)
+        .expect("half_open_after_seconds=0 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -86,7 +87,7 @@ fn test_host_breaker_4xx_failure_statuses_layer_builds() {
         reset_after_successes: 3,
         failure_statuses: vec![400, 404, 429],
     };
-    build_breaker_layer(cfg).expect("4xx failure_statuses must not be rejected");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("4xx failure_statuses must not be rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -109,8 +110,8 @@ fn test_host_breaker_two_layers_have_independent_state() {
         reset_after_successes: 5,
         failure_statuses: vec![503],
     };
-    let a = build_breaker_layer(cfg_a).expect("build a");
-    let b = build_breaker_layer(cfg_b).expect("build b");
+    let a = HttpBreakerSvc::build_breaker_layer(cfg_a).expect("build a");
+    let b = HttpBreakerSvc::build_breaker_layer(cfg_b).expect("build b");
 
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");

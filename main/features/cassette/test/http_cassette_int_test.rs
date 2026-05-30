@@ -12,7 +12,7 @@
 //!   `CassetteLayer` completes without error.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteLayer, HttpCassetteSvc};
 
 // ---------------------------------------------------------------------------
 // Observable effect: describe() crate name embedded in Debug
@@ -32,8 +32,8 @@ fn test_cassette_layer_debug_shows_configured_mode() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer: CassetteLayer =
-        build_cassette_layer(cfg, "describe_mode_check").expect("build must succeed");
+    let layer: CassetteLayer = HttpCassetteSvc::build_cassette_layer(cfg, "describe_mode_check")
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("auto"),
@@ -55,7 +55,8 @@ fn test_cassette_layer_debug_reflects_replay_mode() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer = build_cassette_layer(cfg, "replay_mode_debug").expect("build must succeed");
+    let layer = HttpCassetteSvc::build_cassette_layer(cfg, "replay_mode_debug")
+        .expect("build must succeed");
     assert!(format!("{layer:?}").contains("replay"));
 }
 
@@ -71,7 +72,8 @@ fn test_cassette_layer_debug_reflects_record_mode() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer = build_cassette_layer(cfg, "record_mode_debug").expect("build must succeed");
+    let layer = HttpCassetteSvc::build_cassette_layer(cfg, "record_mode_debug")
+        .expect("build must succeed");
     assert!(format!("{layer:?}").contains("record"));
 }
 
@@ -93,7 +95,7 @@ fn test_cassette_layer_satisfies_send_sync_via_http_cassette_supertrait() {
 // build_cassette_layer pipeline: DefaultHttpCassette is correctly wired
 // ---------------------------------------------------------------------------
 
-/// The complete factory call — `build_cassette_layer(config, name)` — must
+/// The complete factory call — `HttpCassetteSvc::build_cassette_layer(config, name)` — must
 /// succeed, confirming `DefaultHttpCassette::new` is called with the correct
 /// config inside the crate.
 #[test]
@@ -107,8 +109,8 @@ fn test_builder_pipeline_produces_cassette_layer() {
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: vec![],
     };
-    let layer =
-        build_cassette_layer(cfg, "pipeline_check").expect("pipeline must produce a CassetteLayer");
+    let layer = HttpCassetteSvc::build_cassette_layer(cfg, "pipeline_check")
+        .expect("pipeline must produce a CassetteLayer");
     // Confirm we received a CassetteLayer, not a panic or error.
     let dbg = format!("{layer:?}");
     assert!(

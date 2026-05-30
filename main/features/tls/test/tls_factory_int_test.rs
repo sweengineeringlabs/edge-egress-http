@@ -1,7 +1,7 @@
 //! Integration tests for `core::identity::tls_factory::build_provider`.
 //!
 //! `build_provider` is `pub(crate)`. Integration tests verify the factory's
-//! contract through the public `build_tls_layer(config)` path, which calls
+//! contract through the public `HttpTlsSvc::build_tls_layer(config)` path, which calls
 //! `build_provider(&config)` internally:
 //!
 //! - `TlsConfig::None` → noop provider → layer Debug contains "noop".
@@ -16,7 +16,7 @@
 //!   the `TlsLayer` Debug).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // None variant → noop provider
@@ -26,7 +26,7 @@ use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError};
 /// producing a layer whose Debug output contains "noop".
 #[test]
 fn test_factory_none_variant_selects_noop_provider() {
-    let layer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("noop"),
@@ -38,7 +38,7 @@ fn test_factory_none_variant_selects_noop_provider() {
 /// must not corrupt the provider boxed inside the layer.
 #[test]
 fn test_factory_none_provider_allows_apply_to_to_succeed() {
-    let layer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("noop apply_to must return Ok");
@@ -55,7 +55,7 @@ fn test_factory_pem_variant_returns_file_read_failed_for_missing_file() {
     let cfg = TlsConfig::Pem {
         path: "/factory/test/missing.pem".into(),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
         matches!(err, TlsError::FileReadFailed { .. }),
         "factory must produce FileReadFailed for missing PEM; got: {err:?}"
@@ -74,7 +74,7 @@ fn test_factory_pkcs12_no_password_missing_file_returns_file_read_failed() {
         path: "/factory/test/missing.p12".into(),
         password_env: None,
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
         matches!(err, TlsError::FileReadFailed { .. }),
         "factory must produce FileReadFailed for missing PKCS12 file; got: {err:?}"
@@ -91,7 +91,7 @@ fn test_factory_pkcs12_unset_password_env_returns_missing_env_var() {
         path: "irrelevant.p12".into(),
         password_env: Some(env.into()),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
         TlsError::MissingEnvVar { name } => assert_eq!(name, env),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
@@ -108,7 +108,7 @@ fn test_factory_pkcs12_set_password_env_missing_file_returns_file_read_failed() 
         path: "/factory/test/missing_with_pw.p12".into(),
         password_env: Some(env.into()),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
         matches!(err, TlsError::FileReadFailed { .. }),
         "factory must return FileReadFailed when env is set but file is missing; got: {err:?}"
@@ -128,20 +128,20 @@ fn test_factory_three_error_paths_produce_distinct_messages() {
     let env = "SWE_IT_TLS_FACTORY_DISTINCT_08";
     std::env::remove_var(env);
 
-    let e_pem = build_tls_layer(TlsConfig::Pem {
+    let e_pem = HttpTlsSvc::build_tls_layer(TlsConfig::Pem {
         path: "/f/t/a.pem".into(),
     })
     .unwrap_err()
     .to_string();
 
-    let e_pkcs12_no_pw = build_tls_layer(TlsConfig::Pkcs12 {
+    let e_pkcs12_no_pw = HttpTlsSvc::build_tls_layer(TlsConfig::Pkcs12 {
         path: "/f/t/b.p12".into(),
         password_env: None,
     })
     .unwrap_err()
     .to_string();
 
-    let e_pkcs12_missing_env = build_tls_layer(TlsConfig::Pkcs12 {
+    let e_pkcs12_missing_env = HttpTlsSvc::build_tls_layer(TlsConfig::Pkcs12 {
         path: "irrelevant.p12".into(),
         password_env: Some(env.into()),
     })

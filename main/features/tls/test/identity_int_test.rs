@@ -5,13 +5,14 @@
 //! surface and honour the `HttpTls` contract.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig};
 
 /// `TlsConfig::None` produces a provider that returns no identity,
 /// so `apply_to` passes the ClientBuilder through unmodified.
 #[test]
 fn test_identity_none_config_produces_no_identity() {
-    let layer = build_tls_layer(TlsConfig::None).expect("None config must build without error");
+    let layer =
+        HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None config must build without error");
     let _ = layer
         .apply_to(reqwest::Client::builder())
         .expect("apply_to with no identity must not fail");
@@ -30,7 +31,7 @@ fn test_identity_provider_is_send_sync() {
 /// `core::identity::tls_factory` must not return an error for None.
 #[test]
 fn test_identity_factory_none_variant_succeeds() {
-    let result = build_tls_layer(TlsConfig::None);
+    let result = HttpTlsSvc::build_tls_layer(TlsConfig::None);
     assert!(
         result.is_ok(),
         "identity factory must succeed for TlsConfig::None"

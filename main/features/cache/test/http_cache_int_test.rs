@@ -2,12 +2,12 @@
 //!
 //! The `HttpCache` trait is `pub(crate)` so consumers cannot name it directly.
 //! What we CAN observe from outside is that `CacheLayer` (the concrete type
-//! produced by `build_cache_layer(config)`) satisfies the trait's bounds (`Send + Sync`),
+//! produced by `HttpCacheSvc::build_cache_layer(config)`) satisfies the trait's bounds (`Send + Sync`),
 //! and that the layer can be passed to any generic context that requires those
 //! bounds.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheLayer};
+use swe_edge_egress_cache::{CacheConfig, CacheLayer, HttpCacheSvc};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time proof that HttpCache's supertrait bounds hold
@@ -50,7 +50,7 @@ fn test_cache_layer_built_from_builder_is_usable() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer: CacheLayer = build_cache_layer(cfg).expect("build() must succeed");
+    let layer: CacheLayer = HttpCacheSvc::build_cache_layer(cfg).expect("build() must succeed");
     // If CacheLayer's HttpCache impl were broken (e.g. panics on construction)
     // this test would surface it.
     let dbg = format!("{layer:?}");

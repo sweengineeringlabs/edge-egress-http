@@ -1,7 +1,7 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_rate crate.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateError, RateLayer};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig, RateError, RateLayer};
 
 fn make_cfg() -> RateConfig {
     RateConfig {
@@ -13,7 +13,7 @@ fn make_cfg() -> RateConfig {
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
-    build_rate_layer(RateConfig::default()).expect("builder() must succeed");
+    HttpRateSvc::build_rate_layer(RateConfig::default()).expect("builder() must succeed");
 }
 
 #[test]
@@ -35,7 +35,8 @@ fn test_with_config_custom_config_stores_values() {
 
 #[test]
 fn test_build_default_produces_rate_layer() {
-    let layer: RateLayer = build_rate_layer(RateConfig::default()).expect("build must succeed");
+    let layer: RateLayer =
+        HttpRateSvc::build_rate_layer(RateConfig::default()).expect("build must succeed");
     let s = format!("{layer:?}");
     assert!(
         s.contains("RateLayer"),
@@ -45,7 +46,7 @@ fn test_build_default_produces_rate_layer() {
 
 #[test]
 fn test_build_custom_config_produces_layer() {
-    build_rate_layer(make_cfg()).expect("build with custom cfg must succeed");
+    HttpRateSvc::build_rate_layer(make_cfg()).expect("build with custom cfg must succeed");
 }
 
 #[test]
@@ -61,7 +62,7 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 20,
         per_host: true,
     };
-    build_rate_layer(cfg).expect("per_host=true must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("per_host=true must build");
 }
 
 #[test]
@@ -71,7 +72,7 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 20,
         per_host: false,
     };
-    build_rate_layer(cfg).expect("per_host=false must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("per_host=false must build");
 }
 
 #[test]

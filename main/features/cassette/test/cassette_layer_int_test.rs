@@ -5,7 +5,7 @@
 //! path derivation from `cassette_dir` + cassette name.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteLayer, HttpCassetteSvc};
 
 fn make_cfg(dir: &str, mode: &str) -> CassetteConfig {
     CassetteConfig {
@@ -27,8 +27,9 @@ fn make_cfg(dir: &str, mode: &str) -> CassetteConfig {
 fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer: CassetteLayer = build_cassette_layer(make_cfg(dir, "auto"), "nonexistent_cassette")
-        .expect("build must succeed");
+    let layer: CassetteLayer =
+        HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "auto"), "nonexistent_cassette")
+            .expect("build must succeed");
     // The cassette file should not exist on disk yet — it is only written
     // when the first request is recorded in "record" or "auto" mode.
     let expected = tmpdir.path().join("nonexistent_cassette.yaml");
@@ -45,8 +46,8 @@ fn test_build_returns_cassette_layer_for_nonexistent_cassette() {
 fn test_cassette_layer_debug_contains_mode_and_path() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let layer =
-        build_cassette_layer(make_cfg(dir, "replay"), "debug_check").expect("build must succeed");
+    let layer = HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "replay"), "debug_check")
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CassetteLayer"),
@@ -67,8 +68,10 @@ fn test_cassette_layer_debug_contains_mode_and_path() {
 fn test_two_layers_with_different_names_have_different_paths() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    let a = build_cassette_layer(make_cfg(dir, "auto"), "cassette_a").expect("build a");
-    let b = build_cassette_layer(make_cfg(dir, "auto"), "cassette_b").expect("build b");
+    let a = HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "auto"), "cassette_a")
+        .expect("build a");
+    let b = HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "auto"), "cassette_b")
+        .expect("build b");
     let dbg_a = format!("{a:?}");
     let dbg_b = format!("{b:?}");
     // Paths are embedded in Debug; they must differ.
@@ -104,7 +107,7 @@ fn test_cassette_layer_is_sync() {
 fn test_build_auto_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(make_cfg(dir, "auto"), "auto_mode")
+    HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "auto"), "auto_mode")
         .expect("auto mode must produce a layer");
 }
 
@@ -112,7 +115,7 @@ fn test_build_auto_mode_returns_layer() {
 fn test_build_record_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(make_cfg(dir, "record"), "record_mode")
+    HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "record"), "record_mode")
         .expect("record mode must produce a layer");
 }
 
@@ -120,6 +123,6 @@ fn test_build_record_mode_returns_layer() {
 fn test_build_replay_mode_returns_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(make_cfg(dir, "replay"), "replay_mode")
+    HttpCassetteSvc::build_cassette_layer(make_cfg(dir, "replay"), "replay_mode")
         .expect("replay mode must produce a layer");
 }

@@ -12,7 +12,7 @@
 //! broken, consumers of the crate would fail to compile.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteLayer, HttpCassetteSvc};
 
 // ---------------------------------------------------------------------------
 // reqwest_middleware::Middleware — CassetteLayer must implement it
@@ -63,7 +63,8 @@ fn test_cassette_layer_attaches_to_reqwest_middleware_client_builder() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer = build_cassette_layer(cfg, "trait_chain_check").expect("build must succeed");
+    let layer = HttpCassetteSvc::build_cassette_layer(cfg, "trait_chain_check")
+        .expect("build must succeed");
 
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)

@@ -1,9 +1,7 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_cassette crate.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{
-    build_cassette_layer, CassetteConfig, CassetteError, CassetteLayer,
-};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteError, CassetteLayer, HttpCassetteSvc};
 
 fn make_cfg(dir: &str) -> CassetteConfig {
     CassetteConfig {
@@ -20,7 +18,8 @@ fn test_builder_fn_loads_swe_default_and_succeeds() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let cfg = make_cfg(&dir);
-    build_cassette_layer(cfg, "test_builder_fn_default").expect("build must succeed");
+    HttpCassetteSvc::build_cassette_layer(cfg, "test_builder_fn_default")
+        .expect("build must succeed");
 }
 
 #[test]
@@ -44,8 +43,9 @@ fn test_with_config_custom_config_stores_values() {
 fn test_build_produces_cassette_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
-    let layer: CassetteLayer = build_cassette_layer(make_cfg(&dir), "test_build_cassette_layer")
-        .expect("build must succeed");
+    let layer: CassetteLayer =
+        HttpCassetteSvc::build_cassette_layer(make_cfg(&dir), "test_build_cassette_layer")
+            .expect("build must succeed");
     let s = format!("{layer:?}");
     assert!(
         s.contains("CassetteLayer"),
@@ -70,7 +70,7 @@ fn test_build_record_mode_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "record_mode_test").expect("record mode must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "record_mode_test").expect("record mode must build");
 }
 
 #[test]
@@ -84,7 +84,8 @@ fn test_build_replay_mode_with_missing_file_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "replay_missing_file").expect("replay with missing file must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "replay_missing_file")
+        .expect("replay with missing file must build");
 }
 
 #[test]
@@ -98,7 +99,8 @@ fn test_build_with_empty_scrub_body_paths_succeeds() {
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "empty_scrub_paths").expect("empty scrub paths must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "empty_scrub_paths")
+        .expect("empty scrub paths must build");
 }
 
 #[test]
@@ -112,7 +114,8 @@ fn test_build_with_nested_scrub_body_paths_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec!["metadata.trace_id".to_string(), "request_id".to_string()],
     };
-    build_cassette_layer(cfg, "nested_scrub").expect("nested scrub paths must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "nested_scrub")
+        .expect("nested scrub paths must build");
 }
 
 #[test]

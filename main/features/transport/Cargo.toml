@@ -41,7 +41,7 @@ swe-edge-egress-oauth.workspace    = true
 bytes.workspace                    = true
 swe-observ-metrics.workspace       = true
 tokio-tungstenite      = { version = "0.26", optional = true, features = ["rustls-tls-native-roots"] }
-swe-edge-configbuilder = { path = "../../../../../configbuilder/main/features/configbuilder" }
+swe-edge-configbuilder = { workspace = true }
 
 [[test]]
 name = "default_http_egress_int_test"
@@ -83,8 +83,6 @@ path = "test/validator_int_test.rs"
 name = "transport_svc_int_test"
 path = "test/transport_svc_int_test.rs"
 
-[lints]
-workspace = true
 
 [dev-dependencies]
 tokio               = { workspace = true, features = ["rt-multi-thread", "macros", "net", "time"] }
@@ -104,3 +102,11 @@ swe-edge-egress-cache   = { workspace = true }
 swe-edge-egress-cassette = { workspace = true }
 swe-edge-egress-oauth    = { workspace = true }
 futures                  = { workspace = true }
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

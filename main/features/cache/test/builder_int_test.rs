@@ -3,7 +3,7 @@
 //! Covers: `build_cache_layer`, `CacheConfig` fields, `CacheLayer` construction.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheError, CacheLayer};
+use swe_edge_egress_cache::{CacheConfig, CacheError, CacheLayer, HttpCacheSvc};
 
 // ---------------------------------------------------------------------------
 // build_cache_layer — SAF entry point
@@ -14,7 +14,7 @@ use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheError, CacheLay
 /// broken before a consumer has touched a single line of config.
 #[test]
 fn test_builder_fn_succeeds_with_swe_default() {
-    build_cache_layer(CacheConfig::default()).expect("build must succeed");
+    HttpCacheSvc::build_cache_layer(CacheConfig::default()).expect("build must succeed");
 }
 
 /// A `default_ttl_seconds` of zero means every response expires the instant it
@@ -92,7 +92,7 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
 #[test]
 fn test_build_from_swe_default_returns_cache_layer() {
     let layer: CacheLayer =
-        build_cache_layer(CacheConfig::default()).expect("build() must succeed");
+        HttpCacheSvc::build_cache_layer(CacheConfig::default()).expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CacheLayer"),
@@ -110,7 +110,7 @@ fn test_build_with_custom_ttl_reflects_in_debug_output() {
         respect_cache_control: true,
         cache_private: false,
     };
-    let layer = build_cache_layer(cfg).expect("build must succeed");
+    let layer = HttpCacheSvc::build_cache_layer(cfg).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("7"),
@@ -128,7 +128,8 @@ fn test_build_with_cache_private_true_succeeds() {
         respect_cache_control: true,
         cache_private: true,
     };
-    build_cache_layer(cfg).expect("cache_private=true must not be rejected by build()");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("cache_private=true must not be rejected by build()");
 }
 
 /// `respect_cache_control = false` is a legitimate policy choice. Build must
@@ -141,7 +142,8 @@ fn test_build_with_respect_cache_control_false_succeeds() {
         respect_cache_control: false,
         cache_private: false,
     };
-    build_cache_layer(cfg).expect("respect_cache_control=false must not be rejected by build()");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("respect_cache_control=false must not be rejected by build()");
 }
 
 /// Very large `max_entries` values are legitimate — operators may set high
@@ -154,7 +156,8 @@ fn test_build_with_large_max_entries_succeeds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    build_cache_layer(cfg).expect("max_entries=1_000_000 must not be rejected by build()");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("max_entries=1_000_000 must not be rejected by build()");
 }
 
 /// `default_ttl_seconds = 0` is valid config: it means "no TTL fallback — only
@@ -168,7 +171,8 @@ fn test_build_with_zero_ttl_succeeds() {
         respect_cache_control: true,
         cache_private: false,
     };
-    build_cache_layer(cfg).expect("default_ttl_seconds=0 must not be rejected by build()");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("default_ttl_seconds=0 must not be rejected by build()");
 }
 
 // ---------------------------------------------------------------------------

@@ -5,7 +5,7 @@
 //! exercise observable properties: Debug output, Send+Sync bounds, and the
 //! `reqwest_middleware::Middleware` impl that allows attaching to a client.
 
-use swe_edge_egress_retry::{build_retry_layer, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{HttpRetrySvc, RetryConfig, RetryLayer};
 
 fn make_cfg() -> RetryConfig {
     RetryConfig {
@@ -26,7 +26,8 @@ fn make_cfg() -> RetryConfig {
 /// type and exposes `max_retries` so operators can verify the policy.
 #[test]
 fn test_build_returns_retry_layer_with_correct_debug() {
-    let layer: RetryLayer = build_retry_layer(make_cfg()).expect("build must succeed");
+    let layer: RetryLayer =
+        HttpRetrySvc::build_retry_layer(make_cfg()).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RetryLayer"),
@@ -50,7 +51,7 @@ fn test_retry_layer_debug_reflects_configured_max_retries() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let layer = build_retry_layer(cfg).expect("build");
+    let layer = HttpRetrySvc::build_retry_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     // The value 7 must appear somewhere in the Debug string.
     assert!(
@@ -79,8 +80,8 @@ fn test_two_layers_with_different_configs_have_different_debug() {
         retryable_statuses: vec![429, 503],
         retryable_methods: vec!["GET".to_string(), "PUT".to_string()],
     };
-    let la = build_retry_layer(cfg_a).unwrap();
-    let lb = build_retry_layer(cfg_b).unwrap();
+    let la = HttpRetrySvc::build_retry_layer(cfg_a).unwrap();
+    let lb = HttpRetrySvc::build_retry_layer(cfg_b).unwrap();
     assert_ne!(
         format!("{la:?}"),
         format!("{lb:?}"),
@@ -120,7 +121,7 @@ fn test_retry_layer_implements_middleware_trait() {
 /// without error.
 #[test]
 fn test_retry_layer_attaches_to_client_builder() {
-    let layer = build_retry_layer(make_cfg()).expect("build");
+    let layer = HttpRetrySvc::build_retry_layer(make_cfg()).expect("build");
     let _client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();
@@ -150,7 +151,7 @@ async fn test_middleware_does_not_retry_non_retryable_method() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()], // POST excluded
     };
-    let layer = build_retry_layer(cfg).expect("build");
+    let layer = HttpRetrySvc::build_retry_layer(cfg).expect("build");
     let client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
         .with(layer)
         .build();

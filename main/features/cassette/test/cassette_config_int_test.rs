@@ -5,7 +5,7 @@
 //! `build_cassette_layer` and that field values are preserved without mutation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
+use swe_edge_egress_cassette::{CassetteConfig, HttpCassetteSvc};
 
 // ---------------------------------------------------------------------------
 // Struct construction — all public fields must be writable
@@ -68,7 +68,7 @@ fn test_mode_replay_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "mode_replay").expect("replay mode must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "mode_replay").expect("replay mode must build");
 }
 
 /// "record" mode must build a layer without error.
@@ -83,7 +83,7 @@ fn test_mode_record_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "mode_record").expect("record mode must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "mode_record").expect("record mode must build");
 }
 
 /// "auto" mode must build a layer without error.
@@ -98,7 +98,7 @@ fn test_mode_auto_is_accepted_by_build() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "mode_auto").expect("auto mode must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "mode_auto").expect("auto mode must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -124,7 +124,8 @@ fn test_match_on_with_all_standard_components_builds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "match_on_all").expect("all match_on components must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "match_on_all")
+        .expect("all match_on components must build");
 }
 
 /// An empty `match_on` is a degenerate but valid config — every request
@@ -140,7 +141,8 @@ fn test_match_on_empty_builds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "match_on_empty").expect("empty match_on must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "match_on_empty")
+        .expect("empty match_on must build");
 }
 
 // ---------------------------------------------------------------------------

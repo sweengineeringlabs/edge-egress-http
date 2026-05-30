@@ -47,8 +47,6 @@ default = []
 # without tracing infrastructure don't pay the cost.
 tracing = ["dep:tracing"]
 
-[lints]
-workspace = true
 
 [[test]]
 name = "body_scrubber_int_test"
@@ -101,3 +99,11 @@ path = "test/saf_builder_int_test.rs"
 [[test]]
 name = "traits_int_test"
 path = "test/traits_int_test.rs"
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

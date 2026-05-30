@@ -6,7 +6,7 @@
 //! `reqwest_middleware::ClientBuilder`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateLayer};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time proof that HttpRate's supertrait bounds hold
@@ -45,7 +45,7 @@ fn test_rate_layer_built_from_builder_is_usable() {
         burst_capacity: 20,
         per_host: true,
     };
-    let layer: RateLayer = build_rate_layer(cfg).expect("build() must succeed");
+    let layer: RateLayer = HttpRateSvc::build_rate_layer(cfg).expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         !dbg.is_empty(),

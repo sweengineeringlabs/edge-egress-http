@@ -42,6 +42,5 @@ fn test_e2e_build_bearer_with_env_set() {
 /// @covers: create_config_builder returns a Loader
 #[test]
 fn test_e2e_create_config_builder_returns_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
     let _loader = create_config_builder().build_loader();
 }

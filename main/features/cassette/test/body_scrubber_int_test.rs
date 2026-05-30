@@ -12,7 +12,7 @@
 //! without error, since path validation is deferred to request time.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
+use swe_edge_egress_cassette::{CassetteConfig, HttpCassetteSvc};
 
 fn make_cfg(dir: &str, scrub_body_paths: Vec<String>) -> CassetteConfig {
     CassetteConfig {
@@ -38,7 +38,7 @@ fn make_cfg(dir: &str, scrub_body_paths: Vec<String>) -> CassetteConfig {
 fn test_empty_scrub_body_paths_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(make_cfg(dir, vec![]), "empty_scrub_paths")
+    HttpCassetteSvc::build_cassette_layer(make_cfg(dir, vec![]), "empty_scrub_paths")
         .expect("empty scrub_body_paths must build");
 }
 
@@ -47,7 +47,7 @@ fn test_empty_scrub_body_paths_builds_successfully() {
 fn test_top_level_path_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(
+    HttpCassetteSvc::build_cassette_layer(
         make_cfg(dir, vec!["request_id".to_string()]),
         "top_level_path",
     )
@@ -59,7 +59,7 @@ fn test_top_level_path_builds_successfully() {
 fn test_nested_dot_path_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(
+    HttpCassetteSvc::build_cassette_layer(
         make_cfg(dir, vec!["metadata.trace_id".to_string()]),
         "nested_path",
     )
@@ -72,7 +72,7 @@ fn test_nested_dot_path_builds_successfully() {
 fn test_array_index_path_builds_successfully() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap();
-    build_cassette_layer(
+    HttpCassetteSvc::build_cassette_layer(
         make_cfg(dir, vec!["results.0.id".to_string()]),
         "array_index_path",
     )
@@ -92,7 +92,7 @@ fn test_multiple_mixed_paths_build_successfully() {
         "metadata.timestamp".to_string(),
         "results.0.id".to_string(),
     ];
-    build_cassette_layer(make_cfg(dir, paths), "mixed_paths")
+    HttpCassetteSvc::build_cassette_layer(make_cfg(dir, paths), "mixed_paths")
         .expect("multiple mixed scrub paths must build");
 }
 

@@ -3,7 +3,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig};
+use swe_edge_egress_breaker::{BreakerConfig, HttpBreakerSvc};
 
 // ---------------------------------------------------------------------------
 // Struct literal construction — all four fields are public
@@ -40,7 +40,7 @@ fn test_breaker_config_threshold_one_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    build_breaker_layer(cfg).expect("failure_threshold=1 must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("failure_threshold=1 must build");
 }
 
 /// Large failure threshold — tolerant of many failures before tripping.
@@ -52,7 +52,7 @@ fn test_breaker_config_large_threshold_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![],
     };
-    build_breaker_layer(cfg).expect("large failure_threshold must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("large failure_threshold must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ fn test_breaker_config_zero_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![500],
     };
-    build_breaker_layer(cfg).expect("half_open_after_seconds=0 must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("half_open_after_seconds=0 must build");
 }
 
 /// Large wait value — slow recovery policy.
@@ -81,7 +81,7 @@ fn test_breaker_config_large_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    build_breaker_layer(cfg).expect("half_open_after_seconds=3600 must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("half_open_after_seconds=3600 must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ fn test_breaker_config_empty_failure_statuses_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    build_breaker_layer(cfg).expect("empty failure_statuses must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("empty failure_statuses must build");
 }
 
 /// All 5xx statuses in `failure_statuses` — maximum strictness.
@@ -110,7 +110,7 @@ fn test_breaker_config_all_5xx_failure_statuses_builds() {
         reset_after_successes: 3,
         failure_statuses: all_5xx,
     };
-    build_breaker_layer(cfg).expect("all 5xx failure_statuses must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("all 5xx failure_statuses must build");
 }
 
 // ---------------------------------------------------------------------------

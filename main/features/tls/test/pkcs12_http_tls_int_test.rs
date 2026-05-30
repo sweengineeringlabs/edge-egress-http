@@ -1,7 +1,7 @@
 //! Integration tests for `core::identity::pkcs12_http_tls::Pkcs12HttpTls`.
 //!
 //! `Pkcs12HttpTls` is `pub(crate)`. Integration tests verify its contract
-//! through the public `build_tls_layer(TlsConfig::Pkcs12 { .. })` path:
+//! through the public `HttpTlsSvc::build_tls_layer(TlsConfig::Pkcs12 { .. })` path:
 //!
 //! - A missing PKCS12 file causes `build_tls_layer` to return `TlsError::FileReadFailed`.
 //! - An unset `password_env` causes `build_tls_layer` to return `TlsError::MissingEnvVar`.
@@ -11,7 +11,7 @@
 //!   to return `TlsError::InvalidCertificate { format: "pkcs12", .. }`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // Pkcs12HttpTls::load — missing file errors surface at build time
@@ -25,7 +25,7 @@ fn test_pkcs12_missing_file_no_password_returns_file_read_failed() {
         path: "/path/does/not/exist/cert.p12".into(),
         password_env: None,
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
         TlsError::FileReadFailed { path, .. } => {
             assert!(
@@ -45,7 +45,7 @@ fn test_pkcs12_file_read_failed_contains_configured_path() {
         path: "/very/specific/cert.p12".into(),
         password_env: None,
     };
-    let msg = build_tls_layer(cfg).unwrap_err().to_string();
+    let msg = HttpTlsSvc::build_tls_layer(cfg).unwrap_err().to_string();
     assert!(
         msg.contains("cert.p12"),
         "error message must contain the configured filename; got: {msg}"
@@ -68,7 +68,7 @@ fn test_pkcs12_missing_password_env_precedes_file_read() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
         TlsError::MissingEnvVar { name } => {
             assert_eq!(name, env_name, "MissingEnvVar must name the exact env var");
@@ -88,7 +88,7 @@ fn test_pkcs12_set_password_env_but_missing_file_returns_file_read_failed() {
         path: "/path/does/not/exist/cert.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
         matches!(err, TlsError::FileReadFailed { .. }),
         "with password set but missing file, must return FileReadFailed; got: {err:?}"
@@ -115,7 +115,7 @@ fn test_pkcs12_invalid_content_returns_invalid_certificate_on_apply_to() {
         password_env: None,
     };
     // build() succeeds: file exists and is readable.
-    let layer = build_tls_layer(cfg).expect("build must succeed for existing file");
+    let layer = HttpTlsSvc::build_tls_layer(cfg).expect("build must succeed for existing file");
 
     // apply_to() calls identity() → from_pkcs12_der() → InvalidCertificate.
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
@@ -148,7 +148,7 @@ fn test_pkcs12_bytes_read_eagerly_at_build_not_at_apply_to() {
         path: path.to_str().unwrap().replace('\\', "/"),
         password_env: None,
     };
-    let layer = build_tls_layer(cfg).expect("build must succeed");
+    let layer = HttpTlsSvc::build_tls_layer(cfg).expect("build must succeed");
 
     // Delete the file after build.
     std::fs::remove_file(&path).unwrap();

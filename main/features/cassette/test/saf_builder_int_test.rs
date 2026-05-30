@@ -2,14 +2,12 @@
 //!
 //! `saf/builder.rs` contains:
 //! - `create_config_builder()` — the public SAF entry point, returns a loader.
-//! - `build_cassette_layer(config, cassette_name)` — builds a CassetteLayer directly.
+//! - `HttpCassetteSvc::build_cassette_layer(config, cassette_name)` — builds a CassetteLayer directly.
 //!
 //! The SWE default mode is "replay" (prevents accidental real-network recording).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{
-    build_cassette_layer, create_config_builder, CassetteConfig, CassetteError, CassetteLayer,
-};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteError, CassetteLayer, HttpCassetteSvc};
 
 // ---------------------------------------------------------------------------
 // create_config_builder() — SAF entry point: always returns a loader
@@ -19,8 +17,7 @@ use swe_edge_egress_cassette::{
 /// `config/application.toml` ever breaks, this is the first test to fail.
 #[test]
 fn test_saf_builder_fn_returns_ok() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpCassetteSvc::create_config_builder().build_loader();
 }
 
 /// The SWE default mode must be "replay". Any change to the default TOML
@@ -66,8 +63,8 @@ fn test_saf_with_config_and_build_produces_cassette_layer() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let layer: CassetteLayer =
-        build_cassette_layer(cfg, "saf_with_config").expect("with_config + build must succeed");
+    let layer: CassetteLayer = HttpCassetteSvc::build_cassette_layer(cfg, "saf_with_config")
+        .expect("with_config + build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CassetteLayer"),
@@ -95,8 +92,8 @@ fn test_saf_build_uses_cassette_name_in_path() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let l_a = build_cassette_layer(cfg_a, "cassette_alpha").unwrap();
-    let l_b = build_cassette_layer(cfg_b, "cassette_beta").unwrap();
+    let l_a = HttpCassetteSvc::build_cassette_layer(cfg_a, "cassette_alpha").unwrap();
+    let l_b = HttpCassetteSvc::build_cassette_layer(cfg_b, "cassette_beta").unwrap();
     let dbg_a = format!("{l_a:?}");
     let dbg_b = format!("{l_b:?}");
     // The cassette path is embedded in the Debug output; it must differ.

@@ -1,11 +1,9 @@
 //! Integration tests for `swe_edge_egress_cassette` SAF builder entry points.
 //!
-//! Covers: `create_config_builder()`, `build_cassette_layer(config, name)`, and all config variants.
+//! Covers: `create_config_builder()`, `HttpCassetteSvc::build_cassette_layer(config, name)`, and all config variants.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{
-    build_cassette_layer, create_config_builder, CassetteConfig, CassetteLayer,
-};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteLayer, HttpCassetteSvc};
 
 fn make_config(dir: &str) -> CassetteConfig {
     // Normalize backslashes so TOML doesn't treat `\U`, `\t`, etc. as escape
@@ -28,8 +26,7 @@ fn make_config(dir: &str) -> CassetteConfig {
 /// of this crate can bootstrap without supplying their own config.
 #[test]
 fn test_builder_fn_loads_swe_default_and_returns_ok() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    create_config_builder().build_loader();
+    HttpCassetteSvc::create_config_builder().build_loader();
 }
 
 /// The SWE default mode is "replay" — tests must not accidentally record
@@ -106,7 +103,8 @@ fn test_build_with_auto_mode_returns_cassette_layer() {
     let tmpdir = tempfile::tempdir().unwrap();
     let dir = tmpdir.path().to_str().unwrap().replace('\\', "/");
     let layer: CassetteLayer =
-        build_cassette_layer(make_config(&dir), "happy_path").expect("build must succeed");
+        HttpCassetteSvc::build_cassette_layer(make_config(&dir), "happy_path")
+            .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CassetteLayer"),
@@ -128,7 +126,8 @@ fn test_build_replay_mode_missing_fixture_file_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "replay_no_fixture").expect("replay with missing fixture must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "replay_no_fixture")
+        .expect("replay with missing fixture must build");
 }
 
 /// Building in "record" mode must succeed so a fresh recording session can
@@ -144,7 +143,7 @@ fn test_build_record_mode_succeeds() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    build_cassette_layer(cfg, "record_session").expect("record mode must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "record_session").expect("record mode must build");
 }
 
 /// Multiple scrub body paths (including nested dot-paths) must not prevent
@@ -164,7 +163,8 @@ fn test_build_with_nested_scrub_body_paths_succeeds() {
         scrub_headers: vec!["authorization".to_string()],
         scrub_body_paths: vec!["request_id".to_string(), "metadata.trace_id".to_string()],
     };
-    build_cassette_layer(cfg, "nested_scrub").expect("nested scrub body paths must build");
+    HttpCassetteSvc::build_cassette_layer(cfg, "nested_scrub")
+        .expect("nested scrub body paths must build");
 }
 
 // ---------------------------------------------------------------------------

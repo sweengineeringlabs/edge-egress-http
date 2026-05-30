@@ -1,9 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_retry crate.
 
-use swe_edge_egress_retry::{
-    build_retry_layer, create_config_builder, RetryConfig, RetryError, RetryLayer,
-};
+use swe_edge_egress_retry::{HttpRetrySvc, RetryConfig, RetryError, RetryLayer};
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -26,9 +24,8 @@ fn make_cfg() -> RetryConfig {
 
 #[test]
 fn test_create_config_builder_returns_working_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
     // create_config_builder must not panic and must return a valid loader.
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpRetrySvc::create_config_builder().build_loader();
 }
 
 #[test]
@@ -62,7 +59,8 @@ fn test_build_retry_layer_from_default_returns_retry_layer_with_correct_debug() 
     // The full happy path: default config → RetryLayer.
     // Debug output must name the type and expose max_retries for
     // operator visibility (log lines, test output).
-    let layer = build_retry_layer(RetryConfig::default()).expect("build must succeed");
+    let layer =
+        HttpRetrySvc::build_retry_layer(RetryConfig::default()).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RetryLayer"),
@@ -100,7 +98,7 @@ fn test_build_retry_layer_with_custom_config_stores_all_policy_fields() {
     assert_eq!(cfg.multiplier, 2.0);
     assert_eq!(cfg.retryable_statuses, vec![500u16, 502, 503]);
     assert_eq!(cfg.retryable_methods, vec!["GET".to_string()]);
-    build_retry_layer(cfg).expect("custom config must produce a valid RetryLayer");
+    HttpRetrySvc::build_retry_layer(cfg).expect("custom config must produce a valid RetryLayer");
 }
 
 #[test]
@@ -114,7 +112,7 @@ fn test_build_retry_layer_with_zero_max_retries_builds_successfully() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    build_retry_layer(cfg).expect("max_retries=0 must produce a valid RetryLayer");
+    HttpRetrySvc::build_retry_layer(cfg).expect("max_retries=0 must produce a valid RetryLayer");
 }
 
 #[test]
@@ -129,7 +127,8 @@ fn test_build_retry_layer_with_empty_retryable_lists_builds_successfully() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    build_retry_layer(cfg).expect("empty retryable lists must produce a valid RetryLayer");
+    HttpRetrySvc::build_retry_layer(cfg)
+        .expect("empty retryable lists must produce a valid RetryLayer");
 }
 
 #[test]
@@ -143,7 +142,7 @@ fn test_build_retry_layer_with_large_multiplier_builds_successfully() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["POST".to_string()],
     };
-    build_retry_layer(cfg).expect("multiplier=100.0 must produce a valid RetryLayer");
+    HttpRetrySvc::build_retry_layer(cfg).expect("multiplier=100.0 must produce a valid RetryLayer");
 }
 
 // ---------------------------------------------------------------------------

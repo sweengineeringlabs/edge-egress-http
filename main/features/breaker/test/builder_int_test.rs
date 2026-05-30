@@ -4,7 +4,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerError, BreakerLayer};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerError, BreakerLayer, HttpBreakerSvc};
 
 // ---------------------------------------------------------------------------
 // build_breaker_layer — SAF entry point
@@ -15,7 +15,7 @@ use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerError, 
 /// default config is broken.
 #[test]
 fn test_builder_fn_succeeds_with_swe_default() {
-    build_breaker_layer(BreakerConfig::default())
+    HttpBreakerSvc::build_breaker_layer(BreakerConfig::default())
         .expect("builder() must succeed with the crate-shipped baseline");
 }
 
@@ -87,8 +87,8 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
 /// The nominal build path must succeed and return a `BreakerLayer`.
 #[test]
 fn test_build_from_swe_default_returns_breaker_layer() {
-    let layer: BreakerLayer =
-        build_breaker_layer(BreakerConfig::default()).expect("build() must succeed");
+    let layer: BreakerLayer = HttpBreakerSvc::build_breaker_layer(BreakerConfig::default())
+        .expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("BreakerLayer"),
@@ -105,7 +105,7 @@ fn test_build_with_custom_config_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    build_breaker_layer(cfg).expect("custom config must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("custom config must build");
 }
 
 /// An empty `failure_statuses` list is a valid policy (no HTTP status triggers
@@ -118,7 +118,7 @@ fn test_build_with_empty_failure_statuses_succeeds() {
         reset_after_successes: 2,
         failure_statuses: vec![],
     };
-    build_breaker_layer(cfg).expect("empty failure_statuses must not be rejected");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("empty failure_statuses must not be rejected");
 }
 
 /// A high `failure_threshold` (aggressive tolerance) is a legitimate
@@ -131,7 +131,7 @@ fn test_build_with_high_failure_threshold_succeeds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    build_breaker_layer(cfg).expect("failure_threshold=1000 must not be rejected");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("failure_threshold=1000 must not be rejected");
 }
 
 /// A single-success reset policy is legitimate — probe once and close.
@@ -143,7 +143,7 @@ fn test_build_with_single_success_reset_policy_succeeds() {
         reset_after_successes: 1,
         failure_statuses: vec![503],
     };
-    build_breaker_layer(cfg).expect("reset_after_successes=1 must not be rejected");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("reset_after_successes=1 must not be rejected");
 }
 
 // ---------------------------------------------------------------------------

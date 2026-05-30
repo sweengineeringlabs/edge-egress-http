@@ -3,19 +3,17 @@
 //! Covers the full public builder surface: `build_rate_layer` and `create_config_builder`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{
-    build_rate_layer, create_config_builder, RateConfig, RateError, RateLayer,
-};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig, RateError, RateLayer};
 
 // ---------------------------------------------------------------------------
 // build_rate_layer with default config
 // ---------------------------------------------------------------------------
 
-/// `build_rate_layer(RateConfig::default())` must return Ok — the crate-shipped
+/// `HttpRateSvc::build_rate_layer(RateConfig::default())` must return Ok — the crate-shipped
 /// TOML baseline must always be parseable.
 #[test]
 fn test_builder_fn_succeeds_with_swe_default() {
-    build_rate_layer(RateConfig::default())
+    HttpRateSvc::build_rate_layer(RateConfig::default())
         .expect("builder() must succeed with the crate-shipped baseline");
 }
 
@@ -90,7 +88,8 @@ fn test_config_accessor_returns_reference_not_divergent_copy() {
 /// The nominal build path must succeed.
 #[test]
 fn test_build_from_swe_default_returns_rate_layer() {
-    let layer: RateLayer = build_rate_layer(RateConfig::default()).expect("build() must succeed");
+    let layer: RateLayer =
+        HttpRateSvc::build_rate_layer(RateConfig::default()).expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RateLayer"),
@@ -106,7 +105,7 @@ fn test_build_with_custom_config_succeeds() {
         burst_capacity: 40,
         per_host: false,
     };
-    build_rate_layer(cfg).expect("custom config must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("custom config must build");
 }
 
 /// `per_host = true` must build successfully.
@@ -117,7 +116,7 @@ fn test_build_with_per_host_true_succeeds() {
         burst_capacity: 10,
         per_host: true,
     };
-    build_rate_layer(cfg).expect("per_host=true must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("per_host=true must build");
 }
 
 /// `per_host = false` must build successfully.
@@ -128,7 +127,7 @@ fn test_build_with_per_host_false_succeeds() {
         burst_capacity: 10,
         per_host: false,
     };
-    build_rate_layer(cfg).expect("per_host=false must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("per_host=false must build");
 }
 
 /// High token rate and burst capacity are valid operator choices.
@@ -139,7 +138,7 @@ fn test_build_with_high_rate_and_burst_succeeds() {
         burst_capacity: 50_000,
         per_host: false,
     };
-    build_rate_layer(cfg).expect("high rate + burst must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("high rate + burst must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -149,8 +148,7 @@ fn test_build_with_high_rate_and_burst_succeeds() {
 /// `create_config_builder().build_loader()` must return a working loader.
 #[test]
 fn test_create_config_builder_returns_working_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpRateSvc::create_config_builder().build_loader();
 }
 
 // ---------------------------------------------------------------------------

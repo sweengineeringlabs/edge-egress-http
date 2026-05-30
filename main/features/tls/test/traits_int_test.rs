@@ -4,12 +4,12 @@
 //! `dyn HttpTls`. The integration-level contract is:
 //!
 //! - The SAF re-export surface is complete: `TlsConfig`, `TlsLayer`,
-//!   `TlsError`, and `build_tls_layer()` are all accessible.
+//!   `TlsError`, and `HttpTlsSvc::build_tls_layer()` are all accessible.
 //! - `TlsLayer::apply_to` works end-to-end with a `reqwest::ClientBuilder`.
 //! - `TlsLayer` is `Send + Sync` (flows from `HttpTls: Send + Sync + Debug`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // SAF re-export completeness — compile-time proof
@@ -41,7 +41,7 @@ fn test_saf_surface_exports_all_required_types() {
 #[test]
 fn test_tls_layer_holds_arc_dyn_provider() {
     // The TlsLayer itself proves Arc<dyn HttpTls> works.
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer: TlsLayer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     // If Arc<dyn HttpTls> weren't working, build() would fail to compile.
     drop(layer);
 }
@@ -64,18 +64,19 @@ fn test_tls_layer_satisfies_send_sync_from_http_tls_supertraits() {
 /// panic for the `TlsConfig::None` case.
 #[test]
 fn test_full_saf_pipeline_none_config_builds_client() {
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None config must build");
+    let layer: TlsLayer =
+        HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None config must build");
     let cb = layer
         .apply_to(reqwest::Client::builder())
         .expect("apply_to must succeed");
     let _client = cb.build().expect("ClientBuilder must build");
 }
 
-/// The full pipeline through `build_tls_layer(TlsConfig::None)` must
+/// The full pipeline through `HttpTlsSvc::build_tls_layer(TlsConfig::None)` must
 /// also produce a working client.
 #[test]
 fn test_full_with_config_pipeline_none_config_builds_client() {
-    let layer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let _client = layer
         .apply_to(reqwest::Client::builder())
         .expect("apply_to")

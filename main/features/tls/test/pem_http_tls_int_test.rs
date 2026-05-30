@@ -1,7 +1,7 @@
 //! Integration tests for `core::identity::pem_http_tls::PemHttpTls`.
 //!
 //! `PemHttpTls` is `pub(crate)`. Integration tests verify its contract
-//! through the public `build_tls_layer(TlsConfig::Pem { path })` path:
+//! through the public `HttpTlsSvc::build_tls_layer(TlsConfig::Pem { path })` path:
 //!
 //! - A missing PEM file causes `build_tls_layer` to return `TlsError::FileReadFailed`
 //!   eagerly (at startup, not at first request).
@@ -11,7 +11,7 @@
 //!   self-signed cert fixture written to a temp directory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsError};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // PemHttpTls::load — file-read errors surface at build time
@@ -24,7 +24,7 @@ fn test_pem_missing_file_returns_file_read_failed() {
     let cfg = TlsConfig::Pem {
         path: "/path/does/not/exist/cert.pem".into(),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
         TlsError::FileReadFailed { path, reason } => {
             assert!(
@@ -46,7 +46,7 @@ fn test_pem_missing_file_returns_file_read_failed() {
 fn test_pem_file_read_failed_contains_configured_path() {
     let path = "/very/specific/path/to/missing.pem";
     let cfg = TlsConfig::Pem { path: path.into() };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     let msg = err.to_string();
     assert!(
         msg.contains("missing.pem"),
@@ -75,7 +75,7 @@ fn test_pem_invalid_content_returns_invalid_certificate() {
     // is valid for `load` (file exists, bytes read). The InvalidCertificate
     // error is produced by `identity()` which is called from `apply_to`,
     // not during `build()`. So `build()` must succeed here.
-    let layer = build_tls_layer(cfg).expect("load of existing file must succeed");
+    let layer = HttpTlsSvc::build_tls_layer(cfg).expect("load of existing file must succeed");
 
     // Now `apply_to` calls `identity()` which calls `reqwest::Identity::from_pem`.
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
@@ -108,7 +108,7 @@ fn test_pem_bytes_read_at_build_time_not_at_apply_to() {
     let cfg = TlsConfig::Pem {
         path: path.to_str().unwrap().replace('\\', "/"),
     };
-    let layer = build_tls_layer(cfg).expect("build must succeed for existing file");
+    let layer = HttpTlsSvc::build_tls_layer(cfg).expect("build must succeed for existing file");
 
     // Delete the file after build — bytes already in memory.
     std::fs::remove_file(&path).unwrap();

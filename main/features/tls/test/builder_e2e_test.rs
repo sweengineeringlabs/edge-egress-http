@@ -1,12 +1,13 @@
 //! End-to-end tests for the swe_edge_egress_tls SAF builder surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsLayer};
 
 /// @covers: build_tls_layer with None config
 #[test]
 fn test_e2e_builder() {
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("build() must succeed");
+    let layer: TlsLayer =
+        HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("build() must succeed");
     assert!(
         format!("{layer:?}").contains("noop"),
         "e2e: None config must produce noop layer"
@@ -18,7 +19,7 @@ fn test_e2e_builder() {
 fn test_e2e_with_config() {
     let b_cfg = TlsConfig::None;
     assert!(matches!(&b_cfg, TlsConfig::None));
-    build_tls_layer(b_cfg).expect("e2e with_config None build must succeed");
+    HttpTlsSvc::build_tls_layer(b_cfg).expect("e2e with_config None build must succeed");
 }
 
 /// @covers: TlsConfig fields are accessible directly
@@ -37,6 +38,7 @@ fn test_e2e_config() {
 /// @covers: build_tls_layer with None config always succeeds
 #[test]
 fn test_e2e_build() {
-    let layer = build_tls_layer(TlsConfig::None).expect("e2e build with None must always succeed");
+    let layer = HttpTlsSvc::build_tls_layer(TlsConfig::None)
+        .expect("e2e build with None must always succeed");
     assert!(!format!("{layer:?}").is_empty());
 }

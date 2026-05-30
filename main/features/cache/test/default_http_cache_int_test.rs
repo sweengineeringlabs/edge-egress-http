@@ -10,7 +10,7 @@
 //! these assertions catch it.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cache::{build_cache_layer, CacheConfig};
+use swe_edge_egress_cache::{CacheConfig, HttpCacheSvc};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
@@ -21,7 +21,7 @@ use swe_edge_egress_cache::{build_cache_layer, CacheConfig};
 /// changed without updating the default.
 #[test]
 fn test_default_http_cache_swe_default_builder_succeeds() {
-    build_cache_layer(CacheConfig::default())
+    HttpCacheSvc::build_cache_layer(CacheConfig::default())
         .expect("swe_default baseline must parse without error");
 }
 
@@ -52,7 +52,8 @@ fn test_default_http_cache_swe_default_max_entries_is_positive() {
 /// Building from the SWE default must produce a valid `CacheLayer`.
 #[test]
 fn test_default_http_cache_swe_default_builds_cache_layer() {
-    build_cache_layer(CacheConfig::default()).expect("build from swe_default must succeed");
+    HttpCacheSvc::build_cache_layer(CacheConfig::default())
+        .expect("build from swe_default must succeed");
 }
 
 // ---------------------------------------------------------------------------

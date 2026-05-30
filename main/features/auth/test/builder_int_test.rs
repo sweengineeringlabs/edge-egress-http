@@ -14,7 +14,6 @@ use swe_edge_egress_auth::{
 
 #[test]
 fn test_create_config_builder_returns_working_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
     // The free `create_config_builder()` function must return a loader that
     // works. Failure here means the crate package name wiring is broken.
     let _loader = create_config_builder().build_loader();

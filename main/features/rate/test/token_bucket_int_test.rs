@@ -10,7 +10,7 @@
 //!   be accepted by the builder.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateLayer};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // burst_capacity == tokens_per_second — no burst beyond steady rate
@@ -25,7 +25,7 @@ fn test_token_bucket_burst_equals_rate_layer_builds() {
         burst_capacity: 10, // same as rate — no burst allowance
         per_host: false,
     };
-    build_rate_layer(cfg).expect("burst_capacity == tokens_per_second must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("burst_capacity == tokens_per_second must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ fn test_token_bucket_burst_multiple_of_rate_builds() {
         burst_capacity: 50,
         per_host: true,
     };
-    build_rate_layer(cfg).expect("burst_capacity=5x rate must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("burst_capacity=5x rate must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ fn test_token_bucket_minimum_config_builds_and_debug_correct() {
         burst_capacity: 1,
         per_host: false,
     };
-    let layer: RateLayer = build_rate_layer(cfg).expect("build");
+    let layer: RateLayer = HttpRateSvc::build_rate_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("1"),
@@ -79,7 +79,8 @@ fn test_token_bucket_large_burst_capacity_builds() {
         burst_capacity: 100_000,
         per_host: false,
     };
-    build_rate_layer(cfg).expect("large burst_capacity must not be rejected by token bucket init");
+    HttpRateSvc::build_rate_layer(cfg)
+        .expect("large burst_capacity must not be rejected by token bucket init");
 }
 
 // ---------------------------------------------------------------------------
@@ -94,7 +95,7 @@ fn test_token_bucket_per_host_keying_builds() {
         burst_capacity: 40,
         per_host: true,
     };
-    build_rate_layer(cfg).expect("per_host=true (per-host buckets) must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("per_host=true (per-host buckets) must build");
 }
 
 /// `per_host = false` means all hosts share one global bucket.  Build must
@@ -106,5 +107,5 @@ fn test_token_bucket_global_keying_builds() {
         burst_capacity: 40,
         per_host: false,
     };
-    build_rate_layer(cfg).expect("per_host=false (global bucket) must build");
+    HttpRateSvc::build_rate_layer(cfg).expect("per_host=false (global bucket) must build");
 }

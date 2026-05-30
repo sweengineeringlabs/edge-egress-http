@@ -9,7 +9,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 
 // ---------------------------------------------------------------------------
 // Low threshold — breaker trips quickly
@@ -25,7 +25,7 @@ fn test_core_breaker_layer_threshold_one_builds() {
         reset_after_successes: 1,
         failure_statuses: vec![500],
     };
-    build_breaker_layer(cfg).expect("failure_threshold=1 must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("failure_threshold=1 must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ fn test_core_breaker_layer_zero_wait_builds() {
         reset_after_successes: 2,
         failure_statuses: vec![503],
     };
-    build_breaker_layer(cfg).expect("half_open_after_seconds=0 must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("half_open_after_seconds=0 must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -59,7 +59,7 @@ fn test_core_breaker_layer_many_failure_statuses_builds() {
         reset_after_successes: 3,
         failure_statuses: statuses,
     };
-    build_breaker_layer(cfg).expect("many failure_statuses must build");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("many failure_statuses must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -76,7 +76,7 @@ fn test_core_breaker_layer_debug_includes_failure_threshold() {
         reset_after_successes: 3,
         failure_statuses: vec![500],
     };
-    let layer = build_breaker_layer(cfg).expect("build");
+    let layer = HttpBreakerSvc::build_breaker_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("8"),
@@ -93,7 +93,7 @@ fn test_core_breaker_layer_debug_includes_reset_after_successes() {
         reset_after_successes: 6,
         failure_statuses: vec![503],
     };
-    let layer = build_breaker_layer(cfg).expect("build");
+    let layer = HttpBreakerSvc::build_breaker_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("6"),
@@ -128,5 +128,5 @@ fn test_core_breaker_layer_builds_for_high_host_count_workload() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 502, 503, 504],
     };
-    build_breaker_layer(cfg).expect("build for high-host-count workload");
+    HttpBreakerSvc::build_breaker_layer(cfg).expect("build for high-host-count workload");
 }

@@ -34,9 +34,15 @@ swe-edge-configbuilder.workspace = true
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt"] }
 
-[lints]
-workspace = true
 
 [[test]]
 name = "refresh_strategy_int_test"
 path = "test/refresh_strategy_int_test.rs"
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

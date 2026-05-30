@@ -1,7 +1,7 @@
 //! End-to-end tests for the swe_edge_egress_rate SAF builder surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{build_rate_layer, create_config_builder, RateConfig, RateLayer};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig, RateLayer};
 
 fn make_cfg() -> RateConfig {
     RateConfig {
@@ -14,7 +14,7 @@ fn make_cfg() -> RateConfig {
 /// @covers: build_rate_layer with default config
 #[test]
 fn test_e2e_builder_default_config_succeeds() {
-    let _layer: RateLayer = build_rate_layer(RateConfig::default())
+    let _layer: RateLayer = HttpRateSvc::build_rate_layer(RateConfig::default())
         .expect("build_rate_layer with default config must succeed");
 }
 
@@ -23,7 +23,7 @@ fn test_e2e_builder_default_config_succeeds() {
 fn test_e2e_with_config() {
     let cfg = make_cfg();
     assert_eq!(cfg.tokens_per_second, 10);
-    build_rate_layer(cfg).expect("e2e with_config build must succeed");
+    HttpRateSvc::build_rate_layer(cfg).expect("e2e with_config build must succeed");
 }
 
 /// @covers: RateConfig fields are accessible directly
@@ -42,13 +42,12 @@ fn test_e2e_build() {
         burst_capacity: 500,
         per_host: true,
     };
-    let layer = build_rate_layer(cfg).expect("e2e build must succeed");
+    let layer = HttpRateSvc::build_rate_layer(cfg).expect("e2e build must succeed");
     assert!(!format!("{layer:?}").is_empty());
 }
 
 /// @covers: create_config_builder returns a working Loader
 #[test]
 fn test_e2e_create_config_builder_returns_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpRateSvc::create_config_builder().build_loader();
 }

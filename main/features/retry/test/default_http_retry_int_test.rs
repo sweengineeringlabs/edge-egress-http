@@ -11,7 +11,7 @@
 //! - The factory pipeline does not modify the config values on the way through
 //!   `DefaultHttpRetry::new`.
 
-use swe_edge_egress_retry::{build_retry_layer, create_config_builder, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{HttpRetrySvc, RetryConfig, RetryLayer};
 
 fn make_cfg(max_retries: u32, initial_ms: u64) -> RetryConfig {
     RetryConfig {
@@ -33,7 +33,8 @@ fn make_cfg(max_retries: u32, initial_ms: u64) -> RetryConfig {
 /// `initial_interval_ms`, confirming the config was not swapped or reset.
 #[test]
 fn test_factory_pipeline_embeds_config_in_default_http_retry() {
-    let layer: RetryLayer = build_retry_layer(make_cfg(4, 250)).expect("build must succeed");
+    let layer: RetryLayer =
+        HttpRetrySvc::build_retry_layer(make_cfg(4, 250)).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains('4'),
@@ -54,8 +55,8 @@ fn test_factory_pipeline_embeds_config_in_default_http_retry() {
 /// confirming `DefaultHttpRetry::new` stores the supplied config verbatim.
 #[test]
 fn test_two_layers_different_configs_have_different_debug() {
-    let l1 = build_retry_layer(make_cfg(1, 100)).unwrap();
-    let l2 = build_retry_layer(make_cfg(5, 500)).unwrap();
+    let l1 = HttpRetrySvc::build_retry_layer(make_cfg(1, 100)).unwrap();
+    let l2 = HttpRetrySvc::build_retry_layer(make_cfg(5, 500)).unwrap();
     assert_ne!(
         format!("{l1:?}"),
         format!("{l2:?}"),
@@ -97,7 +98,7 @@ fn test_factory_does_not_mutate_config_in_default_http_retry() {
     // Clone to verify fields before consuming cfg.
     let expected_retries = cfg.max_retries;
     let expected_initial = cfg.initial_interval_ms;
-    let layer = build_retry_layer(cfg).expect("build must succeed");
+    let layer = HttpRetrySvc::build_retry_layer(cfg).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains(&expected_retries.to_string()),
@@ -119,15 +120,15 @@ fn test_factory_does_not_mutate_config_in_default_http_retry() {
 /// confirming the crate package name is correctly wired into the config builder.
 #[test]
 fn test_saf_create_config_builder_produces_working_loader() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
-    let _loader = create_config_builder().build_loader();
+    let _loader = HttpRetrySvc::create_config_builder().build_loader();
 }
 
 /// Building from the default config must produce a `RetryLayer`
 /// whose Debug output confirms the wiring is correct.
 #[test]
 fn test_build_retry_layer_from_default_config_produces_valid_layer() {
-    let layer = build_retry_layer(RetryConfig::default()).expect("build must succeed");
+    let layer =
+        HttpRetrySvc::build_retry_layer(RetryConfig::default()).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RetryLayer"),

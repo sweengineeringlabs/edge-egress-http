@@ -12,7 +12,7 @@
 //!   (held inside via `Arc<CassetteConfig>`) to also be `Send + Sync`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig, CassetteLayer};
+use swe_edge_egress_cassette::{CassetteConfig, CassetteLayer, HttpCassetteSvc};
 
 fn make_cfg(dir: &str) -> CassetteConfig {
     CassetteConfig {
@@ -40,7 +40,8 @@ fn test_builder_pipeline_stores_config_in_default_http_cassette() {
     assert_eq!(cfg.mode, "auto");
     assert!(cfg.scrub_headers.contains(&"authorization".to_string()));
 
-    let layer = build_cassette_layer(cfg, "default_impl_check").expect("build must succeed");
+    let layer = HttpCassetteSvc::build_cassette_layer(cfg, "default_impl_check")
+        .expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CassetteLayer"),
@@ -75,8 +76,8 @@ fn test_layer_debug_differs_for_different_modes() {
         scrub_headers: vec![],
         scrub_body_paths: vec![],
     };
-    let l1 = build_cassette_layer(cfg_replay, "mode_replay_debug").unwrap();
-    let l2 = build_cassette_layer(cfg_record, "mode_record_debug").unwrap();
+    let l1 = HttpCassetteSvc::build_cassette_layer(cfg_replay, "mode_replay_debug").unwrap();
+    let l2 = HttpCassetteSvc::build_cassette_layer(cfg_record, "mode_record_debug").unwrap();
     assert_ne!(
         format!("{l1:?}"),
         format!("{l2:?}"),

@@ -55,8 +55,6 @@ tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 default = []
 tracing = ["dep:tracing"]
 
-[lints]
-workspace = true
 
 [[test]]
 name = "auth_config_int_test"
@@ -133,3 +131,11 @@ path = "test/strategy_factory_int_test.rs"
 [[test]]
 name = "traits_int_test"
 path = "test/traits_int_test.rs"
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

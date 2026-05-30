@@ -3,7 +3,7 @@
 //! Covers: `build_tls_layer`, `TlsConfig` variants, `TlsLayer` construction.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // build_tls_layer — SAF entry point
@@ -12,7 +12,7 @@ use swe_edge_egress_tls::{build_tls_layer, TlsConfig, TlsError, TlsLayer};
 /// The crate-shipped baseline must always succeed with `TlsConfig::None`.
 #[test]
 fn test_builder_fn_returns_ok_with_swe_default() {
-    build_tls_layer(TlsConfig::None).expect("None config must always build");
+    HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None config must always build");
 }
 
 /// The SWE default must be `TlsConfig::None` (pass-through) — tests and
@@ -31,7 +31,8 @@ fn test_builder_fn_swe_default_is_tls_config_none() {
 /// layer must always be constructible.
 #[test]
 fn test_builder_fn_build_with_none_default_succeeds() {
-    let _layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None config must always build");
+    let _layer: TlsLayer =
+        HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None config must always build");
 }
 
 // ---------------------------------------------------------------------------
@@ -42,7 +43,7 @@ fn test_builder_fn_build_with_none_default_succeeds() {
 /// containing "noop", confirming the pass-through provider was selected.
 #[test]
 fn test_with_config_none_builds_and_debug_contains_noop() {
-    let layer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("noop"),
@@ -58,7 +59,7 @@ fn test_with_config_pem_missing_file_fails_at_build_time() {
     let cfg = TlsConfig::Pem {
         path: "/this/path/definitely/does/not/exist.pem".into(),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
         matches!(err, TlsError::FileReadFailed { .. }),
         "missing PEM file must return FileReadFailed; got: {err:?}"
@@ -72,7 +73,7 @@ fn test_with_config_pkcs12_missing_file_fails_at_build_time() {
         path: "/this/path/definitely/does/not/exist.p12".into(),
         password_env: None,
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
         matches!(err, TlsError::FileReadFailed { .. }),
         "missing PKCS12 file must return FileReadFailed; got: {err:?}"
@@ -89,7 +90,7 @@ fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
         path: "irrelevant.p12".into(),
         password_env: Some(env_name.into()),
     };
-    let err = build_tls_layer(cfg).unwrap_err();
+    let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
         TlsError::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
@@ -101,7 +102,8 @@ fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
 #[test]
 fn test_with_config_none_ignores_environment() {
     std::env::set_var("SWE_IT_TLS_BUILDER_IGNORED_ENV", "some_value");
-    build_tls_layer(TlsConfig::None).expect("None config must build regardless of env vars");
+    HttpTlsSvc::build_tls_layer(TlsConfig::None)
+        .expect("None config must build regardless of env vars");
     std::env::remove_var("SWE_IT_TLS_BUILDER_IGNORED_ENV");
 }
 

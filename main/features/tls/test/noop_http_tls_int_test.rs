@@ -10,7 +10,7 @@
 //! - The layer is `Send + Sync`, which requires `NoopHttpTls` to be too.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // NoopHttpTls::describe — "noop" in TlsLayer Debug
@@ -21,7 +21,7 @@ use swe_edge_egress_tls::{build_tls_layer, TlsApplier, TlsConfig, TlsLayer};
 /// changing that constant breaks this test.
 #[test]
 fn test_none_layer_debug_contains_noop_describe_constant() {
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer: TlsLayer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("noop"),
@@ -37,7 +37,7 @@ fn test_none_layer_debug_contains_noop_describe_constant() {
 /// must return `Ok` and the `ClientBuilder` must be buildable.
 #[test]
 fn test_none_layer_apply_to_succeeds() {
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer: TlsLayer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let cb = layer
         .apply_to(reqwest::Client::builder())
         .expect("None apply_to must return Ok");
@@ -52,7 +52,7 @@ fn test_none_layer_apply_to_succeeds() {
 /// noop provider neither panics nor injects invalid data.
 #[test]
 fn test_none_layer_apply_to_does_not_corrupt_client_builder() {
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer: TlsLayer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     // Apply twice — if the builder were mutated in an incompatible way the
     // second build would fail.
     let cb1 = layer
@@ -80,7 +80,7 @@ fn test_tls_layer_with_noop_is_send_and_sync() {
 /// `TlsLayer` wrapping a noop provider must be usable inside a thread.
 #[test]
 fn test_none_layer_is_usable_across_thread_boundary() {
-    let layer: TlsLayer = build_tls_layer(TlsConfig::None).expect("None must build");
+    let layer: TlsLayer = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("None must build");
     let handle = std::thread::spawn(move || {
         layer
             .apply_to(reqwest::Client::builder())
@@ -101,8 +101,8 @@ fn test_none_layer_is_usable_across_thread_boundary() {
 /// consistently produces the "noop" marker in its own Debug.
 #[test]
 fn test_none_layer_debug_is_deterministic() {
-    let l1 = build_tls_layer(TlsConfig::None).expect("first None build");
-    let l2 = build_tls_layer(TlsConfig::None).expect("second None build");
+    let l1 = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("first None build");
+    let l2 = HttpTlsSvc::build_tls_layer(TlsConfig::None).expect("second None build");
     assert_eq!(
         format!("{l1:?}"),
         format!("{l2:?}"),

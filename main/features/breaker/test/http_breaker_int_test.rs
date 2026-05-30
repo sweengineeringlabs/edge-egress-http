@@ -6,7 +6,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{build_breaker_layer, BreakerConfig, BreakerLayer};
+use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time proof that HttpBreaker's supertrait bounds hold
@@ -47,7 +47,8 @@ fn test_breaker_layer_built_from_builder_is_usable() {
         reset_after_successes: 2,
         failure_statuses: vec![500, 503],
     };
-    let layer: BreakerLayer = build_breaker_layer(cfg).expect("build() must succeed");
+    let layer: BreakerLayer =
+        HttpBreakerSvc::build_breaker_layer(cfg).expect("build() must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         !dbg.is_empty(),

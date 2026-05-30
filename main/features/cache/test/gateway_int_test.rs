@@ -1,7 +1,7 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_cache crate.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_cache::{build_cache_layer, CacheConfig, CacheError, CacheLayer};
+use swe_edge_egress_cache::{CacheConfig, CacheError, CacheLayer, HttpCacheSvc};
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -23,7 +23,7 @@ fn make_cfg() -> CacheConfig {
 #[test]
 fn test_builder_fn_loads_swe_default_returns_ok() {
     // build_cache_layer must succeed: the crate-shipped baseline TOML must always parse.
-    build_cache_layer(CacheConfig::default()).expect("default config must build");
+    HttpCacheSvc::build_cache_layer(CacheConfig::default()).expect("default config must build");
 }
 
 #[test]
@@ -57,7 +57,8 @@ fn test_builder_fn_swe_default_has_positive_ttl() {
 #[test]
 fn test_build_from_swe_default_returns_cache_layer() {
     // The full happy path: default config → CacheLayer.
-    let layer = build_cache_layer(CacheConfig::default()).expect("build must succeed");
+    let layer =
+        HttpCacheSvc::build_cache_layer(CacheConfig::default()).expect("build must succeed");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("CacheLayer"),
@@ -116,7 +117,8 @@ fn test_builder_with_cache_private_true_builds_successfully() {
         respect_cache_control: true,
         cache_private: true,
     };
-    build_cache_layer(cfg).expect("cache_private=true must produce a valid CacheLayer");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("cache_private=true must produce a valid CacheLayer");
 }
 
 #[test]
@@ -128,7 +130,8 @@ fn test_builder_with_respect_cache_control_false_builds_successfully() {
         respect_cache_control: false,
         cache_private: false,
     };
-    build_cache_layer(cfg).expect("respect_cache_control=false must produce a valid CacheLayer");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("respect_cache_control=false must produce a valid CacheLayer");
 }
 
 #[test]
@@ -140,7 +143,8 @@ fn test_builder_with_very_large_max_entries_builds_successfully() {
         respect_cache_control: true,
         cache_private: false,
     };
-    build_cache_layer(cfg).expect("max_entries=1_000_000 must produce a valid CacheLayer");
+    HttpCacheSvc::build_cache_layer(cfg)
+        .expect("max_entries=1_000_000 must produce a valid CacheLayer");
 }
 
 #[test]

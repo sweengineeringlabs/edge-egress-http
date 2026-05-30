@@ -1,0 +1,2620 @@
+{
+  "timestamp": "2026-05-30T10:15:10.402073200+00:00",
+  "results": [
+    {
+      "id": 1,
+      "category": "structure",
+      "description": "Cargo.toml exists at root",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.9829000000000001
+    },
+    {
+      "id": 3,
+      "category": "structure",
+      "description": "src/lib.rs or src/main.rs exists",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 5,
+      "category": "structure",
+      "description": "src/ directory exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.2124
+    },
+    {
+      "id": 7,
+      "category": "structure",
+      "description": "No nested src/ dirs (src/src/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.049
+    },
+    {
+      "id": 8,
+      "category": "structure",
+      "description": "benches/ directory exists (if benchmarks declared)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 9,
+      "category": "cargo_metadata",
+      "description": "package.name exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0058000000000000005
+    },
+    {
+      "id": 10,
+      "category": "cargo_metadata",
+      "description": "package.version exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.001
+    },
+    {
+      "id": 11,
+      "category": "cargo_metadata",
+      "description": "package.edition exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0012
+    },
+    {
+      "id": 12,
+      "category": "cargo_metadata",
+      "description": "package.description exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0085
+    },
+    {
+      "id": 13,
+      "category": "cargo_metadata",
+      "description": "package.license or package.license-file exists",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 14,
+      "category": "cargo_metadata",
+      "description": "package.repository exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0085
+    },
+    {
+      "id": 15,
+      "category": "cargo_metadata",
+      "description": "package.authors exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.005699999999999999
+    },
+    {
+      "id": 16,
+      "category": "cargo_metadata",
+      "description": "package.rust-version exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0014
+    },
+    {
+      "id": 17,
+      "category": "cargo_metadata",
+      "description": "package.keywords exists (libraries)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0003
+    },
+    {
+      "id": 18,
+      "category": "cargo_metadata",
+      "description": "package.categories exists (libraries)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0036
+    },
+    {
+      "id": 19,
+      "category": "cargo_targets",
+      "description": "[lib] path matches existing file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 20,
+      "category": "cargo_targets",
+      "description": "[[bin]] path matches existing file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 21,
+      "category": "cargo_targets",
+      "description": "[[test]] targets declared for tests/ files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 22,
+      "category": "cargo_targets",
+      "description": "[[bench]] targets have harness = false",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 23,
+      "category": "cargo_targets",
+      "description": "No undeclared test files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 24,
+      "category": "cargo_targets",
+      "description": "No undeclared bench files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 25,
+      "category": "cargo_targets",
+      "description": "[[example]] targets exist if examples/ present",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 26,
+      "category": "cargo_targets",
+      "description": "[[test]] paths resolve to existing files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 27,
+      "category": "naming",
+      "description": "Package name uses kebab-case",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.2605
+    },
+    {
+      "id": 29,
+      "category": "naming",
+      "description": "Source files use snake_case naming",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.5817
+    },
+    {
+      "id": 30,
+      "category": "naming",
+      "description": "No uppercase in source file names",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.21350000000000002
+    },
+    {
+      "id": 31,
+      "category": "naming",
+      "description": "Module file names match mod declarations",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 32,
+      "category": "naming",
+      "description": "Binary names use hyphens or underscores",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 33,
+      "category": "test_org",
+      "description": "Test files use correct suffixes (_test.rs, _int_test.rs, _e2e_test.rs, etc.)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 34,
+      "category": "test_org",
+      "description": "Test function name prefix follows location-aware convention: <feature>_<type_kind>_<fn>_<suffix> for tests/<file>.rs; <type_kind>_<fn>_<suffix> for tests/<feature>/<file>.rs (type_kind ∈ {trait,struct,type,enum})",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 35,
+      "category": "test_org",
+      "description": "Test function name uses either the conventional test_ prefix or a recognised test-category suffix (_test, _int_test, _e2e_test, _perf_test, _security_test, _stress_test, _load_test, _unit_test, _smoke_test, _contract_test)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 37,
+      "category": "test_org",
+      "description": "Colocated #[cfg(test)] blocks only permitted when testing private methods",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 38,
+      "category": "test_org",
+      "description": "No test code in src/ (non-#[cfg(test)])",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 40,
+      "category": "documentation",
+      "description": "doc/ or docs/ directory exists (if library)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 41,
+      "category": "documentation",
+      "description": "examples/ directory exists (if library)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 44,
+      "category": "hygiene",
+      "description": "No generated files committed (target/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0478
+    },
+    {
+      "id": 46,
+      "category": "interface",
+      "description": "api/ layer must not import from core/ (L2 must not depend on L3)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 46,
+            "path": "src\\api\\types\\cache_layer.rs",
+            "message": "File contains forbidden pattern '^\\s*use crate::core'",
+            "severity": "error",
+            "rule_type": "glob_content_not_matches",
+            "expected": "^\\s*use crate::core",
+            "actual": "matched in src\\api\\types\\cache_layer.rs",
+            "fix_hint": "Remove any core:: import from api/; define abstractions in api/traits.rs and inject via trait objects",
+            "remediation_strategy": "manual"
+          }
+        ]
+      },
+      "duration_ms": 2.6592000000000002
+    },
+    {
+      "id": 47,
+      "category": "interface",
+      "description": "saf/ must not re-export from core/ (SAF re-exports from api/ and spi/ only)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.1766
+    },
+    {
+      "id": 49,
+      "category": "interface",
+      "description": "Core modules must implement their api traits (impl <Trait> for)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 50,
+      "category": "interface",
+      "description": "L2 items (struct, enum, type, trait, fn, const, static) must use pub(crate) visibility, not bare pub",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 51,
+      "category": "interface",
+      "description": "L2 structs implementing an api trait must carry the trait name as suffix (e.g. impl Reviewer for DefaultReviewer)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 52,
+      "category": "interface",
+      "description": "saf/mod.rs must exist (SAF facade entry point)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 53,
+      "category": "interface",
+      "description": "saf/ must not define new pub structs (facade layer only re-exports and wires)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.7177
+    },
+    {
+      "id": 54,
+      "category": "interface",
+      "description": "lib.rs must delegate public surface to saf/ via pub use",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 55,
+      "category": "interface",
+      "description": "lib.rs must not declare core as public (pub mod core is forbidden)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.1328
+    },
+    {
+      "id": 56,
+      "category": "interface",
+      "description": "lib.rs must not declare api as public (pub mod api is forbidden — all layers must be private)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.6344000000000001
+    },
+    {
+      "id": 57,
+      "category": "interface",
+      "description": "L2 peers must not import each other (core/ ↛ spi/, spi/ ↛ core/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.3801
+    },
+    {
+      "id": 58,
+      "category": "interface",
+      "description": "When spi/ exists, lib.rs must declare `mod spi` (private, not pub mod)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 60,
+      "category": "interface",
+      "description": "L2 must not import from L3 (core/ and spi/ must not depend on saf/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.1338
+    },
+    {
+      "id": 66,
+      "category": "scripts",
+      "description": "scripts/ci/ directory exists (if scripts/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 67,
+      "category": "scripts",
+      "description": "scripts/ci/build.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 68,
+      "category": "scripts",
+      "description": "scripts/ci/test.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 69,
+      "category": "scripts",
+      "description": "scripts/ci/lint.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 71,
+      "category": "structure",
+      "description": "Root contains only allowed entries (whitelist enforcement)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 71,
+            "path": "struct.toml",
+            "message": "Unexpected entry 'struct.toml' at feature level (not in feature whitelist)",
+            "severity": "error",
+            "rule_type": "builtin:root_whitelist",
+            "expected": "Only entries from the feature whitelist",
+            "actual": "struct.toml",
+            "fix_hint": "Fix the issue detected by builtin check 'root_whitelist'",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 71,
+            "path": "test",
+            "message": "Unexpected entry 'test' at feature level (not in feature whitelist)",
+            "severity": "error",
+            "rule_type": "builtin:root_whitelist",
+            "expected": "Only entries from the feature whitelist",
+            "actual": "test",
+            "fix_hint": "Fix the issue detected by builtin check 'root_whitelist'",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 77,
+      "category": "test_org",
+      "description": "All public functions have corresponding tests (name-based)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 78,
+      "category": "test_org",
+      "description": "Tests use @covers: annotation for explicit 1:1 function linking",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::key_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::key_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::is_cacheable_method' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::is_cacheable_method",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'reqwest_middleware::Middleware::handle (sync observable)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "reqwest_middleware::Middleware::handle (sync observable)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::is_cacheable_method' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::is_cacheable_method",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::is_cacheable_method' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::is_cacheable_method",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::key_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::key_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for (Vary: * branch)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for (Vary: * branch)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for (Vary: * with mixed names)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for (Vary: * with mixed names)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'snapshot_vary_values + upsert_variant (Vary routing)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "snapshot_vary_values + upsert_variant (Vary routing)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'find_matching_variant (same-value hit)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "find_matching_variant (same-value hit)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for (SWR parsing integration)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for (SWR parsing integration)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::ttl_for (SWR absent)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::ttl_for (SWR absent)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'in_swr_window' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "in_swr_window",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'should_revalidate (conditional-revalidation gate)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "should_revalidate (conditional-revalidation gate)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'vary_from_headers (dispatcher for parse_vary)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "vary_from_headers (dispatcher for parse_vary)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::new' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::new",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'RequestSnapshot::captured_method' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "RequestSnapshot::captured_method",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'RequestSnapshot::captured_url' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "RequestSnapshot::captured_url",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'find_matching_variant (sync constructability)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "find_matching_variant (sync constructability)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'upsert_variant (via tokio in integration; sync constructability)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "upsert_variant (via tokio in integration; sync constructability)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::buffer_and_store (sync constructability)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::buffer_and_store (sync constructability)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'CacheLayer::refresh_on_304 (sync constructability)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "CacheLayer::refresh_on_304 (sync constructability)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "@covers: 'spawn_swr_refresh (sync constructability)' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "spawn_swr_refresh (sync constructability)",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 78,
+            "path": "src\\core\\default_http_cache.rs",
+            "message": "@covers: 'DefaultHttpCache::new' references unknown function (not found in this file)",
+            "severity": "warning",
+            "rule_type": "builtin:test_covers_annotation",
+            "expected": "existing fn name",
+            "actual": "DefaultHttpCache::new",
+            "fix_hint": "Fix the @covers: annotation to reference an existing function",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 79,
+      "category": "naming",
+      "description": "Trait names must be singular (not plural)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 80,
+      "category": "test_org",
+      "description": "tests/ directory exists at same level as src/",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 80,
+            "path": "tests",
+            "message": "Directory 'tests' does not exist",
+            "severity": "error",
+            "rule_type": "dir_exists",
+            "expected": "tests",
+            "actual": "missing",
+            "fix_hint": "Create the directory 'tests'",
+            "remediation_strategy": "declarative"
+          }
+        ]
+      },
+      "duration_ms": 0.22130000000000002
+    },
+    {
+      "id": 81,
+      "category": "interface",
+      "description": "Reports deprecated trait definitions in api/traits.rs for tracking",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 86,
+      "category": "interface",
+      "description": "L2 layers must not define traits (implementations only — traits belong in L1/api)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.9533
+    },
+    {
+      "id": 87,
+      "category": "interface",
+      "description": "SEA layer directories must not contain crates (no Cargo.toml inside api/, core/, saf/, spi/)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 89,
+      "category": "naming",
+      "description": "L2 module filenames must match their primary struct/trait name (with suffix tolerance)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 89,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "L2 file 'src\\core\\cache_layer.rs' types [\"TtlDecision\", \"RequestSnapshot\"] don't match filename 'CacheLayer'",
+            "severity": "warning",
+            "rule_type": "builtin:core_filename_matches_type",
+            "expected": "Type containing or matching 'CacheLayer'",
+            "actual": "TtlDecision, RequestSnapshot",
+            "fix_hint": "Rename file to match primary type, or rename type to include 'CacheLayer'",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 90,
+      "category": "naming",
+      "description": "Types in L2 modules must be name-cohesive (SRP enforcement)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 90,
+            "path": "src\\core\\cached_entry.rs",
+            "message": "Type 'VaryDirective' is not cohesive with primary type 'CachedEntry'",
+            "severity": "warning",
+            "rule_type": "builtin:core_types_name_cohesive",
+            "expected": "Type related to 'CachedEntry' (e.g., CachedEntryBuilder, CachedEntryError)",
+            "actual": "VaryDirective",
+            "fix_hint": "Move 'VaryDirective' to its own file 'vary_directive.rs'",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 90,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "Type 'RequestSnapshot' is not cohesive with primary type 'TtlDecision'",
+            "severity": "warning",
+            "rule_type": "builtin:core_types_name_cohesive",
+            "expected": "Type related to 'TtlDecision' (e.g., TtlDecisionBuilder, TtlDecisionError)",
+            "actual": "RequestSnapshot",
+            "fix_hint": "Move 'RequestSnapshot' to its own file 'request_snapshot.rs'",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 91,
+      "category": "naming",
+      "description": "Suggest Builder pattern for complex structs (advisory)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 91,
+            "path": "src\\core\\cached_entry.rs",
+            "message": "Struct 'CachedEntry' has 7 fields (2 optional) - consider Builder pattern",
+            "severity": "info",
+            "rule_type": "builtin:suggest_builder_pattern",
+            "expected": "CachedEntryBuilder companion struct",
+            "actual": "7 fields, 2 optional",
+            "fix_hint": "Add 'CachedEntryBuilder' with fluent setters",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 92,
+      "category": "application_type",
+      "description": "application_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 93,
+      "category": "structure",
+      "description": "Project structure must match declared application_type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 94,
+      "category": "test_org",
+      "description": "Integration tests must not use mocking libraries or mock types",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 95,
+      "category": "test_org",
+      "description": "Dependencies used in src/ must have integration or e2e test coverage",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 95,
+            "path": null,
+            "message": "Dependency 'moka' is used in src/ but has no integration/e2e test coverage",
+            "severity": "warning",
+            "rule_type": "builtin:deps_have_integration_tests",
+            "expected": "dependency referenced in *_int_test.rs or *_e2e_test.rs",
+            "actual": "'moka' only found in src/",
+            "fix_hint": "Add integration tests (*_int_test.rs) or e2e tests (*_e2e_test.rs) that exercise the dependency",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 95,
+            "path": null,
+            "message": "Dependency 'reqwest' is used in src/ but has no integration/e2e test coverage",
+            "severity": "warning",
+            "rule_type": "builtin:deps_have_integration_tests",
+            "expected": "dependency referenced in *_int_test.rs or *_e2e_test.rs",
+            "actual": "'reqwest' only found in src/",
+            "fix_hint": "Add integration tests (*_int_test.rs) or e2e tests (*_e2e_test.rs) that exercise the dependency",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 96,
+      "category": "hygiene",
+      "description": "Dependencies declared in Cargo.toml must be used in src/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 97,
+      "category": "hygiene",
+      "description": "CLI projects should use dirs/directories crate for XDG-compliant paths",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 98,
+      "category": "hygiene",
+      "description": "No hardcoded home directory paths in source code",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 99,
+      "category": "test_org",
+      "description": "Test files use suffixes consistent with dependency scope (allowing integration-style *_int_test.rs / *_e2e_test.rs in tests/)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 103,
+      "category": "gateway_isolation",
+      "description": "lib.rs must declare gateway as a private module — pub mod and pub(crate) mod are forbidden",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.3193000000000001
+    },
+    {
+      "id": 105,
+      "category": "test_org",
+      "description": "Each api/ trait has a corresponding test file in tests/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 108,
+      "category": "code_organization",
+      "description": "Each public struct/trait/enum must have its own .rs file (one primary type per file)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 108,
+            "path": "src\\core\\cached_entry.rs",
+            "message": "File contains 3 public types: CachedEntry, VaryDirective, CacheEntryHelper",
+            "severity": "error",
+            "rule_type": "builtin:one_type_per_file",
+            "expected": "1 primary public type per file",
+            "actual": "3 types found",
+            "fix_hint": "Move each struct/trait/enum to its own file named after the type (e.g., `Scanner` → `scanner.rs`)",
+            "remediation_strategy": "imperative"
+          },
+          {
+            "check_id": 108,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "File contains 2 public types: TtlDecision, RequestSnapshot",
+            "severity": "error",
+            "rule_type": "builtin:one_type_per_file",
+            "expected": "1 primary public type per file",
+            "actual": "2 types found",
+            "fix_hint": "Move each struct/trait/enum to its own file named after the type (e.g., `Scanner` → `scanner.rs`)",
+            "remediation_strategy": "imperative"
+          }
+        ]
+      }
+    },
+    {
+      "id": 109,
+      "category": "code_organization",
+      "description": "Rust source file names must be nouns (no verb or assertion names like check_exists.rs)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 110,
+      "category": "code_organization",
+      "description": "mod.rs must contain only module declarations and re-exports — no struct/impl/fn logic",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 111,
+      "category": "code_organization",
+      "description": "No loose .rs files directly under L2 layer dirs — all code must live in subfolders",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 111,
+            "path": "src\\core\\cached_entry.rs",
+            "message": "Loose file 'cached_entry.rs' found directly under src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under src/core/ must live in subfolders",
+            "actual": "src/core/cached_entry.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 111,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "Loose file 'cache_layer.rs' found directly under src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under src/core/ must live in subfolders",
+            "actual": "src/core/cache_layer.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 111,
+            "path": "src\\core\\default_http_cache.rs",
+            "message": "Loose file 'default_http_cache.rs' found directly under src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under src/core/ must live in subfolders",
+            "actual": "src/core/default_http_cache.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 112,
+      "category": "code_organization",
+      "description": "Sibling files sharing a common prefix must be grouped into a subdirectory module (e.g., check_runner.rs + check_result.rs → check/runner.rs + check/result.rs)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 112,
+            "path": "src\\api\\types\\cache_config.rs",
+            "message": "2 files in src/api/types/ share prefix 'cache': cache_config, cache_layer — group into src/api/types/cache/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: src/api/types/cache/",
+            "actual": "cache_config, cache_layer",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 113,
+      "category": "interface",
+      "description": "Every L2 struct with pub/pub(crate) methods must implement a trait defined in L1/api/ (program to the interface)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 116,
+      "category": "interface",
+      "description": "api/ must not import from core/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 116,
+            "path": "src\\api\\types\\cache_layer.rs",
+            "message": "File contains forbidden pattern 'use crate::core(::|\\b)'",
+            "severity": "error",
+            "rule_type": "glob_content_not_matches",
+            "expected": "use crate::core(::|\\b)",
+            "actual": "matched in src\\api\\types\\cache_layer.rs",
+            "fix_hint": "Remove the dependency on core/; api/ defines traits and types only — it must not reference implementations",
+            "remediation_strategy": "manual"
+          }
+        ]
+      },
+      "duration_ms": 2.8557
+    },
+    {
+      "id": 117,
+      "category": "interface",
+      "description": "api/ must not import from spi/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.8985
+    },
+    {
+      "id": 118,
+      "category": "interface",
+      "description": "api/ must not import from gateway/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.1078
+    },
+    {
+      "id": 119,
+      "category": "interface",
+      "description": "gateway/ must not import from spi/ — gateway/ depends on saf/ only, not on SPI implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.9584
+    },
+    {
+      "id": 120,
+      "category": "test_org",
+      "description": "Each source file in SEA layers has coverage via inline tests, a matching test file, or a layer-level test file in tests/ — reports per-layer coverage",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 120,
+            "path": null,
+            "message": "Structural test coverage is 27% (3/11 source files covered), minimum is 80%. Per-layer: [api=0%(0/7), core=100%(3/3), saf=0%(0/1)]",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": ">=80% coverage",
+            "actual": "27% coverage",
+            "fix_hint": "Add test files for uncovered source modules",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\cached_entry.rs",
+            "message": "[api] Source file 'src/api/cached_entry.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "cached_entry_test.rs or cached_entry_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/cached_entry_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\default_http_cache.rs",
+            "message": "[api] Source file 'src/api/default_http_cache.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "default_http_cache_test.rs or default_http_cache_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/default_http_cache_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\error.rs",
+            "message": "[api] Source file 'src/api/error.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "error_test.rs or error_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/error_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\http_cache.rs",
+            "message": "[api] Source file 'src/api/http_cache.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "http_cache_test.rs or http_cache_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/http_cache_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\traits.rs",
+            "message": "[api] Source file 'src/api/traits.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "traits_test.rs or traits_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/traits_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\types\\cache_config.rs",
+            "message": "[api] Source file 'src/api/types/cache_config.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "cache_config_test.rs or cache_config_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/cache_config_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\api\\types\\cache_layer.rs",
+            "message": "[api] Source file 'src/api/types/cache_layer.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "cache_layer_test.rs or cache_layer_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/cache_layer_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 120,
+            "path": "src\\saf\\builder.rs",
+            "message": "[saf] Source file 'src/saf/builder.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "builder_test.rs or builder_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/builder_test.rs`",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 121,
+      "category": "structure",
+      "description": "Every {implementation_layer}/ submodule must have a corresponding {interface_layer}/ submodule defining its types or traits",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 121,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "src\\core\\cache_layer.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "cache_layer.rs or cache_layer/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'src\\api\\cache_layer.rs' with type/trait definitions that src\\core\\cache_layer.rs implements against",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 122,
+      "category": "interface",
+      "description": "Config struct methods must be pub(crate), not pub — configs are not for public consumption",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 123,
+      "category": "naming",
+      "description": "Module name must not prefix the struct/trait name (e.g., config::Config not config::ConfigConfig)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 124,
+      "category": "test_org",
+      "description": "Every pub/pub(crate) fn in L2 layers must have an inline unit test (#[cfg(test)] block with #[test])",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 125,
+      "category": "test_org",
+      "description": "Every pub fn in saf/ must have corresponding public-API test coverage (_e2e_test.rs, _int_test.rs, or a layer-level saf_* test)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 125,
+            "path": null,
+            "message": "SAF public API test coverage: 0% (0/2 pub functions have API-level tests)",
+            "severity": "warning",
+            "rule_type": "builtin:saf_pub_fns_have_e2e_tests",
+            "expected": "100% of saf/ pub functions with API-level test coverage",
+            "actual": "0% coverage",
+            "fix_hint": "Create tests/<module>_e2e_test.rs or tests/saf_*_test.rs files with API-level test functions",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 125,
+            "path": "src\\saf\\builder.rs",
+            "message": "pub fn 'create_config_builder' in 'src/saf/builder.rs' has no corresponding public API test",
+            "severity": "warning",
+            "rule_type": "builtin:saf_pub_fns_have_e2e_tests",
+            "expected": "tests/builder_e2e_test.rs, tests/saf_*_test.rs, or test_create_config_builder* function",
+            "actual": "no matching API-level test found",
+            "fix_hint": "Create a public-API test in `tests/<module>_e2e_test.rs`, `tests/<module>_int_test.rs`, or `tests/saf_*_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 125,
+            "path": "src\\saf\\builder.rs",
+            "message": "pub fn 'build_cache_layer' in 'src/saf/builder.rs' has no corresponding public API test",
+            "severity": "warning",
+            "rule_type": "builtin:saf_pub_fns_have_e2e_tests",
+            "expected": "tests/builder_e2e_test.rs, tests/saf_*_test.rs, or test_build_cache_layer* function",
+            "actual": "no matching API-level test found",
+            "fix_hint": "Create a public-API test in `tests/<module>_e2e_test.rs`, `tests/<module>_int_test.rs`, or `tests/saf_*_test.rs`",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 126,
+      "category": "interface",
+      "description": "saf/ must not re-export traits via pub use — wrap trait methods as standalone functions instead",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.2971
+    },
+    {
+      "id": 130,
+      "category": "structure",
+      "description": "Root must not have both build and bootstrap scripts",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 131,
+      "category": "gateway_isolation",
+      "description": "src/gateway/ must exist (prerequisite gate for rules 132-133)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 131,
+            "path": "src/gateway",
+            "message": "Directory 'src/gateway' does not exist",
+            "severity": "info",
+            "rule_type": "dir_exists",
+            "expected": "src/gateway",
+            "actual": "missing",
+            "fix_hint": "Create the directory 'src/gateway'",
+            "remediation_strategy": "declarative"
+          }
+        ]
+      },
+      "duration_ms": 0.0757
+    },
+    {
+      "id": 132,
+      "category": "gateway_isolation",
+      "description": "gateway/mod.rs must declare pub(crate) mod ingress",
+      "result": {
+        "status": "dormant",
+        "waiting_on": [
+          131
+        ],
+        "reason": "Dormant: would fire when prerequisite rule(s) 131 pass"
+      },
+      "duration_ms": 0.0559
+    },
+    {
+      "id": 133,
+      "category": "gateway_isolation",
+      "description": "gateway/mod.rs must declare pub(crate) mod egress",
+      "result": {
+        "status": "dormant",
+        "waiting_on": [
+          131
+        ],
+        "reason": "Dormant: would fire when prerequisite rule(s) 131 pass"
+      },
+      "duration_ms": 0.0832
+    },
+    {
+      "id": 135,
+      "category": "interface",
+      "description": "L2 must not import from L4 (core/ and spi/ must not depend on gateway/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.6874
+    },
+    {
+      "id": 136,
+      "category": "interface",
+      "description": "gateway/ must not import from core/ — gateway/ calls saf/, not core/ directly",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.0915
+    },
+    {
+      "id": 137,
+      "category": "interface",
+      "description": "saf/ must not import from gateway/ — gateway/ calls saf/, not the reverse",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.0804
+    },
+    {
+      "id": 138,
+      "category": "naming",
+      "description": "Directory names under src/ must use snake_case",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 139,
+      "category": "shim_detection",
+      "description": "SEA layer files must contain substantive code (not just comments or empty re-exports)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 139,
+            "path": "src/api/traits.rs",
+            "message": "'src/api/traits.rs' contains no substantive code (only comments/blanks)",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_substantive_code",
+            "expected": "struct, trait, enum, fn, or impl definitions",
+            "actual": "empty file",
+            "fix_hint": "Add real type/trait definitions to 'src/api/traits.rs'",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 140,
+      "category": "shim_detection",
+      "description": "lib.rs must be a real entry point, not a shim with only re-exports",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 141,
+      "category": "shim_detection",
+      "description": "SEA layer mod.rs must not be a crate-level re-export shim",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 142,
+      "category": "shim_detection",
+      "description": "SEA layer directories must meet minimum LOC threshold (api/>10, core/>20, saf/>5)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 143,
+      "category": "shim_detection",
+      "description": "[lib] and [[bin]] paths must point inside src/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 144,
+      "category": "shim_detection",
+      "description": "Non-standard [lib] path with src/ present suggests shim directory",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 145,
+      "category": "interface",
+      "description": "Free functions in saf/ or core/ taking an api-defined type as parameter should be methods on that type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 146,
+      "category": "naming",
+      "description": "Package name must not use SEA layer suffixes as defined in sea_layers config",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 147,
+      "category": "workspace",
+      "description": "Workspace root Cargo.toml must not contain [package] — workspace roots must be virtual",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 149,
+      "category": "test_org",
+      "description": "Test file prefix must match a source module name, optionally followed by a pub fn name",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 150,
+      "category": "hygiene",
+      "description": "Weak filesystem patterns — code that produces host-dependent paths (MAIN_SEPARATOR, hardcoded \\\\, replace-hacks, literal backslashes)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 4.4671
+    },
+    {
+      "id": 151,
+      "category": "structure",
+      "description": "Feature crate must have config/application.toml for runtime configuration",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.4775
+    },
+    {
+      "id": 152,
+      "category": "service_type",
+      "description": "service_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 153,
+      "category": "service_type",
+      "description": "api/traits.rs must contain the primary trait matching service_type",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 153,
+            "path": "src/api/traits.rs",
+            "message": "src/api/traits.rs is missing `pub trait Processor` — required for service_type 'processor'",
+            "severity": "error",
+            "rule_type": "builtin:service_type_primary_trait_exists",
+            "expected": "pub trait Processor { ... }",
+            "actual": "not found",
+            "fix_hint": "Add `pub trait Processor` to src/api/traits.rs or src/api/traits/ and re-export it",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 154,
+      "category": "service_type",
+      "description": "core/ must implement the primary api trait (impl <PrimaryTrait> for)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 154,
+            "path": "src",
+            "message": "No L2 layer (core, spi) has `impl Processor for` — service_type 'processor' requires an implementation",
+            "severity": "error",
+            "rule_type": "builtin:service_type_core_implements_trait",
+            "expected": "impl Processor for <Struct>",
+            "actual": "not found",
+            "fix_hint": "Create a struct in a L2 module (core, spi) (e.g. DefaultProcessor) and add `impl Processor for DefaultProcessor`",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 155,
+      "category": "service_type",
+      "description": "Every non-orchestrator crate must have a Validator trait in api/traits.rs",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 155,
+            "path": "src/api/traits.rs",
+            "message": "src/api/traits.rs is missing `pub trait Validator` — required for non-orchestrator crates",
+            "severity": "warning",
+            "rule_type": "builtin:service_type_has_validator",
+            "expected": "pub trait Validator { ... }",
+            "actual": "not found",
+            "fix_hint": "Add `pub trait Validator` to src/api/traits.rs or src/api/traits/ and implement it in src/core, spi/validator.rs",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 158,
+      "category": "test_org",
+      "description": "Test functions must not be placeholders (panic!/todo!/unimplemented!/unreachable!/empty body)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 159,
+      "category": "interface",
+      "description": "saf/ public function signatures must not name types from core/ (signature leak)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 160,
+      "category": "interface",
+      "description": "All public types (struct, enum, trait, type alias) must be declared under api/ — no other layer is a legal declaration site",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 160,
+            "path": "src\\saf\\mod.rs",
+            "message": "pub type 'Error' declared in saf/ — all public types must be declared in api/: 'pub type Error = CacheError;'",
+            "severity": "warning",
+            "rule_type": "builtin:pub_types_in_api_only",
+            "expected": "declaration at src/api/error.rs",
+            "actual": "pub type Error = CacheError;",
+            "fix_hint": "Move `pub type Error` from 'src/saf/mod.rs' to 'src/api/error.rs' if public contract, or demote to `pub(crate)` if implementation detail. See fix_options for the two alternatives.",
+            "remediation_strategy": "manual",
+            "fix_options": [
+              {
+                "action": "move_to_api",
+                "target": "src/api/error.rs",
+                "when_appropriate": "If `Error` is part of the public contract — consumers construct, store, or reference it by name.",
+                "is_safe": false
+              },
+              {
+                "action": "downgrade_visibility",
+                "target": "pub(crate)",
+                "when_appropriate": "If `Error` is implementation detail — the `pub` was accidental and nothing outside this crate names it.",
+                "is_safe": true
+              }
+            ],
+            "principles": [
+              "single_source_of_truth",
+              "encapsulation",
+              "separation_of_concerns"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 161,
+      "category": "naming",
+      "description": "Each pub type/trait in api/ must be in its own standalone file with the file stem matching the snake_case name",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 161,
+            "path": "src\\api\\cached_entry.rs",
+            "message": "api/ file 'src/api/cached_entry.rs' contains no pub type/trait declarations — every file in api/ must contain exactly one public interface item",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "exactly one pub item",
+            "actual": "zero pub items",
+            "fix_hint": "Add a public type/trait to the file, or move private helpers to a non-api module and delete this file.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          },
+          {
+            "check_id": 161,
+            "path": "src\\api\\default_http_cache.rs",
+            "message": "api/ file 'src/api/default_http_cache.rs' contains no pub type/trait declarations — every file in api/ must contain exactly one public interface item",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "exactly one pub item",
+            "actual": "zero pub items",
+            "fix_hint": "Add a public type/trait to the file, or move private helpers to a non-api module and delete this file.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          },
+          {
+            "check_id": 161,
+            "path": "src\\api\\error.rs",
+            "message": "api/ file 'src/api/error.rs' contains `pub enum CacheError` but the file stem 'error' does not match — expected 'api/cache_error.rs'",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "file stem == 'cache_error'",
+            "actual": "file stem == 'error'",
+            "fix_hint": "Rename the file to 'api/cache_error.rs' (matching the snake_case of 'CacheError'). Update the parent mod.rs to reference the new filename and update any `use` paths across the crate.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 162,
+      "category": "code_organization",
+      "description": "lib.rs must contain only module declarations and re-exports — no struct/impl/fn/const definitions",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 167,
+      "category": "structure",
+      "description": "Only one architecture.toml location is allowed: either architecture.toml at root or main/config/architecture.toml, not both",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 169,
+      "category": "structure",
+      "description": "Every top-level directory at the workspace root must be a declared workspace member or an ancestor of one",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 170,
+      "category": "naming",
+      "description": "Config files must map to corresponding ConfigBuilder struct names: <name>.toml → <Name>ConfigBuilder",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 170,
+            "path": "config\\application.toml",
+            "message": "Config file 'application' has no corresponding config type or builder in src/",
+            "severity": "error",
+            "rule_type": "builtin:config_file_to_builder_naming",
+            "expected": "struct ApplicationConfigBuilder or any `ApplicationConfig*` reference in src/",
+            "actual": "no config type reference found in src/",
+            "fix_hint": "Define `struct ApplicationConfigBuilder` with a fluent builder, import a config type (`use dep::ApplicationConfig`), or implement a trait (`impl <Trait> for ApplicationConfig`)",
+            "remediation_strategy": "manual",
+            "principles": [
+              "locality_of_reference",
+              "naming_consistency"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 171,
+      "category": "security",
+      "description": "Source files must not contain hardcoded secrets, credentials, or API keys",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 172,
+      "category": "security",
+      "description": "Project must have a security policy file (SECURITY.md, SECURITY.txt, or .github/SECURITY.md)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 172,
+            "path": "SECURITY.md",
+            "message": "No security policy file found (SECURITY.md, SECURITY.txt, or .github/SECURITY.md)",
+            "severity": "warning",
+            "rule_type": "builtin:security_policy_file_exists",
+            "expected": "SECURITY.md at project root",
+            "actual": "missing",
+            "fix_hint": "Fix the issue detected by builtin check 'security_policy_file_exists'",
+            "remediation_strategy": "manual",
+            "principles": [
+              "transparency",
+              "defense_in_depth"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 173,
+      "category": "security",
+      "description": "Every unsafe block must be preceded by a // SAFETY: comment explaining the invariant",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 174,
+      "category": "security",
+      "description": "Project must configure dependency vulnerability auditing via deny.toml or cargo audit in CI",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 174,
+            "path": "deny.toml",
+            "message": "No dependency vulnerability auditing configured (deny.toml or `cargo audit` in CI)",
+            "severity": "warning",
+            "rule_type": "builtin:security_dependency_audit_configured",
+            "expected": "deny.toml with [advisories] section, or `cargo audit` step in CI",
+            "actual": "missing",
+            "fix_hint": "Fix the issue detected by builtin check 'security_dependency_audit_configured'",
+            "remediation_strategy": "manual",
+            "principles": [
+              "defense_in_depth",
+              "supply_chain_integrity"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 175,
+      "category": "naming",
+      "description": "all non-mod.rs files in saf/ must be named <last_segment_of_package_name>_svc.rs",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 175,
+            "path": "src\\saf\\builder.rs",
+            "message": "saf/ file must be named 'cache_svc.rs', found 'builder.rs'",
+            "severity": "error",
+            "rule_type": "builtin:saf_single_file_named_svc",
+            "expected": "cache_svc.rs",
+            "actual": "builder.rs",
+            "fix_hint": "Fix the issue detected by builtin check 'saf_single_file_named_svc'",
+            "remediation_strategy": "manual",
+            "principles": [
+              "naming_consistency",
+              "locality_of_reference"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 176,
+      "category": "hygiene",
+      "description": "Library code must not use println!/eprintln! — use tracing macros (info!, warn!, error!) instead",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 177,
+      "category": "hygiene",
+      "description": "Source files must not suppress the unused_imports lint via #[allow(unused_imports)]",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 178,
+      "category": "cargo_metadata",
+      "description": "Cargo dependencies must not use path = \"...\" — use git or registry sources instead",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 179,
+      "category": "workspace",
+      "description": "When 2+ workspace members share a common parent directory, use a glob pattern (<parent>/*) instead of explicit enumeration",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 180,
+      "category": "interface",
+      "description": "Error types that cross layer boundaries must be declared in api/, not in core/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 180,
+      "category": "interface",
+      "description": "Error types that cross layer boundaries must be declared in api/, not in core/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 182,
+      "category": "hygiene",
+      "description": "include_str! embedding a config file must be paired with a runtime read — use embed as fallback, not sole source",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 183,
+      "category": "workspace",
+      "description": "[workspace].exclude must not be used — every crate on disk must be a member or deleted",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 184,
+      "category": "boundary",
+      "description": "domain crates must not depend on adapter crates",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 185,
+      "category": "boundary",
+      "description": "crate names must not end with generic responsibility suffixes (-core, -utils, -api, -common, -shared, -helpers)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 186,
+      "category": "boundary",
+      "description": "adapter crates must not define public traits — port traits belong in the domain crate",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 187,
+      "category": "boundary",
+      "description": "adapter crates must implement at least one domain port trait",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 191,
+      "category": "interface",
+      "description": "SEA layer files must not contain free-standing fn — all functions must be methods on a type (OOP violation)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn vary_from_headers` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn vary_from_headers(self, ...) { ... } }",
+            "actual": "pub(crate) fn vary_from_headers(headers: &HeaderMap) -> VaryDirective {",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn extract_etag` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn extract_etag(self, ...) { ... } }",
+            "actual": "pub(crate) fn extract_etag(headers: &HeaderMap) -> Option<String> {",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn reconstruct` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn reconstruct(self, ...) { ... } }",
+            "actual": "pub(crate) fn reconstruct(entry: &CachedEntry) -> Result<reqwest::Response, String> {",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn find_matching_variant` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn find_matching_variant(self, ...) { ... } }",
+            "actual": "async fn find_matching_variant(",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn upsert_variant` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn upsert_variant(self, ...) { ... } }",
+            "actual": "async fn upsert_variant(",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn snapshot_vary_values_from_snapshot` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn snapshot_vary_values_from_snapshot(self, ...) { ... } }",
+            "actual": "fn snapshot_vary_values_from_snapshot(",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\core\\cache_layer.rs",
+            "message": "free-standing `fn spawn_swr_refresh` in `core/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn spawn_swr_refresh(self, ...) { ... } }",
+            "actual": "fn spawn_swr_refresh(layer: Arc<CacheLayer>, key: String, snap: RequestSnapshot) {",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\saf\\builder.rs",
+            "message": "free-standing `fn create_config_builder` in `saf/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn create_config_builder(self, ...) { ... } }",
+            "actual": "pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 191,
+            "path": "src\\saf\\builder.rs",
+            "message": "free-standing `fn build_cache_layer` in `saf/` — all functions must be methods on a type",
+            "severity": "error",
+            "rule_type": "builtin:layers_no_free_standing_fn",
+            "expected": "impl <Type> { fn build_cache_layer(self, ...) { ... } }",
+            "actual": "pub fn build_cache_layer(config: CacheConfig) -> Result<CacheLayer, CacheError> {",
+            "fix_hint": "Move this function into an impl block on a type defined in api/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 192,
+      "category": "naming",
+      "description": "SEA layer directory names must not contain underscores — use nested directories instead of underscore-concatenated names",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 195,
+      "category": "interface",
+      "description": "saf/ public function return types depend on crate extensibility: if spi/ exists, return `impl Trait` for downstream polymorphism; if spi/ does not exist, return concrete types only (no trait leaks)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 195,
+            "path": "src\\saf\\builder.rs",
+            "message": "saf/ pub fn returns `-> impl swe_edge_configbuilder` but crate has no spi/ directory — must return concrete type",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Without spi/, return the concrete impl type, not the trait",
+            "actual": "-> impl swe_edge_configbuilder (no spi/)",
+            "fix_hint": "Either: (1) Return concrete type instead of `impl swe_edge_configbuilder`, or (2) Create src/spi/ to signal polymorphism intent",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 196,
+      "category": "interface",
+      "description": "api/ layer must not contain `pub struct` outside designated struct homes — flat layout: api/error/, api/types/; domain-grouped layout: api/<domain>/errors/, api/<domain>/types/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 197,
+      "category": "interface",
+      "description": "api/ must contain trait definitions — either a flat api/traits/ subdirectory or domain-grouped api/<domain>/traits/ directories; at least one must exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 198,
+      "category": "interface",
+      "description": "api/ must contain error types — either a flat api/error/ subdirectory or domain-grouped api/<domain>/errors/ directories; at least one must exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 199,
+      "category": "test_organization",
+      "description": "saf/ and api/ layer files must not contain #[cfg(test)] blocks — public-layer tests must live in standalone tests/ files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 200,
+      "category": "hygiene",
+      "description": "Production functions must not have stub bodies (todo!(), unimplemented!(), or empty)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 200,
+            "path": "src\\api\\types\\cache_config.rs",
+            "message": "fn `section_name` at line 44 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": 200,
+            "path": "src\\core\\default_http_cache.rs",
+            "message": "fn `describe` at line 28 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 201,
+      "category": "hygiene",
+      "description": "No bare .unwrap() calls in production source",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 202,
+      "category": "hygiene",
+      "description": "No bare .expect() with empty or placeholder message",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 203,
+      "category": "hygiene",
+      "description": "hygiene",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 204,
+      "category": "interface",
+      "description": "api/ must define at least one domain Error type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 204,
+      "category": "interface",
+      "description": "api/ must define at least one domain Error type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 205,
+      "category": "interface",
+      "description": "saf/ must not leak core/ error types in public signatures",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 206,
+      "category": "cargo_metadata",
+      "description": "Cargo.toml must configure clippy error-handling lints (unwrap_used, expect_used) as deny or warn",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 206,
+            "path": "Cargo.toml",
+            "message": "Cargo.toml missing [lints.clippy] unwrap_used and expect_used",
+            "severity": "error",
+            "rule_type": "builtin:clippy_error_lints_configured",
+            "expected": "[lints.clippy]\nunwrap_used = \"deny\"\nexpect_used = \"deny\"",
+            "actual": "(no [lints.clippy] section found)",
+            "fix_hint": "add: [lints.clippy]\nunwrap_used = \"deny\"\nexpect_used = \"deny\"",
+            "principles": [
+              "defensive_programming"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 207,
+      "category": "interface",
+      "description": "spi must be a directory (src/spi/mod.rs) with real code — a flat src/spi.rs file or an empty/comment-only src/spi/mod.rs is invalid SEA structure",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 208,
+      "category": "interface",
+      "description": "api/ root must not contain loose .rs files or mixed-layout directories — only mod.rs at root; no flat traits/types/error/ dirs when domain-grouped layout (api/<domain>/traits/) is active",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 208,
+            "path": "src\\api\\cached_entry.rs",
+            "message": "Loose file 'cached_entry.rs' at api/ root — all code must live in subdirectories (api/traits/, api/types/, api/error/, etc.)",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/traits/<name>.rs or api/types/<name>.rs",
+            "actual": "api/cached_entry.rs",
+            "fix_hint": "Move to the appropriate subdirectory: traits → api/traits/, types → api/types/, errors → api/error/",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 208,
+            "path": "src\\api\\default_http_cache.rs",
+            "message": "Loose file 'default_http_cache.rs' at api/ root — all code must live in subdirectories (api/traits/, api/types/, api/error/, etc.)",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/traits/<name>.rs or api/types/<name>.rs",
+            "actual": "api/default_http_cache.rs",
+            "fix_hint": "Move to the appropriate subdirectory: traits → api/traits/, types → api/types/, errors → api/error/",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 208,
+            "path": "src\\api\\error.rs",
+            "message": "Loose file 'error.rs' at api/ root — all code must live in subdirectories (api/traits/, api/types/, api/error/, etc.)",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/traits/<name>.rs or api/types/<name>.rs",
+            "actual": "api/error.rs",
+            "fix_hint": "Move to the appropriate subdirectory: traits → api/traits/, types → api/types/, errors → api/error/",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 208,
+            "path": "src\\api\\http_cache.rs",
+            "message": "Loose file 'http_cache.rs' at api/ root — all code must live in subdirectories (api/traits/, api/types/, api/error/, etc.)",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/traits/<name>.rs or api/types/<name>.rs",
+            "actual": "api/http_cache.rs",
+            "fix_hint": "Move to the appropriate subdirectory: traits → api/traits/, types → api/types/, errors → api/error/",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 208,
+            "path": "src\\api\\traits.rs",
+            "message": "Loose file 'traits.rs' at api/ root — all code must live in subdirectories (api/traits/, api/types/, api/error/, etc.)",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/traits/<name>.rs or api/types/<name>.rs",
+            "actual": "api/traits.rs",
+            "fix_hint": "Move to the appropriate subdirectory: traits → api/traits/, types → api/types/, errors → api/error/",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 209,
+      "category": "hygiene",
+      "description": "Source files must not suppress the dead_code lint via #[allow(dead_code)]",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 209,
+            "path": "src\\core\\default_http_cache.rs",
+            "message": "#[allow(dead_code)] at line 15 — remove the suppression and delete or wire up the dead code",
+            "severity": "warning",
+            "rule_type": "builtin:no_allow_dead_code",
+            "expected": "remove #[allow(dead_code)] and delete or implement the dead item",
+            "actual": "#[allow(dead_code)] // used once the real middleware impl lands",
+            "fix_hint": "Fix the issue detected by builtin check 'no_allow_dead_code'",
+            "remediation_strategy": "manual",
+            "principles": [
+              "code_hygiene",
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 211,
+      "category": "interface",
+      "description": "saf/ pub fn return types must be declared in api/types/ (when spi/ is absent)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 212,
+      "category": "interface",
+      "description": "saf/ methods must not be thin wrappers — a saf/ method whose entire body delegates to a free function or another method adds no value and signals incomplete consolidation",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 212,
+            "path": "src\\saf\\builder.rs",
+            "message": "saf/ method `create_config_builder` is a thin wrapper around `swe_edge_configbuilder::create_config_builder` — inline the logic or delete the free function",
+            "severity": "warning",
+            "rule_type": "builtin:saf_no_wrapper_methods",
+            "expected": "Move the body of the delegated function directly into this method",
+            "actual": "fn create_config_builder(...) { swe_edge_configbuilder::create_config_builder(...) }",
+            "fix_hint": "Copy the body of `swe_edge_configbuilder::create_config_builder` into `create_config_builder`, then delete `swe_edge_configbuilder::create_config_builder`",
+            "remediation_strategy": "manual",
+            "principles": [
+              "single_responsibility",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 212,
+            "path": "src\\saf\\builder.rs",
+            "message": "saf/ method `build_cache_layer` is a thin wrapper around `Ok` — inline the logic or delete the free function",
+            "severity": "warning",
+            "rule_type": "builtin:saf_no_wrapper_methods",
+            "expected": "Move the body of the delegated function directly into this method",
+            "actual": "fn build_cache_layer(...) { Ok(...) }",
+            "fix_hint": "Copy the body of `Ok` into `build_cache_layer`, then delete `Ok`",
+            "remediation_strategy": "manual",
+            "principles": [
+              "single_responsibility",
+              "encapsulation"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 213,
+      "category": "naming",
+      "description": "api/ files and types must not use the Default* prefix — Default* names signal a concrete implementation variant that belongs in core/, not in the contract layer",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 213,
+            "path": "src\\api\\default_http_cache.rs",
+            "message": "api/file 'src/api/default_http_cache.rs' uses the 'default_' prefix — Default* names are implementation variants; move this to core/",
+            "severity": "warning",
+            "rule_type": "builtin:api_no_default_prefix",
+            "expected": "file stem must not start with 'default_' in api/",
+            "actual": "stem 'default_http_cache'",
+            "fix_hint": "Move 'src/api/default_http_cache.rs' to src/core/default_http_cache.rs and update all use paths",
+            "remediation_strategy": "manual",
+            "principles": [
+              "screaming_architecture",
+              "separation_of_concerns"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 214,
+      "category": "naming",
+      "description": "core/ (L2) struct names must not end with Impl — use the Default* prefix (or Local*, Remote*, InMemory*, Noop*, <Technology>*) to name concrete implementation variants",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 162,
+    "passed": 126,
+    "failed": 34,
+    "skipped": 0,
+    "dormant": 2,
+    "duration_ms": 143.445
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}

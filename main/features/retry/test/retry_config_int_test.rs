@@ -5,7 +5,7 @@
 //! struct literal construction, field visibility, Clone, and that values
 //! flow through the build_retry_layer pipeline to the RetryLayer without mutation.
 
-use swe_edge_egress_retry::{build_retry_layer, RetryConfig, RetryLayer};
+use swe_edge_egress_retry::{HttpRetrySvc, RetryConfig, RetryLayer};
 
 // ---------------------------------------------------------------------------
 // Struct construction — all public fields must be writable
@@ -65,7 +65,8 @@ fn test_max_retries_zero_is_valid() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    let _layer: RetryLayer = build_retry_layer(cfg).expect("max_retries=0 must build");
+    let _layer: RetryLayer =
+        HttpRetrySvc::build_retry_layer(cfg).expect("max_retries=0 must build");
 }
 
 /// `max_retries=u32::MAX` is an extreme value but must not panic or error
@@ -80,7 +81,7 @@ fn test_max_retries_max_u32_builds_without_error() {
         retryable_statuses: vec![],
         retryable_methods: vec![],
     };
-    build_retry_layer(cfg).expect("max_retries=u32::MAX must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("max_retries=u32::MAX must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -99,7 +100,7 @@ fn test_retryable_statuses_accepts_full_range_of_u16_values() {
         retryable_statuses: vec![100, 200, 429, 500, 503, 599, 65535],
         retryable_methods: vec!["GET".to_string()],
     };
-    build_retry_layer(cfg).expect("wide range of status codes must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("wide range of status codes must build");
 }
 
 /// An empty `retryable_statuses` list must be accepted — it means "never
@@ -114,7 +115,7 @@ fn test_retryable_statuses_empty_is_valid() {
         retryable_statuses: vec![],
         retryable_methods: vec!["GET".to_string()],
     };
-    build_retry_layer(cfg).expect("empty retryable_statuses must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("empty retryable_statuses must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -136,7 +137,7 @@ fn test_retryable_methods_stored_with_original_casing() {
     assert_eq!(cfg.retryable_methods[0], "get");
     assert_eq!(cfg.retryable_methods[1], "HEAD");
     assert_eq!(cfg.retryable_methods[2], "Put");
-    build_retry_layer(cfg).expect("mixed-case methods must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("mixed-case methods must build");
 }
 
 // ---------------------------------------------------------------------------
@@ -155,7 +156,7 @@ fn test_multiplier_one_produces_constant_interval() {
         retryable_statuses: vec![503],
         retryable_methods: vec!["GET".to_string()],
     };
-    build_retry_layer(cfg).expect("multiplier=1.0 must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("multiplier=1.0 must build");
 }
 
 /// `multiplier=0.5` (backoff shrinks over time) is unusual but structurally
@@ -170,5 +171,5 @@ fn test_multiplier_below_one_builds_successfully() {
         retryable_statuses: vec![429],
         retryable_methods: vec!["GET".to_string()],
     };
-    build_retry_layer(cfg).expect("multiplier=0.5 must build");
+    HttpRetrySvc::build_retry_layer(cfg).expect("multiplier=0.5 must build");
 }

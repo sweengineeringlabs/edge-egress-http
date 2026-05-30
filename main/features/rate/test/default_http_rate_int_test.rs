@@ -1,19 +1,20 @@
 //! Integration tests for `core/default_http_rate.rs`.
 //!
 //! `DefaultHttpRate` is `pub(crate)`.  Its observable effect is through the
-//! SAF `build_rate_layer()` function, which accepts a `RateConfig`.
+//! SAF `HttpRateSvc::build_rate_layer()` function, which accepts a `RateConfig`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{build_rate_layer, RateConfig};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig};
 
 // ---------------------------------------------------------------------------
 // SWE baseline — verify default config has production-safe values
 // ---------------------------------------------------------------------------
 
-/// `build_rate_layer(RateConfig::default())` must succeed without error.
+/// `HttpRateSvc::build_rate_layer(RateConfig::default())` must succeed without error.
 #[test]
 fn test_default_http_rate_swe_default_builder_succeeds() {
-    build_rate_layer(RateConfig::default()).expect("swe_default baseline must parse without error");
+    HttpRateSvc::build_rate_layer(RateConfig::default())
+        .expect("swe_default baseline must parse without error");
 }
 
 /// Default `tokens_per_second` must be >= 1.
@@ -41,7 +42,8 @@ fn test_default_http_rate_swe_default_burst_capacity_is_positive() {
 /// Building from the SWE default must produce a valid `RateLayer`.
 #[test]
 fn test_default_http_rate_swe_default_builds_rate_layer() {
-    build_rate_layer(RateConfig::default()).expect("build from swe_default must succeed");
+    HttpRateSvc::build_rate_layer(RateConfig::default())
+        .expect("build from swe_default must succeed");
 }
 
 // ---------------------------------------------------------------------------

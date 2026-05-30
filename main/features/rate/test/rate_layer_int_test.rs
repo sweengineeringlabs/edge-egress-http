@@ -1,10 +1,10 @@
 //! Integration tests for `api/rate_layer.rs` — the public `RateLayer` type.
 //!
-//! Covers: constructability via `build_rate_layer(config)`, `Debug` output, and
+//! Covers: constructability via `HttpRateSvc::build_rate_layer(config)`, `Debug` output, and
 //! `Send + Sync` bounds required by `reqwest_middleware::ClientBuilder::with()`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_rate::{build_rate_layer, RateConfig, RateLayer};
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig, RateLayer};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -18,13 +18,14 @@ fn test_rate_layer_builds_from_custom_config() {
         burst_capacity: 40,
         per_host: true,
     };
-    let _layer: RateLayer = build_rate_layer(cfg).expect("build() must succeed");
+    let _layer: RateLayer = HttpRateSvc::build_rate_layer(cfg).expect("build() must succeed");
 }
 
 /// Building from the SWE default must also succeed.
 #[test]
 fn test_rate_layer_builds_from_swe_default() {
-    let _layer: RateLayer = build_rate_layer(RateConfig::default()).expect("build() must succeed");
+    let _layer: RateLayer =
+        HttpRateSvc::build_rate_layer(RateConfig::default()).expect("build() must succeed");
 }
 
 // ---------------------------------------------------------------------------
@@ -39,7 +40,7 @@ fn test_rate_layer_debug_contains_type_name() {
         burst_capacity: 20,
         per_host: false,
     };
-    let layer = build_rate_layer(cfg).expect("build");
+    let layer = HttpRateSvc::build_rate_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("RateLayer"),
@@ -55,7 +56,7 @@ fn test_rate_layer_debug_includes_tokens_per_second() {
         burst_capacity: 100,
         per_host: false,
     };
-    let layer = build_rate_layer(cfg).expect("build");
+    let layer = HttpRateSvc::build_rate_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("77"),
@@ -71,7 +72,7 @@ fn test_rate_layer_debug_includes_burst_capacity() {
         burst_capacity: 333,
         per_host: false,
     };
-    let layer = build_rate_layer(cfg).expect("build");
+    let layer = HttpRateSvc::build_rate_layer(cfg).expect("build");
     let dbg = format!("{layer:?}");
     assert!(
         dbg.contains("333"),
@@ -107,8 +108,8 @@ fn test_two_rate_layers_from_different_configs_are_independent() {
         burst_capacity: 1000,
         per_host: true,
     };
-    let layer_a = build_rate_layer(cfg_a).expect("build a");
-    let layer_b = build_rate_layer(cfg_b).expect("build b");
+    let layer_a = HttpRateSvc::build_rate_layer(cfg_a).expect("build a");
+    let layer_b = HttpRateSvc::build_rate_layer(cfg_b).expect("build b");
 
     let dbg_a = format!("{layer_a:?}");
     let dbg_b = format!("{layer_b:?}");

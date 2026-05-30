@@ -2,7 +2,6 @@
 
 use std::sync::Arc;
 use std::time::Duration;
-use swe_edge_configbuilder::ConfigBuilder as _;
 use swe_edge_egress_oauth::OAuthBuilderOps as _;
 
 use reqwest_middleware::{ClientBuilder, Middleware};
@@ -16,9 +15,9 @@ use crate::api::traits::Validator as _;
 use crate::api::types::HttpConfig;
 use crate::core::{DefaultHttpEgress, MetricsHttpEgress};
 
-/// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
-pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
-    swe_edge_configbuilder::create_config_builder()
+/// Return a config builder pre-seeded with this crate's package name and version.
+pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
+    swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
         .with_name(env!("CARGO_PKG_NAME"))
         .with_version(env!("CARGO_PKG_VERSION"))
 }
@@ -31,13 +30,15 @@ pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
 /// When `config.oauth` is `Some`, the OAuth token-refresh layer replaces the
 /// static `config.auth` layer. Both cannot be active simultaneously.
 pub fn http_egress(config: HttpEgressConfig) -> Result<impl HttpEgress, HttpEgressBuildError> {
-    let retry = swe_edge_egress_retry::build_retry_layer(config.retry)?;
-    let rate = swe_edge_egress_rate::build_rate_layer(config.rate)?;
-    let breaker = swe_edge_egress_breaker::build_breaker_layer(config.breaker)?;
-    let cache = swe_edge_egress_cache::build_cache_layer(config.cache)?;
-    let cassette =
-        swe_edge_egress_cassette::build_cassette_layer(config.cassette, &config.cassette_name)?;
-    let tls = swe_edge_egress_tls::build_tls_layer(config.tls)?;
+    let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(config.retry)?;
+    let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(config.rate)?;
+    let breaker = swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(config.breaker)?;
+    let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(config.cache)?;
+    let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+        config.cassette,
+        &config.cassette_name,
+    )?;
+    let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(config.tls)?;
 
     if let Some(source) = config.token_source {
         let oauth = swe_edge_egress_oauth::builder()
@@ -83,17 +84,17 @@ pub fn http_egress_oauth(
     assemble(
         http,
         oauth,
-        swe_edge_egress_retry::build_retry_layer(Default::default())?,
-        swe_edge_egress_rate::build_rate_layer(Default::default())?,
-        swe_edge_egress_breaker::build_breaker_layer(Default::default())?,
-        swe_edge_egress_cache::build_cache_layer(Default::default())?,
+        swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
+        swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
+        swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
+        swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?,
         // Cassette is disabled in production convenience functions — it is
         // test infrastructure and must not intercept real outbound calls.
-        swe_edge_egress_cassette::build_cassette_layer(
+        swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
             "unused",
         )?,
-        swe_edge_egress_tls::build_tls_layer(Default::default())?,
+        swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?,
     )
 }
 
@@ -109,16 +110,16 @@ pub fn http_egress_with_auth(
     assemble(
         http,
         swe_edge_egress_auth::build_auth_middleware(auth)?,
-        swe_edge_egress_retry::build_retry_layer(Default::default())?,
-        swe_edge_egress_rate::build_rate_layer(Default::default())?,
-        swe_edge_egress_breaker::build_breaker_layer(Default::default())?,
-        swe_edge_egress_cache::build_cache_layer(Default::default())?,
+        swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
+        swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
+        swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
+        swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?,
         // Cassette disabled — production convenience function.
-        swe_edge_egress_cassette::build_cassette_layer(
+        swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
             "unused",
         )?,
-        swe_edge_egress_tls::build_tls_layer(Default::default())?,
+        swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?,
     )
 }
 
@@ -129,12 +130,15 @@ pub fn default_http_egress() -> Result<impl HttpEgress, HttpEgressBuildError> {
     assemble(
         HttpConfig::default(),
         swe_edge_egress_auth::build_auth_middleware(Default::default())?,
-        swe_edge_egress_retry::build_retry_layer(Default::default())?,
-        swe_edge_egress_rate::build_rate_layer(Default::default())?,
-        swe_edge_egress_breaker::build_breaker_layer(Default::default())?,
-        swe_edge_egress_cache::build_cache_layer(Default::default())?,
-        swe_edge_egress_cassette::build_cassette_layer(Default::default(), "default")?,
-        swe_edge_egress_tls::build_tls_layer(Default::default())?,
+        swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
+        swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
+        swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
+        swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?,
+        swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+            Default::default(),
+            "default",
+        )?,
+        swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?,
     )
 }
 
@@ -149,15 +153,15 @@ pub fn default_http_egress_with_config(
     assemble(
         http,
         swe_edge_egress_auth::build_auth_middleware(Default::default())?,
-        swe_edge_egress_retry::build_retry_layer(Default::default())?,
-        swe_edge_egress_rate::build_rate_layer(Default::default())?,
-        swe_edge_egress_breaker::build_breaker_layer(Default::default())?,
-        swe_edge_egress_cache::build_cache_layer(Default::default())?,
-        swe_edge_egress_cassette::build_cassette_layer(
+        swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
+        swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
+        swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
+        swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?,
+        swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
             swe_edge_egress_cassette::CassetteConfig::disabled(),
             "unused",
         )?,
-        swe_edge_egress_tls::build_tls_layer(Default::default())?,
+        swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?,
     )
 }
 
@@ -185,12 +189,15 @@ pub fn default_http_stream_outbound() -> Result<impl HttpStream, HttpEgressBuild
     assemble(
         HttpConfig::default(),
         swe_edge_egress_auth::build_auth_middleware(Default::default())?,
-        swe_edge_egress_retry::build_retry_layer(Default::default())?,
-        swe_edge_egress_rate::build_rate_layer(Default::default())?,
-        swe_edge_egress_breaker::build_breaker_layer(Default::default())?,
-        swe_edge_egress_cache::build_cache_layer(Default::default())?,
-        swe_edge_egress_cassette::build_cassette_layer(Default::default(), "default")?,
-        swe_edge_egress_tls::build_tls_layer(Default::default())?,
+        swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
+        swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
+        swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
+        swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?,
+        swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+            Default::default(),
+            "default",
+        )?,
+        swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?,
     )
 }
 
