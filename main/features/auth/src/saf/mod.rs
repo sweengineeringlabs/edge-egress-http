@@ -1,8 +1,8 @@
 //! SAF layer — public facade.
 
-mod builder;
+mod auth_svc;
 
 pub use crate::api::auth::config::AuthConfig;
 pub use crate::api::error::AuthError;
 pub use crate::api::types::AuthMiddleware;
-pub use builder::{build_auth_middleware, create_config_builder};
+pub use auth_svc::AuthSvc;

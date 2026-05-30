@@ -25,7 +25,7 @@ impl OAuthBuilderOps for OAuthBuilder {
                 "no OAuthTokenSource provided — call with_token_source first".into(),
             )
         })?;
-        let strategy = crate::core::refresh_strategy::OAuthRefreshStrategy::new(source);
+        let strategy = crate::core::refresh::strategy::OAuthRefreshStrategy::new(source);
         Ok(OAuthMiddleware {
             inner: Arc::new(strategy),
         })

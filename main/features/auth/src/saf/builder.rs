@@ -6,7 +6,7 @@ use crate::api::auth::config::AuthConfig;
 use crate::api::error::AuthError;
 use crate::api::types::AuthMiddleware;
 use crate::core::credential::EnvCredentialResolver;
-use crate::core::default_http_auth::DefaultHttpAuth;
+use crate::core::default::DefaultHttpAuth;
 
 /// Return a config builder pre-seeded with this crate's package name and version.
 pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
@@ -39,13 +39,13 @@ mod tests {
     /// @covers: create_config_builder
     #[test]
     fn test_create_config_builder_builds_loader() {
-        let _loader = create_config_builder().build_loader();
+        let _loader = AuthSvc::create_config_builder().build_loader();
     }
 
     /// @covers: build_auth_middleware
     #[test]
     fn test_build_auth_middleware_with_none_config_returns_middleware_instance() {
-        let mw = build_auth_middleware(AuthConfig::None).expect("build ok");
+        let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("build ok");
         let s = format!("{mw:?}");
         assert!(s.contains("swe_edge_egress_auth"));
     }
@@ -57,7 +57,7 @@ mod tests {
             token_env: "EDGE_TEST_DEFINITELY_NOT_SET_99".into(),
         };
         std::env::remove_var("EDGE_TEST_DEFINITELY_NOT_SET_99");
-        let err = build_auth_middleware(cfg).unwrap_err();
+        let err = AuthSvc::build_auth_middleware(cfg).unwrap_err();
         match err {
             AuthError::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_DEFINITELY_NOT_SET_99");
@@ -73,7 +73,7 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "EDGE_TEST_BEARER_OK_02".into(),
         };
-        let _mw = build_auth_middleware(cfg).expect("bearer builds");
+        let _mw = AuthSvc::build_auth_middleware(cfg).expect("bearer builds");
         let _ = AtomicBool::new(true);
         std::env::remove_var("EDGE_TEST_BEARER_OK_02");
     }

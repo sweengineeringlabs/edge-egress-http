@@ -13,7 +13,7 @@
 //! - `AuthMiddleware` implements `reqwest_middleware::Middleware`
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthMiddleware};
+use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Send + Sync — compile-time checks
@@ -43,7 +43,7 @@ fn test_auth_middleware_implements_debug() {
     fn require_debug<T: std::fmt::Debug>() {}
     require_debug::<AuthMiddleware>();
     // Also exercise the impl at runtime.
-    let mw = build_auth_middleware(AuthConfig::None).unwrap();
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::None).unwrap();
     let _ = format!("{mw:?}");
 }
 
@@ -66,7 +66,7 @@ fn test_auth_middleware_implements_reqwest_middleware_middleware() {
 
 #[test]
 fn test_auth_middleware_can_be_moved_across_thread_boundary() {
-    let mw = build_auth_middleware(AuthConfig::None).expect("None config builds");
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config builds");
     let handle = std::thread::spawn(move || {
         // Use the middleware inside the spawned thread to confirm it
         // actually moved (and didn't just satisfy the bound vacuously).
@@ -83,7 +83,8 @@ fn test_auth_middleware_can_be_moved_across_thread_boundary() {
 #[test]
 fn test_auth_middleware_can_be_shared_across_threads_via_arc() {
     use std::sync::Arc;
-    let mw = Arc::new(build_auth_middleware(AuthConfig::None).expect("None config builds"));
+    let mw =
+        Arc::new(AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config builds"));
     let mw2 = Arc::clone(&mw);
     let handle = std::thread::spawn(move || {
         let s = format!("{mw2:?}");

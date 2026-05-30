@@ -1,15 +1,15 @@
 //! End-to-end tests for the swe_edge_egress_auth SAF builder surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{
-    build_auth_middleware, create_config_builder, AuthConfig, AuthMiddleware,
+use swe_edge_egress_auth::{AuthSvc, 
+    AuthConfig, AuthMiddleware,
 };
 
 /// @covers: build_auth_middleware with None config
 #[test]
 fn test_e2e_build_none_config() {
     let mw: AuthMiddleware =
-        build_auth_middleware(AuthConfig::None).expect("None config must always build");
+        AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config must always build");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -22,7 +22,7 @@ fn test_e2e_build_none_config() {
 fn test_e2e_none_config_value() {
     let cfg = AuthConfig::None;
     assert!(matches!(cfg, AuthConfig::None));
-    let mw = build_auth_middleware(cfg).expect("None config must build");
+    let mw = AuthSvc::build_auth_middleware(cfg).expect("None config must build");
     assert!(!format!("{mw:?}").is_empty());
 }
 
@@ -34,7 +34,7 @@ fn test_e2e_build_bearer_with_env_set() {
     let cfg = AuthConfig::Bearer {
         token_env: env.into(),
     };
-    let mw = build_auth_middleware(cfg).expect("bearer e2e build must succeed when env set");
+    let mw = AuthSvc::build_auth_middleware(cfg).expect("bearer e2e build must succeed when env set");
     assert!(!format!("{mw:?}").is_empty());
     std::env::remove_var(env);
 }
@@ -42,5 +42,5 @@ fn test_e2e_build_bearer_with_env_set() {
 /// @covers: create_config_builder returns a Loader
 #[test]
 fn test_e2e_create_config_builder_returns_loader() {
-    let _loader = create_config_builder().build_loader();
+    let _loader = AuthSvc::create_config_builder().build_loader();
 }

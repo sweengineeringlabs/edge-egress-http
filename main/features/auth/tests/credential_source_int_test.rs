@@ -1,7 +1,7 @@
 //! Integration tests for `CredentialSource` behaviour.
 //!
 //! `CredentialSource` is `pub(crate)` — it cannot be imported here.
-//! These tests exercise its effects through `build_auth_middleware()`:
+//! These tests exercise its effects through `AuthSvc::build_auth_middleware()`:
 //! the `EnvVar` source kind is the only one that exists, and its
 //! resolution failure message must identify the var name declared
 //! in the config.
@@ -14,7 +14,7 @@
 //! - The config stores only the env-var NAME, never a resolved value.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError};
 
 // ---------------------------------------------------------------------------
 // Bearer: source is the token_env name
@@ -24,7 +24,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
 fn test_credential_source_bearer_identifies_missing_token_env_by_name() {
     let env_name = "SWE_AUTH_SRC_BRR_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Bearer {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap_err();
@@ -41,7 +41,7 @@ fn test_credential_source_bearer_identifies_missing_token_env_by_name() {
 fn test_credential_source_bearer_resolved_when_token_env_is_present() {
     let env_name = "SWE_AUTH_SRC_BRR_02";
     std::env::set_var(env_name, "src-bearer-value");
-    build_auth_middleware(AuthConfig::Bearer {
+    AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("token_env present — credential source must resolve");
@@ -58,7 +58,7 @@ fn test_credential_source_basic_identifies_missing_pass_env_by_name() {
     let pass_env = "SWE_AUTH_SRC_BASIC_P_01";
     std::env::set_var(user_env, "user-present");
     std::env::remove_var(pass_env); // Only pass is missing
-    let err = build_auth_middleware(AuthConfig::Basic {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -79,7 +79,7 @@ fn test_credential_source_basic_both_resolved_when_both_envs_present() {
     let pass_env = "SWE_AUTH_SRC_BASIC_P_02";
     std::env::set_var(user_env, "src-user");
     std::env::set_var(pass_env, "src-pass");
-    build_auth_middleware(AuthConfig::Basic {
+    AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -96,7 +96,7 @@ fn test_credential_source_basic_both_resolved_when_both_envs_present() {
 fn test_credential_source_header_identifies_missing_value_env_by_name() {
     let env_name = "SWE_AUTH_SRC_HDR_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Header {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-test-key".into(),
         value_env: env_name.into(),
     })
@@ -117,7 +117,7 @@ fn test_credential_source_aws_sigv4_identifies_missing_access_key_by_name() {
     let sk_env = "SWE_AUTH_SRC_AWS_SK_01";
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
-    let err = build_auth_middleware(AuthConfig::AwsSigV4 {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
@@ -139,7 +139,7 @@ fn test_credential_source_aws_sigv4_optional_session_token_not_required() {
     let sk_env = "SWE_AUTH_SRC_AWS_SK_02";
     std::env::set_var(ak_env, "AKID_src_test");
     std::env::set_var(sk_env, "SECRET_src_test");
-    build_auth_middleware(AuthConfig::AwsSigV4 {
+    AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None, // optional source not declared → not resolved
@@ -159,7 +159,7 @@ fn test_credential_source_aws_sigv4_session_token_env_resolved_when_present() {
     std::env::set_var(ak_env, "AKID_src_st");
     std::env::set_var(sk_env, "SECRET_src_st");
     std::env::set_var(st_env, "SESSION_src_st");
-    build_auth_middleware(AuthConfig::AwsSigV4 {
+    AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: Some(st_env.into()),
@@ -180,7 +180,7 @@ fn test_credential_source_aws_sigv4_session_token_env_absent_fails() {
     std::env::set_var(ak_env, "AKID");
     std::env::set_var(sk_env, "SECRET");
     std::env::remove_var(st_env); // declared but not set
-    let err = build_auth_middleware(AuthConfig::AwsSigV4 {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: Some(st_env.into()),

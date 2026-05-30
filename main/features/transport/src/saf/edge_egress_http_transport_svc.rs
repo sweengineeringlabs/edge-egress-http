@@ -57,7 +57,7 @@ impl HttpTransportSvc {
         } else {
             Self::assemble(
                 config.http,
-                swe_edge_egress_auth::build_auth_middleware(config.auth)?,
+                swe_edge_egress_auth::AuthSvc::build_auth_middleware(config.auth)?,
                 retry,
                 rate,
                 breaker,
@@ -109,7 +109,7 @@ impl HttpTransportSvc {
     ) -> Result<impl HttpEgress, HttpEgressBuildError> {
         Self::assemble(
             http,
-            swe_edge_egress_auth::build_auth_middleware(auth)?,
+            swe_edge_egress_auth::AuthSvc::build_auth_middleware(auth)?,
             swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
             swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
             swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
@@ -129,7 +129,7 @@ impl HttpTransportSvc {
     pub fn default_http_egress() -> Result<impl HttpEgress, HttpEgressBuildError> {
         Self::assemble(
             HttpConfig::default(),
-            swe_edge_egress_auth::build_auth_middleware(Default::default())?,
+            swe_edge_egress_auth::AuthSvc::build_auth_middleware(Default::default())?,
             swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
             swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
             swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
@@ -152,7 +152,7 @@ impl HttpTransportSvc {
     ) -> Result<impl HttpEgress, HttpEgressBuildError> {
         Self::assemble(
             http,
-            swe_edge_egress_auth::build_auth_middleware(Default::default())?,
+            swe_edge_egress_auth::AuthSvc::build_auth_middleware(Default::default())?,
             swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
             swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
             swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
@@ -188,7 +188,7 @@ impl HttpTransportSvc {
     pub fn default_http_stream_outbound() -> Result<impl HttpStream, HttpEgressBuildError> {
         Self::assemble(
             HttpConfig::default(),
-            swe_edge_egress_auth::build_auth_middleware(Default::default())?,
+            swe_edge_egress_auth::AuthSvc::build_auth_middleware(Default::default())?,
             swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
             swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
             swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,

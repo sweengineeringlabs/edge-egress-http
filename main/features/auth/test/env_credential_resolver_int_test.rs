@@ -1,10 +1,10 @@
 //! Integration tests for `EnvCredentialResolver` behaviour.
 //!
 //! `EnvCredentialResolver` is `pub(crate)` — these tests exercise it
-//! through `build_auth_middleware()`, the only public path it participates in.
+//! through `AuthSvc::build_auth_middleware()`, the only public path it participates in.
 //!
 //! Contract being verified:
-//! - Env var present (any value) → `build_auth_middleware()` succeeds.
+//! - Env var present (any value) → `AuthSvc::build_auth_middleware()` succeeds.
 //! - Env var absent → fails with `AuthAuthError::MissingEnvVar { name }`.
 //! - The `name` in the error matches the env-var name from the config.
 //! - An env var set to an empty string is "present" (OS level) → resolver
@@ -12,7 +12,7 @@
 //! - Resolution is evaluated once at build time, not per request.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Present env var → build succeeds
@@ -22,7 +22,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
 fn test_env_resolver_present_bearer_builds_successfully() {
     let env_name = "SWE_AUTH_ENVRES_PRES_01";
     std::env::set_var(env_name, "env-resolver-token");
-    build_auth_middleware(AuthConfig::Bearer {
+    AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("env var present — EnvCredentialResolver must succeed");
@@ -35,7 +35,7 @@ fn test_env_resolver_present_basic_user_and_pass_builds_successfully() {
     let pass_env = "SWE_AUTH_ENVRES_PRES_BASIC_P_01";
     std::env::set_var(user_env, "env-user");
     std::env::set_var(pass_env, "env-pass");
-    build_auth_middleware(AuthConfig::Basic {
+    AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -48,7 +48,7 @@ fn test_env_resolver_present_basic_user_and_pass_builds_successfully() {
 fn test_env_resolver_present_header_builds_successfully() {
     let env_name = "SWE_AUTH_ENVRES_PRES_HDR_01";
     std::env::set_var(env_name, "api-key-env-value");
-    build_auth_middleware(AuthConfig::Header {
+    AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -64,7 +64,7 @@ fn test_env_resolver_present_header_builds_successfully() {
 fn test_env_resolver_absent_bearer_returns_missing_env_var_error() {
     let env_name = "SWE_AUTH_ENVRES_ABS_BRR_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Bearer {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap_err();
@@ -83,7 +83,7 @@ fn test_env_resolver_absent_bearer_returns_missing_env_var_error() {
 fn test_env_resolver_absent_header_returns_missing_env_var_error() {
     let env_name = "SWE_AUTH_ENVRES_ABS_HDR_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Header {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-custom".into(),
         value_env: env_name.into(),
     })
@@ -105,7 +105,7 @@ fn test_env_resolver_empty_bearer_env_does_not_produce_missing_env_var_error() {
     // "Bearer " is a valid header value (space is ASCII printable).
     let env_name = "SWE_AUTH_ENVRES_EMPTY_BRR_01";
     std::env::set_var(env_name, "");
-    let result = build_auth_middleware(AuthConfig::Bearer {
+    let result = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     });
     // Must NOT be MissingEnvVar — empty ≠ absent.
@@ -127,7 +127,7 @@ fn test_env_resolver_resolution_is_snapshot_at_build_time() {
     // Set the env var, build the middleware (resolution happens here).
     let env_name = "SWE_AUTH_ENVRES_SNAP_01";
     std::env::set_var(env_name, "snapshot-token");
-    let mw = build_auth_middleware(AuthConfig::Bearer {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("env present at build time");

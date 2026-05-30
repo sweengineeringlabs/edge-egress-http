@@ -1,13 +1,13 @@
 //! Integration tests for the Header auth strategy path.
 //!
-//! The strategy is `pub(crate)`.  Observable effects through `build_auth_middleware()`:
+//! The strategy is `pub(crate)`.  Observable effects through `AuthSvc::build_auth_middleware()`:
 //! - Missing value_env → `AuthAuthError::MissingEnvVar { name: value_env }`
 //! - Invalid header name (spaces, control chars) → `AuthAuthError::InvalidHeaderName`
 //! - Invalid header value (CR/LF in credential) → `AuthAuthError::InvalidHeaderValue`
 //! - Valid name + valid credential env → build succeeds
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError};
 
 // ---------------------------------------------------------------------------
 // Missing env var
@@ -17,7 +17,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
 fn test_header_strategy_missing_value_env_returns_missing_env_var() {
     let env_name = "SWE_AUTH_HEADER_MISS_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Header {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -36,7 +36,7 @@ fn test_header_strategy_missing_value_env_returns_missing_env_var() {
 fn test_header_strategy_space_in_name_returns_invalid_header_name() {
     let env_name = "SWE_AUTH_HEADER_BADNAME_01";
     std::env::set_var(env_name, "key-value");
-    let err = build_auth_middleware(AuthConfig::Header {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "bad name with spaces".into(), // spaces forbidden in header names
         value_env: env_name.into(),
     })
@@ -57,7 +57,7 @@ fn test_header_strategy_space_in_name_returns_invalid_header_name() {
 fn test_header_strategy_empty_name_returns_invalid_header_name() {
     let env_name = "SWE_AUTH_HEADER_EMPTYNAME_01";
     std::env::set_var(env_name, "key-value");
-    let err = build_auth_middleware(AuthConfig::Header {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "".into(), // empty name is invalid
         value_env: env_name.into(),
     })
@@ -82,7 +82,7 @@ fn test_header_strategy_empty_name_returns_invalid_header_name() {
 fn test_header_strategy_newline_in_value_returns_invalid_header_value() {
     let env_name = "SWE_AUTH_HEADER_BADVAL_01";
     std::env::set_var(env_name, "bad\nvalue");
-    let err = build_auth_middleware(AuthConfig::Header {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -102,7 +102,7 @@ fn test_header_strategy_newline_in_value_returns_invalid_header_value() {
 fn test_header_strategy_lowercase_name_with_valid_value_builds_successfully() {
     let env_name = "SWE_AUTH_HEADER_OK_01";
     std::env::set_var(env_name, "api-key-value-123");
-    build_auth_middleware(AuthConfig::Header {
+    AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -115,7 +115,7 @@ fn test_header_strategy_uppercase_name_is_accepted_via_lowercasing() {
     // The strategy lowercases the name before parsing.
     let env_name = "SWE_AUTH_HEADER_UPCASE_01";
     std::env::set_var(env_name, "some-api-key");
-    build_auth_middleware(AuthConfig::Header {
+    AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "X-API-Key".into(), // upper-case input
         value_env: env_name.into(),
     })
@@ -127,7 +127,7 @@ fn test_header_strategy_uppercase_name_is_accepted_via_lowercasing() {
 fn test_header_strategy_goog_api_key_name_builds_successfully() {
     let env_name = "SWE_AUTH_HEADER_GOOG_01";
     std::env::set_var(env_name, "goog-key-value");
-    build_auth_middleware(AuthConfig::Header {
+    AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-goog-api-key".into(),
         value_env: env_name.into(),
     })
@@ -143,7 +143,7 @@ fn test_header_strategy_goog_api_key_name_builds_successfully() {
 async fn test_header_strategy_middleware_wires_into_reqwest_middleware() {
     let env_name = "SWE_AUTH_HEADER_WIRE_01";
     std::env::set_var(env_name, "wire-api-key");
-    let mw = build_auth_middleware(AuthConfig::Header {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-api-key".into(),
         value_env: env_name.into(),
     })
@@ -163,7 +163,7 @@ fn test_header_strategy_middleware_debug_does_not_expose_credential() {
     let env_name = "SWE_AUTH_HEADER_DBG_01";
     let secret_val = "HEADER_SECRET_VAL_UNIQUE_MARKER";
     std::env::set_var(env_name, secret_val);
-    let mw = build_auth_middleware(AuthConfig::Header {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Header {
         name: "x-secret-header".into(),
         value_env: env_name.into(),
     })

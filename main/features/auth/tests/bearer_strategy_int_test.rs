@@ -1,6 +1,6 @@
 //! Integration tests for the Bearer strategy path.
 //!
-//! The strategy is `pub(crate)`.  Observable effects through `build_auth_middleware()`:
+//! The strategy is `pub(crate)`.  Observable effects through `AuthSvc::build_auth_middleware()`:
 //! - Missing token_env → `AuthAuthError::MissingEnvVar { name: token_env }`
 //! - token_env set to value with forbidden chars (CR/LF) → `AuthAuthError::InvalidHeaderValue`
 //! - token_env set to valid value → build succeeds
@@ -12,7 +12,7 @@
 //! path produces a non-empty Authorization header.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError};
 
 // ---------------------------------------------------------------------------
 // Missing env var
@@ -22,7 +22,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
 fn test_bearer_strategy_missing_token_env_returns_missing_env_var() {
     let env_name = "SWE_AUTH_BEARER_MISS_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Bearer {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap_err();
@@ -41,7 +41,7 @@ fn test_bearer_strategy_newline_in_token_returns_invalid_header_value() {
     let env_name = "SWE_AUTH_BEARER_NL_01";
     // Newline is forbidden in HTTP header values per RFC 7230.
     std::env::set_var(env_name, "bad\ntoken");
-    let err = build_auth_middleware(AuthConfig::Bearer {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap_err();
@@ -56,7 +56,7 @@ fn test_bearer_strategy_newline_in_token_returns_invalid_header_value() {
 fn test_bearer_strategy_carriage_return_in_token_returns_invalid_header_value() {
     let env_name = "SWE_AUTH_BEARER_CR_01";
     std::env::set_var(env_name, "bad\rtoken");
-    let err = build_auth_middleware(AuthConfig::Bearer {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap_err();
@@ -75,7 +75,7 @@ fn test_bearer_strategy_carriage_return_in_token_returns_invalid_header_value() 
 fn test_bearer_strategy_valid_token_env_set_builds_successfully() {
     let env_name = "SWE_AUTH_BEARER_OK_01";
     std::env::set_var(env_name, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
-    build_auth_middleware(AuthConfig::Bearer {
+    AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("valid bearer token env must produce a successful build");
@@ -86,7 +86,7 @@ fn test_bearer_strategy_valid_token_env_set_builds_successfully() {
 fn test_bearer_strategy_simple_alphanumeric_token_builds_successfully() {
     let env_name = "SWE_AUTH_BEARER_OK_02";
     std::env::set_var(env_name, "sk-abc123");
-    build_auth_middleware(AuthConfig::Bearer {
+    AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("simple alphanumeric token must build");
@@ -101,7 +101,7 @@ fn test_bearer_strategy_simple_alphanumeric_token_builds_successfully() {
 async fn test_bearer_strategy_middleware_wires_into_reqwest_middleware() {
     let env_name = "SWE_AUTH_BEARER_WIRE_01";
     std::env::set_var(env_name, "wire-test-token");
-    let mw = build_auth_middleware(AuthConfig::Bearer {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("bearer build ok");
@@ -121,7 +121,7 @@ fn test_bearer_strategy_middleware_debug_does_not_expose_token() {
     let env_name = "SWE_AUTH_BEARER_DBG_01";
     let secret_token = "BEARER_SECRET_UNIQUE_MARKER_789";
     std::env::set_var(env_name, secret_token);
-    let mw = build_auth_middleware(AuthConfig::Bearer {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("build ok");
@@ -143,11 +143,11 @@ fn test_bearer_strategy_two_different_tokens_produce_independent_middlewares() {
     let env_b = "SWE_AUTH_BEARER_DUAL_B_01";
     std::env::set_var(env_a, "token-alpha-unique");
     std::env::set_var(env_b, "token-beta-unique");
-    let mw_a = build_auth_middleware(AuthConfig::Bearer {
+    let mw_a = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_a.into(),
     })
     .expect("build mw_a");
-    let mw_b = build_auth_middleware(AuthConfig::Bearer {
+    let mw_b = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_b.into(),
     })
     .expect("build mw_b");

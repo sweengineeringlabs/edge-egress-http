@@ -15,7 +15,7 @@ pub struct BreakerLayer {
     /// concurrent access with background expiration of
     /// long-idle entries.
     pub(crate) state:
-        Cache<String, Arc<tokio::sync::Mutex<crate::core::host_breaker::HostBreaker>>>,
+        Cache<String, Arc<tokio::sync::Mutex<crate::core::host::HostBreaker>>>,
 }
 
 impl std::fmt::Debug for BreakerLayer {

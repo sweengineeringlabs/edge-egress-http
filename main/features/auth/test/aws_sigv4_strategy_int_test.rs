@@ -1,7 +1,7 @@
 //! Integration tests for the AwsSigV4 strategy path.
 //!
 //! The strategy itself is `pub(crate)`.  Observable effects through
-//! `build_auth_middleware()` and `AuthMiddleware`:
+//! `AuthSvc::build_auth_middleware()` and `AuthMiddleware`:
 //! - Missing access_key_env → `AuthAuthError::MissingEnvVar { name: access_key_env }`
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 //! - Missing secret_key_env (when access key is present) → MissingEnvVar
@@ -13,7 +13,7 @@
 //! SigV4 header-correctness (Authorization: AWS4-HMAC-SHA256 …) is
 //! covered by the core-unit tests inside `aws_sigv4_strategy.rs`.
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 fn sigv4_config(ak: &str, sk: &str, st: Option<&str>) -> AuthConfig {
     AuthConfig::AwsSigV4 {
@@ -35,7 +35,7 @@ fn test_aws_sigv4_missing_access_key_env_returns_missing_env_var() {
     let sk_env = "SWE_AUTH_AWS_MISS_SK_01";
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
-    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, None)).unwrap_err();
+    let err = AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, None)).unwrap_err();
     match err {
         AuthError::MissingEnvVar { name } => assert_eq!(name, ak_env),
         other => panic!("expected MissingEnvVar for access key, got {other:?}"),
@@ -49,7 +49,7 @@ fn test_aws_sigv4_missing_secret_key_env_returns_missing_env_var() {
     // Only access key is present; secret key is absent.
     std::env::set_var(ak_env, "AKID");
     std::env::remove_var(sk_env);
-    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, None)).unwrap_err();
+    let err = AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, None)).unwrap_err();
     match err {
         AuthError::MissingEnvVar { name } => assert_eq!(name, sk_env),
         other => panic!("expected MissingEnvVar for secret key, got {other:?}"),
@@ -65,7 +65,8 @@ fn test_aws_sigv4_missing_session_token_env_returns_missing_env_var() {
     std::env::set_var(ak_env, "AKID");
     std::env::set_var(sk_env, "SECRET");
     std::env::remove_var(st_env); // declared but absent
-    let err = build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env))).unwrap_err();
+    let err =
+        AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env))).unwrap_err();
     match err {
         AuthError::MissingEnvVar { name } => assert_eq!(name, st_env),
         other => panic!("expected MissingEnvVar for session token, got {other:?}"),
@@ -84,7 +85,7 @@ fn test_aws_sigv4_builds_when_ak_and_sk_envs_are_set() {
     let sk_env = "SWE_AUTH_AWS_OK_SK_01";
     std::env::set_var(ak_env, "AKIATEST123456");
     std::env::set_var(sk_env, "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
-    build_auth_middleware(sigv4_config(ak_env, sk_env, None))
+    AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, None))
         .expect("AwsSigV4 with ak+sk envs set must build");
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
@@ -98,7 +99,7 @@ fn test_aws_sigv4_builds_when_all_three_envs_set() {
     std::env::set_var(ak_env, "AKIATEST");
     std::env::set_var(sk_env, "SECRET");
     std::env::set_var(st_env, "SESSION_TOKEN");
-    build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env)))
+    AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env)))
         .expect("AwsSigV4 with all three envs set must build");
     std::env::remove_var(ak_env);
     std::env::remove_var(sk_env);
@@ -115,7 +116,7 @@ fn test_aws_sigv4_session_token_not_required_when_none() {
     std::env::set_var(ak_env, "AKIATEST");
     std::env::set_var(sk_env, "SECRET");
     std::env::remove_var(st_env); // absent but not declared → irrelevant
-    build_auth_middleware(AuthConfig::AwsSigV4 {
+    AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None, // not declared
@@ -140,7 +141,7 @@ fn test_aws_sigv4_region_and_service_are_stored_as_literals() {
     let sk_env = "SWE_AUTH_AWS_LIT_SK_01";
     std::env::set_var(ak_env, "AKID");
     std::env::set_var(sk_env, "SECRET");
-    build_auth_middleware(AuthConfig::AwsSigV4 {
+    AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,
@@ -163,7 +164,7 @@ fn test_aws_sigv4_auth_middleware_debug_does_not_leak_credentials() {
     let secret_marker = "SUPER_SECRET_KEY_DO_NOT_PRINT_XYZ";
     std::env::set_var(ak_env, "AKIATESTMARKER");
     std::env::set_var(sk_env, secret_marker);
-    let mw = build_auth_middleware(AuthConfig::AwsSigV4 {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::AwsSigV4 {
         access_key_env: ak_env.into(),
         secret_key_env: sk_env.into(),
         session_token_env: None,

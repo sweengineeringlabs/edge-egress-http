@@ -14,8 +14,7 @@ pub struct BreakerLayer {
     /// (host:port). `moka::future::Cache` gives us async-safe
     /// concurrent access with background expiration of
     /// long-idle entries.
-    pub(crate) state:
-        Cache<String, Arc<tokio::sync::Mutex<crate::core::host_breaker::HostBreaker>>>,
+    pub(crate) state: Cache<String, Arc<tokio::sync::Mutex<crate::core::host::HostBreaker>>>,
 }
 
 impl std::fmt::Debug for BreakerLayer {

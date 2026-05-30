@@ -5,7 +5,7 @@
 //! | [`Processor`] | Primary processing trait for this service_type = "processor" crate |
 //! | [`Validator`] | Configuration validation contract |
 
-pub use crate::api::http_retry::http_retry::HttpRetry;
+pub use crate::api::http::retry::HttpRetry;
 
 /// Primary processing trait — required because `service_type = "processor"` in Cargo.toml.
 ///

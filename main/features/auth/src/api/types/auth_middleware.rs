@@ -17,10 +17,10 @@ use crate::api::traits::HttpAuth;
 /// reqwest-middleware layer that applies the configured auth
 /// policy to every outbound request.
 ///
-/// Construct via `build_auth_middleware(config)`. Use:
+/// Construct via `AuthSvc::build_auth_middleware(config)`. Use:
 ///
 /// ```ignore
-/// let mw = swe_edge_egress_auth::build_auth_middleware(AuthConfig::None)?;
+/// let mw = swe_edge_egress_auth::AuthSvc::build_auth_middleware(AuthConfig::None)?;
 /// let client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
 ///     .with(mw)
 ///     .build();

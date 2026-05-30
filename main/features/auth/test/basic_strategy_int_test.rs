@@ -1,6 +1,6 @@
 //! Integration tests for the Basic auth strategy path.
 //!
-//! The strategy is `pub(crate)`.  Observable effects through `build_auth_middleware()`:
+//! The strategy is `pub(crate)`.  Observable effects through `AuthSvc::build_auth_middleware()`:
 //! - Missing user_env → `AuthAuthError::MissingEnvVar { name: user_env }`
 //! - Missing pass_env (when user_env present) → `AuthAuthError::MissingEnvVar { name: pass_env }`
 //! - Both envs set → build succeeds and the middleware attaches a
@@ -11,7 +11,7 @@
 //! the core-unit tests inside `basic_strategy.rs`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Missing env vars
@@ -23,7 +23,7 @@ fn test_basic_strategy_missing_user_env_returns_missing_env_var() {
     let pass_env = "SWE_AUTH_BASIC_MISS_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = build_auth_middleware(AuthConfig::Basic {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -40,7 +40,7 @@ fn test_basic_strategy_missing_pass_env_returns_missing_env_var() {
     let pass_env = "SWE_AUTH_BASIC_MISS_P_02";
     std::env::set_var(user_env, "alice");
     std::env::remove_var(pass_env);
-    let err = build_auth_middleware(AuthConfig::Basic {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -62,7 +62,7 @@ fn test_basic_strategy_builds_when_both_envs_set() {
     let pass_env = "SWE_AUTH_BASIC_OK_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "wonderland");
-    build_auth_middleware(AuthConfig::Basic {
+    AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -83,7 +83,7 @@ async fn test_basic_strategy_attaches_authorization_basic_header() {
     let pass_env = "SWE_AUTH_BASIC_HDR_P_01";
     std::env::set_var(user_env, "bob");
     std::env::set_var(pass_env, "password123");
-    let mw = build_auth_middleware(AuthConfig::Basic {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -124,7 +124,7 @@ fn test_basic_strategy_middleware_debug_does_not_expose_credentials() {
     let secret_pass = "BASIC_SECRET_PASS_UNIQUE_MARKER";
     std::env::set_var(user_env, "dbg-user");
     std::env::set_var(pass_env, secret_pass);
-    let mw = build_auth_middleware(AuthConfig::Basic {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -148,7 +148,7 @@ fn test_basic_strategy_accepts_utf8_credentials() {
     let pass_env = "SWE_AUTH_BASIC_UTF8_P_01";
     std::env::set_var(user_env, "ünïcödé_user");
     std::env::set_var(pass_env, "pässwörd");
-    build_auth_middleware(AuthConfig::Basic {
+    AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })

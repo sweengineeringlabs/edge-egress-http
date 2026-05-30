@@ -8,7 +8,7 @@ use crate::api::traits::Validator;
 use crate::api::types::HttpRateSvc;
 use crate::api::types::RateConfig;
 use crate::api::types::RateLayer;
-use crate::core::default_http_rate::DefaultHttpRate;
+use crate::core::default::DefaultHttpRate;
 
 impl HttpRateSvc {
     /// Return a config builder pre-seeded with this crate's name and version.

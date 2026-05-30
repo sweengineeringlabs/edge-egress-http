@@ -1,7 +1,7 @@
 //! HTTP egress API — ports, types, and traits.
 
 #[allow(missing_docs)]
-pub(crate) mod default_http_egress;
+pub(crate) mod default;
 #[allow(missing_docs)]
 pub(crate) mod error;
 #[allow(missing_docs)]

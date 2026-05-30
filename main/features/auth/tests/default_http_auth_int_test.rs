@@ -1,15 +1,15 @@
 //! Integration tests for `core/default_http_auth.rs`.
 //!
 //! `DefaultHttpAuth` is `pub(crate)`.  Its observable effect is through the
-//! SAF `build_auth_middleware()` function.
+//! SAF `AuthSvc::build_auth_middleware()` function.
 //!
 //! - `describe()` returns `"swe_edge_egress_auth"` regardless of config.
-//! - `build_auth_middleware()` fails fast when env vars are missing.
-//! - `build_auth_middleware()` succeeds when env vars are present.
+//! - `AuthSvc::build_auth_middleware()` fails fast when env vars are missing.
+//! - `AuthSvc::build_auth_middleware()` succeeds when env vars are present.
 //! - `process()` is reachable end-to-end via the middleware handle path.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError, AuthMiddleware};
+use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError, AuthMiddleware};
 
 // ---------------------------------------------------------------------------
 // describe() via AuthMiddleware Debug
@@ -17,7 +17,7 @@ use swe_edge_egress_auth::{build_auth_middleware, AuthConfig, AuthError, AuthMid
 
 #[test]
 fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
-    let mw: AuthMiddleware = build_auth_middleware(AuthConfig::None).expect("None must build");
+    let mw: AuthMiddleware = AuthSvc::build_auth_middleware(AuthConfig::None).expect("None must build");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),
@@ -29,7 +29,7 @@ fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
 fn test_default_http_auth_describe_returns_crate_name_for_bearer_config() {
     let env_name = "SWE_AUTH_DHA_DESC_BRR_01";
     std::env::set_var(env_name, "describe-test-tok");
-    let mw = build_auth_middleware(AuthConfig::Bearer {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("Bearer with env set must build");
@@ -47,8 +47,8 @@ fn test_default_http_auth_describe_same_for_all_configs() {
     // Build two middlewares with different schemes and compare.
     let env_name = "SWE_AUTH_DHA_DESC_SAME_01";
     std::env::set_var(env_name, "tok");
-    let mw_none = build_auth_middleware(AuthConfig::None).unwrap();
-    let mw_bearer = build_auth_middleware(AuthConfig::Bearer {
+    let mw_none = AuthSvc::build_auth_middleware(AuthConfig::None).unwrap();
+    let mw_bearer = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap();
@@ -67,7 +67,7 @@ fn test_default_http_auth_describe_same_for_all_configs() {
 fn test_default_http_auth_build_fails_with_missing_env_var_for_bearer() {
     let env_name = "SWE_AUTH_DHA_BUILD_MISS_BRR_01";
     std::env::remove_var(env_name);
-    let err = build_auth_middleware(AuthConfig::Bearer {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .unwrap_err();
@@ -83,7 +83,7 @@ fn test_default_http_auth_build_fails_with_missing_env_var_for_basic() {
     let pass_env = "SWE_AUTH_DHA_BUILD_MISS_BASIC_P_01";
     std::env::remove_var(user_env);
     std::env::remove_var(pass_env);
-    let err = build_auth_middleware(AuthConfig::Basic {
+    let err = AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -100,14 +100,14 @@ fn test_default_http_auth_build_fails_with_missing_env_var_for_basic() {
 
 #[test]
 fn test_default_http_auth_build_succeeds_for_none() {
-    build_auth_middleware(AuthConfig::None).expect("None config must always build");
+    AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config must always build");
 }
 
 #[test]
 fn test_default_http_auth_build_succeeds_for_bearer_with_env() {
     let env_name = "SWE_AUTH_DHA_BUILD_OK_BRR_01";
     std::env::set_var(env_name, "build-ok-token");
-    build_auth_middleware(AuthConfig::Bearer {
+    AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("Bearer with env set must build successfully");
@@ -120,7 +120,7 @@ fn test_default_http_auth_build_succeeds_for_basic_with_envs() {
     let pass_env = "SWE_AUTH_DHA_BUILD_OK_BASIC_P_01";
     std::env::set_var(user_env, "alice");
     std::env::set_var(pass_env, "password");
-    build_auth_middleware(AuthConfig::Basic {
+    AuthSvc::build_auth_middleware(AuthConfig::Basic {
         user_env: user_env.into(),
         pass_env: pass_env.into(),
     })
@@ -140,7 +140,7 @@ async fn test_default_http_auth_process_none_attaches_no_auth_headers() {
     // None config → NoopStrategy → process() must add no headers.
     // We can't send a real request, but we can wire the middleware into
     // a ClientBuilder and verify it doesn't panic during wiring.
-    let mw = build_auth_middleware(AuthConfig::None).expect("build ok");
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("build ok");
     let _client = ClientBuilder::new(reqwest::Client::new()).with(mw).build();
     // Reaching here without panic proves the process() pathway compiles
     // and the middleware is correctly wired.
@@ -152,7 +152,7 @@ async fn test_default_http_auth_process_bearer_wires_without_panic() {
 
     let env_name = "SWE_AUTH_DHA_PROC_BRR_01";
     std::env::set_var(env_name, "proc-bearer-tok");
-    let mw = build_auth_middleware(AuthConfig::Bearer {
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::Bearer {
         token_env: env_name.into(),
     })
     .expect("Bearer build ok");

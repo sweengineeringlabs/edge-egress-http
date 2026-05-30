@@ -59,11 +59,11 @@
 //! # Quick start
 //!
 //! ```rust,no_run
-//! use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
+//! use swe_edge_egress_cassette::{HttpCassetteSvc, CassetteConfig};
 //!
 //! # fn main() -> Result<(), swe_edge_egress_cassette::CassetteError> {
 //! // SWE default: replay mode, tests/cassettes/, scrubs auth headers.
-//! let cassette = build_cassette_layer(CassetteConfig::default(), "my_test")?;
+//! let cassette = HttpCassetteSvc::build_cassette_layer(CassetteConfig::default(), "my_test")?;
 //!
 //! let client = reqwest_middleware::ClientBuilder::new(reqwest::Client::new())
 //!     .with(cassette)
@@ -75,10 +75,10 @@
 //! For production stacks where record/replay is not wanted:
 //!
 //! ```rust,no_run
-//! use swe_edge_egress_cassette::{build_cassette_layer, CassetteConfig};
+//! use swe_edge_egress_cassette::{HttpCassetteSvc, CassetteConfig};
 //!
 //! # fn main() -> Result<(), swe_edge_egress_cassette::CassetteError> {
-//! let cassette = build_cassette_layer(CassetteConfig::disabled(), "unused")?;
+//! let cassette = HttpCassetteSvc::build_cassette_layer(CassetteConfig::disabled(), "unused")?;
 //! # Ok(())
 //! # }
 //! ```
