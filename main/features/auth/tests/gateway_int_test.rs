@@ -1,7 +1,7 @@
 //! Integration tests exercising the public gateway surface of the swe_edge_egress_auth crate.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError, AuthMiddleware};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthMiddleware, AuthSvc};
 
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {

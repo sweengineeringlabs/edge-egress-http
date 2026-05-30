@@ -20,3 +20,5 @@ pub(crate) mod cache_layer {
 pub(crate) mod cache_svc {
     pub use super::cache::svc::HttpCacheSvc;
 }
+pub mod cached_entry;
+pub use cached_entry::CachedEntry;

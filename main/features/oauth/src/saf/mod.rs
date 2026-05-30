@@ -15,4 +15,4 @@ pub use crate::api::oauth_credentials::OAuthCredentials;
 pub use crate::api::oauth_middleware::OAuthMiddleware;
 pub use crate::api::oauth_provider::OAuthProvider;
 pub use crate::api::oauth_token_source::OAuthTokenSource;
-pub use oauth_svc::OAuthSvc;
+pub use crate::api::types::OAuthSvc;

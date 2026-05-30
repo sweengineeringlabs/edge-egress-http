@@ -7,7 +7,7 @@
 //! - `Send + Sync` bounds are satisfied.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthMiddleware};
+use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Build always succeeds — no env vars required
@@ -16,7 +16,8 @@ use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthMiddleware};
 #[test]
 fn test_noop_strategy_builds_without_any_env_vars() {
     // Deliberately do not set any env vars. None config must succeed.
-    AuthSvc::build_auth_middleware(AuthConfig::None).expect("AuthConfig::None must build unconditionally");
+    AuthSvc::build_auth_middleware(AuthConfig::None)
+        .expect("AuthConfig::None must build unconditionally");
 }
 
 #[test]
@@ -35,7 +36,8 @@ fn test_noop_strategy_builds_even_when_common_env_vars_are_unset() {
 
 #[test]
 fn test_noop_strategy_build_returns_auth_middleware() {
-    let mw: AuthMiddleware = AuthSvc::build_auth_middleware(AuthConfig::None).expect("None must build");
+    let mw: AuthMiddleware =
+        AuthSvc::build_auth_middleware(AuthConfig::None).expect("None must build");
     // Verify the type is a real AuthMiddleware by exercising its Debug impl.
     let s = format!("{mw:?}");
     assert!(

@@ -13,7 +13,7 @@
 //! SigV4 header-correctness (Authorization: AWS4-HMAC-SHA256 …) is
 //! covered by the core-unit tests inside `aws_sigv4_strategy.rs`.
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 fn sigv4_config(ak: &str, sk: &str, st: Option<&str>) -> AuthConfig {
     AuthConfig::AwsSigV4 {
@@ -65,7 +65,8 @@ fn test_aws_sigv4_missing_session_token_env_returns_missing_env_var() {
     std::env::set_var(ak_env, "AKID");
     std::env::set_var(sk_env, "SECRET");
     std::env::remove_var(st_env); // declared but absent
-    let err = AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env))).unwrap_err();
+    let err =
+        AuthSvc::build_auth_middleware(sigv4_config(ak_env, sk_env, Some(st_env))).unwrap_err();
     match err {
         AuthError::MissingEnvVar { name } => assert_eq!(name, st_env),
         other => panic!("expected MissingEnvVar for session token, got {other:?}"),

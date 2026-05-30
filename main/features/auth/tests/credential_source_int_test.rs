@@ -14,7 +14,7 @@
 //! - The config stores only the env-var NAME, never a resolved value.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Bearer: source is the token_env name

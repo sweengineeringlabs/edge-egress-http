@@ -5,7 +5,7 @@ use std::sync::Arc;
 use moka::future::Cache;
 
 use crate::api::types::cache::config::CacheConfig;
-use crate::core::cached_entry::CachedEntry;
+use crate::api::types::CachedEntry;
 
 /// HTTP cache middleware. Attach to a
 /// `reqwest_middleware::ClientBuilder` via `.with(layer)`.

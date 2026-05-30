@@ -1,12 +1,12 @@
 //! SAF service — public factory for OAuth middleware.
 
 use crate::api::oauth_builder::OAuthBuilder;
+use crate::api::types::OAuthSvc;
 
 /// Service factory for the OAuth middleware.
 ///
 /// All public entry points are methods on this type so the saf/ layer
 /// contains no free-standing functions (SEA rule 191).
-pub struct OAuthSvc;
 
 impl OAuthSvc {
     /// Create a builder for [`OAuthMiddleware`].

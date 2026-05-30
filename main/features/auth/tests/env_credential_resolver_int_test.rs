@@ -12,7 +12,7 @@
 //! - Resolution is evaluated once at build time, not per request.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Present env var → build succeeds

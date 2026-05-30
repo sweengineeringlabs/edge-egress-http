@@ -58,79 +58,79 @@ tracing = ["dep:tracing"]
 
 [[test]]
 name = "auth_config_int_test"
-path = "test/auth_config_int_test.rs"
+path = "tests/auth_config_int_test.rs"
 
 [[test]]
 name = "auth_middleware_int_test"
-path = "test/auth_middleware_int_test.rs"
+path = "tests/auth_middleware_int_test.rs"
 
 [[test]]
 name = "auth_strategy_int_test"
-path = "test/auth_strategy_int_test.rs"
+path = "tests/auth_strategy_int_test.rs"
 
 [[test]]
 name = "aws_sigv4_strategy_int_test"
-path = "test/aws_sigv4_strategy_int_test.rs"
+path = "tests/aws_sigv4_strategy_int_test.rs"
 
 [[test]]
 name = "basic_strategy_int_test"
-path = "test/basic_strategy_int_test.rs"
+path = "tests/basic_strategy_int_test.rs"
 
 [[test]]
 name = "bearer_strategy_int_test"
-path = "test/bearer_strategy_int_test.rs"
+path = "tests/bearer_strategy_int_test.rs"
 
 [[test]]
 name = "builder_e2e_test"
-path = "test/builder_e2e_test.rs"
+path = "tests/builder_e2e_test.rs"
 
 [[test]]
 name = "builder_int_test"
-path = "test/builder_int_test.rs"
+path = "tests/builder_int_test.rs"
 
 [[test]]
 name = "credential_resolver_int_test"
-path = "test/credential_resolver_int_test.rs"
+path = "tests/credential_resolver_int_test.rs"
 
 [[test]]
 name = "credential_source_int_test"
-path = "test/credential_source_int_test.rs"
+path = "tests/credential_source_int_test.rs"
 
 [[test]]
 name = "default_http_auth_int_test"
-path = "test/default_http_auth_int_test.rs"
+path = "tests/default_http_auth_int_test.rs"
 
 [[test]]
 name = "env_credential_resolver_int_test"
-path = "test/env_credential_resolver_int_test.rs"
+path = "tests/env_credential_resolver_int_test.rs"
 
 [[test]]
 name = "error_int_test"
-path = "test/error_int_test.rs"
+path = "tests/error_int_test.rs"
 
 [[test]]
 name = "gateway_int_test"
-path = "test/gateway_int_test.rs"
+path = "tests/gateway_int_test.rs"
 
 [[test]]
 name = "header_strategy_int_test"
-path = "test/header_strategy_int_test.rs"
+path = "tests/header_strategy_int_test.rs"
 
 [[test]]
 name = "http_auth_int_test"
-path = "test/http_auth_int_test.rs"
+path = "tests/http_auth_int_test.rs"
 
 [[test]]
 name = "noop_strategy_int_test"
-path = "test/noop_strategy_int_test.rs"
+path = "tests/noop_strategy_int_test.rs"
 
 [[test]]
 name = "strategy_factory_int_test"
-path = "test/strategy_factory_int_test.rs"
+path = "tests/strategy_factory_int_test.rs"
 
 [[test]]
 name = "traits_int_test"
-path = "test/traits_int_test.rs"
+path = "tests/traits_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

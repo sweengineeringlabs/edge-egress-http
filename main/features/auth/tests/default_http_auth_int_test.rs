@@ -9,7 +9,7 @@
 //! - `process()` is reachable end-to-end via the middleware handle path.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError, AuthMiddleware};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthMiddleware, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // describe() via AuthMiddleware Debug
@@ -17,7 +17,8 @@ use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError, AuthMiddleware};
 
 #[test]
 fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
-    let mw: AuthMiddleware = AuthSvc::build_auth_middleware(AuthConfig::None).expect("None must build");
+    let mw: AuthMiddleware =
+        AuthSvc::build_auth_middleware(AuthConfig::None).expect("None must build");
     let s = format!("{mw:?}");
     assert!(
         s.contains("swe_edge_egress_auth"),

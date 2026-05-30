@@ -4,9 +4,7 @@
 //! and config variant handling.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, 
-    AuthConfig, AuthError, AuthMiddleware,
-};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthMiddleware, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // create_config_builder — SAF entry point
@@ -33,7 +31,8 @@ fn test_default_auth_config_is_none() {
 
 #[test]
 fn test_build_auth_middleware_none_variant_succeeds() {
-    AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config must build unconditionally");
+    AuthSvc::build_auth_middleware(AuthConfig::None)
+        .expect("None config must build unconditionally");
 }
 
 // ---------------------------------------------------------------------------

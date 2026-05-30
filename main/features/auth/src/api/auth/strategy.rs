@@ -7,7 +7,7 @@
 //!
 //! `pub(crate)` on purpose — consumers never implement this
 //! trait. Plug-in extension is scoped to new variants on
-//! [`AuthConfig`](crate::api::auth::config::AuthConfig), not to
+//! [`AuthConfig`](crate::api::auth::auth_config::AuthConfig), not to
 //! arbitrary external impls.
 
 use futures::future::BoxFuture;

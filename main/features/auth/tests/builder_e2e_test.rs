@@ -1,9 +1,7 @@
 //! End-to-end tests for the swe_edge_egress_auth SAF builder surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, 
-    AuthConfig, AuthMiddleware,
-};
+use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, AuthSvc};
 
 /// @covers: build_auth_middleware with None config
 #[test]
@@ -34,7 +32,8 @@ fn test_e2e_build_bearer_with_env_set() {
     let cfg = AuthConfig::Bearer {
         token_env: env.into(),
     };
-    let mw = AuthSvc::build_auth_middleware(cfg).expect("bearer e2e build must succeed when env set");
+    let mw =
+        AuthSvc::build_auth_middleware(cfg).expect("bearer e2e build must succeed when env set");
     assert!(!format!("{mw:?}").is_empty());
     std::env::remove_var(env);
 }

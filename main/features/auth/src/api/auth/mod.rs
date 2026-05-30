@@ -1,4 +1,4 @@
 //! Auth policy and strategy contracts.
 
-pub(crate) mod config;
+pub(crate) mod auth_config;
 pub(crate) mod strategy;

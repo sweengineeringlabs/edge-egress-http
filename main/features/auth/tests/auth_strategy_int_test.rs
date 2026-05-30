@@ -14,7 +14,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use reqwest_middleware::Middleware;
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthError, AuthMiddleware};
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthMiddleware, AuthSvc};
 
 // Verify AuthMiddleware implements the reqwest_middleware::Middleware trait
 // at compile time. If the impl is removed this function won't compile.

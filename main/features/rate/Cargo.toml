@@ -47,47 +47,47 @@ tracing = ["dep:tracing"]
 
 [[test]]
 name = "builder_e2e_test"
-path = "test/builder_e2e_test.rs"
+path = "tests/builder_e2e_test.rs"
 
 [[test]]
 name = "builder_int_test"
-path = "test/builder_int_test.rs"
+path = "tests/builder_int_test.rs"
 
 [[test]]
 name = "core_rate_layer_int_test"
-path = "test/core_rate_layer_int_test.rs"
+path = "tests/core_rate_layer_int_test.rs"
 
 [[test]]
 name = "default_http_rate_int_test"
-path = "test/default_http_rate_int_test.rs"
+path = "tests/default_http_rate_int_test.rs"
 
 [[test]]
 name = "error_int_test"
-path = "test/error_int_test.rs"
+path = "tests/error_int_test.rs"
 
 [[test]]
 name = "gateway_int_test"
-path = "test/gateway_int_test.rs"
+path = "tests/gateway_int_test.rs"
 
 [[test]]
 name = "http_rate_int_test"
-path = "test/http_rate_int_test.rs"
+path = "tests/http_rate_int_test.rs"
 
 [[test]]
 name = "rate_config_int_test"
-path = "test/rate_config_int_test.rs"
+path = "tests/rate_config_int_test.rs"
 
 [[test]]
 name = "rate_layer_int_test"
-path = "test/rate_layer_int_test.rs"
+path = "tests/rate_layer_int_test.rs"
 
 [[test]]
 name = "token_bucket_int_test"
-path = "test/token_bucket_int_test.rs"
+path = "tests/token_bucket_int_test.rs"
 
 [[test]]
 name = "traits_int_test"
-path = "test/traits_int_test.rs"
+path = "tests/traits_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

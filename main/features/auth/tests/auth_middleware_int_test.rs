@@ -5,7 +5,7 @@
 //! `Send + Sync` bounds.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthMiddleware};
+use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, AuthSvc};
 
 // ---------------------------------------------------------------------------
 // Construction
@@ -14,16 +14,16 @@ use swe_edge_egress_auth::{AuthSvc, AuthConfig, AuthMiddleware};
 #[test]
 fn test_auth_middleware_builds_from_none_config() {
     // Simplest path: None config needs no env vars. Must always succeed.
-    let mw: AuthMiddleware =
-        AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config must produce AuthMiddleware");
+    let mw: AuthMiddleware = AuthSvc::build_auth_middleware(AuthConfig::None)
+        .expect("None config must produce AuthMiddleware");
     // Verify the returned value is usable (debug at minimum).
     let _ = format!("{mw:?}");
 }
 
 #[test]
 fn test_auth_middleware_builds_from_builder_fn_default() {
-    let mw =
-        AuthSvc::build_auth_middleware(AuthConfig::None).expect("default config must build to middleware");
+    let mw = AuthSvc::build_auth_middleware(AuthConfig::None)
+        .expect("default config must build to middleware");
     let _ = format!("{mw:?}");
 }
 
@@ -34,7 +34,8 @@ fn test_auth_middleware_builds_from_bearer_config_when_env_set() {
     let cfg = AuthConfig::Bearer {
         token_env: env_name.into(),
     };
-    let mw = AuthSvc::build_auth_middleware(cfg).expect("Bearer with env set must produce AuthMiddleware");
+    let mw = AuthSvc::build_auth_middleware(cfg)
+        .expect("Bearer with env set must produce AuthMiddleware");
     let _ = format!("{mw:?}");
     std::env::remove_var(env_name);
 }

@@ -8,3 +8,5 @@ pub use application_config_builder::ApplicationConfigBuilder;
 
 pub(crate) mod credential_source;
 pub(crate) use credential_source::CredentialSource;
+pub mod auth_svc;
+pub use auth_svc::AuthSvc;
