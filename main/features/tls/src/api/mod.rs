@@ -2,5 +2,6 @@
 
 pub(crate) mod error;
 pub(crate) mod identity;
+pub(crate) mod tls;
 pub(crate) mod traits;
 pub(crate) mod types;
