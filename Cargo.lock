@@ -1613,7 +1613,6 @@ dependencies = [
  "hex",
  "hmac",
  "http",
- "parking_lot",
  "percent-encoding",
  "reqwest",
  "reqwest-middleware",

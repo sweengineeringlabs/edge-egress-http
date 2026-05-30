@@ -43,7 +43,6 @@ hex = { workspace = true }
 time = { workspace = true }
 # SigV4 canonical-request percent-encodes URI path + query.
 percent-encoding = { workspace = true }
-parking_lot = { workspace = true }
 swe-edge-configbuilder.workspace = true
 tracing = { workspace = true, optional = true }
 

@@ -1,12 +1,7 @@
-//! Error type for the cassette middleware.
+//! Domain error types for `swe_edge_egress_cassette`.
 
-/// Errors raised by the cassette middleware.
-#[derive(Debug, thiserror::Error)]
-pub enum CassetteError {
-    /// Config TOML didn't parse as the expected schema.
-    #[error("swe_edge_egress_cassette: config parse failed — {0}")]
-    ParseFailed(String),
-}
+pub mod cassette_error;
+pub use cassette_error::CassetteError;
 
-/// Error type alias for compatibility — declared in `api/` per SEA Rule 160.
-pub type Error = CassetteError;
+/// Error type alias for compatibility.
+pub use CassetteError as Error;

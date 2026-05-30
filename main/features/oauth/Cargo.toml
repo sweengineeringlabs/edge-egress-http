@@ -22,8 +22,8 @@ async-trait.workspace        = true
 anyhow.workspace             = true
 futures.workspace            = true
 reqwest.workspace            = true
-reqwest-middleware.workspace  = true
 http.workspace               = true
+reqwest-middleware.workspace  = true
 thiserror.workspace          = true
 tokio                        = { workspace = true, features = ["sync"] }
 tracing.workspace            = true

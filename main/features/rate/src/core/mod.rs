@@ -2,5 +2,6 @@
 //! of the primary api trait.
 
 pub(crate) mod default;
+pub(crate) mod processor;
 pub(crate) mod rate;
 pub(crate) mod token;
