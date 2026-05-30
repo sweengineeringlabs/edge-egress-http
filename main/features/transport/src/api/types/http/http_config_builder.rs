@@ -9,7 +9,6 @@ use super::http_config::HttpConfig;
 /// Construct via [`HttpConfigBuilder::new`] and chain setter methods,
 /// then call [`build`](Self::build) to obtain the final [`HttpConfig`].
 #[derive(Debug, Default)]
-#[allow(dead_code)]
 pub struct HttpConfigBuilder {
     base_url: Option<String>,
     timeout_secs: Option<u64>,

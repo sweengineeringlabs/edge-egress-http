@@ -48,51 +48,59 @@ tracing = ["dep:tracing"]
 
 [[test]]
 name = "breaker_config_int_test"
-path = "test/breaker_config_int_test.rs"
+path = "tests/breaker_config_int_test.rs"
 
 [[test]]
 name = "breaker_layer_int_test"
-path = "test/breaker_layer_int_test.rs"
+path = "tests/breaker_layer_int_test.rs"
 
 [[test]]
 name = "breaker_state_int_test"
-path = "test/breaker_state_int_test.rs"
+path = "tests/breaker_state_int_test.rs"
 
 [[test]]
 name = "builder_e2e_test"
-path = "test/builder_e2e_test.rs"
+path = "tests/builder_e2e_test.rs"
 
 [[test]]
 name = "builder_int_test"
-path = "test/builder_int_test.rs"
+path = "tests/builder_int_test.rs"
 
 [[test]]
 name = "core_breaker_layer_int_test"
-path = "test/core_breaker_layer_int_test.rs"
+path = "tests/core_breaker_layer_int_test.rs"
 
 [[test]]
 name = "default_http_breaker_int_test"
-path = "test/default_http_breaker_int_test.rs"
+path = "tests/default_http_breaker_int_test.rs"
 
 [[test]]
 name = "error_int_test"
-path = "test/error_int_test.rs"
+path = "tests/error_int_test.rs"
 
 [[test]]
 name = "gateway_int_test"
-path = "test/gateway_int_test.rs"
+path = "tests/gateway_int_test.rs"
 
 [[test]]
 name = "host_breaker_int_test"
-path = "test/host_breaker_int_test.rs"
+path = "tests/host_breaker_int_test.rs"
 
 [[test]]
 name = "http_breaker_int_test"
-path = "test/http_breaker_int_test.rs"
+path = "tests/http_breaker_int_test.rs"
 
 [[test]]
 name = "traits_int_test"
-path = "test/traits_int_test.rs"
+path = "tests/traits_int_test.rs"
+
+[[test]]
+name = "moka_int_test"
+path = "tests/moka_int_test.rs"
+
+[[test]]
+name = "configbuilder_int_test"
+path = "tests/configbuilder_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

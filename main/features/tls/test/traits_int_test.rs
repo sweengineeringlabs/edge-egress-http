@@ -9,7 +9,7 @@
 //! - `TlsLayer` is `Send + Sync` (flows from `HttpTls: Send + Sync + Debug`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTls, HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // SAF re-export completeness — compile-time proof

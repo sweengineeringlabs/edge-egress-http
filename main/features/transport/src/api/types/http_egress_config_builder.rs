@@ -4,7 +4,6 @@ use crate::api::types::http::http_config::HttpConfig;
 use crate::api::types::http_egress_config::HttpEgressConfig;
 
 /// Fluent builder for [`HttpEgressConfig`].
-#[allow(dead_code)]
 pub struct HttpEgressConfigBuilder {
     http: HttpConfig,
     cassette_name: String,

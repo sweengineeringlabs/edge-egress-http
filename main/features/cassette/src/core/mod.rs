@@ -3,4 +3,5 @@
 
 pub(crate) mod body_scrubber;
 pub(crate) mod cassette_layer;
+pub(crate) mod default_http_cassette;
 pub(crate) mod recorded_interaction;

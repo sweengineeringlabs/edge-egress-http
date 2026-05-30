@@ -3,10 +3,7 @@
 //! Covers: `http_egress`, `http_egress_with_auth`, `plain_http_egress`,
 //! and `validate_http_config` which are not tested by other integration test files.
 
-use swe_edge_egress_http_transport::{
-    default_http_stream_outbound, http_egress, http_egress_with_auth, plain_http_egress,
-    validate_http_config, HttpConfig, HttpEgressConfig, HttpStream,
-};
+use swe_edge_egress_http_transport::{HttpConfig, HttpEgressConfig, HttpStream, HttpTransportSvc};
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -31,7 +28,7 @@ fn build_outbound_config(base_url: &str) -> HttpEgressConfig {
 #[test]
 fn test_http_egress_builds_successfully_with_none_auth() {
     let cfg = build_outbound_config("https://api.example.com");
-    let result = http_egress(cfg);
+    let result = HttpTransportSvc::http_egress(cfg);
     assert!(
         result.is_ok(),
         "http_egress must build with None auth: {:?}",
@@ -42,8 +39,8 @@ fn test_http_egress_builds_successfully_with_none_auth() {
 /// @covers: http_egress
 #[test]
 fn test_http_egress_builds_two_independent_instances() {
-    let a = http_egress(build_outbound_config("https://a.example.com"));
-    let b = http_egress(build_outbound_config("https://b.example.com"));
+    let a = HttpTransportSvc::http_egress(build_outbound_config("https://a.example.com"));
+    let b = HttpTransportSvc::http_egress(build_outbound_config("https://b.example.com"));
     assert!(a.is_ok(), "first http_egress must build");
     assert!(b.is_ok(), "second http_egress must build");
 }
@@ -55,7 +52,7 @@ fn test_http_egress_builds_two_independent_instances() {
 fn test_http_egress_with_auth_builds_successfully_with_none_auth() {
     let cfg = HttpConfig::with_base_url("https://api.example.com");
     let auth = swe_edge_egress_auth::AuthConfig::None;
-    let result = http_egress_with_auth(cfg, auth);
+    let result = HttpTransportSvc::http_egress_with_auth(cfg, auth);
     assert!(
         result.is_ok(),
         "http_egress_with_auth must build: {:?}",
@@ -66,11 +63,11 @@ fn test_http_egress_with_auth_builds_successfully_with_none_auth() {
 /// @covers: http_egress_with_auth
 #[test]
 fn test_http_egress_with_auth_builds_two_independent_instances() {
-    let a = http_egress_with_auth(
+    let a = HttpTransportSvc::http_egress_with_auth(
         HttpConfig::with_base_url("https://a.example.com"),
         swe_edge_egress_auth::AuthConfig::None,
     );
-    let b = http_egress_with_auth(
+    let b = HttpTransportSvc::http_egress_with_auth(
         HttpConfig::with_base_url("https://b.example.com"),
         swe_edge_egress_auth::AuthConfig::None,
     );
@@ -83,7 +80,7 @@ fn test_http_egress_with_auth_builds_two_independent_instances() {
 /// @covers: plain_http_egress
 #[test]
 fn test_plain_http_egress_builds_with_default_config() {
-    let result = plain_http_egress(HttpConfig::default());
+    let result = HttpTransportSvc::plain_http_egress(HttpConfig::default());
     assert!(
         result.is_ok(),
         "plain_http_egress must build with default config: {:?}",
@@ -95,7 +92,7 @@ fn test_plain_http_egress_builds_with_default_config() {
 #[test]
 fn test_plain_http_egress_builds_with_custom_base_url() {
     let cfg = HttpConfig::with_base_url("https://custom.api.com");
-    let result = plain_http_egress(cfg);
+    let result = HttpTransportSvc::plain_http_egress(cfg);
     assert!(
         result.is_ok(),
         "plain_http_egress must build with custom base URL: {:?}",
@@ -108,7 +105,7 @@ fn test_plain_http_egress_builds_with_custom_base_url() {
 /// @covers: default_http_stream_outbound
 #[test]
 fn test_default_http_stream_outbound_builds_with_swe_defaults() {
-    let result = default_http_stream_outbound();
+    let result = HttpTransportSvc::default_http_stream_outbound();
     assert!(
         result.is_ok(),
         "default_http_stream_outbound must build: {:?}",
@@ -119,7 +116,7 @@ fn test_default_http_stream_outbound_builds_with_swe_defaults() {
 /// @covers: default_http_stream_outbound
 #[test]
 fn test_default_http_stream_outbound_implements_stream_outbound_trait() {
-    let outbound = default_http_stream_outbound().unwrap();
+    let outbound = HttpTransportSvc::default_http_stream_outbound().unwrap();
     fn _assert(_: &dyn HttpStream) {}
     _assert(&outbound);
 }
@@ -134,7 +131,7 @@ fn test_validate_http_config_returns_ok_for_valid_timeout() {
         connect_timeout_secs: 10,
         ..HttpConfig::default()
     };
-    assert!(validate_http_config(&cfg).is_ok());
+    assert!(HttpTransportSvc::validate_http_config(&cfg).is_ok());
 }
 
 /// @covers: validate_http_config
@@ -144,7 +141,7 @@ fn test_validate_http_config_returns_err_for_zero_timeout() {
         timeout_secs: 0,
         ..HttpConfig::default()
     };
-    let err = validate_http_config(&cfg).unwrap_err();
+    let err = HttpTransportSvc::validate_http_config(&cfg).unwrap_err();
     assert!(
         err.contains("timeout_secs"),
         "error must name the offending field, got: {err:?}"

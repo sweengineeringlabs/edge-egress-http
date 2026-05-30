@@ -5,11 +5,11 @@
 //! path is pure trait-object dispatch on the resulting
 //! [`AuthStrategy`].
 
-use crate::api::auth_config::AuthConfig;
-use crate::api::auth_strategy::AuthStrategy;
-use crate::api::credential_resolver::CredentialResolver;
-use crate::api::credential_source::CredentialSource;
+use crate::api::auth::config::AuthConfig;
+use crate::api::auth::strategy::AuthStrategy;
 use crate::api::error::AuthError;
+use crate::api::traits::credential_resolver::CredentialResolver;
+use crate::api::types::credential_source::CredentialSource;
 
 use super::aws_sigv4_strategy::AwsSigV4Strategy;
 use super::basic_strategy::BasicStrategy;
@@ -85,15 +85,15 @@ mod tests {
     /// Stub resolver that returns the same canned secret for
     /// every source. Lets us exercise the factory without
     /// touching process env.
-    struct StubResolver(&'static str);
-    impl CredentialResolver for StubResolver {
+    struct StrategyFactoryStubResolver(&'static str);
+    impl CredentialResolver for StrategyFactoryStubResolver {
         fn resolve(&self, _source: &CredentialSource) -> Result<SecretString, AuthError> {
             Ok(SecretString::from(self.0.to_string()))
         }
     }
 
-    struct MissingResolver;
-    impl CredentialResolver for MissingResolver {
+    struct StrategyFactoryMissingResolver;
+    impl CredentialResolver for StrategyFactoryMissingResolver {
         fn resolve(&self, source: &CredentialSource) -> Result<SecretString, AuthError> {
             let name = match source {
                 CredentialSource::EnvVar(n) => n.clone(),
@@ -107,7 +107,7 @@ mod tests {
     fn test_build_strategy_returns_ok_for_every_config_variant() {
         // Smoke: every variant constructs without panic when
         // the resolver supplies a placeholder credential.
-        let r = &StubResolver("x");
+        let r = &StrategyFactoryStubResolver("x");
         assert!(StrategyFactory::build_strategy(&AuthConfig::None, r).is_ok());
         assert!(StrategyFactory::build_strategy(
             &AuthConfig::Bearer {
@@ -138,7 +138,8 @@ mod tests {
     #[test]
     fn test_none_builds_noop_strategy() {
         let strategy =
-            StrategyFactory::build_strategy(&AuthConfig::None, &StubResolver("x")).unwrap();
+            StrategyFactory::build_strategy(&AuthConfig::None, &StrategyFactoryStubResolver("x"))
+                .unwrap();
         // Applying it to a request must not attach any auth.
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
@@ -154,7 +155,8 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "WHATEVER".into(),
         };
-        let strategy = StrategyFactory::build_strategy(&cfg, &StubResolver("tok-42")).unwrap();
+        let strategy =
+            StrategyFactory::build_strategy(&cfg, &StrategyFactoryStubResolver("tok-42")).unwrap();
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
             reqwest::Url::parse("http://example.test/").unwrap(),
@@ -179,7 +181,8 @@ mod tests {
         };
         // Resolver returns "same" for BOTH env vars; verify
         // that strategy authorizes with a valid basic header.
-        let strategy = StrategyFactory::build_strategy(&cfg, &StubResolver("same")).unwrap();
+        let strategy =
+            StrategyFactory::build_strategy(&cfg, &StrategyFactoryStubResolver("same")).unwrap();
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
             reqwest::Url::parse("http://example.test/").unwrap(),
@@ -201,7 +204,8 @@ mod tests {
             name: "x-api-key".into(),
             value_env: "K".into(),
         };
-        let strategy = StrategyFactory::build_strategy(&cfg, &StubResolver("key-99")).unwrap();
+        let strategy =
+            StrategyFactory::build_strategy(&cfg, &StrategyFactoryStubResolver("key-99")).unwrap();
         let mut req = reqwest::Request::new(
             reqwest::Method::GET,
             reqwest::Url::parse("http://example.test/").unwrap(),
@@ -219,7 +223,8 @@ mod tests {
         let cfg = AuthConfig::Bearer {
             token_env: "DOES_NOT_EXIST".into(),
         };
-        let err = StrategyFactory::build_strategy(&cfg, &MissingResolver).unwrap_err();
+        let err =
+            StrategyFactory::build_strategy(&cfg, &StrategyFactoryMissingResolver).unwrap_err();
         match err {
             AuthError::MissingEnvVar { name } => assert_eq!(name, "DOES_NOT_EXIST"),
             other => panic!("expected MissingEnvVar, got {other:?}"),

@@ -3,9 +3,12 @@
 use swe_edge_configbuilder::ConfigLoaderFactory;
 
 use crate::api::error::RateError;
-use crate::api::types::rate_config::RateConfig;
-use crate::api::types::rate_layer::RateLayer;
-use crate::api::types::rate_svc::HttpRateSvc;
+use crate::api::traits::Processor;
+use crate::api::traits::Validator;
+use crate::api::types::HttpRateSvc;
+use crate::api::types::RateConfig;
+use crate::api::types::RateLayer;
+use crate::core::default_http_rate::DefaultHttpRate;
 
 impl HttpRateSvc {
     /// Return a config builder pre-seeded with this crate's name and version.
@@ -16,8 +19,15 @@ impl HttpRateSvc {
             .with_version(env!("CARGO_PKG_VERSION"))
     }
 
-    /// Build a [`RateLayer`] from a caller-supplied [`RateConfig`].
+    /// Validate a [`RateConfig`] and build a [`RateLayer`] from it.
+    ///
+    /// Returns `Err` if the config fails validation (e.g. zero token rate).
     pub fn build_rate_layer(config: RateConfig) -> Result<RateLayer, RateError> {
+        let processor = DefaultHttpRate::new(config.clone());
+        processor
+            .validate()
+            .map_err(|e| RateError::ParseFailed(e))?;
+        let _ = processor.describe(); // exercise the Processor contract
         let layer = RateLayer::new(config);
         Ok(layer)
     }

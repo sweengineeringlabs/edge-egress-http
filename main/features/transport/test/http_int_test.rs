@@ -4,6 +4,7 @@
 //! `http` crate flow correctly through domain value objects and the SAF layer.
 
 use http::{Method, StatusCode};
+use swe_edge_egress_http_transport::HttpTransportSvc;
 use swe_edge_egress_http_transport::{HttpMethod, HttpRequest, HttpResponse};
 
 /// @covers: HttpMethod

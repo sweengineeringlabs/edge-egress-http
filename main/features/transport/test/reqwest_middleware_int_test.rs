@@ -15,7 +15,7 @@ use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use reqwest_middleware::ClientBuilder;
-use swe_edge_egress_http_transport::{plain_http_egress, HttpConfig, HttpEgress, HttpRequest};
+use swe_edge_egress_http_transport::{HttpConfig, HttpEgress, HttpRequest, HttpTransportSvc};
 
 /// Spawn a single-connection HTTP/1 test server.
 async fn spawn_once<F, Fut>(handler: F) -> (u16, tokio::task::JoinHandle<()>)
@@ -59,7 +59,7 @@ async fn test_reqwest_middleware_client_sends_get_request_and_receives_200() {
         spawn_once(|_req| async { Response::new(Full::new(Bytes::from("ok"))) }).await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_egress(cfg).expect("plain_http_egress must build");
+    let client = HttpTransportSvc::plain_http_egress(cfg).expect("plain_http_egress must build");
     let resp = client
         .send(HttpRequest::get("/"))
         .await
@@ -83,7 +83,7 @@ async fn test_reqwest_middleware_client_forwards_custom_headers() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_egress(cfg).expect("plain_http_egress must build");
+    let client = HttpTransportSvc::plain_http_egress(cfg).expect("plain_http_egress must build");
     let req = HttpRequest::get("/").with_header("x-trace-id", "trace-99");
     let resp = client
         .send(req)
@@ -111,7 +111,7 @@ async fn test_reqwest_middleware_client_sends_post_with_json_body() {
     .await;
 
     let cfg = HttpConfig::with_base_url(format!("http://127.0.0.1:{port}"));
-    let client = plain_http_egress(cfg).expect("plain_http_egress must build");
+    let client = HttpTransportSvc::plain_http_egress(cfg).expect("plain_http_egress must build");
     let req = HttpRequest::post("/")
         .with_json(&serde_json::json!({"key": "value"}))
         .unwrap();

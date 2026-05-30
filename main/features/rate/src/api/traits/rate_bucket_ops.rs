@@ -1,0 +1,14 @@
+//! `RateBucketOps` — token consumption contract for rate bucket implementations.
+
+/// Contract for token-bucket rate limiters. Implementations
+/// track per-host (or global) token counts and report whether
+/// the current request may proceed or must wait.
+pub(crate) trait RateBucketOps {
+    /// Try to consume one token. Returns `Ok(())` if a token was
+    /// available; `Err(wait)` is the minimum delay before a
+    /// token will be ready.
+    fn try_consume(
+        &mut self,
+        config: &crate::api::types::rate::rate_config::RateConfig,
+    ) -> Result<(), std::time::Duration>;
+}

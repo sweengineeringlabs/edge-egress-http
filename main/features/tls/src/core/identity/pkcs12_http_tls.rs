@@ -1,9 +1,9 @@
-//! PKCS#12-bundle identity provider.
+//! `Pkcs12HttpTls` — PKCS#12-bundle identity provider.
 
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::api::error::TlsError;
-use crate::api::http_tls::HttpTls;
+use crate::api::traits::HttpTls;
 
 pub(crate) struct Pkcs12HttpTls {
     /// Pre-loaded DER bytes.
@@ -34,7 +34,7 @@ impl std::fmt::Debug for Pkcs12HttpTls {
 impl Pkcs12HttpTls {
     /// Construct by reading the .p12 / .pfx file into memory.
     /// Password (if any) is pre-resolved from env var before
-    /// this call; see `tls_factory::build_provider`.
+    /// this call; see `TlsProviderFactory::build_provider`.
     pub(crate) fn new(path: String, password: Option<SecretString>) -> Result<Self, TlsError> {
         let der_bytes = std::fs::read(&path).map_err(|e| TlsError::FileReadFailed {
             path: path.clone(),
@@ -50,7 +50,8 @@ impl Pkcs12HttpTls {
 
 impl HttpTls for Pkcs12HttpTls {
     fn describe(&self) -> &'static str {
-        "pkcs12"
+        let name = "pkcs12";
+        name
     }
 
     fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
@@ -81,13 +82,11 @@ mod tests {
         let path = dir.path().join("test.p12");
         std::fs::write(&path, b"fake-pkcs12-bytes").unwrap();
         let p = Pkcs12HttpTls::new(path.to_str().unwrap().to_string(), None).unwrap();
-        // The bytes were loaded (Debug shows byte count).
         let dbg = format!("{p:?}");
         assert!(
             dbg.contains("17 bytes"),
             "debug must show byte count: {dbg}"
         );
-        // No password set.
         assert!(
             dbg.contains("<none>"),
             "debug must show password absent: {dbg}"
@@ -106,7 +105,6 @@ mod tests {
         )
         .unwrap();
         let dbg = format!("{p:?}");
-        // Password is set but not leaked.
         assert!(
             dbg.contains("<set>"),
             "debug must show password is set: {dbg}"
@@ -119,7 +117,7 @@ mod tests {
 
     /// @covers: Pkcs12HttpTls::new
     #[test]
-    fn test_load_missing_file_returns_file_read_failed() {
+    fn test_new_missing_file_returns_file_read_failed() {
         let err =
             Pkcs12HttpTls::new("/path/definitely/does/not/exist.p12".into(), None).unwrap_err();
         match err {
@@ -131,9 +129,6 @@ mod tests {
     /// @covers: Pkcs12HttpTls::identity
     #[test]
     fn test_identity_on_invalid_der_bytes_returns_invalid_certificate() {
-        // Construct with bogus DER bytes (we can't easily make a
-        // real p12 in a unit test; assert that malformed data
-        // hits the InvalidCertificate branch).
         let p = Pkcs12HttpTls {
             der_bytes: b"not-really-pkcs12".to_vec(),
             password: Some(SecretString::from("whatever".to_string())),
@@ -148,7 +143,7 @@ mod tests {
 
     /// @covers: Pkcs12HttpTls::describe
     #[test]
-    fn test_describe() {
+    fn test_describe_returns_pkcs12_label() {
         let p = Pkcs12HttpTls {
             der_bytes: vec![],
             password: None,
@@ -158,7 +153,7 @@ mod tests {
     }
 
     #[test]
-    fn test_fmt() {
+    fn test_fmt_does_not_panic() {
         let p = Pkcs12HttpTls {
             der_bytes: vec![],
             password: None,

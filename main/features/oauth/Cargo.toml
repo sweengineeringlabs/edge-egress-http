@@ -37,7 +37,7 @@ tokio = { workspace = true, features = ["macros", "rt"] }
 
 [[test]]
 name = "refresh_strategy_int_test"
-path = "test/refresh_strategy_int_test.rs"
+path = "tests/refresh_strategy_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

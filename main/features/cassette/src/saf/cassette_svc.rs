@@ -3,9 +3,9 @@
 use swe_edge_configbuilder::ConfigLoaderFactory;
 
 use crate::api::error::CassetteError;
-use crate::api::types::cassette_config::CassetteConfig;
-use crate::api::types::cassette_layer::CassetteLayer;
-use crate::api::types::cassette_svc::HttpCassetteSvc;
+use crate::api::types::cassette::config::CassetteConfig;
+use crate::api::types::cassette::layer::CassetteLayer;
+use crate::api::types::cassette::svc::HttpCassetteSvc;
 
 impl HttpCassetteSvc {
     /// Return a config builder pre-seeded with this crate's name and version.

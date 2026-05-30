@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use crate::api::auth_config::AuthConfig;
-use crate::api::auth_middleware::AuthMiddleware;
+use crate::api::auth::config::AuthConfig;
 use crate::api::error::AuthError;
+use crate::api::types::AuthMiddleware;
 use crate::core::credential::EnvCredentialResolver;
 use crate::core::default_http_auth::DefaultHttpAuth;
 

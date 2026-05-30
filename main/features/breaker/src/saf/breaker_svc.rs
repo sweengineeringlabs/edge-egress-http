@@ -3,9 +3,9 @@
 use swe_edge_configbuilder::ConfigLoaderFactory;
 
 use crate::api::error::BreakerError;
-use crate::api::types::breaker_config::BreakerConfig;
-use crate::api::types::breaker_layer::BreakerLayer;
-use crate::api::types::breaker_svc::HttpBreakerSvc;
+use crate::api::types::breaker::config::BreakerConfig;
+use crate::api::types::breaker::layer::BreakerLayer;
+use crate::api::types::breaker::svc::HttpBreakerSvc;
 
 impl HttpBreakerSvc {
     /// Return a config builder pre-seeded with this crate's name and version.

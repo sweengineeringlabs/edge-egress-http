@@ -2,9 +2,9 @@
 
 use secrecy::SecretString;
 
-use crate::api::credential_resolver::CredentialResolver;
-use crate::api::credential_source::CredentialSource;
 use crate::api::error::AuthError;
+use crate::api::traits::CredentialResolver;
+use crate::api::types::credential_source::CredentialSource;
 
 /// [`CredentialResolver`] impl that reads values from process
 /// env vars via [`std::env::var`].

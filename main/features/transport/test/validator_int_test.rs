@@ -4,7 +4,7 @@
 //! correctly enforce the `Validator` contract: `Ok(())` for well-formed values
 //! and `Err(msg)` with a non-empty, actionable message for invalid ones.
 
-use swe_edge_egress_http_transport::{validate_http_config, HttpConfig};
+use swe_edge_egress_http_transport::{HttpConfig, HttpTransportSvc};
 
 // ─── validate_http_config tests ─────────────────────────────────────────────
 
@@ -13,7 +13,7 @@ use swe_edge_egress_http_transport::{validate_http_config, HttpConfig};
 fn test_validate_http_config_returns_ok_for_default_config() {
     let cfg = HttpConfig::default();
     assert!(
-        validate_http_config(&cfg).is_ok(),
+        HttpTransportSvc::validate_http_config(&cfg).is_ok(),
         "default HttpConfig must pass validation"
     );
 }
@@ -25,7 +25,7 @@ fn test_validate_http_config_returns_err_for_zero_timeout_secs() {
         timeout_secs: 0,
         ..HttpConfig::default()
     };
-    let err = validate_http_config(&cfg).unwrap_err();
+    let err = HttpTransportSvc::validate_http_config(&cfg).unwrap_err();
     assert!(
         !err.is_empty(),
         "validation error message must be non-empty"
@@ -43,7 +43,7 @@ fn test_validate_http_config_returns_err_for_zero_connect_timeout() {
         connect_timeout_secs: 0,
         ..HttpConfig::default()
     };
-    let err = validate_http_config(&cfg).unwrap_err();
+    let err = HttpTransportSvc::validate_http_config(&cfg).unwrap_err();
     assert!(
         !err.is_empty(),
         "validation error message must be non-empty"
@@ -59,7 +59,7 @@ fn test_validate_http_config_returns_err_for_zero_connect_timeout() {
 fn test_validate_http_config_with_base_url_returns_ok() {
     let cfg = HttpConfig::with_base_url("https://api.example.com");
     assert!(
-        validate_http_config(&cfg).is_ok(),
+        HttpTransportSvc::validate_http_config(&cfg).is_ok(),
         "HttpConfig with base_url and defaults must pass validation"
     );
 }

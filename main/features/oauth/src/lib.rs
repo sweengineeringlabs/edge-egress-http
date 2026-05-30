@@ -9,7 +9,7 @@
 //! ```rust,no_run
 //! use std::sync::Arc;
 //! use futures::future::BoxFuture;
-//! use swe_edge_egress_oauth::{builder, OAuthBuilderOps, OAuthTokenSource, Result};
+//! use swe_edge_egress_oauth::{OAuthBuilderOps, OAuthTokenSource, OAuthSvc, Result};
 //!
 //! #[derive(Debug)]
 //! struct MyTokenSource;
@@ -21,7 +21,7 @@
 //! }
 //!
 //! # fn main() -> std::result::Result<(), swe_edge_egress_oauth::OAuthError> {
-//! let mw = builder()
+//! let mw = OAuthSvc::builder()
 //!     .with_token_source(Arc::new(MyTokenSource))
 //!     .build()?;
 //!

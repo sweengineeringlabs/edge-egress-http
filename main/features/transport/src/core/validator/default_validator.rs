@@ -11,12 +11,10 @@ use crate::api::traits::Validator;
 /// Delegates validation to the inner value. Core infrastructure components
 /// use this wrapper so they satisfy the SEA Rule 49 requirement that every
 /// trait declared in `api/` has at least one `impl Validator for` in `core/`.
-#[allow(dead_code)]
 pub(crate) struct DefaultValidator<T: Validator> {
     inner: T,
 }
 
-#[allow(dead_code)]
 impl<T: Validator> DefaultValidator<T> {
     pub(crate) fn new(inner: T) -> Self {
         Self { inner }

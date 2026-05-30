@@ -1,38 +1,43 @@
-//! Factory — turns a [`TlsConfig`] into a concrete
+//! `TlsProviderFactory` — turns a [`TlsConfig`] into a concrete
 //! [`Box<dyn HttpTls>`].
 
 use secrecy::SecretString;
 
 use crate::api::error::TlsError;
-use crate::api::http_tls::HttpTls;
-use crate::api::tls_config::TlsConfig;
+use crate::api::traits::HttpTls;
+use crate::api::types::TlsConfig;
 
 use super::noop_http_tls::NoopHttpTls;
 use super::pem_http_tls::PemHttpTls;
 use super::pkcs12_http_tls::Pkcs12HttpTls;
 
-/// Realize a [`TlsConfig`] into the right provider impl.
+/// Realizes a [`TlsConfig`] into the right provider impl.
 ///
-/// File reads + env-var resolution happen NOW. Missing files
-/// return [`TlsError::FileReadFailed`]; missing passwords (when
-/// the config specifies one) return [`TlsError::MissingEnvVar`].
-pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, TlsError> {
-    match config {
-        TlsConfig::None => Ok(Box::new(NoopHttpTls)),
+/// File reads + env-var resolution happen inside `build_provider`.
+/// Missing files return [`TlsError::FileReadFailed`]; missing passwords
+/// (when the config specifies one) return [`TlsError::MissingEnvVar`].
+pub(crate) struct TlsProviderFactory;
 
-        TlsConfig::Pkcs12 { path, password_env } => {
-            let password = match password_env {
-                Some(var) => {
-                    let v = std::env::var(var)
-                        .map_err(|_| TlsError::MissingEnvVar { name: var.clone() })?;
-                    Some(SecretString::from(v))
-                }
-                None => None,
-            };
-            Ok(Box::new(Pkcs12HttpTls::new(path.clone(), password)?))
+impl TlsProviderFactory {
+    /// Realize a [`TlsConfig`] into the right provider impl.
+    pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, TlsError> {
+        match config {
+            TlsConfig::None => Ok(Box::new(NoopHttpTls)),
+
+            TlsConfig::Pkcs12 { path, password_env } => {
+                let password = match password_env {
+                    Some(var) => {
+                        let v = std::env::var(var)
+                            .map_err(|_| TlsError::MissingEnvVar { name: var.clone() })?;
+                        Some(SecretString::from(v))
+                    }
+                    None => None,
+                };
+                Ok(Box::new(Pkcs12HttpTls::new(path.clone(), password)?))
+            }
+
+            TlsConfig::Pem { path } => Ok(Box::new(PemHttpTls::new(path.clone())?)),
         }
-
-        TlsConfig::Pem { path } => Ok(Box::new(PemHttpTls::new(path.clone())?)),
     }
 }
 
@@ -40,23 +45,23 @@ pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, Tls
 mod tests {
     use super::*;
 
-    /// @covers: build_provider
+    /// @covers: TlsProviderFactory::build_provider
     #[test]
-    fn test_none_variant_builds_noop() {
-        let p = build_provider(&TlsConfig::None).unwrap();
+    fn test_build_provider_none_variant_builds_noop() {
+        let p = TlsProviderFactory::build_provider(&TlsConfig::None).unwrap();
         assert_eq!(p.describe(), "noop");
         assert!(p.identity().unwrap().is_none());
     }
 
-    /// @covers: build_provider
+    /// @covers: TlsProviderFactory::build_provider
     #[test]
-    fn test_pkcs12_with_missing_password_env_returns_missing_env_var() {
+    fn test_build_provider_pkcs12_missing_password_env_returns_missing_env_var() {
         std::env::remove_var("EDGE_TEST_TLS_PKCS_PW_ABSENT_01");
         let cfg = TlsConfig::Pkcs12 {
             path: "irrelevant.p12".into(),
             password_env: Some("EDGE_TEST_TLS_PKCS_PW_ABSENT_01".into()),
         };
-        let err = build_provider(&cfg).unwrap_err();
+        let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
         match err {
             TlsError::MissingEnvVar { name } => {
                 assert_eq!(name, "EDGE_TEST_TLS_PKCS_PW_ABSENT_01");
@@ -65,33 +70,33 @@ mod tests {
         }
     }
 
-    /// @covers: build_provider
+    /// @covers: TlsProviderFactory::build_provider
     #[test]
-    fn test_pkcs12_with_missing_file_returns_file_read_failed() {
+    fn test_build_provider_pkcs12_missing_file_returns_file_read_failed() {
         let cfg = TlsConfig::Pkcs12 {
             path: "/path/definitely/does/not/exist.p12".into(),
             password_env: None,
         };
-        let err = build_provider(&cfg).unwrap_err();
+        let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
         match err {
             TlsError::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
             other => panic!("expected FileReadFailed, got {other:?}"),
         }
     }
 
-    /// @covers: build_provider
+    /// @covers: TlsProviderFactory::build_provider
     #[test]
-    fn test_pem_with_missing_file_returns_file_read_failed() {
+    fn test_build_provider_pem_missing_file_returns_file_read_failed() {
         let cfg = TlsConfig::Pem {
             path: "/path/definitely/does/not/exist.pem".into(),
         };
-        let err = build_provider(&cfg).unwrap_err();
+        let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
         assert!(matches!(err, TlsError::FileReadFailed { .. }));
     }
 
     #[test]
-    fn test_build_provider() {
-        let p = build_provider(&TlsConfig::None);
+    fn test_build_provider_none_succeeds() {
+        let p = TlsProviderFactory::build_provider(&TlsConfig::None);
         assert!(p.is_ok());
     }
 }

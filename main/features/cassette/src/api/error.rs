@@ -7,3 +7,6 @@ pub enum CassetteError {
     #[error("swe_edge_egress_cassette: config parse failed — {0}")]
     ParseFailed(String),
 }
+
+/// Error type alias for compatibility — declared in `api/` per SEA Rule 160.
+pub type Error = CassetteError;

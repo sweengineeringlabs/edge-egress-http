@@ -1,8 +1,9 @@
-//! PEM-bundle identity provider. Expects a single file
-//! containing BOTH the certificate chain and the private key.
+//! `PemHttpTls` — PEM-bundle identity provider.
+//!
+//! Expects a single file containing BOTH the certificate chain and the private key.
 
 use crate::api::error::TlsError;
-use crate::api::http_tls::HttpTls;
+use crate::api::traits::HttpTls;
 
 pub(crate) struct PemHttpTls {
     pem_bytes: Vec<u8>,
@@ -31,7 +32,8 @@ impl PemHttpTls {
 
 impl HttpTls for PemHttpTls {
     fn describe(&self) -> &'static str {
-        "pem"
+        let name = "pem";
+        name
     }
 
     fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
@@ -67,7 +69,7 @@ mod tests {
 
     /// @covers: PemHttpTls::new
     #[test]
-    fn test_load_missing_file_returns_file_read_failed() {
+    fn test_new_missing_file_returns_file_read_failed() {
         let err = PemHttpTls::new("/path/definitely/does/not/exist.pem".into()).unwrap_err();
         assert!(matches!(err, TlsError::FileReadFailed { .. }));
     }
@@ -88,7 +90,7 @@ mod tests {
 
     /// @covers: PemHttpTls::describe
     #[test]
-    fn test_describe() {
+    fn test_describe_returns_pem_label() {
         let p = PemHttpTls {
             pem_bytes: vec![],
             path: "<stub>".into(),
@@ -97,7 +99,7 @@ mod tests {
     }
 
     #[test]
-    fn test_fmt() {
+    fn test_fmt_does_not_panic() {
         let p = PemHttpTls {
             pem_bytes: vec![],
             path: "<stub>".into(),

@@ -52,43 +52,43 @@ tracing = ["dep:tracing"]
 
 [[test]]
 name = "builder_e2e_test"
-path = "test/builder_e2e_test.rs"
+path = "tests/builder_e2e_test.rs"
 
 [[test]]
 name = "builder_int_test"
-path = "test/builder_int_test.rs"
+path = "tests/builder_int_test.rs"
 
 [[test]]
 name = "core_retry_layer_int_test"
-path = "test/core_retry_layer_int_test.rs"
+path = "tests/core_retry_layer_int_test.rs"
 
 [[test]]
 name = "default_http_retry_int_test"
-path = "test/default_http_retry_int_test.rs"
+path = "tests/default_http_retry_int_test.rs"
 
 [[test]]
 name = "error_int_test"
-path = "test/error_int_test.rs"
+path = "tests/error_int_test.rs"
 
 [[test]]
 name = "gateway_int_test"
-path = "test/gateway_int_test.rs"
+path = "tests/gateway_int_test.rs"
 
 [[test]]
 name = "http_retry_int_test"
-path = "test/http_retry_int_test.rs"
+path = "tests/http_retry_int_test.rs"
 
 [[test]]
 name = "retry_config_int_test"
-path = "test/retry_config_int_test.rs"
+path = "tests/retry_config_int_test.rs"
 
 [[test]]
 name = "retry_layer_int_test"
-path = "test/retry_layer_int_test.rs"
+path = "tests/retry_layer_int_test.rs"
 
 [[test]]
 name = "traits_int_test"
-path = "test/traits_int_test.rs"
+path = "tests/traits_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

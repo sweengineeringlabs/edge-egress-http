@@ -11,7 +11,7 @@
 //!   self-signed cert fixture written to a temp directory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig, TlsError};
+use swe_edge_egress_tls::{HttpTls, HttpTlsSvc, TlsConfig, TlsError};
 
 // ---------------------------------------------------------------------------
 // PemHttpTls::load — file-read errors surface at build time

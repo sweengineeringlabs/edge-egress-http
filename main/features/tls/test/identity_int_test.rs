@@ -5,7 +5,7 @@
 //! surface and honour the `HttpTls` contract.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsApplier, TlsConfig};
+use swe_edge_egress_tls::{HttpTls, HttpTlsSvc, TlsConfig};
 
 /// `TlsConfig::None` produces a provider that returns no identity,
 /// so `apply_to` passes the ClientBuilder through unmodified.

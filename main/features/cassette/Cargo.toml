@@ -40,6 +40,7 @@ tracing = { workspace = true, optional = true }
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 tempfile = "3"
+base64 = { workspace = true }
 
 [features]
 default = []
@@ -50,55 +51,55 @@ tracing = ["dep:tracing"]
 
 [[test]]
 name = "body_scrubber_int_test"
-path = "test/body_scrubber_int_test.rs"
+path = "tests/body_scrubber_int_test.rs"
 
 [[test]]
 name = "builder_e2e_test"
-path = "test/builder_e2e_test.rs"
+path = "tests/builder_e2e_test.rs"
 
 [[test]]
 name = "builder_int_test"
-path = "test/builder_int_test.rs"
+path = "tests/builder_int_test.rs"
 
 [[test]]
 name = "cassette_config_int_test"
-path = "test/cassette_config_int_test.rs"
+path = "tests/cassette_config_int_test.rs"
 
 [[test]]
 name = "cassette_layer_int_test"
-path = "test/cassette_layer_int_test.rs"
+path = "tests/cassette_layer_int_test.rs"
 
 [[test]]
 name = "core_cassette_layer_int_test"
-path = "test/core_cassette_layer_int_test.rs"
+path = "tests/core_cassette_layer_int_test.rs"
 
 [[test]]
 name = "default_http_cassette_int_test"
-path = "test/default_http_cassette_int_test.rs"
+path = "tests/default_http_cassette_int_test.rs"
 
 [[test]]
 name = "error_int_test"
-path = "test/error_int_test.rs"
+path = "tests/error_int_test.rs"
 
 [[test]]
 name = "gateway_int_test"
-path = "test/gateway_int_test.rs"
+path = "tests/gateway_int_test.rs"
 
 [[test]]
 name = "http_cassette_int_test"
-path = "test/http_cassette_int_test.rs"
+path = "tests/http_cassette_int_test.rs"
 
 [[test]]
 name = "recorded_interaction_int_test"
-path = "test/recorded_interaction_int_test.rs"
+path = "tests/recorded_interaction_int_test.rs"
 
 [[test]]
 name = "saf_builder_int_test"
-path = "test/saf_builder_int_test.rs"
+path = "tests/saf_builder_int_test.rs"
 
 [[test]]
 name = "traits_int_test"
-path = "test/traits_int_test.rs"
+path = "tests/traits_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

@@ -5,10 +5,10 @@ use std::sync::Arc;
 use swe_edge_configbuilder::ConfigLoaderFactory;
 
 use crate::api::error::TlsError;
-use crate::api::tls_config::TlsConfig;
-use crate::api::types::tls_layer::TlsLayer;
-use crate::api::types::tls_svc::HttpTlsSvc;
-use crate::core::identity::build_provider;
+use crate::api::types::HttpTlsSvc;
+use crate::api::types::TlsConfig;
+use crate::api::types::TlsLayer;
+use crate::core::identity::TlsProviderFactory;
 
 impl HttpTlsSvc {
     /// Return a config builder pre-seeded with this crate's name and version.
@@ -21,7 +21,7 @@ impl HttpTlsSvc {
 
     /// Build a [`TlsLayer`] from a caller-supplied [`TlsConfig`].
     pub fn build_tls_layer(config: TlsConfig) -> Result<TlsLayer, TlsError> {
-        let provider = build_provider(&config)?;
+        let provider = TlsProviderFactory::build_provider(&config)?;
         let layer = TlsLayer::new(Arc::from(provider));
         Ok(layer)
     }
