@@ -11,7 +11,7 @@ use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 
 use crate::api::error::CassetteError;
-use crate::api::types::cassette::config::CassetteConfig;
+use crate::api::types::cassette::cassette_config::CassetteConfig;
 use crate::api::types::cassette::layer::CassetteLayer;
 
 use crate::core::body::BodyScrubber;

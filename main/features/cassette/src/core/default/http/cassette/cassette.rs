@@ -1,7 +1,7 @@
 //! Default impl of [`HttpCassette`](crate::api::traits::HttpCassette).
 
 use crate::api::traits::HttpCassette;
-use crate::api::types::cassette::config::CassetteConfig;
+use crate::api::types::cassette::cassette_config::CassetteConfig;
 
 /// Default HttpCassette implementation. `pub(crate)` — consumers
 /// never touch this type directly; they go through `saf::cassette_svc`.

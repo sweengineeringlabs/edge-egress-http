@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use moka::future::Cache;
 
-use crate::api::types::breaker::config::BreakerConfig;
+use crate::api::types::breaker::breaker_config::BreakerConfig;
 
 /// Circuit breaker middleware. Attach to a
 /// `reqwest_middleware::ClientBuilder` via `.with(layer)`.

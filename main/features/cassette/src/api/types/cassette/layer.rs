@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::api::types::cassette::config::CassetteConfig;
+use crate::api::types::cassette::cassette_config::CassetteConfig;
 
 /// Cassette middleware. Attach to a
 /// `reqwest_middleware::ClientBuilder` via `.with(layer)`.

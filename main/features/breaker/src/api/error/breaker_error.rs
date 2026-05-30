@@ -1,8 +1,5 @@
 //! Error type for the breaker middleware.
 
-/// Error type alias for compatibility.
-pub type Error = BreakerError;
-
 /// Errors raised by the breaker middleware.
 #[derive(Debug, thiserror::Error)]
 pub enum BreakerError {

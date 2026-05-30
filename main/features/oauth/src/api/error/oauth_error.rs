@@ -1,4 +1,4 @@
-//! OAuth error types.
+//! `OAuthError` — errors produced by the OAuth crate.
 
 /// Errors produced by the OAuth crate.
 #[derive(Debug, thiserror::Error)]
@@ -16,6 +16,3 @@ pub enum OAuthError {
     #[error("swe_edge_egress_oauth: configuration error: {0}")]
     Configuration(String),
 }
-
-/// Convenience alias.
-pub type Result<T> = std::result::Result<T, OAuthError>;

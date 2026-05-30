@@ -28,7 +28,7 @@ use crate::api::error::AuthError;
 ///    attachment. Called after `prepare` completes. Strategies
 ///    hold any pre-computed state they need so the hot path on
 ///    every request is a trivial header insert.
-pub(crate) trait AuthStrategy: Send + Sync + std::fmt::Debug {
+pub trait AuthStrategy: Send + Sync + std::fmt::Debug {
     /// Optional async setup step.
     ///
     /// Default: no-op. Strategies that need to fetch or refresh

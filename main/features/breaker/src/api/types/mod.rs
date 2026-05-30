@@ -4,4 +4,4 @@ pub(crate) mod application_config_builder;
 pub(crate) mod breaker;
 
 pub use application_config_builder::ApplicationConfigBuilder;
-pub use breaker::svc::HttpBreakerSvc;
+pub use breaker::http_breaker_svc::HttpBreakerSvc;

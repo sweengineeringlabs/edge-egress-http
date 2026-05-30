@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use moka::future::Cache;
 
-use crate::api::types::cache::config::CacheConfig;
+use crate::api::types::cache::cache_config::CacheConfig;
 use crate::api::types::CachedEntry;
 
 /// HTTP cache middleware. Attach to a

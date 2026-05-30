@@ -6,13 +6,13 @@ pub mod application_config_builder;
 pub use application_config_builder::ApplicationConfigBuilder;
 
 // Re-export canonical names at the types/ level for backward compatibility.
-pub use cache::config::CacheConfig;
+pub use cache::cache_config::CacheConfig;
 pub use cache::layer::CacheLayer;
 pub use cache::svc::HttpCacheSvc;
 
 // Retain legacy module paths for any existing use-sites inside this crate.
 pub(crate) mod cache_config {
-    pub use super::cache::config::CacheConfig;
+    pub use super::cache::cache_config::CacheConfig;
 }
 pub(crate) mod cache_layer {
     pub use super::cache::layer::CacheLayer;
