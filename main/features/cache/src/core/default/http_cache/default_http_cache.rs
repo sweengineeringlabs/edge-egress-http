@@ -1,6 +1,6 @@
-//! Default impl of [`HttpCache`](crate::api::http_cache::HttpCache).
+//! Default impl of [`HttpCache`](crate::api::traits::HttpCache).
 
-use crate::api::http_cache::HttpCache;
+use crate::api::traits::HttpCache;
 use crate::api::types::cache_config::CacheConfig;
 
 /// Default HttpCache implementation. `pub(crate)` — consumers
