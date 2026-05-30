@@ -1,19 +1,4 @@
-//! State-machine types shared between the breaker api/ and core/ layers.
+//! State-machine type re-exports — `Admission` and `Outcome`.
 
-/// Decision returned when a new request arrives at the circuit breaker.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Admission {
-    /// Pass through — record the outcome afterward.
-    Proceed,
-    /// Breaker is open — fail fast without calling upstream.
-    RejectOpen,
-}
-
-/// Outcome of a dispatched request, as seen by the breaker.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Outcome {
-    /// The request completed successfully.
-    Success,
-    /// The request failed or returned a configured failure status.
-    Failure,
-}
+pub(crate) use super::admission::Admission;
+pub(crate) use super::outcome::Outcome;
