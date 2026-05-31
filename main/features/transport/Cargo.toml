@@ -110,3 +110,7 @@ missing_docs = "warn"
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
+
+[[test]]
+name = "transport_config_int_test"
+path = "tests/transport_config_int_test.rs"
