@@ -1,5 +1,6 @@
 //! [`OAuthRefreshStrategy`] — `reqwest_middleware::Middleware` that injects a
 //! proactively-refreshed OAuth bearer token on every outbound request.
+use super::cached_token::{CachedToken, REFRESH_WINDOW_MS};
 
 use std::sync::Arc;
 
@@ -15,13 +16,6 @@ use crate::api::oauth_token_source::OAuthTokenSource;
 use crate::api::traits::{Processor, Validator};
 
 /// Refresh proactively this many milliseconds before actual expiry.
-const REFRESH_WINDOW_MS: u64 = 60_000;
-
-struct CachedToken {
-    value: String,
-    /// Unix-epoch milliseconds when the token expires.
-    expires_at_ms: u64,
-}
 
 /// reqwest-middleware layer that injects `Authorization: Bearer <token>` on
 /// every outbound request, refreshing the token proactively before it expires.

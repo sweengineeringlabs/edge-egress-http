@@ -975,7 +975,7 @@ mod tests {
         assert!(!CacheEntryHelper::should_revalidate(&entry, now));
     }
 
-    /// @covers: should_revalidate
+    /// @covers: CacheEntryHelper::should_revalidate
     #[test]
     fn test_should_revalidate_gates_if_none_match_dispatch() {
         let now = Instant::now();

@@ -28,11 +28,18 @@ impl RateBucketOps for TokenBucket {
         &mut self,
         config: &crate::api::types::RateConfig,
     ) -> Result<(), std::time::Duration> {
-        self.try_acquire(config)
+        self.try_acquire_internal(config)
     }
 
     fn refill(&mut self, config: &crate::api::types::RateConfig) {
         self.do_refill(config);
+    }
+
+    fn try_acquire(
+        &mut self,
+        config: &crate::api::types::RateConfig,
+    ) -> Result<(), std::time::Duration> {
+        self.try_acquire_internal(config)
     }
 }
 
@@ -61,7 +68,7 @@ impl TokenBucket {
     /// Returns `Ok(())` if a token was available + consumed.
     /// Returns `Err(wait)` if the bucket is empty; `wait` is
     /// the time until one token will be available.
-    pub(crate) fn try_acquire(&mut self, config: &RateConfig) -> Result<(), Duration> {
+    pub(crate) fn try_acquire_internal(&mut self, config: &RateConfig) -> Result<(), Duration> {
         self.do_refill(config);
         if self.tokens >= 1.0 {
             self.tokens -= 1.0;

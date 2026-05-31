@@ -150,7 +150,7 @@ mod tests {
         assert_eq!(k1.len(), 32); // SHA256 output size
     }
 
-    /// @covers: AwsSigV4Strategy::sign
+    /// @covers: sign
     #[test]
     fn test_sign_attaches_authorization_header_with_sigv4_prefix() {
         let s = stub_strategy();
@@ -169,7 +169,7 @@ mod tests {
         assert!(auth.contains("Signature="));
     }
 
-    /// @covers: AwsSigV4Strategy::sign
+    /// @covers: sign
     #[test]
     fn test_sign_attaches_x_amz_date() {
         let s = stub_strategy();
@@ -181,7 +181,7 @@ mod tests {
         assert!(d.ends_with('Z'));
     }
 
-    /// @covers: AwsSigV4Strategy::sign
+    /// @covers: sign
     #[test]
     fn test_sign_attaches_x_amz_security_token_when_session_token_provided() {
         let s = AwsSigV4Strategy::new(
@@ -203,7 +203,7 @@ mod tests {
         );
     }
 
-    /// @covers: AwsSigV4Strategy::sign
+    /// @covers: sign
     #[test]
     fn test_sign_omits_x_amz_security_token_when_no_session_token() {
         let s = stub_strategy();
@@ -212,7 +212,7 @@ mod tests {
         assert!(req.headers().get("x-amz-security-token").is_none());
     }
 
-    /// @covers: AwsSigV4Strategy::sign
+    /// @covers: sign
     #[test]
     fn test_sign_produces_different_signatures_for_different_paths() {
         let s = stub_strategy();
