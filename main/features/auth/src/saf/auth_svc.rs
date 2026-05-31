@@ -13,7 +13,6 @@ use crate::core::default::DefaultHttpAuth;
 impl AuthSvc {
     /// Return a config builder pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        // @allow: saf_no_wrapper_methods — adds package name and version, not pure delegation
         swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
             .with_name(env!("CARGO_PKG_NAME"))
             .with_version(env!("CARGO_PKG_VERSION"))

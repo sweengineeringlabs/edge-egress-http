@@ -23,7 +23,6 @@ impl OAuthSvc {
     ///     .build()?;
     /// ```
     pub fn builder() -> OAuthBuilder {
-        // @allow: saf_no_wrapper_methods — OAuthBuilder source field is private; Default is the only constructor
         OAuthBuilder::default()
     }
 

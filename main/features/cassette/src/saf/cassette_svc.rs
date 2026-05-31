@@ -18,7 +18,6 @@ impl HttpCassetteSvc {
 
     /// Build a [`CassetteLayer`] from a caller-supplied config and cassette name.
     pub fn build_cassette_layer(
-        // @allow: saf_no_wrapper_methods — CassetteLayer::new performs disk I/O, not redundant delegation
         config: CassetteConfig,
         cassette_name: &str,
     ) -> Result<CassetteLayer, CassetteError> {
