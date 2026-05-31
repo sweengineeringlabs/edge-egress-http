@@ -33,27 +33,3 @@ impl OAuthSvc {
             .with_version(env!("CARGO_PKG_VERSION"))
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::api::oauth_builder_ops::OAuthBuilderOps as _;
-
-    /// @covers: builder
-    #[test]
-    fn test_builder_without_source_returns_configuration_error() {
-        let result = OAuthSvc::builder().build();
-        assert!(result.is_err(), "build without token source must fail");
-        let msg = result.unwrap_err().to_string();
-        assert!(
-            msg.contains("no OAuthTokenSource"),
-            "error must identify missing source: {msg}",
-        );
-    }
-
-    /// @covers: create_config_builder
-    #[test]
-    fn test_create_config_builder_builds_loader() {
-        let _loader = OAuthSvc::create_config_builder().build_loader();
-    }
-}

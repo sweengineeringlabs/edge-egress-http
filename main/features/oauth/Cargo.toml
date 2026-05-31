@@ -46,3 +46,7 @@ missing_docs = "warn"
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
+
+[[test]]
+name = "oauth_svc_int_test"
+path = "tests/oauth_svc_int_test.rs"
