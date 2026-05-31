@@ -22,7 +22,7 @@ use sha2::{Digest, Sha256};
 use time::format_description::FormatItem;
 use time::{macros::format_description, OffsetDateTime};
 
-use crate::api::auth::strategy::AuthStrategy;
+use crate::api::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 
 type HmacSha256 = Hmac<Sha256>;

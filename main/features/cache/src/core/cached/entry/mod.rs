@@ -2,7 +2,6 @@
 //! RFC 7234 `Vary`, `ETag`, and RFC 5861 `stale-while-revalidate`.
 
 mod cache_entry_helper;
-mod cached_entry;
 mod vary_directive;
 
 pub(crate) use crate::api::types::CachedEntry;

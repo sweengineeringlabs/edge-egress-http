@@ -6,7 +6,7 @@
 //! [`AuthStrategy`].
 
 use crate::api::auth::auth_config::AuthConfig;
-use crate::api::auth::strategy::AuthStrategy;
+use crate::api::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 use crate::api::traits::credential_resolver::CredentialResolver;
 use crate::api::types::credential_source::CredentialSource;

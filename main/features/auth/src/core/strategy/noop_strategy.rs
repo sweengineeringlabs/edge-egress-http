@@ -1,6 +1,6 @@
 //! Pass-through strategy for `AuthConfig::None`.
 
-use crate::api::auth::strategy::AuthStrategy;
+use crate::api::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 
 /// Attaches no credential. Returned by the factory when

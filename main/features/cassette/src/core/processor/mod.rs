@@ -1,10 +1,3 @@
-//! `impl Processor for HttpCassetteSvc` — satisfies rule 154.
+//! Processor impl for HttpCassetteSvc.
 
-use crate::api::traits::Processor;
-use crate::api::types::cassette::svc::HttpCassetteSvc;
-
-impl Processor for HttpCassetteSvc {
-    fn describe(&self) -> &'static str {
-        "swe_edge_egress_cassette"
-    }
-}
+pub(crate) mod http_cassette_processor;

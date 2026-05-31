@@ -1,3 +1,6 @@
-//! `Error` type alias for `BreakerError`.
+//! `Error` — type alias for `BreakerError`.
 
-pub use crate::api::error::breaker_error::BreakerError as Error;
+use crate::api::error::breaker_error::BreakerError;
+
+/// Error type alias for `swe_edge_egress_breaker`.
+pub type Error = BreakerError;
