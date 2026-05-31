@@ -121,3 +121,7 @@ path = "tests/provider_trait_int_test.rs"
 [[test]]
 name = "secrecy_dep_int_test"
 path = "tests/secrecy_dep_int_test.rs"
+
+[[test]]
+name = "provider_int_test"
+path = "tests/provider_int_test.rs"

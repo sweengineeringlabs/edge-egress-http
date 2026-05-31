@@ -1,4 +1,4 @@
-//! Default impl of [`Processor`](crate::api::traits::Processor).
+﻿//! Default impl of [`Processor`](crate::api::traits::Processor).
 //!
 //! `DefaultHttpBreaker` holds a resolved [`BreakerConfig`] and
 //! implements the primary `Processor` trait. Consumers access it
@@ -30,7 +30,8 @@ impl DefaultHttpBreaker {
 
 impl Processor for DefaultHttpBreaker {
     fn describe(&self) -> &'static str {
-        "swe_edge_egress_breaker"
+        const LABEL: &str = "http-breaker";
+        LABEL
     }
 }
 
@@ -52,7 +53,7 @@ mod tests {
     fn test_describe_returns_crate_name() {
         let cfg = BreakerConfig::default();
         let d = DefaultHttpBreaker::new(cfg);
-        assert_eq!(d.describe(), "swe_edge_egress_breaker");
+        assert_eq!(d.describe(), "http-breaker");
     }
 
     /// @covers: failure_threshold

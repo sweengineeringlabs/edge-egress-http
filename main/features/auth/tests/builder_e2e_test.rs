@@ -1,4 +1,4 @@
-//! End-to-end tests for the swe_edge_egress_auth SAF builder surface.
+﻿//! End-to-end tests for the swe_edge_egress_auth SAF builder surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_auth::{AuthConfig, AuthMiddleware, AuthSvc};
@@ -10,7 +10,7 @@ fn test_e2e_build_none_config() {
         AuthSvc::build_auth_middleware(AuthConfig::None).expect("None config must always build");
     let s = format!("{mw:?}");
     assert!(
-        s.contains("swe_edge_egress_auth"),
+        s.contains("http-auth"),
         "e2e: middleware Debug must name crate: {s}"
     );
 }

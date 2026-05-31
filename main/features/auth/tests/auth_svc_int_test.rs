@@ -1,4 +1,4 @@
-//! Integration tests for `AuthSvc` public API — extracted from saf/auth_svc.rs.
+﻿//! Integration tests for `AuthSvc` public API — extracted from saf/auth_svc.rs.
 
 use std::sync::atomic::AtomicBool;
 use swe_edge_egress_auth::{AuthConfig, AuthError, AuthMiddleware, AuthSvc};
@@ -14,7 +14,7 @@ fn test_create_config_builder_builds_loader() {
 fn test_build_auth_middleware_with_none_config_returns_middleware_instance() {
     let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("build ok");
     let s = format!("{mw:?}");
-    assert!(s.contains("swe_edge_egress_auth"));
+    assert!(s.contains("http-auth"));
 }
 
 /// @covers: AuthSvc::build_auth_middleware

@@ -1,4 +1,4 @@
-//! Default impl of [`HttpCache`](crate::api::traits::HttpCache).
+﻿//! Default impl of [`HttpCache`](crate::api::traits::HttpCache).
 
 use crate::api::traits::HttpCache;
 use crate::api::types::cache_config::CacheConfig;
@@ -19,7 +19,8 @@ impl DefaultHttpCache {
 
 impl HttpCache for DefaultHttpCache {
     fn describe(&self) -> &'static str {
-        "swe_edge_egress_cache"
+        const LABEL: &str = "http-cache";
+        LABEL
     }
 }
 
@@ -41,6 +42,6 @@ mod tests {
     fn test_describe_returns_crate_name() {
         let cfg = CacheConfig::default();
         let d = DefaultHttpCache::new(cfg);
-        assert_eq!(d.describe(), "swe_edge_egress_cache");
+        assert_eq!(d.describe(), "http-cache");
     }
 }

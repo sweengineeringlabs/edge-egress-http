@@ -1,4 +1,4 @@
-//! Integration tests for the Noop strategy path (AuthConfig::None).
+﻿//! Integration tests for the Noop strategy path (AuthConfig::None).
 //!
 //! The strategy is `pub(crate)`.  Observable effects:
 //! - `AuthConfig::None` always builds without requiring any env vars.
@@ -92,8 +92,8 @@ fn test_noop_strategy_two_independent_instances_both_build_and_debug() {
     // Both must be independently usable.
     let s1 = format!("{mw1:?}");
     let s2 = format!("{mw2:?}");
-    assert!(s1.contains("swe_edge_egress_auth"), "mw1: {s1}");
-    assert!(s2.contains("swe_edge_egress_auth"), "mw2: {s2}");
+    assert!(s1.contains("http-auth"), "mw1: {s1}");
+    assert!(s2.contains("http-auth"), "mw2: {s2}");
 }
 
 // ---------------------------------------------------------------------------

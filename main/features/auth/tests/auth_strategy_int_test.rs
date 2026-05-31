@@ -1,4 +1,4 @@
-//! Integration tests for strategy selection driven by `AuthConfig` variants.
+﻿//! Integration tests for strategy selection driven by `AuthConfig` variants.
 //!
 //! `AuthStrategy` itself is `pub(crate)` — these tests exercise strategy
 //! selection indirectly by building middleware from each config variant
@@ -61,7 +61,7 @@ fn test_bearer_config_selects_bearer_strategy_when_env_set() {
     .expect("Bearer with env set must build");
     // The middleware must be non-trivially constructed — debug shows processor.
     let s = format!("{mw:?}");
-    assert!(s.contains("swe_edge_egress_auth"), "unexpected debug: {s}");
+    assert!(s.contains("http-auth"), "unexpected debug: {s}");
     std::env::remove_var(env_name);
 }
 

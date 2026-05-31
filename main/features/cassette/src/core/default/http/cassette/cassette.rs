@@ -1,4 +1,4 @@
-//! Default impl of [`HttpCassette`](crate::api::traits::HttpCassette).
+﻿//! Default impl of [`HttpCassette`](crate::api::traits::HttpCassette).
 
 use crate::api::traits::HttpCassette;
 use crate::api::types::cassette::cassette_config::CassetteConfig;
@@ -24,7 +24,8 @@ impl DefaultHttpCassette {
 
 impl HttpCassette for DefaultHttpCassette {
     fn describe(&self) -> &'static str {
-        "swe_edge_egress_cassette"
+        const LABEL: &str = "http-cassette";
+        LABEL
     }
     fn config(&self) -> &crate::api::types::cassette::cassette_config::CassetteConfig {
         &self.config
@@ -49,7 +50,7 @@ mod tests {
     fn test_describe_returns_crate_name() {
         let cfg = CassetteConfig::swe_default().expect("baseline parses");
         let d = DefaultHttpCassette::new(cfg);
-        assert_eq!(d.describe(), "swe_edge_egress_cassette");
+        assert_eq!(d.describe(), "http-cassette");
     }
 
     /// @covers: config

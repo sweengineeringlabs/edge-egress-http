@@ -84,7 +84,10 @@ impl CacheLayer {
     ///   - No Cache-Control AND `default_ttl_seconds == 0`
     pub(crate) fn ttl_for(&self, response: &reqwest::Response) -> Option<TtlDecision> {
         // Vary: * — never cache.
-        if matches!(vary_from_headers(response.headers()), VaryDirective::Star) {
+        if matches!(
+            CacheLayer::vary_from_headers(response.headers()),
+            VaryDirective::Star
+        ) {
             return None;
         }
 
@@ -131,172 +134,144 @@ impl CacheLayer {
     }
 }
 
-/// Read the response's `Vary` header and classify it.
-pub(crate) fn vary_from_headers(headers: &HeaderMap) -> VaryDirective {
-    // `Vary` may appear multiple times in an HTTP response; join
-    // their values with ", " so parse_vary sees them all.
-    let mut it = headers.get_all(VARY).iter();
-    let first = match it.next() {
-        Some(v) => v,
-        None => return VaryDirective::None,
-    };
-    let mut joined = first.to_str().unwrap_or("").to_string();
-    for v in it {
-        if let Ok(v) = v.to_str() {
-            joined.push_str(", ");
-            joined.push_str(v);
-        }
-    }
-    CacheEntryHelper::parse_vary(Some(joined.as_str()))
-}
-
-/// Extract the `ETag` header verbatim (preserving quoted-string
-/// form) if present. Non-ASCII ETags → `None`.
-pub(crate) fn extract_etag(headers: &HeaderMap) -> Option<String> {
-    headers
-        .get(ETAG)
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string())
-}
-
-/// Rebuild a `reqwest::Response` from a cached entry.
-pub(crate) fn reconstruct(entry: &CachedEntry) -> Result<reqwest::Response, String> {
-    let mut builder = http::Response::builder().status(entry.status);
-    for (k, v) in &entry.headers {
-        builder = builder.header(k, v);
-    }
-    let body: Vec<u8> = (*entry.body).clone();
-    let http_resp = builder
-        .body(reqwest::Body::from(body))
-        .map_err(|e| format!("rebuild response: {e}"))?;
-    Ok(reqwest::Response::from(http_resp))
-}
-
-/// Find the variant at `key` that matches `req`'s Vary axes, if any.
-async fn find_matching_variant(
-    store: &Cache<String, Arc<Vec<CachedEntry>>>,
-    key: &str,
-    req: &reqwest::Request,
-) -> Option<CachedEntry> {
-    let variants = store.get(key).await?;
-    let req_lookup = |name: &str| {
-        req.headers()
-            .get(name)
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("")
-            .to_string()
-    };
-    for entry in variants.iter() {
-        if CacheEntryHelper::entry_matches_vary(entry, &req_lookup) {
-            return Some(entry.clone());
-        }
-    }
-    None
-}
-
-/// Insert or replace a variant at `key`. If an entry with the
-/// same `vary_headers` tuple already exists, replace it in-place;
-/// else append. Bounded by moka's `max_entries` at the key level.
-async fn upsert_variant(
-    store: &Cache<String, Arc<Vec<CachedEntry>>>,
-    key: String,
-    new_entry: CachedEntry,
-) {
-    let existing = store.get(&key).await;
-    let mut variants: Vec<CachedEntry> = match existing {
-        Some(arc) => (*arc).clone(),
-        None => Vec::new(),
-    };
-    // Replace same-vary variant if present; else append.
-    let mut replaced = false;
-    for slot in variants.iter_mut() {
-        if slot.vary_headers == new_entry.vary_headers {
-            *slot = new_entry.clone();
-            replaced = true;
-            break;
-        }
-    }
-    if !replaced {
-        variants.push(new_entry);
-    }
-    store.insert(key, Arc::new(variants)).await;
-}
-
-pub(crate) fn snapshot_vary_values_from_snapshot(
-    snap: &RequestSnapshot,
-    vary_names: &[String],
-) -> Vec<(String, String)> {
-    let mut out: Vec<(String, String)> = Vec::with_capacity(vary_names.len());
-    for name in vary_names {
-        let value = snap
-            .headers
-            .get(name)
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("")
-            .to_string();
-        out.push((name.clone(), value));
-    }
-    out.sort_by(|a, b| a.0.cmp(&b.0));
-    out
-}
-
-/// Spawn an SWR background refresh. The refresh bypasses the
-/// middleware chain (by necessity — `Next` is non-`'static`)
-/// and uses the CacheLayer's owned `reqwest::Client`.
-fn spawn_swr_refresh(layer: Arc<CacheLayer>, key: String, snap: RequestSnapshot) {
-    tokio::spawn(async move {
-        // Build a fresh request from the snapshot.
-        let mut builder = layer
-            .swr_client
-            .request(snap.method.clone(), snap.url.clone());
-        // Copy original headers verbatim; we deliberately do NOT
-        // add If-None-Match here — SWR wants a fresh replacement,
-        // not a revalidation, so a 304 would defeat the purpose.
-        for (name, value) in snap.headers.iter() {
-            builder = builder.header(name, value);
-        }
-        let req = match builder.build() {
-            Ok(r) => r,
-            Err(e) => {
-                #[cfg(feature = "tracing")]
-                tracing::warn!(
-                    error = %e,
-                    cache_key = %key,
-                    "SWR refresh: failed to build request — background refresh aborted"
-                );
-                #[cfg(not(feature = "tracing"))]
-                let _ = (e, &key);
-                return;
-            }
+impl CacheLayer {
+    pub(crate) fn vary_from_headers(headers: &HeaderMap) -> VaryDirective {
+        let mut it = headers.get_all(VARY).iter();
+        let first = match it.next() {
+            Some(v) => v,
+            None => return VaryDirective::None,
         };
-        let response = match layer.swr_client.execute(req).await {
-            Ok(r) => r,
-            Err(e) => {
-                #[cfg(feature = "tracing")]
-                tracing::warn!(
-                    error = %e,
-                    cache_key = %key,
-                    "SWR refresh: HTTP request failed — cached entry will remain stale"
-                );
-                #[cfg(not(feature = "tracing"))]
-                let _ = (e, &key);
-                return;
+        let mut joined = first.to_str().unwrap_or("").to_string();
+        for v in it {
+            if let Ok(v) = v.to_str() {
+                joined.push_str(", ");
+                joined.push_str(v);
             }
-        };
-        if let Err(e) = layer.buffer_and_store(response, key.clone(), &snap).await {
-            #[cfg(feature = "tracing")]
-            tracing::warn!(
-                error = %e,
-                cache_key = %key,
-                "SWR refresh: failed to store refreshed response"
-            );
-            #[cfg(not(feature = "tracing"))]
-            let _ = (e, &key);
         }
-    });
+        CacheEntryHelper::parse_vary(Some(joined.as_str()))
+    }
+
+    pub(crate) fn extract_etag(headers: &HeaderMap) -> Option<String> {
+        headers
+            .get(ETAG)
+            .and_then(|v| v.to_str().ok())
+            .map(|s| s.to_string())
+    }
+
+    pub(crate) fn reconstruct(entry: &CachedEntry) -> Result<reqwest::Response, String> {
+        let mut builder = http::Response::builder().status(entry.status);
+        for (k, v) in &entry.headers {
+            builder = builder.header(k, v);
+        }
+        let body: Vec<u8> = (*entry.body).clone();
+        let http_resp = builder
+            .body(reqwest::Body::from(body))
+            .map_err(|e| format!("rebuild response: {e}"))?;
+        Ok(reqwest::Response::from(http_resp))
+    }
+
+    pub(crate) async fn find_matching_variant(
+        store: &Cache<String, Arc<Vec<CachedEntry>>>,
+        key: &str,
+        req: &reqwest::Request,
+    ) -> Option<CachedEntry> {
+        let variants = store.get(key).await?;
+        let req_lookup = |name: &str| {
+            req.headers()
+                .get(name)
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("")
+                .to_string()
+        };
+        for entry in variants.iter() {
+            if CacheEntryHelper::entry_matches_vary(entry, &req_lookup) {
+                return Some(entry.clone());
+            }
+        }
+        None
+    }
+
+    pub(crate) async fn upsert_variant(
+        store: &Cache<String, Arc<Vec<CachedEntry>>>,
+        key: String,
+        new_entry: CachedEntry,
+    ) {
+        let existing = store.get(&key).await;
+        let mut variants: Vec<CachedEntry> = match existing {
+            Some(arc) => (*arc).clone(),
+            None => Vec::new(),
+        };
+        let mut replaced = false;
+        for slot in variants.iter_mut() {
+            if slot.vary_headers == new_entry.vary_headers {
+                *slot = new_entry.clone();
+                replaced = true;
+                break;
+            }
+        }
+        if !replaced {
+            variants.push(new_entry);
+        }
+        store.insert(key, Arc::new(variants)).await;
+    }
+
+    pub(crate) fn snapshot_vary_values_from_snapshot(
+        snap: &RequestSnapshot,
+        vary_names: &[String],
+    ) -> Vec<(String, String)> {
+        let mut out: Vec<(String, String)> = Vec::with_capacity(vary_names.len());
+        for name in vary_names {
+            let value = snap
+                .headers
+                .get(name)
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("")
+                .to_string();
+            out.push((name.clone(), value));
+        }
+        out.sort_by(|a, b| a.0.cmp(&b.0));
+        out
+    }
 }
 
 impl CacheLayer {
+    pub(crate) fn spawn_swr_refresh(layer: Arc<CacheLayer>, key: String, snap: RequestSnapshot) {
+        tokio::spawn(async move {
+            let mut builder = layer
+                .swr_client
+                .request(snap.method.clone(), snap.url.clone());
+            for (name, value) in snap.headers.iter() {
+                builder = builder.header(name, value);
+            }
+            let req = match builder.build() {
+                Ok(r) => r,
+                Err(e) => {
+                    #[cfg(feature = "tracing")]
+                    tracing::warn!(error = %e, cache_key = %key, "SWR refresh: failed to build request");
+                    #[cfg(not(feature = "tracing"))]
+                    let _ = (e, &key);
+                    return;
+                }
+            };
+            let response = match layer.swr_client.execute(req).await {
+                Ok(r) => r,
+                Err(e) => {
+                    #[cfg(feature = "tracing")]
+                    tracing::warn!(error = %e, cache_key = %key, "SWR refresh: HTTP request failed");
+                    #[cfg(not(feature = "tracing"))]
+                    let _ = (e, &key);
+                    return;
+                }
+            };
+            if let Err(e) = layer.buffer_and_store(response, key.clone(), &snap).await {
+                #[cfg(feature = "tracing")]
+                tracing::warn!(error = %e, cache_key = %key, "SWR refresh: failed to store");
+                #[cfg(not(feature = "tracing"))]
+                let _ = (e, &key);
+            }
+        });
+    }
+
     /// Buffer + store a response. Returns a reconstructed response
     /// plus the stored entry (for test assertions / SWR callers).
     async fn buffer_and_store(
@@ -318,8 +293,8 @@ impl CacheLayer {
             Some(d) => d,
             None => return Ok((response, None)),
         };
-        let vary_dir = vary_from_headers(response.headers());
-        let etag = extract_etag(response.headers());
+        let vary_dir = CacheLayer::vary_from_headers(response.headers());
+        let etag = CacheLayer::extract_etag(response.headers());
 
         // Vary: * was already screened by ttl_for → None; re-assert
         // here as an invariant (defensive).
@@ -330,7 +305,8 @@ impl CacheLayer {
             VaryDirective::Names(names) => names,
             VaryDirective::Star => return Ok((response, None)),
         };
-        let vary_headers = snapshot_vary_values_from_snapshot(req_snapshot, &vary_names);
+        let vary_headers =
+            CacheLayer::snapshot_vary_values_from_snapshot(req_snapshot, &vary_names);
 
         // Capture response shape.
         let status_code = response.status().as_u16();
@@ -359,9 +335,9 @@ impl CacheLayer {
             vary_headers,
             stale_while_revalidate: ttl_decision.swr,
         };
-        upsert_variant(&self.store, key, entry.clone()).await;
+        CacheLayer::upsert_variant(&self.store, key, entry.clone()).await;
 
-        let rebuilt = reconstruct(&entry).map_err(|e| {
+        let rebuilt = CacheLayer::reconstruct(&entry).map_err(|e| {
             reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                 "swe_edge_egress_cache post-store reconstruct: {e}"
             ))
@@ -407,7 +383,7 @@ impl CacheLayer {
             stale_while_revalidate: swr,
             ..stale
         };
-        upsert_variant(&self.store, key, refreshed.clone()).await;
+        CacheLayer::upsert_variant(&self.store, key, refreshed.clone()).await;
         refreshed
     }
 }
@@ -430,12 +406,12 @@ impl reqwest_middleware::Middleware for CacheLayer {
         let now = Instant::now();
 
         // Primary-key lookup; filter by Vary.
-        let cached = find_matching_variant(&self.store, &key, &req).await;
+        let cached = CacheLayer::find_matching_variant(&self.store, &key, &req).await;
 
         if let Some(entry) = cached {
             if now < entry.expires_at {
                 // Fresh hit.
-                return reconstruct(&entry).map_err(|e| {
+                return CacheLayer::reconstruct(&entry).map_err(|e| {
                     reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                         "swe_edge_egress_cache reconstruct: {e}"
                     ))
@@ -444,7 +420,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
             if CacheEntryHelper::in_swr_window(&entry, now) {
                 // Stale-but-serveable. Serve immediately; fire
                 // background refresh.
-                let rebuilt = reconstruct(&entry).map_err(|e| {
+                let rebuilt = CacheLayer::reconstruct(&entry).map_err(|e| {
                     reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                         "swe_edge_egress_cache swr reconstruct: {e}"
                     ))
@@ -454,7 +430,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
                     store: self.store.clone(),
                     swr_client: self.swr_client.clone(),
                 });
-                spawn_swr_refresh(layer_arc, key, snapshot);
+                CacheLayer::spawn_swr_refresh(layer_arc, key, snapshot);
                 return Ok(rebuilt);
             }
             // Stale beyond SWR (or no SWR). `should_revalidate`
@@ -469,7 +445,7 @@ impl reqwest_middleware::Middleware for CacheLayer {
                 let response = next.run(req, ext).await?;
                 if response.status().as_u16() == 304 {
                     let refreshed = self.refresh_on_304(entry, &response, key).await;
-                    return reconstruct(&refreshed).map_err(|e| {
+                    return CacheLayer::reconstruct(&refreshed).map_err(|e| {
                         reqwest_middleware::Error::Middleware(anyhow::anyhow!(
                             "swe_edge_egress_cache 304 reconstruct: {e}"
                         ))
@@ -737,7 +713,7 @@ mod tests {
     fn test_extract_etag_returns_quoted_etag() {
         let mut h = HeaderMap::new();
         h.insert(ETAG, HeaderValue::from_static("\"abc123\""));
-        assert_eq!(extract_etag(&h), Some("\"abc123\"".to_string()));
+        assert_eq!(CacheLayer::extract_etag(&h), Some("\"abc123\"".to_string()));
     }
 
     /// @covers: extract_etag
@@ -745,14 +721,14 @@ mod tests {
     fn test_etag_captured_on_store() {
         let mut h = HeaderMap::new();
         h.insert(ETAG, HeaderValue::from_static("\"abc\""));
-        assert_eq!(extract_etag(&h), Some("\"abc\"".to_string()));
+        assert_eq!(CacheLayer::extract_etag(&h), Some("\"abc\"".to_string()));
     }
 
     /// @covers: extract_etag
     #[test]
     fn test_etag_absent_on_store() {
         let headers = HeaderMap::new();
-        assert_eq!(extract_etag(&headers), None);
+        assert_eq!(CacheLayer::extract_etag(&headers), None);
     }
 
     /// @covers: reconstruct
@@ -769,7 +745,7 @@ mod tests {
             vary_headers: Vec::new(),
             stale_while_revalidate: None,
         };
-        let resp = reconstruct(&entry).expect("reconstruct");
+        let resp = CacheLayer::reconstruct(&entry).expect("reconstruct");
         assert_eq!(resp.status().as_u16(), 418);
         assert_eq!(resp.headers().get("x-custom").expect("header"), "value");
     }
@@ -780,7 +756,7 @@ mod tests {
         let mut h = HeaderMap::new();
         h.append(VARY, HeaderValue::from_static("Accept-Encoding"));
         h.append(VARY, HeaderValue::from_static("Accept-Language"));
-        match vary_from_headers(&h) {
+        match CacheLayer::vary_from_headers(&h) {
             VaryDirective::Names(names) => {
                 assert_eq!(names, vec!["accept-encoding", "accept-language"]);
             }
@@ -800,7 +776,8 @@ mod tests {
             HeaderValue::from_static("en-US"),
         );
         let snap = RequestSnapshot::new(&req);
-        let result = snapshot_vary_values_from_snapshot(&snap, &["accept-language".to_string()]);
+        let result =
+            CacheLayer::snapshot_vary_values_from_snapshot(&snap, &["accept-language".to_string()]);
         assert_eq!(
             result,
             vec![("accept-language".to_string(), "en-US".to_string())]
@@ -819,7 +796,8 @@ mod tests {
             HeaderValue::from_static("gzip"),
         );
         let snap = RequestSnapshot::new(&req);
-        let result = snapshot_vary_values_from_snapshot(&snap, &["accept-encoding".to_string()]);
+        let result =
+            CacheLayer::snapshot_vary_values_from_snapshot(&snap, &["accept-encoding".to_string()]);
         assert_eq!(
             result,
             vec![("accept-encoding".to_string(), "gzip".to_string())]
@@ -834,7 +812,8 @@ mod tests {
             reqwest::Url::parse("https://example.test/").expect("url"),
         );
         let snap = RequestSnapshot::new(&req);
-        let result = snapshot_vary_values_from_snapshot(&snap, &["accept-encoding".to_string()]);
+        let result =
+            CacheLayer::snapshot_vary_values_from_snapshot(&snap, &["accept-encoding".to_string()]);
         assert_eq!(
             result,
             vec![("accept-encoding".to_string(), "".to_string())]
@@ -857,7 +836,7 @@ mod tests {
             HeaderValue::from_static("gzip"),
         );
         let snap = RequestSnapshot::new(&req);
-        let result = snapshot_vary_values_from_snapshot(
+        let result = CacheLayer::snapshot_vary_values_from_snapshot(
             &snap,
             &["accept-language".to_string(), "accept-encoding".to_string()],
         );
@@ -898,17 +877,17 @@ mod tests {
             body: Arc::new(b"gzip-body".to_vec()),
             expires_at: Instant::now() + Duration::from_secs(60),
             etag: None,
-            vary_headers: snapshot_vary_values_from_snapshot(&snap_gzip, &vary_names),
+            vary_headers: CacheLayer::snapshot_vary_values_from_snapshot(&snap_gzip, &vary_names),
             stale_while_revalidate: None,
         };
         let entry_br = CachedEntry {
             body: Arc::new(b"br-body".to_vec()),
-            vary_headers: snapshot_vary_values_from_snapshot(&snap_br, &vary_names),
+            vary_headers: CacheLayer::snapshot_vary_values_from_snapshot(&snap_br, &vary_names),
             ..entry_gzip.clone()
         };
 
-        upsert_variant(&l.store, key.clone(), entry_gzip).await;
-        upsert_variant(&l.store, key.clone(), entry_br).await;
+        CacheLayer::upsert_variant(&l.store, key.clone(), entry_gzip).await;
+        CacheLayer::upsert_variant(&l.store, key.clone(), entry_br).await;
 
         let stored = l.store.get(&key).await.expect("key present");
         assert_eq!(
@@ -917,12 +896,12 @@ mod tests {
             "two Vary variants must live under one primary key"
         );
 
-        let found_gzip = find_matching_variant(&l.store, &key, &req_gzip)
+        let found_gzip = CacheLayer::find_matching_variant(&l.store, &key, &req_gzip)
             .await
             .expect("gzip variant");
         assert_eq!(&*found_gzip.body, b"gzip-body");
 
-        let found_br = find_matching_variant(&l.store, &key, &req_br)
+        let found_br = CacheLayer::find_matching_variant(&l.store, &key, &req_br)
             .await
             .expect("br variant");
         assert_eq!(&*found_br.body, b"br-body");
@@ -943,13 +922,13 @@ mod tests {
             body: Arc::new(b"gzip-body".to_vec()),
             expires_at: Instant::now() + Duration::from_secs(60),
             etag: None,
-            vary_headers: snapshot_vary_values_from_snapshot(&snap, &vary_names),
+            vary_headers: CacheLayer::snapshot_vary_values_from_snapshot(&snap, &vary_names),
             stale_while_revalidate: None,
         };
-        upsert_variant(&l.store, key.clone(), entry).await;
+        CacheLayer::upsert_variant(&l.store, key.clone(), entry).await;
 
         let req2 = stub_request("https://example.test/x", &[("accept-encoding", "gzip")]);
-        let hit = find_matching_variant(&l.store, &key, &req2).await;
+        let hit = CacheLayer::find_matching_variant(&l.store, &key, &req2).await;
         assert!(
             hit.is_some(),
             "same Vary values must hit the stored variant"

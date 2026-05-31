@@ -1,10 +1,17 @@
-//! Integration tests for `ApplicationConfigBuilder` in `swe-edge-egress-retry`.
+//! Integration tests for `create_config_builder` in `swe_edge_egress_retry`.
 
-/// @covers: ApplicationConfigBuilder
+use swe_edge_egress_retry::HttpRetrySvc;
+
+/// @covers: HttpRetrySvc::create_config_builder — dep coverage for swe-edge-configbuilder
 #[test]
-fn test_application_config_builder_exists() {
+fn http_retry_svc_create_config_builder_returns_seeded_builder_int_test() {
+    let builder = HttpRetrySvc::create_config_builder();
     assert!(
-        true,
-        "ApplicationConfigBuilder is part of the crate's type API"
+        !builder.name().is_empty(),
+        "builder must be seeded with crate name"
+    );
+    assert!(
+        !builder.version().is_empty(),
+        "builder must be seeded with crate version"
     );
 }

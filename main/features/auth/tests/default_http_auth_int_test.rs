@@ -1,9 +1,9 @@
-//! Integration tests for `core/default_http_auth.rs`.
+﻿//! Integration tests for `core/default_http_auth.rs`.
 //!
 //! `DefaultHttpAuth` is `pub(crate)`.  Its observable effect is through the
 //! SAF `AuthSvc::build_auth_middleware()` function.
 //!
-//! - `describe()` returns `"swe_edge_egress_auth"` regardless of config.
+//! - `describe()` returns `"http-auth"` regardless of config.
 //! - `AuthSvc::build_auth_middleware()` fails fast when env vars are missing.
 //! - `AuthSvc::build_auth_middleware()` succeeds when env vars are present.
 //! - `process()` is reachable end-to-end via the middleware handle path.
@@ -21,8 +21,8 @@ fn test_default_http_auth_describe_returns_crate_name_for_none_config() {
         AuthSvc::build_auth_middleware(AuthConfig::None).expect("None must build");
     let s = format!("{mw:?}");
     assert!(
-        s.contains("swe_edge_egress_auth"),
-        "DefaultHttpAuth::describe() must return 'swe_edge_egress_auth': {s}"
+        s.contains("http-auth"),
+        "DefaultHttpAuth::describe() must return 'http-auth': {s}"
     );
 }
 
@@ -36,15 +36,15 @@ fn test_default_http_auth_describe_returns_crate_name_for_bearer_config() {
     .expect("Bearer with env set must build");
     let s = format!("{mw:?}");
     assert!(
-        s.contains("swe_edge_egress_auth"),
-        "DefaultHttpAuth::describe() must return 'swe_edge_egress_auth' for Bearer: {s}"
+        s.contains("http-auth"),
+        "DefaultHttpAuth::describe() must return 'http-auth' for Bearer: {s}"
     );
     std::env::remove_var(env_name);
 }
 
 #[test]
 fn test_default_http_auth_describe_same_for_all_configs() {
-    // describe() is a constant "swe_edge_egress_auth" regardless of scheme.
+    // describe() is a constant "http-auth" regardless of scheme.
     // Build two middlewares with different schemes and compare.
     let env_name = "SWE_AUTH_DHA_DESC_SAME_01";
     std::env::set_var(env_name, "tok");
@@ -55,8 +55,8 @@ fn test_default_http_auth_describe_same_for_all_configs() {
     .unwrap();
     let s_none = format!("{mw_none:?}");
     let s_bearer = format!("{mw_bearer:?}");
-    assert!(s_none.contains("swe_edge_egress_auth"), "{s_none}");
-    assert!(s_bearer.contains("swe_edge_egress_auth"), "{s_bearer}");
+    assert!(s_none.contains("http-auth"), "{s_none}");
+    assert!(s_bearer.contains("http-auth"), "{s_bearer}");
     std::env::remove_var(env_name);
 }
 

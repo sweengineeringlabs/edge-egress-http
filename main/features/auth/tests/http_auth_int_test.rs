@@ -34,7 +34,7 @@ fn test_http_auth_describe_identifies_crate_for_none_config() {
     let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("build ok");
     let s = format!("{mw:?}");
     assert!(
-        s.contains("swe_edge_egress_auth"),
+        s.contains("http-auth"),
         "HttpAuth::describe() must identify the crate — Debug: {s}"
     );
 }
@@ -49,7 +49,7 @@ fn test_http_auth_describe_identifies_crate_for_bearer_config() {
     .expect("Bearer with env set must build");
     let s = format!("{mw:?}");
     assert!(
-        s.contains("swe_edge_egress_auth"),
+        s.contains("http-auth"),
         "HttpAuth::describe() must identify the crate for Bearer config — Debug: {s}"
     );
     std::env::remove_var(env_name);
@@ -58,7 +58,7 @@ fn test_http_auth_describe_identifies_crate_for_bearer_config() {
 #[test]
 fn test_http_auth_describe_same_across_configs() {
     // All configs share the same DefaultHttpAuth processor, which always
-    // returns "swe_edge_egress_auth" from describe(). The description must be
+    // returns "http-auth" from describe(). The description must be
     // the same regardless of which auth scheme is in use.
     let env_name = "SWE_AUTH_HTTPAUTH_SAME_01";
     std::env::set_var(env_name, "tok");
@@ -72,13 +72,10 @@ fn test_http_auth_describe_same_across_configs() {
     let desc_none = format!("{mw_none:?}");
     let desc_bearer = format!("{mw_bearer:?}");
 
-    // Both must contain "swe_edge_egress_auth" — the processor description is
+    // Both must contain "http-auth" — the processor description is
     // the crate name, not the scheme name.
-    assert!(desc_none.contains("swe_edge_egress_auth"), "{desc_none}");
-    assert!(
-        desc_bearer.contains("swe_edge_egress_auth"),
-        "{desc_bearer}"
-    );
+    assert!(desc_none.contains("http-auth"), "{desc_none}");
+    assert!(desc_bearer.contains("http-auth"), "{desc_bearer}");
 
     std::env::remove_var(env_name);
 }

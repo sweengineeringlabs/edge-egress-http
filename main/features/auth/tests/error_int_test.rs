@@ -1,4 +1,4 @@
-//! Integration tests for `AuthError` — the public error enum.
+﻿//! Integration tests for `AuthError` — the public error enum.
 //!
 //! Each variant's `Display` string is tested for:
 //! 1. Presence of the crate name so operators know the source.

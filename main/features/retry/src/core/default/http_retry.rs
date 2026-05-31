@@ -1,4 +1,4 @@
-//! Default impl of [`HttpRetry`](crate::api::http::retry::HttpRetry).
+﻿//! Default impl of [`HttpRetry`](crate::api::http::retry::HttpRetry).
 //!
 //! Holds a resolved [`RetryConfig`](crate::api::types::retry::retry_config::RetryConfig)
 //! and answers `describe()`. Real middleware behavior is in `core::retry_layer`.
@@ -27,7 +27,8 @@ impl DefaultHttpRetry {
 
 impl HttpRetry for DefaultHttpRetry {
     fn describe(&self) -> &'static str {
-        "swe_edge_egress_retry"
+        const LABEL: &str = "http-retry";
+        LABEL
     }
 }
 
@@ -49,7 +50,7 @@ mod tests {
     fn test_describe_returns_crate_name() {
         let cfg = RetryConfig::swe_default().expect("baseline parses");
         let d = DefaultHttpRetry::new(cfg);
-        assert_eq!(d.describe(), "swe_edge_egress_retry");
+        assert_eq!(d.describe(), "http-retry");
     }
 
     /// @covers: config

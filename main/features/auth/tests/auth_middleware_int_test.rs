@@ -1,4 +1,4 @@
-//! Integration tests for `AuthMiddleware` — the public reqwest-middleware layer.
+﻿//! Integration tests for `AuthMiddleware` — the public reqwest-middleware layer.
 //!
 //! Tests exercise observable properties via the public API:
 //! construction via `AuthSvc::build_auth_middleware(config)`, the `Debug` impl, and
@@ -57,12 +57,12 @@ fn test_auth_middleware_debug_contains_auth_middleware_type_name() {
 #[test]
 fn test_auth_middleware_debug_contains_processor_description() {
     // The processor for any real config identifies itself as
-    // "swe_edge_egress_auth" via DefaultHttpAuth::describe().
+    // "http-auth" via DefaultHttpAuth::describe().
     let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("build ok");
     let s = format!("{mw:?}");
     assert!(
-        s.contains("swe_edge_egress_auth"),
-        "AuthMiddleware Debug must include processor description 'swe_edge_egress_auth': {s}"
+        s.contains("http-auth"),
+        "AuthMiddleware Debug must include processor description 'http-auth': {s}"
     );
 }
 
@@ -97,17 +97,17 @@ fn test_two_auth_middleware_instances_are_independent() {
     .expect("build mw_b");
 
     // Each has its own processor. Debug strings differ (they embed the
-    // processor kind — both are "swe_edge_egress_auth" for DefaultHttpAuth,
+    // processor kind — both are "http-auth" for DefaultHttpAuth,
     // but the instances themselves are separate allocations).
     let s_a = format!("{mw_a:?}");
     let s_b = format!("{mw_b:?}");
     // Both contain the type name — ensures neither is a default stub.
     assert!(
-        s_a.contains("swe_edge_egress_auth"),
+        s_a.contains("http-auth"),
         "mw_a Debug missing crate name: {s_a}"
     );
     assert!(
-        s_b.contains("swe_edge_egress_auth"),
+        s_b.contains("http-auth"),
         "mw_b Debug missing crate name: {s_b}"
     );
 

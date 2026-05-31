@@ -1,4 +1,4 @@
-//! Default impl of [`HttpAuth`](crate::api::traits::http_auth::HttpAuth).
+﻿//! Default impl of [`HttpAuth`](crate::api::traits::http_auth::HttpAuth).
 //!
 //! Holds a pre-resolved [`AuthStrategy`] (constructed once at
 //! `build()` time from the config + resolver) and delegates
@@ -59,7 +59,8 @@ impl DefaultHttpAuth {
 
 impl HttpAuth for DefaultHttpAuth {
     fn describe(&self) -> &'static str {
-        "swe_edge_egress_auth"
+        const LABEL: &str = "http-auth";
+        LABEL
     }
 
     fn process<'a>(
@@ -124,7 +125,7 @@ mod tests {
     fn test_describe_returns_crate_name() {
         let cfg = AuthConfig::None;
         let d = DefaultHttpAuth::new(cfg, &DefaultHttpAuthStubResolver("x")).expect("build ok");
-        assert_eq!(HttpAuth::describe(&d), "swe_edge_egress_auth");
+        assert_eq!(HttpAuth::describe(&d), "http-auth");
     }
 
     /// @covers: process
