@@ -116,3 +116,7 @@ path = "tests/rate_bucket_ops_int_test.rs"
 [[test]]
 name = "rate_error_int_test"
 path = "tests/rate_error_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"

@@ -120,3 +120,7 @@ path = "tests/validator_int_test.rs"
 [[test]]
 name = "cassette_error_int_test"
 path = "tests/cassette_error_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"

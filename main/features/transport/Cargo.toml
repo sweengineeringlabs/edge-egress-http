@@ -114,3 +114,7 @@ expect_used = "deny"
 [[test]]
 name = "transport_config_int_test"
 path = "tests/transport_config_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"

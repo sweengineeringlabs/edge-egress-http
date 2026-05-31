@@ -30,6 +30,10 @@ impl RateBucketOps for TokenBucket {
     ) -> Result<(), std::time::Duration> {
         self.try_acquire(config)
     }
+
+    fn refill(&mut self, config: &crate::api::types::RateConfig) {
+        self.do_refill(config);
+    }
 }
 
 impl TokenBucket {
@@ -44,7 +48,7 @@ impl TokenBucket {
 
     /// Refill tokens based on elapsed time since last refill.
     /// Caps at `burst_capacity`.
-    pub(crate) fn refill(&mut self, config: &RateConfig) {
+    fn do_refill(&mut self, config: &RateConfig) {
         let now = Instant::now();
         let elapsed = now.duration_since(self.last_refill);
         let added = elapsed.as_secs_f64() * config.tokens_per_second as f64;
@@ -58,7 +62,7 @@ impl TokenBucket {
     /// Returns `Err(wait)` if the bucket is empty; `wait` is
     /// the time until one token will be available.
     pub(crate) fn try_acquire(&mut self, config: &RateConfig) -> Result<(), Duration> {
-        self.refill(config);
+        self.do_refill(config);
         if self.tokens >= 1.0 {
             self.tokens -= 1.0;
             Ok(())

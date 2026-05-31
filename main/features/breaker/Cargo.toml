@@ -125,3 +125,7 @@ path = "tests/validator_int_test.rs"
 [[test]]
 name = "circuit_breaker_node_int_test"
 path = "tests/circuit_breaker_node_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"
