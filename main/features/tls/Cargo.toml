@@ -111,3 +111,13 @@ path = "tests/tls_svc_int_test.rs"
 [[test]]
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
+[[test]]
+name = "tls_error_int_test"
+path = "tests/tls_error_int_test.rs"
+[[test]]
+name = "provider_trait_int_test"
+path = "tests/provider_trait_int_test.rs"
+
+[[test]]
+name = "secrecy_dep_int_test"
+path = "tests/secrecy_dep_int_test.rs"

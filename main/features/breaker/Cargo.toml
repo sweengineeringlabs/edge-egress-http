@@ -129,3 +129,6 @@ path = "tests/circuit_breaker_node_int_test.rs"
 [[test]]
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
+[[test]]
+name = "breaker_error_int_test"
+path = "tests/breaker_error_int_test.rs"

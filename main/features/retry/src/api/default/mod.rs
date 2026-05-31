@@ -1,1 +1,3 @@
-//! Interface counterpart for `core/default`.
+//! Default implementation interface counterparts.
+
+pub(crate) mod http_retry;

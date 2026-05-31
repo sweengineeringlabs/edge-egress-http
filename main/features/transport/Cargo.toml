@@ -118,3 +118,9 @@ path = "tests/transport_config_int_test.rs"
 [[test]]
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
+[[test]]
+name = "http_egress_config_int_test"
+path = "tests/http_egress_config_int_test.rs"
+[[test]]
+name = "http_egress_config_builder_int_test"
+path = "tests/http_egress_config_builder_int_test.rs"

@@ -124,3 +124,11 @@ path = "tests/cassette_error_int_test.rs"
 [[test]]
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
+[[test]]
+name = "http_cassette_svc_int_test"
+path = "tests/http_cassette_svc_int_test.rs"
+
+
+[[test]]
+name = "reqwest_dep_int_test"
+path = "tests/reqwest_dep_int_test.rs"

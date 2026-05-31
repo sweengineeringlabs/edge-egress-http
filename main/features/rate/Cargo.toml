@@ -120,3 +120,10 @@ path = "tests/rate_error_int_test.rs"
 [[test]]
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
+[[test]]
+name = "http_rate_svc_int_test"
+path = "tests/http_rate_svc_int_test.rs"
+
+[[test]]
+name = "moka_dep_int_test"
+path = "tests/moka_dep_int_test.rs"
