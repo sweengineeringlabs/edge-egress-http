@@ -26,6 +26,9 @@ impl HttpCassette for DefaultHttpCassette {
     fn describe(&self) -> &'static str {
         "swe_edge_egress_cassette"
     }
+    fn config(&self) -> &crate::api::types::cassette::cassette_config::CassetteConfig {
+        &self.config
+    }
 }
 
 #[cfg(test)]

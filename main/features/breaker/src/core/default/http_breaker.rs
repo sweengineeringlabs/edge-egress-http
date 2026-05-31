@@ -68,3 +68,9 @@ mod tests {
         assert_eq!(d.failure_threshold(), 7);
     }
 }
+
+impl crate::api::traits::BreakerMetrics for DefaultHttpBreaker {
+    fn failure_threshold(&self) -> u32 {
+        self.config.failure_threshold
+    }
+}
