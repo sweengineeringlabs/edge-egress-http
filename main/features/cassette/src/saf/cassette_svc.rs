@@ -1,4 +1,4 @@
-//! HTTP cassette SAF — factory methods on [`HttpCassetteSvc`].
+﻿//! HTTP cassette SAF — factory methods on [`HttpCassetteSvc`].
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -14,10 +14,10 @@ use crate::api::types::cassette::http_cassette_svc::HttpCassetteSvc;
 impl HttpCassetteSvc {
     /// Return a config builder pre-seeded with this crate's name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        swe_edge_configbuilder::ConfigBuilderImpl::for_crate(
-            env!("CARGO_PKG_NAME"),
-            env!("CARGO_PKG_VERSION"),
-        )
+        let mut b = swe_edge_configbuilder::ConfigBuilderImpl::new();
+        b = b.with_name(env!("CARGO_PKG_NAME"));
+        b = b.with_version(env!("CARGO_PKG_VERSION"));
+        b
     }
 
     /// Build a [`CassetteLayer`] from a caller-supplied config and cassette name.

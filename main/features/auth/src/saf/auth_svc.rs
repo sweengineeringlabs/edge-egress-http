@@ -1,4 +1,4 @@
-//! Public factory entry point for `swe-edge-egress-auth`.
+﻿//! Public factory entry point for `swe-edge-egress-auth`.
 
 use crate::api::types::AuthSvc;
 
@@ -13,10 +13,10 @@ use crate::core::default::DefaultHttpAuth;
 impl AuthSvc {
     /// Return a config builder pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        swe_edge_configbuilder::ConfigBuilderImpl::for_crate(
-            env!("CARGO_PKG_NAME"),
-            env!("CARGO_PKG_VERSION"),
-        )
+        let mut b = swe_edge_configbuilder::ConfigBuilderImpl::new();
+        b = b.with_name(env!("CARGO_PKG_NAME"));
+        b = b.with_version(env!("CARGO_PKG_VERSION"));
+        b
     }
 
     /// Build an [`AuthMiddleware`] from a caller-supplied [`AuthConfig`].

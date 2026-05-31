@@ -10,7 +10,7 @@ use crate::api::oauth_token_source::OAuthTokenSource;
 /// Fluent builder for [`OAuthMiddleware`].
 #[derive(Default)]
 pub struct OAuthBuilder {
-    source: Option<Arc<dyn OAuthTokenSource>>,
+    pub(crate) source: Option<Arc<dyn OAuthTokenSource>>,
 }
 
 impl OAuthBuilderOps for OAuthBuilder {
