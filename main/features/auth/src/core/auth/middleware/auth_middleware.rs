@@ -45,13 +45,13 @@ mod tests {
     /// and attaches a known header so the middleware path is
     /// verifiable end-to-end.
     #[derive(Debug)]
-    struct CountingHttpAuth {
+    struct AuthMiddlewareStub {
         calls: AtomicUsize,
     }
 
-    impl HttpAuth for CountingHttpAuth {
+    impl HttpAuth for AuthMiddlewareStub {
         fn describe(&self) -> &'static str {
-            "counting-stub"
+            "auth-middleware-stub"
         }
         fn process<'a>(
             &'a self,
@@ -75,22 +75,22 @@ mod tests {
     /// @covers: new
     #[test]
     fn test_new_holds_processor() {
-        let p = Arc::new(CountingHttpAuth {
+        let p = Arc::new(AuthMiddlewareStub {
             calls: AtomicUsize::new(0),
         });
         let mw = AuthMiddleware::new(p.clone());
-        assert_eq!(mw.processor.describe(), "counting-stub");
+        assert_eq!(mw.processor.describe(), "auth-middleware-stub");
     }
 
     /// @covers: handle
     #[test]
     fn test_debug_impl_shows_processor_description_only() {
-        let p: Arc<dyn HttpAuth> = Arc::new(CountingHttpAuth {
+        let p: Arc<dyn HttpAuth> = Arc::new(AuthMiddlewareStub {
             calls: AtomicUsize::new(0),
         });
         let mw = AuthMiddleware { processor: p };
         let s = format!("{mw:?}");
-        assert!(s.contains("counting-stub"));
+        assert!(s.contains("auth-middleware-stub"));
     }
 
     /// @covers: handle
@@ -100,13 +100,13 @@ mod tests {
     /// setup path (the actual dispatch requires reqwest_middleware infra).
     #[test]
     fn test_handle_middleware_is_constructable_and_processor_wired() {
-        let p = Arc::new(CountingHttpAuth {
+        let p = Arc::new(AuthMiddlewareStub {
             calls: AtomicUsize::new(0),
         });
         let mw = AuthMiddleware::new(p.clone());
         // If processor weren't wired, describe() would not return the
         // stub value — this would fail if new() dropped the Arc.
-        assert_eq!(mw.processor.describe(), "counting-stub");
+        assert_eq!(mw.processor.describe(), "auth-middleware-stub");
         // Zero calls before any dispatch — proves handle() hasn't fired.
         assert_eq!(p.calls.load(std::sync::atomic::Ordering::SeqCst), 0);
     }

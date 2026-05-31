@@ -5,4 +5,5 @@ pub(crate) mod ingress;
 
 pub use crate::api::traits::HttpTls;
 pub use crate::api::traits::Provider;
+pub use crate::api::traits::Validator;
 pub use crate::saf::*;
