@@ -2,4 +2,5 @@
 //! api trait.
 
 pub(crate) mod default;
+pub(crate) mod processor;
 pub(crate) mod retry;

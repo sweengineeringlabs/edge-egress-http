@@ -5,3 +5,5 @@ pub mod validator;
 
 pub use http_tls::HttpTls;
 pub use validator::Validator;
+pub mod provider;
+pub use provider::Provider;
