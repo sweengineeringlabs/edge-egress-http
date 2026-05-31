@@ -1,7 +1,7 @@
 //! `impl Processor for HttpCassetteSvc` — satisfies rule 154.
 
 use crate::api::traits::Processor;
-use crate::api::types::cassette::svc::HttpCassetteSvc;
+use crate::api::types::cassette::http_cassette_svc::HttpCassetteSvc;
 
 impl Processor for HttpCassetteSvc {
     fn describe(&self) -> &'static str {

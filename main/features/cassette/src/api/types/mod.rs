@@ -7,4 +7,4 @@ pub use application_config_builder::ApplicationConfigBuilder;
 // Re-export the grouped cassette types at the types level for downstream use.
 pub use cassette::cassette_config::CassetteConfig;
 pub use cassette::cassette_layer::CassetteLayer;
-pub use cassette::svc::HttpCassetteSvc;
+pub use cassette::http_cassette_svc::HttpCassetteSvc;

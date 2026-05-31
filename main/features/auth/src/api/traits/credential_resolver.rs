@@ -20,7 +20,7 @@ use crate::api::types::credential_source::CredentialSource;
 /// (vault, secret manager), the trait signature bumps and the
 /// change propagates through every impl — acceptable one-time
 /// cost.
-pub(crate) trait CredentialResolver: Send + Sync {
+pub trait CredentialResolver: Send + Sync {
     /// Resolve `source` to a concrete credential.
     ///
     /// Returns [`Error::MissingEnvVar`] when the source refers
