@@ -127,7 +127,7 @@ const _: () = {
 mod tests {
     use super::*;
 
-    /// @covers: AwsSigV4Helper::canonical_uri
+    /// @covers: canonical_uri
     #[test]
     fn test_canonical_uri_preserves_slashes() {
         assert_eq!(AwsSigV4Helper::canonical_uri("/foo/bar"), "/foo/bar");
@@ -135,14 +135,14 @@ mod tests {
         assert_eq!(AwsSigV4Helper::canonical_uri(""), "/");
     }
 
-    /// @covers: AwsSigV4Helper::canonical_uri
+    /// @covers: canonical_uri
     #[test]
     fn test_canonical_uri_percent_encodes_spaces_and_unicode() {
         let encoded = AwsSigV4Helper::canonical_uri("/name with space");
         assert!(encoded.contains("%20") || encoded.contains("%2520"));
     }
 
-    /// @covers: AwsSigV4Helper::canonical_query_string
+    /// @covers: canonical_query_string
     #[test]
     fn test_canonical_query_string_sorts_params_alphabetically() {
         assert_eq!(
@@ -151,13 +151,13 @@ mod tests {
         );
     }
 
-    /// @covers: AwsSigV4Helper::canonical_query_string
+    /// @covers: canonical_query_string
     #[test]
     fn test_canonical_query_string_empty_returns_empty() {
         assert_eq!(AwsSigV4Helper::canonical_query_string(""), "");
     }
 
-    /// @covers: AwsSigV4Helper::derive_signing_key
+    /// @covers: derive_signing_key
     #[test]
     fn test_derive_signing_key_is_deterministic() {
         let k1 = AwsSigV4Helper::derive_signing_key(
@@ -178,14 +178,14 @@ mod tests {
         assert_eq!(k1.len(), 32);
     }
 
-    /// @covers: AwsSigV4Helper::hmac_sha256
+    /// @covers: hmac_sha256
     #[test]
     fn test_hmac_sha256_produces_32_byte_output() {
         let result = AwsSigV4Helper::hmac_sha256(b"key", b"data").unwrap();
         assert_eq!(result.len(), 32);
     }
 
-    /// @covers: AwsSigV4Helper::hmac_sha256
+    /// @covers: hmac_sha256
     #[test]
     fn test_hmac_sha256_different_data_produces_different_output() {
         let a = AwsSigV4Helper::hmac_sha256(b"key", b"data1").unwrap();
@@ -193,7 +193,7 @@ mod tests {
         assert_ne!(a, b);
     }
 
-    /// @covers: AwsSigV4Helper::hmac_sha256
+    /// @covers: hmac_sha256
     #[test]
     fn test_hmac_sha256_different_keys_produces_different_output() {
         let a = AwsSigV4Helper::hmac_sha256(b"key1", b"data").unwrap();
@@ -201,7 +201,7 @@ mod tests {
         assert_ne!(a, b);
     }
 
-    /// @covers: AwsSigV4Helper::hmac_sha256
+    /// @covers: hmac_sha256
     #[test]
     fn test_hmac_sha256_is_deterministic() {
         let r1 = AwsSigV4Helper::hmac_sha256(b"secret", b"message").unwrap();

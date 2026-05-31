@@ -90,4 +90,13 @@ mod tests {
         let cfg = HttpConfig::default().with_timeout(60);
         assert_eq!(cfg.timeout_secs, 60);
     }
+
+    /// @covers: default_max_response_bytes
+    #[test]
+    fn test_default_max_response_bytes_is_none() {
+        assert_eq!(
+            HttpConfig::default_max_response_bytes(),
+            Some(10 * 1024 * 1024)
+        );
+    }
 }

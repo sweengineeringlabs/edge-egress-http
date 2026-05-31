@@ -74,7 +74,6 @@ credentials_path = "/custom/creds.json""#,
         assert_eq!(cfg.provider, OAuthProvider::OpenAi);
     }
 
-    /// @covers: Default
     #[test]
     fn test_oauth_config_default_is_claude() {
         let cfg = OAuthConfig::default();

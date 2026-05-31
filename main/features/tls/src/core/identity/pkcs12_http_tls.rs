@@ -75,7 +75,7 @@ impl HttpTls for Pkcs12HttpTls {
 mod tests {
     use super::*;
 
-    /// @covers: Pkcs12HttpTls::new
+    /// @covers: new
     #[test]
     fn test_new_reads_file_bytes_into_struct() {
         let dir = tempfile::tempdir().unwrap();
@@ -93,7 +93,7 @@ mod tests {
         );
     }
 
-    /// @covers: Pkcs12HttpTls::new
+    /// @covers: new
     #[test]
     fn test_new_with_password_stores_password_flag() {
         let dir = tempfile::tempdir().unwrap();
@@ -115,7 +115,7 @@ mod tests {
         );
     }
 
-    /// @covers: Pkcs12HttpTls::new
+    /// @covers: new
     #[test]
     fn test_new_missing_file_returns_file_read_failed() {
         let err =
@@ -126,7 +126,7 @@ mod tests {
         }
     }
 
-    /// @covers: Pkcs12HttpTls::identity
+    /// @covers: identity
     #[test]
     fn test_identity_on_invalid_der_bytes_returns_invalid_certificate() {
         let p = Pkcs12HttpTls {
@@ -141,7 +141,7 @@ mod tests {
         }
     }
 
-    /// @covers: Pkcs12HttpTls::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_pkcs12_label() {
         let p = Pkcs12HttpTls {

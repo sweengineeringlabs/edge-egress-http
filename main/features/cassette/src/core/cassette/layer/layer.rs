@@ -278,14 +278,14 @@ mod tests {
         CassetteConfig::from_config(&toml).unwrap()
     }
 
-    /// @covers: CassetteLayer::sha256_hex
+    /// @covers: sha256_hex
     #[test]
     fn test_empty_body_hash_is_sha256_of_empty_string() {
         // Known: SHA256("") = e3b0c442...
         assert!(CassetteLayer::sha256_hex(&[]).starts_with("e3b0c442"));
     }
 
-    /// @covers: CassetteLayer::sha256_hex
+    /// @covers: sha256_hex
     #[test]
     fn test_body_hash_differs_for_different_bodies() {
         assert_ne!(
@@ -507,7 +507,7 @@ mod tests {
         );
     }
 
-    /// @covers: CassetteLayer::sha256_hex
+    /// @covers: sha256_hex
     #[test]
     fn test_sha256_hex_known_vector() {
         // NIST: SHA256("abc") begins with ba7816bf

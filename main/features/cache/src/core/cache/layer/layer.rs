@@ -959,7 +959,6 @@ mod tests {
         assert_eq!(stored.len(), 1, "no new variant should be created");
     }
 
-    /// @covers: in_swr_window
     #[test]
     fn test_cached_entry_in_swr_window_is_still_reusable() {
         let now = Instant::now();
