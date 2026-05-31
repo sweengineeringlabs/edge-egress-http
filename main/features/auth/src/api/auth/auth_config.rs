@@ -74,6 +74,7 @@ pub enum AuthConfig {
 
 impl swe_edge_configbuilder::ConfigSection for AuthConfig {
     fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
         "auth"
     }
 }

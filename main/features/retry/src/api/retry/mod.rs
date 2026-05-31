@@ -1,2 +1,2 @@
-//! Interface counterpart for `core/retry`.
+//! Interface counterpart for core::retry.
 pub(crate) mod layer;

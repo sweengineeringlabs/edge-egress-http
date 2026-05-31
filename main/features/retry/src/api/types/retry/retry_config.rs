@@ -54,6 +54,7 @@ impl Default for RetryConfig {
 
 impl swe_edge_configbuilder::ConfigSection for RetryConfig {
     fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
         "retry"
     }
 }

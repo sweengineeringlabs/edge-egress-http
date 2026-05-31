@@ -45,6 +45,7 @@ impl Default for CassetteConfig {
 
 impl swe_edge_configbuilder::ConfigSection for CassetteConfig {
     fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
         "cassette"
     }
 }

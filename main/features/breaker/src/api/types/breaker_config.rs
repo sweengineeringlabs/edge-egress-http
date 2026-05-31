@@ -31,7 +31,7 @@ impl Default for BreakerConfig {
 }
 
 impl swe_edge_configbuilder::ConfigSection for BreakerConfig {
-    fn section_name() -> &'static str {
+    fn section_name() -> &'static str { // @allow: no_stub_fn_bodies
         "breaker"
     }
 }

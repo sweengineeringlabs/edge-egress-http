@@ -1,2 +1,2 @@
-//! Interface counterpart for `core/tls`.
+//! Interface counterpart for core::tls.
 pub(crate) mod layer;

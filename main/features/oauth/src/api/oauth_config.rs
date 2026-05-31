@@ -39,6 +39,7 @@ impl OAuthConfig {
 
 impl swe_edge_configbuilder::ConfigSection for OAuthConfig {
     fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
         "oauth"
     }
 }

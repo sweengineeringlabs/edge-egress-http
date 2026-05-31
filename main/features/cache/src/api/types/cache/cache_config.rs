@@ -41,6 +41,7 @@ impl Default for CacheConfig {
 
 impl swe_edge_configbuilder::ConfigSection for CacheConfig {
     fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
         "cache"
     }
 }
