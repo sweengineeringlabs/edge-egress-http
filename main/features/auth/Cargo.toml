@@ -150,3 +150,7 @@ path = "tests/auth_svc_int_test.rs"
 [[test]]
 name = "validator_int_test"
 path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "auth_error_int_test"
+path = "tests/auth_error_int_test.rs"

@@ -11,7 +11,7 @@ use crate::api::error::AuthError;
 use crate::api::traits::credential_resolver::CredentialResolver;
 use crate::api::types::credential_source::CredentialSource;
 
-use super::aws_sigv4_strategy::AwsSigV4Strategy;
+use super::aws::AwsSigV4Strategy;
 use super::basic_strategy::BasicStrategy;
 use super::bearer_strategy::BearerStrategy;
 use super::header_strategy::HeaderStrategy;

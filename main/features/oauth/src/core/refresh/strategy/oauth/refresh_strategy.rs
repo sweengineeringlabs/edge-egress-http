@@ -8,11 +8,11 @@ use futures::future::BoxFuture;
 use tokio::sync::Mutex;
 use tracing::debug;
 
+use super::super::OAuthTimeHelper;
 use crate::api::error::OAuthError as Error;
 use crate::api::oauth_credentials::OAuthCredentials;
 use crate::api::oauth_token_source::OAuthTokenSource;
 use crate::api::traits::{Processor, Validator};
-use crate::core::refresh::strategy::OAuthTimeHelper;
 
 /// Refresh proactively this many milliseconds before actual expiry.
 const REFRESH_WINDOW_MS: u64 = 60_000;

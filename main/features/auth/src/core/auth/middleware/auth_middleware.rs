@@ -8,7 +8,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 
 use crate::api::traits::http_auth::HttpAuth;
-use crate::api::types::auth_middleware::AuthMiddleware;
+use crate::api::types::auth::AuthMiddleware;
 
 impl AuthMiddleware {
     /// Construct from an already-resolved [`HttpAuth`]. The
