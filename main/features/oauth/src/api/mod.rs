@@ -9,6 +9,5 @@ pub(crate) mod oauth_credentials;
 pub(crate) mod oauth_middleware;
 pub(crate) mod oauth_provider;
 pub(crate) mod oauth_token_source;
-pub(crate) mod refresh;
 pub(crate) mod traits;
 pub mod types;

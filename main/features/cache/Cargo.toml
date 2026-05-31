@@ -104,3 +104,7 @@ expect_used = "deny"
 [[test]]
 name = "processor_int_test"
 path = "tests/processor_int_test.rs"
+
+[[test]]
+name = "cache_svc_int_test"
+path = "tests/cache_svc_int_test.rs"

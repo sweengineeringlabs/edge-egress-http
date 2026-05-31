@@ -103,3 +103,7 @@ missing_docs = "warn"
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
+
+[[test]]
+name = "tls_svc_int_test"
+path = "tests/tls_svc_int_test.rs"
