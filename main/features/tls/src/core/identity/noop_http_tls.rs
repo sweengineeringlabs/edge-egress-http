@@ -21,14 +21,14 @@ impl HttpTls for NoopHttpTls {
 mod tests {
     use super::*;
 
-    /// @covers: NoopHttpTls::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_noop_label() {
         let p = NoopHttpTls;
         assert_eq!(p.describe(), "noop");
     }
 
-    /// @covers: NoopHttpTls::identity
+    /// @covers: identity
     #[test]
     fn test_identity_returns_ok_none() {
         let p = NoopHttpTls;

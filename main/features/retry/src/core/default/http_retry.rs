@@ -35,7 +35,7 @@ impl HttpRetry for DefaultHttpRetry {
 mod tests {
     use super::*;
 
-    /// @covers: DefaultHttpRetry::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_and_stores_config() {
         let cfg = RetryConfig::swe_default().expect("baseline parses");
@@ -44,7 +44,7 @@ mod tests {
         assert!(dbg.contains("DefaultHttpRetry"), "debug output: {dbg}");
     }
 
-    /// @covers: DefaultHttpRetry::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_crate_name() {
         let cfg = RetryConfig::swe_default().expect("baseline parses");
@@ -52,7 +52,7 @@ mod tests {
         assert_eq!(d.describe(), "swe_edge_egress_retry");
     }
 
-    /// @covers: DefaultHttpRetry::config
+    /// @covers: config
     #[test]
     fn test_config_returns_stored_config() {
         let cfg = RetryConfig {

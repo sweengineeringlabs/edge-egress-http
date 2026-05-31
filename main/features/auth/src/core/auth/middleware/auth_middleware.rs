@@ -82,7 +82,7 @@ mod tests {
         assert_eq!(mw.processor.describe(), "counting-stub");
     }
 
-    /// @covers: fmt
+    /// @covers: handle
     #[test]
     fn test_debug_impl_shows_processor_description_only() {
         let p: Arc<dyn HttpAuth> = Arc::new(CountingHttpAuth {

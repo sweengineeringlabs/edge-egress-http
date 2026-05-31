@@ -137,14 +137,14 @@ mod tests {
         .expect("test config must parse")
     }
 
-    /// @covers: RetryLayer::backoff_for
+    /// @covers: backoff_for
     #[test]
     fn test_backoff_for_initial_attempt_uses_initial_interval() {
         let l = RetryLayer::new(test_config());
         assert_eq!(l.backoff_for(0), Duration::from_millis(200));
     }
 
-    /// @covers: RetryLayer::backoff_for
+    /// @covers: backoff_for
     #[test]
     fn test_backoff_grows_exponentially() {
         let l = RetryLayer::new(test_config());
@@ -153,14 +153,14 @@ mod tests {
         assert_eq!(l.backoff_for(2), Duration::from_millis(800));
     }
 
-    /// @covers: RetryLayer::backoff_for
+    /// @covers: backoff_for
     #[test]
     fn test_backoff_caps_at_max_interval() {
         let l = RetryLayer::new(test_config());
         assert_eq!(l.backoff_for(10), Duration::from_millis(10000));
     }
 
-    /// @covers: RetryLayer::method_retryable
+    /// @covers: method_retryable
     #[test]
     fn test_method_retryable_matches_config() {
         let l = RetryLayer::new(test_config());
@@ -170,7 +170,7 @@ mod tests {
         assert!(!l.method_retryable(&reqwest::Method::PATCH));
     }
 
-    /// @covers: RetryLayer::status_retryable
+    /// @covers: status_retryable
     #[test]
     fn test_status_retryable_matches_config() {
         let l = RetryLayer::new(test_config());
@@ -180,21 +180,21 @@ mod tests {
         assert!(!l.status_retryable(reqwest::StatusCode::BAD_REQUEST));
     }
 
-    /// @covers: RetryLayer::should_retry
+    /// @covers: should_retry
     #[test]
     fn test_should_retry_on_retryable_status() {
         let l = RetryLayer::new(test_config());
         assert!(l.should_retry(&Ok(reqwest::StatusCode::SERVICE_UNAVAILABLE)));
     }
 
-    /// @covers: RetryLayer::should_retry
+    /// @covers: should_retry
     #[test]
     fn test_should_not_retry_on_success_status() {
         let l = RetryLayer::new(test_config());
         assert!(!l.should_retry(&Ok(reqwest::StatusCode::OK)));
     }
 
-    /// @covers: RetryLayer::should_retry
+    /// @covers: should_retry
     #[test]
     fn test_should_not_retry_on_client_error_status() {
         let l = RetryLayer::new(test_config());
@@ -202,21 +202,21 @@ mod tests {
         assert!(!l.should_retry(&Ok(reqwest::StatusCode::UNAUTHORIZED)));
     }
 
-    /// @covers: RetryLayer::should_retry
+    /// @covers: should_retry
     #[test]
     fn test_should_retry_transport_error_when_transient() {
         let l = RetryLayer::new(test_config());
         assert!(l.should_retry(&Err(true)));
     }
 
-    /// @covers: RetryLayer::should_retry
+    /// @covers: should_retry
     #[test]
     fn test_should_not_retry_transport_error_when_not_transient() {
         let l = RetryLayer::new(test_config());
         assert!(!l.should_retry(&Err(false)));
     }
 
-    /// @covers: RetryLayer::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_and_stores_config() {
         let cfg = test_config();
@@ -226,7 +226,7 @@ mod tests {
         assert_eq!(l.backoff_for(0), Duration::from_millis(200));
     }
 
-    /// @covers: RetryLayer::handle
+    /// @covers: handle
     /// handle is async; the sync-observable invariant is that RetryLayer
     /// is Send + Sync (required by reqwest_middleware::Middleware).
     #[test]

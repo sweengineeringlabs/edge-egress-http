@@ -90,7 +90,7 @@ mod tests {
         .expect("test config must parse")
     }
 
-    /// @covers: TokenBucket::new
+    /// @covers: new
     #[test]
     fn test_new_initialises_to_burst_capacity() {
         let cfg = test_config();
@@ -98,7 +98,7 @@ mod tests {
         assert_eq!(b.tokens(), cfg.burst_capacity as f64);
     }
 
-    /// @covers: TokenBucket::try_acquire
+    /// @covers: try_acquire
     #[test]
     fn test_try_acquire_consumes_one_token_on_success() {
         let cfg = test_config();
@@ -109,7 +109,7 @@ mod tests {
         assert!(b.tokens() < before, "one token must be consumed");
     }
 
-    /// @covers: TokenBucket::new
+    /// @covers: new
     #[test]
     fn test_full_starts_at_burst_capacity() {
         let cfg = test_config();
@@ -117,7 +117,7 @@ mod tests {
         assert_eq!(b.tokens(), 20.0);
     }
 
-    /// @covers: TokenBucket::try_consume
+    /// @covers: try_consume
     #[test]
     fn test_try_consume_succeeds_on_fresh_bucket() {
         let cfg = test_config();
@@ -127,7 +127,7 @@ mod tests {
         assert!(b.tokens() < 20.0, "token count must decrease after consume");
     }
 
-    /// @covers: TokenBucket::try_consume
+    /// @covers: try_consume
     #[test]
     fn test_try_consume_returns_wait_on_exhausted_bucket() {
         let cfg = test_config();
@@ -144,7 +144,7 @@ mod tests {
         }
     }
 
-    /// @covers: TokenBucket::try_acquire
+    /// @covers: try_acquire
     #[test]
     fn test_acquire_succeeds_when_tokens_available() {
         let cfg = test_config();
@@ -153,7 +153,7 @@ mod tests {
         assert!(b.tokens() < 20.0);
     }
 
-    /// @covers: TokenBucket::try_acquire
+    /// @covers: try_acquire
     #[test]
     fn test_acquire_exhausts_bucket_and_returns_wait() {
         let cfg = test_config();
@@ -167,7 +167,7 @@ mod tests {
         }
     }
 
-    /// @covers: TokenBucket::refill
+    /// @covers: refill
     #[test]
     fn test_refill_caps_at_burst_capacity() {
         let cfg = test_config();
@@ -178,7 +178,7 @@ mod tests {
         assert!((b.tokens() - 19.0).abs() < 0.001);
     }
 
-    /// @covers: TokenBucket::try_acquire
+    /// @covers: try_acquire
     #[test]
     fn test_refill_restores_tokens_proportional_to_elapsed_time() {
         let cfg = test_config();

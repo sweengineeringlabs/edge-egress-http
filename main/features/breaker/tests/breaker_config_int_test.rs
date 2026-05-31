@@ -9,7 +9,7 @@ use swe_edge_egress_breaker::{BreakerConfig, HttpBreakerSvc};
 // Struct literal construction — all four fields are public
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerConfig — all fields are publicly constructable and readable.
+/// @covers: BreakerConfig
 /// If a field is renamed, removed, or made `pub(crate)`, this test fails to compile.
 #[test]
 fn test_breaker_config_all_fields_constructable_and_readable() {
@@ -29,7 +29,7 @@ fn test_breaker_config_all_fields_constructable_and_readable() {
 // failure_threshold — boundary values
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerConfig — failure_threshold=1 builds without error.
+/// @covers: BreakerConfig
 /// `failure_threshold = 1` means the breaker opens after a single failure.
 #[test]
 fn test_breaker_config_threshold_one_builds() {
@@ -42,7 +42,7 @@ fn test_breaker_config_threshold_one_builds() {
     HttpBreakerSvc::build_breaker_layer(cfg).expect("failure_threshold=1 must build");
 }
 
-/// @covers: BreakerConfig — large failure_threshold builds without error.
+/// @covers: BreakerConfig
 #[test]
 fn test_breaker_config_large_threshold_builds() {
     let cfg = BreakerConfig {
@@ -58,7 +58,7 @@ fn test_breaker_config_large_threshold_builds() {
 // half_open_after_seconds — boundary values
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerConfig — half_open_after_seconds=0 builds without error.
+/// @covers: BreakerConfig
 #[test]
 fn test_breaker_config_zero_wait_builds() {
     let cfg = BreakerConfig {
@@ -70,7 +70,7 @@ fn test_breaker_config_zero_wait_builds() {
     HttpBreakerSvc::build_breaker_layer(cfg).expect("half_open_after_seconds=0 must build");
 }
 
-/// @covers: BreakerConfig — large half_open_after_seconds builds without error.
+/// @covers: BreakerConfig
 #[test]
 fn test_breaker_config_large_wait_builds() {
     let cfg = BreakerConfig {
@@ -86,7 +86,7 @@ fn test_breaker_config_large_wait_builds() {
 // failure_statuses — boundary values
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerConfig — empty failure_statuses builds without error.
+/// @covers: BreakerConfig
 #[test]
 fn test_breaker_config_empty_failure_statuses_builds() {
     let cfg = BreakerConfig {
@@ -98,7 +98,7 @@ fn test_breaker_config_empty_failure_statuses_builds() {
     HttpBreakerSvc::build_breaker_layer(cfg).expect("empty failure_statuses must build");
 }
 
-/// @covers: BreakerConfig — all 5xx failure_statuses builds without error.
+/// @covers: BreakerConfig
 #[test]
 fn test_breaker_config_all_5xx_failure_statuses_builds() {
     let all_5xx: Vec<u16> = (500..=599).collect();
@@ -115,7 +115,7 @@ fn test_breaker_config_all_5xx_failure_statuses_builds() {
 // Config round-trip through build_breaker_layer
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerConfig — no field is silently modified between construction and use.
+/// @covers: BreakerConfig
 #[test]
 fn test_breaker_config_round_trips_through_builder_unchanged() {
     let cfg = BreakerConfig {

@@ -123,20 +123,20 @@ mod tests {
         )
     }
 
-    /// @covers: RateLayer::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_with_bucket_cache() {
         let _l = RateLayer::new(test_config());
     }
 
-    /// @covers: RateLayer::handle
+    /// @covers: handle
     #[test]
     fn test_handle_layer_is_send_sync() {
         fn assert_send_sync<T: Send + Sync>() {}
         assert_send_sync::<RateLayer>();
     }
 
-    /// @covers: RateLayer::key_for
+    /// @covers: key_for
     #[test]
     fn test_key_for_per_host_returns_authority() {
         let l = RateLayer::new(test_config());
@@ -144,7 +144,7 @@ mod tests {
         assert_eq!(k, "example.test:8080");
     }
 
-    /// @covers: RateLayer::key_for
+    /// @covers: key_for
     #[test]
     fn test_key_for_per_host_omits_default_port() {
         let l = RateLayer::new(test_config());
@@ -152,7 +152,7 @@ mod tests {
         assert_eq!(k, "example.test");
     }
 
-    /// @covers: RateLayer::key_for
+    /// @covers: key_for
     #[test]
     fn test_key_for_global_mode_same_for_all_hosts() {
         let l = RateLayer::new(global_config());
@@ -161,7 +161,7 @@ mod tests {
         assert_eq!(k1, k2);
     }
 
-    /// @covers: RateLayer::bucket
+    /// @covers: bucket
     #[tokio::test]
     async fn test_bucket_shared_across_calls_for_same_key() {
         let l = RateLayer::new(test_config());
@@ -170,7 +170,7 @@ mod tests {
         assert!(Arc::ptr_eq(&a, &b));
     }
 
-    /// @covers: RateLayer::bucket
+    /// @covers: bucket
     #[tokio::test]
     async fn test_bucket_distinct_for_different_keys() {
         let l = RateLayer::new(test_config());

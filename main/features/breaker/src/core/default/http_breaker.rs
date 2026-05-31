@@ -38,7 +38,7 @@ impl Processor for DefaultHttpBreaker {
 mod tests {
     use super::*;
 
-    /// @covers: DefaultHttpBreaker::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_and_stores_config() {
         let cfg = BreakerConfig::default();
@@ -47,7 +47,7 @@ mod tests {
         assert!(dbg.contains("DefaultHttpBreaker"), "debug output: {dbg}");
     }
 
-    /// @covers: DefaultHttpBreaker::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_crate_name() {
         let cfg = BreakerConfig::default();
@@ -55,7 +55,7 @@ mod tests {
         assert_eq!(d.describe(), "swe_edge_egress_breaker");
     }
 
-    /// @covers: DefaultHttpBreaker::failure_threshold
+    /// @covers: failure_threshold
     #[test]
     fn test_failure_threshold_reflects_config() {
         let cfg = BreakerConfig {

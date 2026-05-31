@@ -59,7 +59,7 @@ mod tests {
         reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap())
     }
 
-    /// @covers: BearerStrategy::authorize
+    /// @covers: authorize
     #[test]
     fn test_authorize_attaches_bearer_authorization_header() {
         let s = BearerStrategy::new(SecretString::from("sk-abc123".to_string())).unwrap();
@@ -69,7 +69,7 @@ mod tests {
         assert_eq!(h.to_str().unwrap(), "Bearer sk-abc123");
     }
 
-    /// @covers: BearerStrategy::authorize
+    /// @covers: authorize
     #[test]
     fn test_authorize_overwrites_existing_authorization_header() {
         let s = BearerStrategy::new(SecretString::from("new-token".to_string())).unwrap();
@@ -87,7 +87,7 @@ mod tests {
         );
     }
 
-    /// @covers: BearerStrategy::new
+    /// @covers: new
     #[test]
     fn test_new_rejects_token_with_newline() {
         // \n is forbidden in header values per RFC 7230.
@@ -95,7 +95,7 @@ mod tests {
         assert!(matches!(err, AuthError::InvalidHeaderValue(_)));
     }
 
-    /// @covers: BearerStrategy::fmt
+    /// @covers: fmt
     #[test]
     fn test_fmt_debug_redacts_token() {
         let s = BearerStrategy::new(SecretString::from("sec-123".to_string())).unwrap();

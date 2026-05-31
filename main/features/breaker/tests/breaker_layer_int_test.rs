@@ -12,7 +12,7 @@ use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 // Construction
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — nominal construction path must succeed.
+/// @covers: build_breaker_layer
 #[test]
 fn test_breaker_layer_builds_from_custom_config() {
     let cfg = BreakerConfig {
@@ -25,7 +25,7 @@ fn test_breaker_layer_builds_from_custom_config() {
         HttpBreakerSvc::build_breaker_layer(cfg).expect("build() must succeed");
 }
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — builds from SWE default config.
+/// @covers: build_breaker_layer
 #[test]
 fn test_breaker_layer_builds_from_swe_default() {
     let _layer: BreakerLayer = HttpBreakerSvc::build_breaker_layer(BreakerConfig::default())
@@ -36,7 +36,7 @@ fn test_breaker_layer_builds_from_swe_default() {
 // Debug output
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerLayer — Debug output must include the type name.
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_debug_contains_type_name() {
     let cfg = BreakerConfig {
@@ -53,7 +53,7 @@ fn test_breaker_layer_debug_contains_type_name() {
     );
 }
 
-/// @covers: BreakerLayer — Debug output must include failure_threshold.
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_debug_includes_failure_threshold() {
     let cfg = BreakerConfig {
@@ -70,7 +70,7 @@ fn test_breaker_layer_debug_includes_failure_threshold() {
     );
 }
 
-/// @covers: BreakerLayer — Debug output must include half_open_after_seconds.
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_debug_includes_half_open_wait() {
     let cfg = BreakerConfig {
@@ -91,7 +91,7 @@ fn test_breaker_layer_debug_includes_half_open_wait() {
 // Send + Sync — compile-time proof
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerLayer — must satisfy Send + Sync for reqwest_middleware installation.
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_is_send_and_sync() {
     fn require_send_sync<T: Send + Sync>() {}
@@ -102,7 +102,7 @@ fn test_breaker_layer_is_send_and_sync() {
 // Two layers from different configs are independent
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerLayer — two layers from different configs must be independent.
+/// @covers: BreakerLayer
 #[test]
 fn test_two_breaker_layers_from_different_configs_are_independent() {
     let cfg_a = BreakerConfig {

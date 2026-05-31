@@ -8,14 +8,14 @@
 
 use swe_edge_egress_breaker::HttpBreakerSvc;
 
-/// @covers: HttpBreakerSvc::create_config_builder — returns a working loader.
+/// @covers: create_config_builder
 /// Verifies the config builder can be constructed and a loader built from it.
 #[test]
 fn test_configbuilder_create_config_builder_returns_loader() {
     let _loader = HttpBreakerSvc::create_config_builder().build_loader();
 }
 
-/// @covers: HttpBreakerSvc::create_config_builder — builder is seeded with crate name.
+/// @covers: create_config_builder
 /// Verifies the crate name and version are injected into the builder.
 #[test]
 fn test_configbuilder_create_config_builder_has_crate_name() {

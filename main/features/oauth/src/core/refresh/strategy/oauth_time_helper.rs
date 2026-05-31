@@ -19,7 +19,7 @@ impl OAuthTimeHelper {
 mod tests {
     use super::*;
 
-    /// @covers: now_ms — returns a nonzero timestamp.
+    /// @covers: now_ms
     #[test]
     fn test_now_ms_returns_nonzero_timestamp() {
         let ms = OAuthTimeHelper::now_ms();
@@ -31,7 +31,7 @@ mod tests {
         );
     }
 
-    /// @covers: now_ms — two successive calls are non-decreasing.
+    /// @covers: now_ms
     #[test]
     fn test_now_ms_is_non_decreasing() {
         let t1 = OAuthTimeHelper::now_ms();

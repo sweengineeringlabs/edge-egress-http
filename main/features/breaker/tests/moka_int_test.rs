@@ -16,7 +16,7 @@ fn cfg() -> BreakerConfig {
     }
 }
 
-/// @covers: BreakerLayer::new — moka cache is initialised and the layer is usable.
+/// @covers: new
 /// The moka cache is embedded in BreakerLayer; constructing and using Debug proves
 /// it was allocated without panic.
 #[test]
@@ -29,7 +29,7 @@ fn test_moka_cache_layer_constructs_successfully() {
     );
 }
 
-/// @covers: BreakerLayer::new — two layers have independent moka caches.
+/// @covers: new
 /// Verifies per-instance cache isolation: building two layers must yield two
 /// independent objects.
 #[test]
@@ -45,7 +45,7 @@ fn test_moka_cache_two_layers_are_independent() {
     );
 }
 
-/// @covers: BreakerLayer::new — moka cache holds bounded state.
+/// @covers: new
 /// Verifies the layer can be sent across threads, a property that depends on
 /// moka's `Cache` being `Send + Sync`.
 #[test]

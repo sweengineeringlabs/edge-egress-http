@@ -39,7 +39,7 @@ mod tests {
     use super::*;
     use crate::api::oauth_builder_ops::OAuthBuilderOps as _;
 
-    /// @covers: OAuthSvc::builder — missing token source returns Configuration error.
+    /// @covers: builder
     #[test]
     fn test_builder_without_source_returns_configuration_error() {
         let result = OAuthSvc::builder().build();
@@ -51,7 +51,7 @@ mod tests {
         );
     }
 
-    /// @covers: OAuthSvc::create_config_builder — returns a config builder.
+    /// @covers: create_config_builder
     #[test]
     fn test_create_config_builder_builds_loader() {
         let _loader = OAuthSvc::create_config_builder().build_loader();

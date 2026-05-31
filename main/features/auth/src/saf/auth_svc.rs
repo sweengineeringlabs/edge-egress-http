@@ -40,13 +40,13 @@ mod tests {
     use super::*;
     use std::sync::atomic::AtomicBool;
 
-    /// @covers: AuthSvc::create_config_builder
+    /// @covers: create_config_builder
     #[test]
     fn test_create_config_builder_builds_loader() {
         let _loader = AuthSvc::create_config_builder().build_loader();
     }
 
-    /// @covers: AuthSvc::build_auth_middleware
+    /// @covers: build_auth_middleware
     #[test]
     fn test_build_auth_middleware_with_none_config_returns_middleware_instance() {
         let mw = AuthSvc::build_auth_middleware(AuthConfig::None).expect("build ok");
@@ -54,7 +54,7 @@ mod tests {
         assert!(s.contains("swe_edge_egress_auth"));
     }
 
-    /// @covers: AuthSvc::build_auth_middleware
+    /// @covers: build_auth_middleware
     #[test]
     fn test_build_auth_middleware_with_missing_bearer_env_fails_at_build_time() {
         let cfg = AuthConfig::Bearer {
@@ -70,7 +70,7 @@ mod tests {
         }
     }
 
-    /// @covers: AuthSvc::build_auth_middleware
+    /// @covers: build_auth_middleware
     #[test]
     fn test_build_auth_middleware_with_bearer_env_set_produces_functioning_middleware() {
         std::env::set_var("EDGE_TEST_BEARER_OK_02", "tok-99");

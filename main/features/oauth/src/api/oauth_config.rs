@@ -47,7 +47,7 @@ impl swe_edge_configbuilder::ConfigSection for OAuthConfig {
 mod tests {
     use super::*;
 
-    /// @covers: from_config — parses Claude provider.
+    /// @covers: from_config
     #[test]
     fn test_from_config_parses_claude() {
         let cfg = OAuthConfig::from_config(r#"provider = "claude""#).unwrap();
@@ -55,7 +55,7 @@ mod tests {
         assert!(cfg.credentials_path.is_none());
     }
 
-    /// @covers: from_config — parses Google provider with path.
+    /// @covers: from_config
     #[test]
     fn test_from_config_parses_google_with_path() {
         let cfg = OAuthConfig::from_config(
@@ -67,7 +67,7 @@ credentials_path = "/custom/creds.json""#,
         assert_eq!(cfg.credentials_path.as_deref(), Some("/custom/creds.json"));
     }
 
-    /// @covers: from_config — parses OpenAI provider.
+    /// @covers: from_config
     #[test]
     fn test_from_config_parses_open_ai() {
         let cfg = OAuthConfig::from_config(r#"provider = "open_ai""#).unwrap();
@@ -82,7 +82,7 @@ credentials_path = "/custom/creds.json""#,
         assert!(cfg.credentials_path.is_none());
     }
 
-    /// @covers: ConfigSection::section_name
+    /// @covers: section_name
     #[test]
     fn test_section_name_is_oauth() {
         use swe_edge_configbuilder::ConfigSection as _;

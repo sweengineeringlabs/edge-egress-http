@@ -19,7 +19,7 @@ mod tests {
     use super::*;
     use reqwest::{Method, Url};
 
-    /// @covers: NoopStrategy::authorize
+    /// @covers: authorize
     #[test]
     fn test_authorize_returns_ok_without_any_header() {
         let s = NoopStrategy;

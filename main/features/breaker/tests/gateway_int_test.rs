@@ -13,13 +13,13 @@ fn make_cfg() -> BreakerConfig {
     }
 }
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — builds with default config.
+/// @covers: build_breaker_layer
 #[test]
 fn test_builder_fn_loads_swe_default_and_succeeds() {
     HttpBreakerSvc::build_breaker_layer(BreakerConfig::default()).expect("builder() must succeed");
 }
 
-/// @covers: BreakerConfig — default failure_threshold must be >= 1.
+/// @covers: BreakerConfig
 #[test]
 fn test_builder_fn_default_config_has_positive_failure_threshold() {
     let cfg = BreakerConfig::default();
@@ -29,7 +29,7 @@ fn test_builder_fn_default_config_has_positive_failure_threshold() {
     );
 }
 
-/// @covers: BreakerConfig — custom config stores correct values.
+/// @covers: BreakerConfig
 #[test]
 fn test_with_config_custom_config_stores_values() {
     let cfg = make_cfg();
@@ -39,7 +39,7 @@ fn test_with_config_custom_config_stores_values() {
     assert_eq!(cfg.failure_statuses, vec![500u16, 502, 503]);
 }
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — default config produces a BreakerLayer.
+/// @covers: build_breaker_layer
 #[test]
 fn test_build_default_produces_breaker_layer() {
     let layer: BreakerLayer =
@@ -51,20 +51,20 @@ fn test_build_default_produces_breaker_layer() {
     );
 }
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — custom config produces a valid layer.
+/// @covers: build_breaker_layer
 #[test]
 fn test_build_custom_config_produces_layer() {
     HttpBreakerSvc::build_breaker_layer(make_cfg()).expect("build with custom cfg must succeed");
 }
 
-/// @covers: BreakerLayer — must be Send + Sync.
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_is_send_and_sync() {
     fn require_send_sync<T: Send + Sync>() {}
     require_send_sync::<BreakerLayer>();
 }
 
-/// @covers: BreakerConfig — high threshold flows through config accessor correctly.
+/// @covers: BreakerConfig
 #[test]
 fn test_with_config_high_threshold_flows_through_config_accessor() {
     let cfg = BreakerConfig {
@@ -76,7 +76,7 @@ fn test_with_config_high_threshold_flows_through_config_accessor() {
     assert_eq!(cfg.failure_threshold, 10);
 }
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — empty failure_statuses must succeed.
+/// @covers: build_breaker_layer
 #[test]
 fn test_build_empty_failure_statuses_succeeds() {
     let cfg = BreakerConfig {
@@ -88,7 +88,7 @@ fn test_build_empty_failure_statuses_succeeds() {
     HttpBreakerSvc::build_breaker_layer(cfg).expect("empty failure_statuses must build");
 }
 
-/// @covers: BreakerError::ParseFailed — Display must name the crate.
+/// @covers: BreakerError::ParseFailed
 #[test]
 fn test_error_parse_failed_display_contains_crate_name() {
     let err = BreakerError::ParseFailed("oops".to_string());
@@ -99,7 +99,7 @@ fn test_error_parse_failed_display_contains_crate_name() {
     );
 }
 
-/// @covers: BreakerConfig — config method borrows current policy correctly.
+/// @covers: BreakerConfig
 #[test]
 fn test_builder_config_method_borrows_current_policy() {
     let cfg = make_cfg();

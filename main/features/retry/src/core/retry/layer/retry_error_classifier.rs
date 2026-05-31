@@ -32,7 +32,7 @@ impl RetryErrorClassifier {
 mod tests {
     use super::*;
 
-    /// @covers: RetryErrorClassifier::is_transient
+    /// @covers: is_transient
     #[test]
     fn test_is_transient_middleware_error_is_not_transient() {
         use std::fmt;

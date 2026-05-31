@@ -2,7 +2,7 @@
 
 use swe_edge_egress_http_transport::{HttpConfig, HttpTransportSvc};
 
-/// @covers: default_http_egress — factory assembles with SWE defaults.
+/// @covers: default_http_egress
 #[test]
 fn test_default_http_egress_builds_successfully_with_swe_defaults() {
     let result = HttpTransportSvc::default_http_egress();
@@ -13,7 +13,7 @@ fn test_default_http_egress_builds_successfully_with_swe_defaults() {
     );
 }
 
-/// @covers: default_http_egress_with_config — factory accepts a custom HttpConfig.
+/// @covers: default_http_egress_with_config
 #[test]
 fn test_default_http_egress_with_config_builds_with_custom_base_url() {
     let cfg = HttpConfig {
@@ -28,7 +28,7 @@ fn test_default_http_egress_with_config_builds_with_custom_base_url() {
     );
 }
 
-/// @covers: default_http_egress — two independent calls produce distinct instances.
+/// @covers: default_http_egress
 #[test]
 fn test_default_http_egress_builds_two_instances_independently() {
     let first = HttpTransportSvc::default_http_egress();

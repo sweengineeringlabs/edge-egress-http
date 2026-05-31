@@ -27,7 +27,7 @@ impl HttpCache for DefaultHttpCache {
 mod tests {
     use super::*;
 
-    /// @covers: DefaultHttpCache::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_and_stores_config() {
         let cfg = CacheConfig::default();
@@ -36,7 +36,7 @@ mod tests {
         assert!(dbg.contains("DefaultHttpCache"), "debug output: {dbg}");
     }
 
-    /// @covers: DefaultHttpCache::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_crate_name() {
         let cfg = CacheConfig::default();

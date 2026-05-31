@@ -4,7 +4,7 @@
 
 use swe_edge_egress_breaker::{BreakerConfig, HttpBreakerSvc};
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — Proceed admission is reachable via default config.
+/// @covers: build_breaker_layer
 #[test]
 fn test_admission_proceed_reachable_from_default_config() {
     let layer = HttpBreakerSvc::build_breaker_layer(BreakerConfig {
@@ -17,7 +17,7 @@ fn test_admission_proceed_reachable_from_default_config() {
     assert!(!format!("{layer:?}").is_empty());
 }
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — Outcome::Failure variant drives open transition.
+/// @covers: build_breaker_layer
 #[test]
 fn test_outcome_failure_variant_drives_open_transition() {
     let layer = HttpBreakerSvc::build_breaker_layer(BreakerConfig {

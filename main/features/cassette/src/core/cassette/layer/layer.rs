@@ -294,7 +294,7 @@ mod tests {
         );
     }
 
-    /// @covers: CassetteLayer::match_key
+    /// @covers: match_key
     #[test]
     fn test_match_key_includes_method_and_url() {
         let dir = tempfile::tempdir().unwrap();
@@ -309,7 +309,7 @@ mod tests {
         assert!(key.contains("url=https://api.example.test/foo"));
     }
 
-    /// @covers: CassetteLayer::match_key
+    /// @covers: match_key
     #[test]
     fn test_match_key_body_hash_stable_across_scrubbed_fields() {
         // Two requests differing only in a scrubbed field
@@ -338,7 +338,7 @@ mod tests {
         assert_eq!(layer.match_key(&r1), layer.match_key(&r2));
     }
 
-    /// @covers: CassetteLayer::match_key
+    /// @covers: match_key
     #[test]
     fn test_match_key_body_hash_differs_for_unscrubbed_field_changes() {
         let dir = tempfile::tempdir().unwrap();
@@ -365,7 +365,7 @@ mod tests {
         assert_ne!(layer.match_key(&r1), layer.match_key(&r2));
     }
 
-    /// @covers: CassetteLayer::match_key
+    /// @covers: match_key
     #[test]
     fn test_match_key_differs_across_methods_on_same_url() {
         let dir = tempfile::tempdir().unwrap();
@@ -378,7 +378,7 @@ mod tests {
         assert_ne!(layer.match_key(&r_get), layer.match_key(&r_post));
     }
 
-    /// @covers: CassetteLayer::scrub_response
+    /// @covers: scrub_response
     #[test]
     fn test_scrub_response_removes_configured_headers() {
         let dir = tempfile::tempdir().unwrap();
@@ -408,7 +408,7 @@ mod tests {
             .any(|(k, _)| k.eq_ignore_ascii_case("set-cookie")));
     }
 
-    /// @covers: CassetteLayer::load_fixtures_from_disk
+    /// @covers: load_fixtures_from_disk
     #[test]
     fn test_load_fixtures_missing_file_returns_empty_map() {
         let dir = tempfile::tempdir().unwrap();
@@ -417,7 +417,7 @@ mod tests {
         assert!(fixtures.is_empty());
     }
 
-    /// @covers: CassetteLayer::load_fixtures_from_disk
+    /// @covers: load_fixtures_from_disk
     #[test]
     fn test_load_fixtures_roundtrips_through_yaml() {
         let dir = tempfile::tempdir().unwrap();
@@ -443,7 +443,7 @@ mod tests {
         assert_eq!(fixtures.len(), 1);
     }
 
-    /// @covers: CassetteLayer::reconstruct_response
+    /// @covers: reconstruct_response
     #[test]
     fn test_reconstruct_response_from_recorded() {
         let r = RecordedResponse {
@@ -460,7 +460,7 @@ mod tests {
         assert_eq!(resp.headers().get("x-custom").unwrap(), "teapot");
     }
 
-    /// @covers: CassetteLayer::new
+    /// @covers: new
     #[test]
     fn test_new_with_nonexistent_cassette_starts_empty() {
         let dir = tempfile::tempdir().unwrap();
@@ -470,7 +470,7 @@ mod tests {
         assert!(!layer.cassette_path.exists());
     }
 
-    /// @covers: CassetteLayer::flush_to_disk
+    /// @covers: flush_to_disk
     #[test]
     fn test_flush_to_disk_path_derived_from_config() {
         let dir = tempfile::tempdir().unwrap();
@@ -487,14 +487,14 @@ mod tests {
         );
     }
 
-    /// @covers: CassetteLayer::handle
+    /// @covers: handle
     #[test]
     fn test_handle_layer_is_send_sync() {
         fn assert_send_sync<T: Send + Sync>() {}
         assert_send_sync::<CassetteLayer>();
     }
 
-    /// @covers: CassetteLayer::load_fixtures_from_disk
+    /// @covers: load_fixtures_from_disk
     #[test]
     fn test_load_fixtures_from_disk_empty_file_returns_empty_map() {
         let dir = tempfile::tempdir().unwrap();

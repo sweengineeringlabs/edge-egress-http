@@ -33,7 +33,7 @@ mod tests {
     // Env-var tests are serialized by using unique variable
     // names per test so concurrent test threads don't race.
 
-    /// @covers: EnvCredentialResolver::resolve
+    /// @covers: resolve
     #[test]
     fn test_resolve_env_var_present_returns_value() {
         std::env::set_var("EDGE_TEST_TOKEN_PRESENT_01", "hello-bearer");
@@ -44,7 +44,7 @@ mod tests {
         std::env::remove_var("EDGE_TEST_TOKEN_PRESENT_01");
     }
 
-    /// @covers: EnvCredentialResolver::resolve
+    /// @covers: resolve
     #[test]
     fn test_resolve_env_var_missing_returns_missing_env_var_error() {
         // Use a name we can be sure isn't set.
@@ -60,7 +60,7 @@ mod tests {
         }
     }
 
-    /// @covers: EnvCredentialResolver::resolve
+    /// @covers: resolve
     #[test]
     fn test_resolve_empty_env_var_is_still_ok_scheme_validates_shape() {
         // Empty-string env var = still "set" at OS level. Whether

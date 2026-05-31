@@ -9,21 +9,21 @@
 
 use swe_edge_egress_breaker::BreakerLayer;
 
-/// @covers: BreakerLayer — must be Send (supertrait of Processor).
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_satisfies_send_required_by_http_breaker_trait() {
     fn assert_send<T: Send>() {}
     assert_send::<BreakerLayer>();
 }
 
-/// @covers: BreakerLayer — must be Sync (supertrait of Processor).
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_satisfies_sync_required_by_http_breaker_trait() {
     fn assert_sync<T: Sync>() {}
     assert_sync::<BreakerLayer>();
 }
 
-/// @covers: BreakerLayer — can be coerced to Box<dyn Send + Sync>.
+/// @covers: BreakerLayer
 #[test]
 fn test_breaker_layer_coercible_to_boxed_send_sync() {
     use swe_edge_egress_breaker::{BreakerConfig, HttpBreakerSvc};

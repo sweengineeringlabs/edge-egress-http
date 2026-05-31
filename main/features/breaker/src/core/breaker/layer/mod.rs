@@ -119,13 +119,13 @@ mod tests {
         .unwrap()
     }
 
-    /// @covers: BreakerLayer::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_with_cache() {
         let _l = BreakerLayer::new(test_config());
     }
 
-    /// @covers: BreakerLayer::is_failure
+    /// @covers: is_failure
     /// Verifies config is accessible after construction (used inside host_state to
     /// initialise HostBreaker). The config field is wired correctly.
     #[test]
@@ -136,7 +136,7 @@ mod tests {
         assert!(l.is_failure(reqwest::StatusCode::INTERNAL_SERVER_ERROR));
     }
 
-    /// @covers: BreakerLayer::new
+    /// @covers: new
     /// `BreakerLayer` must satisfy `Send + Sync` (needed by reqwest_middleware::Middleware).
     #[test]
     fn test_handle_layer_is_send_sync() {
@@ -144,7 +144,7 @@ mod tests {
         assert_send_sync::<BreakerLayer>();
     }
 
-    /// @covers: BreakerLayer::is_failure
+    /// @covers: is_failure
     #[test]
     fn test_is_failure_classifies_configured_statuses() {
         let l = BreakerLayer::new(test_config());
@@ -154,7 +154,7 @@ mod tests {
         assert!(!l.is_failure(reqwest::StatusCode::BAD_REQUEST));
     }
 
-    /// @covers: BreakerLayer::host_state
+    /// @covers: host_state
     #[tokio::test]
     async fn test_host_state_shared_across_calls_for_same_key() {
         let l = BreakerLayer::new(test_config());
@@ -163,7 +163,7 @@ mod tests {
         assert!(Arc::ptr_eq(&a, &b));
     }
 
-    /// @covers: BreakerLayer::host_state
+    /// @covers: host_state
     #[tokio::test]
     async fn test_host_state_distinct_across_hosts() {
         let l = BreakerLayer::new(test_config());

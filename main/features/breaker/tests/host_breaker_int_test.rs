@@ -13,7 +13,7 @@ use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 // Threshold = 1 — opens on first failure
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — failure_threshold=1 layer must build.
+/// @covers: build_breaker_layer
 #[test]
 fn test_host_breaker_threshold_one_layer_builds() {
     let cfg = BreakerConfig {
@@ -34,7 +34,7 @@ fn test_host_breaker_threshold_one_layer_builds() {
 // reset_after_successes = 1 — closes after a single probe success
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — reset_after_successes=1 must not be rejected.
+/// @covers: build_breaker_layer
 #[test]
 fn test_host_breaker_single_success_reset_layer_builds() {
     let cfg = BreakerConfig {
@@ -50,7 +50,7 @@ fn test_host_breaker_single_success_reset_layer_builds() {
 // half_open_after_seconds = 0 — immediate probe after opening
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — half_open_after_seconds=0 must not be rejected.
+/// @covers: build_breaker_layer
 #[test]
 fn test_host_breaker_zero_wait_before_half_open_builds() {
     let cfg = BreakerConfig {
@@ -67,7 +67,7 @@ fn test_host_breaker_zero_wait_before_half_open_builds() {
 // Only 4xx statuses as failure triggers — unusual but valid
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — 4xx failure statuses must not be rejected.
+/// @covers: build_breaker_layer
 #[test]
 fn test_host_breaker_4xx_failure_statuses_layer_builds() {
     let cfg = BreakerConfig {
@@ -83,7 +83,7 @@ fn test_host_breaker_4xx_failure_statuses_layer_builds() {
 // Multiple layers share no mutable state
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerLayer — two independently built layers must not share state.
+/// @covers: BreakerLayer
 #[test]
 fn test_host_breaker_two_layers_have_independent_state() {
     let cfg_a = BreakerConfig {

@@ -44,7 +44,7 @@ mod tests {
         }
     }
 
-    /// @covers: TlsLayer::apply_to
+    /// @covers: apply_to
     #[test]
     fn test_apply_to_with_none_provider_returns_builder_unchanged() {
         let layer = TlsLayer::new(Arc::new(NoopStub));
@@ -55,7 +55,7 @@ mod tests {
             .expect("noop path does not fail");
     }
 
-    /// @covers: TlsLayer::new
+    /// @covers: new
     #[test]
     fn test_new_holds_provider() {
         let layer = TlsLayer::new(Arc::new(NoopStub));

@@ -47,7 +47,7 @@ impl Validator for DefaultHttpRate {
 mod tests {
     use super::*;
 
-    /// @covers: DefaultHttpRate::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_and_stores_config() {
         let cfg = RateConfig::default();
@@ -56,7 +56,7 @@ mod tests {
         assert!(dbg.contains("DefaultHttpRate"), "debug output: {dbg}");
     }
 
-    /// @covers: DefaultHttpRate::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_crate_name() {
         let cfg = RateConfig::default();
@@ -64,7 +64,7 @@ mod tests {
         assert_eq!(d.describe(), "swe-edge-egress-rate");
     }
 
-    /// @covers: DefaultHttpRate::validate
+    /// @covers: validate
     #[test]
     fn test_validate_passes_for_valid_config() {
         let cfg = RateConfig::default();
@@ -72,7 +72,7 @@ mod tests {
         assert!(d.validate().is_ok(), "default config must validate");
     }
 
-    /// @covers: DefaultHttpRate::validate
+    /// @covers: validate
     #[test]
     fn test_validate_fails_for_zero_tokens_per_second() {
         let cfg = RateConfig {
@@ -93,7 +93,7 @@ mod tests {
         );
     }
 
-    /// @covers: DefaultHttpRate::validate
+    /// @covers: validate
     #[test]
     fn test_validate_fails_for_zero_burst_capacity() {
         let cfg = RateConfig {

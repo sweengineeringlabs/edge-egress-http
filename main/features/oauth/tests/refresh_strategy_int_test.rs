@@ -16,7 +16,7 @@ impl OAuthTokenSource for StaticSource {
     }
 }
 
-/// @covers: OAuthSvc::builder — missing token source returns Configuration error.
+/// @covers: builder
 #[test]
 fn test_oauth_builder_without_source_returns_configuration_error() {
     let result = OAuthSvc::builder().build();
@@ -40,7 +40,7 @@ fn test_oauth_builder_with_source_builds_middleware_successfully() {
     );
 }
 
-/// @covers: OAuthSvc::builder — second call with different source builds independently.
+/// @covers: builder
 #[test]
 fn test_oauth_builder_can_be_called_multiple_times_independently() {
     let src_a = Arc::new(StaticSource("token-a".into()));

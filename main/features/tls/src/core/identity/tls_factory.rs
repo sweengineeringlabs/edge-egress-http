@@ -45,7 +45,7 @@ impl TlsProviderFactory {
 mod tests {
     use super::*;
 
-    /// @covers: TlsProviderFactory::build_provider
+    /// @covers: build_provider
     #[test]
     fn test_build_provider_none_variant_builds_noop() {
         let p = TlsProviderFactory::build_provider(&TlsConfig::None).unwrap();
@@ -53,7 +53,7 @@ mod tests {
         assert!(p.identity().unwrap().is_none());
     }
 
-    /// @covers: TlsProviderFactory::build_provider
+    /// @covers: build_provider
     #[test]
     fn test_build_provider_pkcs12_missing_password_env_returns_missing_env_var() {
         std::env::remove_var("EDGE_TEST_TLS_PKCS_PW_ABSENT_01");
@@ -70,7 +70,7 @@ mod tests {
         }
     }
 
-    /// @covers: TlsProviderFactory::build_provider
+    /// @covers: build_provider
     #[test]
     fn test_build_provider_pkcs12_missing_file_returns_file_read_failed() {
         let cfg = TlsConfig::Pkcs12 {
@@ -84,7 +84,7 @@ mod tests {
         }
     }
 
-    /// @covers: TlsProviderFactory::build_provider
+    /// @covers: build_provider
     #[test]
     fn test_build_provider_pem_missing_file_returns_file_read_failed() {
         let cfg = TlsConfig::Pem {

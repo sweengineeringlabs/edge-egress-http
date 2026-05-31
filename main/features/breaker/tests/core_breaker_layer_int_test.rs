@@ -15,7 +15,7 @@ use swe_edge_egress_breaker::{BreakerConfig, BreakerLayer, HttpBreakerSvc};
 // Low threshold — breaker trips quickly
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — threshold=1 must build without rejection.
+/// @covers: build_breaker_layer
 #[test]
 fn test_core_breaker_layer_threshold_one_builds() {
     let cfg = BreakerConfig {
@@ -31,7 +31,7 @@ fn test_core_breaker_layer_threshold_one_builds() {
 // Zero half-open wait — immediate probe
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — half_open_after_seconds=0 must not be rejected.
+/// @covers: build_breaker_layer
 #[test]
 fn test_core_breaker_layer_zero_wait_builds() {
     let cfg = BreakerConfig {
@@ -47,7 +47,7 @@ fn test_core_breaker_layer_zero_wait_builds() {
 // Many failure statuses — wide failure surface
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — large failure_statuses slice must be accepted.
+/// @covers: build_breaker_layer
 #[test]
 fn test_core_breaker_layer_many_failure_statuses_builds() {
     let statuses: Vec<u16> = vec![500, 501, 502, 503, 504, 505, 506, 507, 508];
@@ -64,7 +64,7 @@ fn test_core_breaker_layer_many_failure_statuses_builds() {
 // Debug output reflects policy
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerLayer — Debug output must include failure_threshold.
+/// @covers: BreakerLayer
 #[test]
 fn test_core_breaker_layer_debug_includes_failure_threshold() {
     let cfg = BreakerConfig {
@@ -81,7 +81,7 @@ fn test_core_breaker_layer_debug_includes_failure_threshold() {
     );
 }
 
-/// @covers: BreakerLayer — Debug output must include reset_after_successes.
+/// @covers: BreakerLayer
 #[test]
 fn test_core_breaker_layer_debug_includes_reset_after_successes() {
     let cfg = BreakerConfig {
@@ -102,7 +102,7 @@ fn test_core_breaker_layer_debug_includes_reset_after_successes() {
 // Send + Sync
 // ---------------------------------------------------------------------------
 
-/// @covers: BreakerLayer — must satisfy Send + Sync.
+/// @covers: BreakerLayer
 #[test]
 fn test_core_breaker_layer_is_send_and_sync() {
     fn require_send_sync<T: Send + Sync>() {}
@@ -113,7 +113,7 @@ fn test_core_breaker_layer_is_send_and_sync() {
 // Per-host cache capacity — large host count
 // ---------------------------------------------------------------------------
 
-/// @covers: HttpBreakerSvc::build_breaker_layer — builds for high-host-count workload.
+/// @covers: build_breaker_layer
 #[test]
 fn test_core_breaker_layer_builds_for_high_host_count_workload() {
     let cfg = BreakerConfig {

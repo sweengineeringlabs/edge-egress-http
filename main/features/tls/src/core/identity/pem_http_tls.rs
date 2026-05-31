@@ -51,7 +51,7 @@ impl HttpTls for PemHttpTls {
 mod tests {
     use super::*;
 
-    /// @covers: PemHttpTls::new
+    /// @covers: new
     #[test]
     fn test_new_reads_file_bytes_into_struct() {
         // Write a temp file with known bytes and verify new() loads them.
@@ -67,14 +67,14 @@ mod tests {
         );
     }
 
-    /// @covers: PemHttpTls::new
+    /// @covers: new
     #[test]
     fn test_new_missing_file_returns_file_read_failed() {
         let err = PemHttpTls::new("/path/definitely/does/not/exist.pem".into()).unwrap_err();
         assert!(matches!(err, TlsError::FileReadFailed { .. }));
     }
 
-    /// @covers: PemHttpTls::identity
+    /// @covers: identity
     #[test]
     fn test_identity_on_invalid_pem_returns_invalid_certificate() {
         let p = PemHttpTls {
@@ -88,7 +88,7 @@ mod tests {
         }
     }
 
-    /// @covers: PemHttpTls::describe
+    /// @covers: describe
     #[test]
     fn test_describe_returns_pem_label() {
         let p = PemHttpTls {

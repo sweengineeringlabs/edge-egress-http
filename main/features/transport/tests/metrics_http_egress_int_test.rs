@@ -5,7 +5,7 @@ use std::sync::Arc;
 use swe_edge_egress_http_transport::{HttpConfig, HttpTransportSvc};
 use swe_observ_metrics::{create_local_metrics_backend, MetricsProvider};
 
-/// @covers: observe_http_egress — wraps a plain outbound with metrics observation.
+/// @covers: observe_http_egress
 #[test]
 fn test_observe_http_egress_wraps_plain_outbound_without_error() {
     let inner =
@@ -14,7 +14,7 @@ fn test_observe_http_egress_wraps_plain_outbound_without_error() {
     let _observed = HttpTransportSvc::observe_http_egress(inner, provider);
 }
 
-/// @covers: observe_http_egress — two wrappers can share a cloned provider.
+/// @covers: observe_http_egress
 #[test]
 fn test_observe_http_egress_two_instances_share_provider() {
     let inner_a = HttpTransportSvc::plain_http_egress(HttpConfig::default())

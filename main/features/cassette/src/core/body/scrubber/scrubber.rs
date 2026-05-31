@@ -99,7 +99,7 @@ impl BodyScrubber {
 mod tests {
     use super::*;
 
-    /// @covers: BodyScrubber::remove_path
+    /// @covers: remove_path
     #[test]
     fn test_remove_path_removes_top_level_key() {
         let mut v = serde_json::json!({"a": 1, "b": 2});
@@ -108,7 +108,7 @@ mod tests {
         assert_eq!(v.get("b").and_then(|x| x.as_i64()), Some(2));
     }
 
-    /// @covers: BodyScrubber::remove_path
+    /// @covers: remove_path
     #[test]
     fn test_remove_path_noop_on_missing_key() {
         let mut v = serde_json::json!({"a": 1});
@@ -117,7 +117,7 @@ mod tests {
         assert_eq!(v.get("a").and_then(|x| x.as_i64()), Some(1));
     }
 
-    /// @covers: BodyScrubber::remove_path
+    /// @covers: remove_path
     #[test]
     fn test_remove_path_removes_nested_key() {
         let mut v = serde_json::json!({"outer": {"inner": "secret", "keep": "yes"}});
@@ -127,7 +127,7 @@ mod tests {
         assert_eq!(outer.get("keep").and_then(|x| x.as_str()), Some("yes"));
     }
 
-    /// @covers: BodyScrubber::remove_path
+    /// @covers: remove_path
     #[test]
     fn test_remove_path_noop_on_scalar_mid_path() {
         // "a" is a scalar, not an object; descending into it must bail.
@@ -137,7 +137,7 @@ mod tests {
         assert_eq!(v.get("a").and_then(|x| x.as_i64()), Some(42));
     }
 
-    /// @covers: BodyScrubber::scrub_body
+    /// @covers: scrub_body
     #[test]
     fn test_scrub_body_removes_specified_path() {
         let body = br#"{"id":"abc","keep":"yes"}"#;
@@ -148,14 +148,14 @@ mod tests {
         assert_eq!(v.get("keep").and_then(|x| x.as_str()), Some("yes"));
     }
 
-    /// @covers: BodyScrubber::scrub_body
+    /// @covers: scrub_body
     #[test]
     fn test_empty_paths_returns_raw_unchanged() {
         let body = br#"{"a": 1}"#;
         assert_eq!(BodyScrubber::scrub_body(body, &[]), body.to_vec());
     }
 
-    /// @covers: BodyScrubber::scrub_body
+    /// @covers: scrub_body
     #[test]
     fn test_non_json_body_returns_raw_unchanged() {
         let body = b"not actual json";

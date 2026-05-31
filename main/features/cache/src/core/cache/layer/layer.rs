@@ -513,7 +513,7 @@ mod tests {
         .expect("test config must parse")
     }
 
-    /// @covers: CacheLayer::new
+    /// @covers: new
     #[test]
     fn test_new_constructs_with_store() {
         let cfg = test_config();
@@ -525,7 +525,7 @@ mod tests {
         let _ = l; // constructed without panic
     }
 
-    /// @covers: CacheLayer::key_for
+    /// @covers: key_for
     #[test]
     fn test_key_for_contains_method_and_url() {
         let l = CacheLayer::new(test_config());
@@ -538,7 +538,7 @@ mod tests {
         assert!(k.contains("example.test"));
     }
 
-    /// @covers: CacheLayer::key_for
+    /// @covers: key_for
     #[test]
     fn test_key_includes_method_and_full_url() {
         let l = CacheLayer::new(test_config());
@@ -552,7 +552,7 @@ mod tests {
         assert!(k.contains("q=1"));
     }
 
-    /// @covers: CacheLayer::is_cacheable_method
+    /// @covers: is_cacheable_method
     #[test]
     fn test_is_cacheable_method_get_and_head_are_allowed() {
         assert!(CacheLayer::is_cacheable_method(&reqwest::Method::GET));
@@ -560,14 +560,14 @@ mod tests {
         assert!(!CacheLayer::is_cacheable_method(&reqwest::Method::POST));
     }
 
-    /// @covers: CacheLayer::is_cacheable_method
+    /// @covers: is_cacheable_method
     #[test]
     fn test_get_and_head_are_cacheable() {
         assert!(CacheLayer::is_cacheable_method(&reqwest::Method::GET));
         assert!(CacheLayer::is_cacheable_method(&reqwest::Method::HEAD));
     }
 
-    /// @covers: CacheLayer::is_cacheable_method
+    /// @covers: is_cacheable_method
     #[test]
     fn test_mutating_methods_are_not_cacheable() {
         assert!(!CacheLayer::is_cacheable_method(&reqwest::Method::POST));
@@ -589,7 +589,7 @@ mod tests {
         reqwest::Response::from(http_resp)
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_for_no_store_returns_none() {
         let l = CacheLayer::new(test_config());
@@ -597,7 +597,7 @@ mod tests {
         assert!(l.ttl_for(&resp).is_none());
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_honors_upstream_max_age_when_respect_true() {
         let l = CacheLayer::new(test_config());
@@ -608,7 +608,7 @@ mod tests {
         );
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_falls_back_to_default_when_no_cache_control() {
         let l = CacheLayer::new(test_config());
@@ -619,7 +619,7 @@ mod tests {
         );
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_honors_no_store_even_with_default_ttl_set() {
         let l = CacheLayer::new(test_config());
@@ -627,7 +627,7 @@ mod tests {
         assert!(l.ttl_for(&resp).is_none());
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_private_blocked_when_cache_private_false() {
         let l = CacheLayer::new(test_config());
@@ -635,7 +635,7 @@ mod tests {
         assert!(l.ttl_for(&resp).is_none());
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_private_allowed_when_cache_private_true() {
         let cfg = CacheConfig::from_config(
@@ -655,7 +655,7 @@ mod tests {
         );
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_default_zero_without_cache_control_means_no_cache() {
         let cfg = CacheConfig::from_config(
@@ -672,7 +672,7 @@ mod tests {
         assert!(l.ttl_for(&resp).is_none());
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_ttl_ignores_cache_control_when_respect_false() {
         let cfg = CacheConfig::from_config(
@@ -692,7 +692,7 @@ mod tests {
         );
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_vary_star_is_not_cacheable() {
         let l = CacheLayer::new(test_config());
@@ -700,7 +700,7 @@ mod tests {
         assert!(l.ttl_for(&resp).is_none());
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_vary_star_with_other_names_still_not_cacheable() {
         let l = CacheLayer::new(test_config());
@@ -711,7 +711,7 @@ mod tests {
         assert!(l.ttl_for(&resp).is_none());
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_stale_while_revalidate_parsed_from_cache_control() {
         let l = CacheLayer::new(test_config());
@@ -721,7 +721,7 @@ mod tests {
         assert_eq!(decision.swr, Some(Duration::from_secs(300)));
     }
 
-    /// @covers: CacheLayer::ttl_for
+    /// @covers: ttl_for
     #[test]
     fn test_stale_while_revalidate_duration_zero_means_none() {
         let l = CacheLayer::new(test_config());
@@ -1005,7 +1005,7 @@ mod tests {
         assert_send_sync::<CacheLayer>();
     }
 
-    /// @covers: CacheLayer::buffer_and_store
+    /// @covers: buffer_and_store
     #[test]
     fn test_buffer_and_store_swr_client_is_set() {
         let l = CacheLayer::new(test_config());
@@ -1034,7 +1034,7 @@ mod tests {
         let _cloned = entry.clone();
     }
 
-    /// @covers: CacheLayer::refresh_on_304
+    /// @covers: refresh_on_304
     #[test]
     fn test_refresh_on_304_entry_struct_update_works() {
         let base = CachedEntry {

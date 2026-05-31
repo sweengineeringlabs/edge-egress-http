@@ -118,14 +118,14 @@ mod tests {
         .unwrap()
     }
 
-    /// @covers: HostBreaker::new
+    /// @covers: new
     #[test]
     fn test_new_starts_closed() {
         let b = HostBreaker::new();
         assert_eq!(b.state(), State::Closed);
     }
 
-    /// @covers: HostBreaker::admit
+    /// @covers: admit
     #[test]
     fn test_closed_admits_traffic() {
         let cfg = test_config();
@@ -133,7 +133,7 @@ mod tests {
         assert_eq!(b.admit(&cfg), Admission::Proceed);
     }
 
-    /// @covers: HostBreaker::record
+    /// @covers: record
     #[test]
     fn test_record_failure_increments_toward_threshold() {
         let cfg = test_config();
@@ -148,7 +148,7 @@ mod tests {
         );
     }
 
-    /// @covers: HostBreaker::record
+    /// @covers: record
     #[test]
     fn test_failures_below_threshold_stay_closed() {
         let cfg = test_config();
@@ -158,7 +158,7 @@ mod tests {
         assert_eq!(b.state(), State::Closed);
     }
 
-    /// @covers: HostBreaker::record
+    /// @covers: record
     #[test]
     fn test_failures_at_threshold_trip_to_open() {
         let cfg = test_config();
@@ -169,7 +169,7 @@ mod tests {
         assert!(matches!(b.state(), State::Open { .. }));
     }
 
-    /// @covers: HostBreaker::record
+    /// @covers: record
     #[test]
     fn test_success_in_closed_resets_failure_counter() {
         let cfg = test_config();
@@ -182,7 +182,7 @@ mod tests {
         assert_eq!(b.state(), State::Closed);
     }
 
-    /// @covers: HostBreaker::admit
+    /// @covers: admit
     #[test]
     fn test_open_rejects_before_wait_elapsed() {
         let cfg = test_config();
@@ -193,7 +193,7 @@ mod tests {
         assert_eq!(b.admit(&cfg), Admission::RejectOpen);
     }
 
-    /// @covers: HostBreaker::admit
+    /// @covers: admit
     #[test]
     fn test_open_promotes_to_half_open_after_wait() {
         let cfg = test_config();
@@ -208,7 +208,7 @@ mod tests {
         assert_eq!(b.state(), State::HalfOpen);
     }
 
-    /// @covers: HostBreaker::record
+    /// @covers: record
     #[test]
     fn test_half_open_success_counts_toward_reset() {
         let cfg = test_config();
@@ -220,7 +220,7 @@ mod tests {
         assert_eq!(b.state(), State::Closed);
     }
 
-    /// @covers: HostBreaker::record
+    /// @covers: record
     #[test]
     fn test_half_open_failure_returns_to_open() {
         let cfg = test_config();
@@ -231,14 +231,14 @@ mod tests {
         assert!(matches!(b.state(), State::Open { .. }));
     }
 
-    /// @covers: HostBreaker::is_open
+    /// @covers: is_open
     #[test]
     fn test_is_open_false_when_closed() {
         let b = HostBreaker::new();
         assert!(!b.is_open(), "new breaker starts closed, not open");
     }
 
-    /// @covers: HostBreaker::is_open
+    /// @covers: is_open
     #[test]
     fn test_is_open_true_when_tripped() {
         let cfg = test_config();
@@ -249,7 +249,7 @@ mod tests {
         assert!(b.is_open(), "breaker must be open after threshold failures");
     }
 
-    /// @covers: HostBreaker::is_open
+    /// @covers: is_open
     #[test]
     fn test_is_open_false_when_half_open() {
         let mut b = HostBreaker::new();
@@ -257,7 +257,7 @@ mod tests {
         assert!(!b.is_open(), "HalfOpen is not Open");
     }
 
-    /// @covers: HostBreaker::state
+    /// @covers: state
     #[test]
     fn test_state_returns_correct_variant() {
         let mut b = HostBreaker::new();

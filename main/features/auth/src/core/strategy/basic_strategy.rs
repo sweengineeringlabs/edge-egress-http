@@ -65,7 +65,7 @@ mod tests {
         reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap())
     }
 
-    /// @covers: BasicStrategy::authorize
+    /// @covers: authorize
     #[test]
     fn test_authorize_attaches_basic_authorization_with_base64_user_pass() {
         let s = BasicStrategy::new(
@@ -86,7 +86,7 @@ mod tests {
         assert_eq!(header, format!("Basic {expected_payload}"));
     }
 
-    /// @covers: BasicStrategy::authorize
+    /// @covers: authorize
     #[test]
     fn test_authorize_handles_utf8_password() {
         // RFC 7617 §2.1 mandates UTF-8 — test a non-ASCII password
@@ -123,7 +123,7 @@ mod tests {
         assert!(s_dbg.contains("redacted") || s_dbg.contains("BasicStrategy"));
     }
 
-    /// @covers: BasicStrategy::fmt
+    /// @covers: fmt
     #[test]
     fn test_fmt_debug_redacts_header_value() {
         let s = BasicStrategy::new(
@@ -136,7 +136,7 @@ mod tests {
         assert!(!dbg.contains("pass"));
     }
 
-    /// @covers: BasicStrategy::new
+    /// @covers: new
     #[test]
     fn test_new_accepts_empty_password() {
         // Empty password is technically valid per RFC 7617 (the

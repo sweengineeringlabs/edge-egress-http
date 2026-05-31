@@ -37,7 +37,7 @@ impl RequestSnapshot {
 mod tests {
     use super::*;
 
-    /// @covers: RequestSnapshot::new
+    /// @covers: new
     #[test]
     fn test_captured_method_returns_request_method() {
         let req = reqwest::Request::new(
@@ -48,7 +48,7 @@ mod tests {
         assert_eq!(snap.captured_method(), &reqwest::Method::POST);
     }
 
-    /// @covers: RequestSnapshot::new
+    /// @covers: new
     #[test]
     fn test_captured_url_returns_request_url() {
         let url = reqwest::Url::parse("https://example.test/path?q=1").expect("url");

@@ -63,7 +63,7 @@ mod tests {
         reqwest::Request::new(Method::GET, Url::parse("http://example.test/").unwrap())
     }
 
-    /// @covers: HeaderStrategy::authorize
+    /// @covers: authorize
     #[test]
     fn test_authorize_attaches_custom_header() {
         let s = HeaderStrategy::new(
@@ -79,7 +79,7 @@ mod tests {
         );
     }
 
-    /// @covers: HeaderStrategy::new
+    /// @covers: new
     #[test]
     fn test_new_lowercases_header_name_case_insensitively() {
         // Config might specify `X-API-Key`; we should accept it
@@ -93,7 +93,7 @@ mod tests {
         assert!(req.headers().contains_key("x-api-key"));
     }
 
-    /// @covers: HeaderStrategy::new
+    /// @covers: new
     #[test]
     fn test_new_rejects_invalid_header_name() {
         // Spaces aren't allowed in header names per RFC 7230.
@@ -105,7 +105,7 @@ mod tests {
         }
     }
 
-    /// @covers: HeaderStrategy::new
+    /// @covers: new
     #[test]
     fn test_new_rejects_invalid_header_value() {
         let err = HeaderStrategy::new("x-key".into(), SecretString::from("bad\nvalue".to_string()))
@@ -113,7 +113,7 @@ mod tests {
         assert!(matches!(err, AuthError::InvalidHeaderValue(_)));
     }
 
-    /// @covers: HeaderStrategy::fmt
+    /// @covers: fmt
     #[test]
     fn test_fmt_debug_shows_name_and_redacts_value() {
         let s =

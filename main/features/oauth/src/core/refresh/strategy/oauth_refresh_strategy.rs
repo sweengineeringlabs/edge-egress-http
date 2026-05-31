@@ -166,7 +166,7 @@ mod tests {
         let _ = OAuthRefreshStrategy::new(Arc::new(StaticTokenSource("tok".into())));
     }
 
-    /// @covers: fresh_token — returns token from source.
+    /// @covers: fresh_token
     #[tokio::test]
     async fn test_fresh_token_returns_source_token() {
         let strategy = OAuthRefreshStrategy::new(Arc::new(StaticTokenSource("tok-123".into())));
@@ -174,7 +174,7 @@ mod tests {
         assert_eq!(token, "tok-123");
     }
 
-    /// @covers: fresh_token — caches on second call.
+    /// @covers: fresh_token
     #[tokio::test]
     async fn test_fresh_token_is_cached_on_second_call() {
         let strategy = OAuthRefreshStrategy::new(Arc::new(StaticTokenSource("tok-abc".into())));
@@ -183,7 +183,7 @@ mod tests {
         assert_eq!(t1, t2);
     }
 
-    /// @covers: fresh_token — propagates source error.
+    /// @covers: fresh_token
     #[tokio::test]
     async fn test_fresh_token_propagates_source_error() {
         let strategy = OAuthRefreshStrategy::new(Arc::new(FailingTokenSource));
@@ -192,7 +192,7 @@ mod tests {
         assert!(result.unwrap_err().to_string().contains("test failure"));
     }
 
-    /// @covers: Validator::validate — rejects empty access_token.
+    /// @covers: validate
     #[test]
     fn test_validate_rejects_empty_access_token() {
         let creds = OAuthCredentials {
@@ -204,7 +204,7 @@ mod tests {
         assert!(OAuthRefreshStrategy::validate(&creds).is_err());
     }
 
-    /// @covers: Validator::validate — rejects empty refresh_token.
+    /// @covers: validate
     #[test]
     fn test_validate_rejects_empty_refresh_token() {
         let creds = OAuthCredentials {
@@ -216,7 +216,7 @@ mod tests {
         assert!(OAuthRefreshStrategy::validate(&creds).is_err());
     }
 
-    /// @covers: Validator::validate — accepts well-formed credentials.
+    /// @covers: validate
     #[test]
     fn test_validate_accepts_well_formed_credentials() {
         let creds = OAuthCredentials {
