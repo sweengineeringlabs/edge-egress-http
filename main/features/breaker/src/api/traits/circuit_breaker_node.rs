@@ -1,7 +1,7 @@
 //! `CircuitBreakerNode` — per-host state machine contract.
 
 /// Contract for per-host circuit breaker state machines.
-pub(crate) trait CircuitBreakerNode {
+pub trait CircuitBreakerNode {
     fn admit(
         &mut self,
         config: &crate::api::types::breaker::breaker_config::BreakerConfig,
