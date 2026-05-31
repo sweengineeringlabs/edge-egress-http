@@ -31,3 +31,13 @@ impl OAuthBuilderOps for OAuthBuilder {
         })
     }
 }
+
+impl OAuthBuilder {
+    /// Create an empty builder with no token source configured.
+    ///
+    /// Call [`OAuthBuilderOps::with_token_source`] to supply the source,
+    /// then [`OAuthBuilderOps::build`] to construct the middleware.
+    pub fn new() -> Self {
+        Self { source: None }
+    }
+}

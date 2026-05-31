@@ -3,33 +3,21 @@
 use crate::api::oauth_builder::OAuthBuilder;
 use crate::api::types::OAuthSvc;
 
-/// Service factory for the OAuth middleware.
-///
-/// All public entry points are methods on this type so the saf/ layer
-/// contains no free-standing functions (SEA rule 191).
-
 impl OAuthSvc {
     /// Create a builder for [`OAuthMiddleware`].
     ///
-    /// Call [`crate::api::oauth_builder_ops::OAuthBuilderOps::with_token_source`]
-    /// followed by [`crate::api::oauth_builder_ops::OAuthBuilderOps::build`]
-    /// to produce an [`OAuthMiddleware`] ready for use with
-    /// `reqwest_middleware::ClientBuilder`.
-    ///
-    /// ```ignore
-    /// use std::sync::Arc;
-    /// let mw = swe_edge_egress_oauth::OAuthSvc::builder()
-    ///     .with_token_source(Arc::new(my_token_source))
-    ///     .build()?;
-    /// ```
+    /// Returns an empty [`OAuthBuilder`]; call
+    /// [`with_token_source`](crate::api::oauth_builder_ops::OAuthBuilderOps::with_token_source)
+    /// then [`build`](crate::api::oauth_builder_ops::OAuthBuilderOps::build).
     pub fn builder() -> OAuthBuilder {
-        OAuthBuilder::default()
+        OAuthBuilder::new()
     }
 
     /// Return a config builder pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
-            .with_name(env!("CARGO_PKG_NAME"))
-            .with_version(env!("CARGO_PKG_VERSION"))
+        swe_edge_configbuilder::ConfigBuilderImpl::for_crate(
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION"),
+        )
     }
 }

@@ -10,10 +10,10 @@ use crate::api::types::retry::retry_layer::RetryLayer;
 impl HttpRetrySvc {
     /// Return a config builder pre-seeded with this crate's name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        let builder = ConfigLoaderFactory::create_config_builder();
-        builder
-            .with_name(env!("CARGO_PKG_NAME"))
-            .with_version(env!("CARGO_PKG_VERSION"))
+        swe_edge_configbuilder::ConfigBuilderImpl::for_crate(
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION"),
+        )
     }
 
     /// Build a [`RetryLayer`] from a caller-supplied [`RetryConfig`].

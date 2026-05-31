@@ -17,9 +17,10 @@ use crate::core::{DefaultHttpEgress, MetricsHttpEgress};
 impl HttpTransportSvc {
     /// Return a config builder pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
-            .with_name(env!("CARGO_PKG_NAME"))
-            .with_version(env!("CARGO_PKG_VERSION"))
+        swe_edge_configbuilder::ConfigBuilderImpl::for_crate(
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION"),
+        )
     }
 
     /// Build a fully assembled [`HttpEgress`] from the supplied config.
@@ -107,20 +108,18 @@ impl HttpTransportSvc {
         http: HttpConfig,
         auth: swe_edge_egress_auth::AuthConfig,
     ) -> Result<impl HttpEgress, HttpEgressBuildError> {
-        Self::assemble(
-            http,
-            swe_edge_egress_auth::AuthSvc::build_auth_middleware(auth)?,
-            swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?,
-            swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?,
-            swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
-            swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?,
-            // Cassette disabled — production convenience function.
-            swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
-                swe_edge_egress_cassette::CassetteConfig::disabled(),
-                "unused",
-            )?,
-            swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?,
-        )
+        let auth_mw = swe_edge_egress_auth::AuthSvc::build_auth_middleware(auth)?;
+        let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?;
+        let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?;
+        let breaker =
+            swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?;
+        let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?;
+        let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+            swe_edge_egress_cassette::CassetteConfig::disabled(),
+            "unused",
+        )?;
+        let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?;
+        Self::assemble(http, auth_mw, retry, rate, breaker, cache, cassette, tls)
     }
 
     /// Build an [`HttpEgress`] using the SWE-shipped defaults for every

@@ -37,7 +37,7 @@ impl CassetteLayer {
 
     /// Load previously-recorded fixtures from disk. Missing file
     /// yields an empty map; malformed YAML yields an error.
-    fn load_fixtures_from_disk(
+    pub(crate) fn load_fixtures_from_disk(
         path: &Path,
     ) -> Result<HashMap<String, RecordedInteraction>, CassetteError> {
         if !path.is_file() {

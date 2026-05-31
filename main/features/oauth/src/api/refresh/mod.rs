@@ -1,4 +1,4 @@
-//! Interface counterpart for `core::refresh`.
+//! Interface counterpart for core::refresh.
 
-/// Marker trait for OAuth refresh strategy implementations.
-pub trait RefreshSpec: Send + Sync {}
+pub(crate) mod refresh_spec;
+pub(crate) mod strategy;
