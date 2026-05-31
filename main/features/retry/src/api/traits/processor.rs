@@ -1,12 +1,10 @@
 //! `Processor` — primary processing trait for the retry crate.
 
-use crate::api::types::retry::RetryConfig;
-
-/// Processes a retry decision given a gRPC result.
+/// Primary processing trait (service_type = "processor").
+///
+/// Implemented by retry middleware components to identify themselves
+/// in log and trace output.
 pub trait Processor: Send + Sync {
-    /// Validate the retry configuration.
-    fn validate(&self, config: &RetryConfig) -> Result<(), crate::api::error::Error>;
-
-    /// Return the retry configuration.
-    fn config(&self) -> &RetryConfig;
+    /// Identify this processor unit in log / trace output.
+    fn describe(&self) -> &'static str;
 }
