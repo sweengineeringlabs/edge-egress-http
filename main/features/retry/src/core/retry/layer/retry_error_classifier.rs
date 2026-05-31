@@ -35,16 +35,9 @@ mod tests {
     /// @covers: is_transient
     #[test]
     fn test_is_transient_middleware_error_is_not_transient() {
-        use std::fmt;
-        #[derive(Debug)]
-        struct ConfigErr;
-        impl fmt::Display for ConfigErr {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(f, "config error")
-            }
-        }
-        impl std::error::Error for ConfigErr {}
-        let err = reqwest_middleware::Error::middleware(ConfigErr);
+        let err = reqwest_middleware::Error::middleware(
+            std::io::Error::new(std::io::ErrorKind::Other, "config error"),
+        );
         assert!(
             !RetryErrorClassifier::is_transient(&err),
             "Middleware-level errors must NOT be retried"

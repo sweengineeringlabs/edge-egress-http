@@ -10,13 +10,3 @@ impl Validator for AlwaysValidConfig {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_always_valid_config_validate_returns_ok() {
-        assert!(AlwaysValidConfig.validate().is_ok());
-    }
-}

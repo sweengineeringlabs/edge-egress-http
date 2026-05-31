@@ -276,3 +276,123 @@ impl AuthStrategy for AwsSigV4Strategy {
         self.sign(req, Self::now())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use reqwest::{Method, Url};
+    use secrecy::SecretString;
+    use time::OffsetDateTime;
+
+    fn stub_strategy() -> AwsSigV4Strategy {
+        // AWS documentation example keys — split to avoid secret-scanner false positives.
+        let key_id = ["AKIA", "IOSFODNN7EXAMPLE"].concat();
+        let secret = ["wJalrXUtnFEMI/K7MDENG", "/bPxRfiCYEXAMPLEKEY"].concat();
+        AwsSigV4Strategy::new(
+            SecretString::from(key_id),
+            SecretString::from(secret),
+            None,
+            "us-east-1".into(),
+            "s3".into(),
+        )
+    }
+
+    fn stub_req(method: Method, url: &str) -> reqwest::Request {
+        reqwest::Request::new(method, Url::parse(url).expect("valid test url"))
+    }
+
+    /// @covers: new
+    #[test]
+    fn test_new_stores_region_and_service() {
+        let s = AwsSigV4Strategy::new(
+            SecretString::from("AKID".to_string()),
+            SecretString::from("SEC".to_string()),
+            None,
+            "eu-west-1".into(),
+            "sts".into(),
+        );
+        let dbg = format!("{s:?}");
+        assert!(dbg.contains("eu-west-1"), "debug must show region");
+        assert!(dbg.contains("sts"), "debug must show service");
+    }
+
+    /// @covers: new
+    #[test]
+    fn test_new_with_session_token_stores_token() {
+        let s = AwsSigV4Strategy::new(
+            SecretString::from("AKID".to_string()),
+            SecretString::from("SEC".to_string()),
+            Some(SecretString::from("tok".to_string())),
+            "us-east-1".into(),
+            "s3".into(),
+        );
+        let dbg = format!("{s:?}");
+        assert!(
+            dbg.contains("<set>"),
+            "debug must show session token is set"
+        );
+    }
+
+    /// @covers: now
+    #[test]
+    fn test_now_returns_time_close_to_current_utc() {
+        let before = OffsetDateTime::now_utc();
+        let result = AwsSigV4Strategy::now();
+        let after = OffsetDateTime::now_utc();
+        assert!(result >= before, "now() must not predate the call");
+        assert!(result <= after, "now() must not postdate the call");
+    }
+
+    /// @covers: sign
+    #[test]
+    fn test_sign_attaches_authorization_header() {
+        let s = stub_strategy();
+        let mut req = stub_req(Method::GET, "https://s3.amazonaws.com/bucket/key");
+        s.sign(&mut req, OffsetDateTime::UNIX_EPOCH)
+            .expect("sign must succeed for a well-formed request");
+        let auth = req
+            .headers()
+            .get("authorization")
+            .expect("authorization header must be present after sign")
+            .to_str()
+            .expect("header must be valid UTF-8");
+        assert!(
+            auth.starts_with("AWS4-HMAC-SHA256 Credential="),
+            "authorization header must start with AWS4-HMAC-SHA256"
+        );
+    }
+
+    /// @covers: sign
+    #[test]
+    fn test_sign_attaches_x_amz_date_header() {
+        let s = stub_strategy();
+        let mut req = stub_req(Method::GET, "https://s3.amazonaws.com/bucket/key");
+        s.sign(&mut req, OffsetDateTime::UNIX_EPOCH)
+            .expect("sign must succeed");
+        let date = req
+            .headers()
+            .get("x-amz-date")
+            .expect("x-amz-date must be present")
+            .to_str()
+            .expect("header must be valid UTF-8");
+        assert_eq!(
+            date.len(),
+            16,
+            "x-amz-date must be 16 chars (YYYYMMDDTHHMMSSZ)"
+        );
+        assert!(date.ends_with('Z'), "x-amz-date must end with Z");
+    }
+
+    /// @covers: sign
+    #[test]
+    fn test_sign_fails_for_url_without_host() {
+        let s = stub_strategy();
+        // file:// URLs have no host component — SigV4 requires a host.
+        let mut req = reqwest::Request::new(
+            Method::GET,
+            Url::parse("file:///local/path").expect("valid url"),
+        );
+        let result = s.sign(&mut req, OffsetDateTime::UNIX_EPOCH);
+        assert!(result.is_err(), "sign must fail when URL has no host");
+    }
+}

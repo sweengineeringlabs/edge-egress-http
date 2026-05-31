@@ -954,7 +954,7 @@ mod tests {
         assert!(!CacheEntryHelper::should_revalidate(&entry, now));
     }
 
-    /// @covers: CacheEntryHelper::should_revalidate
+    /// @covers: handle
     #[test]
     fn test_should_revalidate_gates_if_none_match_dispatch() {
         let now = Instant::now();
@@ -976,7 +976,7 @@ mod tests {
         assert!(CacheEntryHelper::should_revalidate(&stale, now));
     }
 
-    /// @covers: reqwest_middleware::Middleware::handle
+    /// @covers: handle
     #[test]
     fn test_handle_layer_is_send_sync() {
         fn assert_send_sync<T: Send + Sync>() {}

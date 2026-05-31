@@ -8,6 +8,7 @@
 use super::state::State;
 use std::time::{Duration, Instant};
 
+use crate::api::host::breaker::host_breaker::HostBreaker as HostBreakerTrait;
 use crate::api::traits::CircuitBreakerNode;
 use crate::api::types::breaker::breaker_config::BreakerConfig;
 use crate::api::types::breaker::state::{Admission, Outcome};
@@ -90,12 +91,22 @@ impl HostBreaker {
         }
     }
 
-    pub(crate) fn is_open(&self) -> bool {
+    fn state(&self) -> State {
+        self.state
+    }
+}
+
+impl HostBreakerTrait for HostBreaker {
+    fn is_open(&self) -> bool {
         matches!(self.state, State::Open { .. })
     }
 
-    pub(crate) fn state(&self) -> State {
-        self.state
+    fn is_half_open(&self) -> bool {
+        matches!(self.state, State::HalfOpen)
+    }
+
+    fn is_closed(&self) -> bool {
+        matches!(self.state, State::Closed)
     }
 }
 

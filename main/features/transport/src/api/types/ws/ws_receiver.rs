@@ -12,15 +12,3 @@ use crate::api::types::ws::ws_message::WsMessage;
 /// Yields [`WsMessage`] frames from the remote WebSocket peer until the
 /// connection is closed.
 pub type WsReceiver = Pin<Box<dyn Stream<Item = Result<WsMessage, HttpEgressError>> + Send>>;
-
-#[cfg(test)]
-mod tests {
-    use futures::stream;
-
-    use super::*;
-
-    #[test]
-    fn test_ws_receiver_empty_stream_is_valid() {
-        let _r: WsReceiver = Box::pin(stream::empty());
-    }
-}

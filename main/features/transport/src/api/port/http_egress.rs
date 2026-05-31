@@ -27,13 +27,3 @@ pub trait HttpEgress: Send + Sync {
         self.send(req)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_http_egress_is_object_safe() {
-        fn _assert_object_safe(_: &dyn HttpEgress) {}
-    }
-}

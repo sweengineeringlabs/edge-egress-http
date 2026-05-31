@@ -126,3 +126,27 @@ path = "tests/http_cache_svc_int_test.rs"
 [[test]]
 name = "moka_dep_int_test"
 path = "tests/moka_dep_int_test.rs"
+
+[[test]]
+name = "reqwest_dep_int_test"
+path = "tests/reqwest_dep_int_test.rs"
+
+[[test]]
+name = "configbuilder_dep_int_test"
+path = "tests/configbuilder_dep_int_test.rs"
+
+[[test]]
+name = "request_snapshot_int_test"
+path = "tests/request_snapshot_int_test.rs"
+
+[[test]]
+name = "ttl_decision_int_test"
+path = "tests/ttl_decision_int_test.rs"
+
+[[test]]
+name = "cache_entry_helper_int_test"
+path = "tests/cache_entry_helper_int_test.rs"
+
+[[test]]
+name = "vary_directive_int_test"
+path = "tests/vary_directive_int_test.rs"

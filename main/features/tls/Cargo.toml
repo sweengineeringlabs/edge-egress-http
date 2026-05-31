@@ -23,7 +23,6 @@ path = "src/lib.rs"
 # portable default (uses system's TLS stack: SChannel on Windows,
 # Security.framework on macOS, OpenSSL on Linux).
 reqwest = { workspace = true, features = ["native-tls", "rustls-tls"] }
-http = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
 toml = { workspace = true }

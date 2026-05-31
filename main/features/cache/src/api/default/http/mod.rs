@@ -1,1 +1,3 @@
-//! Interface counterpart for `core/default/http_cache`.
+//! Interface counterpart for `core/default/http`.
+
+pub(crate) mod cache;

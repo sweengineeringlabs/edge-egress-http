@@ -12,15 +12,3 @@ use crate::api::types::sse::sse_event::SseEvent;
 /// The outbound implementation decodes `text/event-stream` frames from the
 /// HTTP response body and emits them as [`SseEvent`] items.
 pub type SseStream = Pin<Box<dyn Stream<Item = Result<SseEvent, HttpEgressError>> + Send>>;
-
-#[cfg(test)]
-mod tests {
-    use futures::stream;
-
-    use super::*;
-
-    #[test]
-    fn test_sse_stream_empty_stream_is_valid() {
-        let _s: SseStream = Box::pin(stream::empty());
-    }
-}

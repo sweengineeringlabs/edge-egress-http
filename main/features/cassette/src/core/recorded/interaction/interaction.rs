@@ -19,7 +19,6 @@ mod tests {
 
     use super::*;
 
-    /// @covers: serde
     #[test]
     fn test_serde_roundtrip_through_yaml() {
         let ri = RecordedInteraction {

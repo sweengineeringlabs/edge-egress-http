@@ -18,17 +18,16 @@ impl DefaultHttpRetry {
     pub(crate) fn new(config: RetryConfig) -> Self {
         Self { config }
     }
-
-    /// Return the underlying config.
-    pub(crate) fn config(&self) -> &RetryConfig {
-        &self.config
-    }
 }
 
 impl HttpRetry for DefaultHttpRetry {
     fn describe(&self) -> &'static str {
         const LABEL: &str = "http-retry";
         LABEL
+    }
+
+    fn config(&self) -> &RetryConfig {
+        &self.config
     }
 }
 

@@ -11,8 +11,8 @@ use tracing::debug;
 
 use super::super::OAuthTimeHelper;
 use crate::api::error::OAuthError as Error;
-use crate::api::oauth_credentials::OAuthCredentials;
-use crate::api::oauth_token_source::OAuthTokenSource;
+use crate::api::oauth::o_auth_credentials::OAuthCredentials;
+use crate::api::oauth::o_auth_token_source::OAuthTokenSource;
 use crate::api::traits::{Processor, Validator};
 
 /// Refresh proactively this many milliseconds before actual expiry.
@@ -120,39 +120,8 @@ impl reqwest_middleware::Middleware for OAuthRefreshStrategy {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    struct StaticTokenSource(String);
-
-    impl OAuthTokenSource for StaticTokenSource {
-        fn get_access_token(&self) -> BoxFuture<'_, crate::api::error::Result<String>> {
-            let v = self.0.clone();
-            Box::pin(async move { Ok(v) })
-        }
-    }
-
-    impl std::fmt::Debug for StaticTokenSource {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_tuple("StaticTokenSource").finish()
-        }
-    }
-
-    struct FailingTokenSource;
-
-    impl OAuthTokenSource for FailingTokenSource {
-        fn get_access_token(&self) -> BoxFuture<'_, crate::api::error::Result<String>> {
-            Box::pin(async {
-                Err(crate::api::error::OAuthError::RefreshFailed(
-                    "test failure".into(),
-                ))
-            })
-        }
-    }
-
-    impl std::fmt::Debug for FailingTokenSource {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_tuple("FailingTokenSource").finish()
-        }
-    }
+    use crate::core::refresh::strategy::oauth::failing_token_source::FailingTokenSource;
+    use crate::core::refresh::strategy::oauth::static_token_source::StaticTokenSource;
 
     /// @covers: new
     #[test]

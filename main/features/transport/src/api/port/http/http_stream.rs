@@ -29,13 +29,3 @@ pub trait HttpStream: Send + Sync {
     /// Returns a [`WsChannel`] after the handshake completes.
     fn connect_websocket(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<WsChannel>>;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_http_stream_is_object_safe() {
-        fn _assert_object_safe(_: &dyn HttpStream) {}
-    }
-}

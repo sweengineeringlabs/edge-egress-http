@@ -2,14 +2,12 @@
 
 #[allow(missing_docs)]
 pub(crate) mod default;
-pub(crate) mod default_http_egress;
 #[allow(missing_docs)]
 pub(crate) mod error;
 #[allow(missing_docs)]
 pub(crate) mod http;
 #[allow(missing_docs)]
 pub(crate) mod metrics;
-pub(crate) mod metrics_http_egress;
 #[allow(missing_docs)]
 pub(crate) mod port;
 #[allow(missing_docs)]

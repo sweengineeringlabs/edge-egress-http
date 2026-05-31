@@ -41,6 +41,8 @@ reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 tempfile = "3"
 base64 = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
 
 [features]
 default = []
@@ -132,3 +134,19 @@ path = "tests/http_cassette_svc_int_test.rs"
 [[test]]
 name = "reqwest_dep_int_test"
 path = "tests/reqwest_dep_int_test.rs"
+
+[[test]]
+name = "sha2_dep_int_test"
+path = "tests/sha2_dep_int_test.rs"
+
+[[test]]
+name = "configbuilder_dep_int_test"
+path = "tests/configbuilder_dep_int_test.rs"
+
+[[test]]
+name = "recorded_request_int_test"
+path = "tests/recorded_request_int_test.rs"
+
+[[test]]
+name = "recorded_response_int_test"
+path = "tests/recorded_response_int_test.rs"

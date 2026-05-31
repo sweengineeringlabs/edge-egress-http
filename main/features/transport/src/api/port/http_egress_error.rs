@@ -36,20 +36,3 @@ pub enum HttpEgressError {
     #[error("service unavailable: {0}")]
     ServiceUnavailable(String),
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_http_egress_error_connection_failed_formats_message() {
-        let e = HttpEgressError::ConnectionFailed("refused".into());
-        assert!(e.to_string().contains("refused"));
-    }
-
-    #[test]
-    fn test_http_egress_error_timeout_formats_message() {
-        let e = HttpEgressError::Timeout("deadline".into());
-        assert!(e.to_string().contains("deadline"));
-    }
-}

@@ -124,3 +124,119 @@ path = "tests/http_egress_config_int_test.rs"
 [[test]]
 name = "http_egress_config_builder_int_test"
 path = "tests/http_egress_config_builder_int_test.rs"
+
+[[test]]
+name = "http_egress_build_error_int_test"
+path = "tests/http_egress_build_error_int_test.rs"
+
+[[test]]
+name = "metrics_http_egress_type_int_test"
+path = "tests/metrics_http_egress_type_int_test.rs"
+
+[[test]]
+name = "http_stream_int_test"
+path = "tests/http_stream_int_test.rs"
+
+[[test]]
+name = "http_egress_trait_int_test"
+path = "tests/http_egress_trait_int_test.rs"
+
+[[test]]
+name = "http_egress_error_int_test"
+path = "tests/http_egress_error_int_test.rs"
+
+[[test]]
+name = "http_egress_result_int_test"
+path = "tests/http_egress_result_int_test.rs"
+
+[[test]]
+name = "always_valid_config_int_test"
+path = "tests/always_valid_config_int_test.rs"
+
+[[test]]
+name = "form_part_int_test"
+path = "tests/form_part_int_test.rs"
+
+[[test]]
+name = "http_auth_int_test"
+path = "tests/http_auth_int_test.rs"
+
+[[test]]
+name = "http_body_int_test"
+path = "tests/http_body_int_test.rs"
+
+[[test]]
+name = "http_config_int_test"
+path = "tests/http_config_int_test.rs"
+
+[[test]]
+name = "http_config_builder_int_test"
+path = "tests/http_config_builder_int_test.rs"
+
+[[test]]
+name = "http_method_int_test"
+path = "tests/http_method_int_test.rs"
+
+[[test]]
+name = "http_request_int_test"
+path = "tests/http_request_int_test.rs"
+
+[[test]]
+name = "http_request_builder_int_test"
+path = "tests/http_request_builder_int_test.rs"
+
+[[test]]
+name = "http_response_int_test"
+path = "tests/http_response_int_test.rs"
+
+[[test]]
+name = "http_stream_response_int_test"
+path = "tests/http_stream_response_int_test.rs"
+
+[[test]]
+name = "http_egress_config_new_int_test"
+path = "tests/http_egress_config_new_int_test.rs"
+
+[[test]]
+name = "http_egress_config_builder_new_int_test"
+path = "tests/http_egress_config_builder_new_int_test.rs"
+
+[[test]]
+name = "observation_config_int_test"
+path = "tests/observation_config_int_test.rs"
+
+[[test]]
+name = "sse_event_int_test"
+path = "tests/sse_event_int_test.rs"
+
+[[test]]
+name = "sse_stream_int_test"
+path = "tests/sse_stream_int_test.rs"
+
+[[test]]
+name = "transport_config_new_int_test"
+path = "tests/transport_config_new_int_test.rs"
+
+[[test]]
+name = "validatable_http_config_int_test"
+path = "tests/validatable_http_config_int_test.rs"
+
+[[test]]
+name = "ws_channel_int_test"
+path = "tests/ws_channel_int_test.rs"
+
+[[test]]
+name = "ws_message_int_test"
+path = "tests/ws_message_int_test.rs"
+
+[[test]]
+name = "ws_receiver_int_test"
+path = "tests/ws_receiver_int_test.rs"
+
+[[test]]
+name = "ws_sender_int_test"
+path = "tests/ws_sender_int_test.rs"
+
+[[test]]
+name = "http_config_validator_int_test"
+path = "tests/http_config_validator_int_test.rs"

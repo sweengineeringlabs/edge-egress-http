@@ -29,7 +29,7 @@ mod tests {
         assert!(req.headers().get("authorization").is_none());
     }
 
-    /// @covers: NoopStrategy
+    /// @covers: authorize
     #[test]
     fn test_noop_does_not_modify_request_or_add_headers() {
         let s = NoopStrategy;

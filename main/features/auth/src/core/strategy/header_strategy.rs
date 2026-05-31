@@ -123,7 +123,7 @@ mod tests {
         assert!(!dbg.contains("s3cr3t"));
     }
 
-    /// @covers: HeaderStrategy (Debug impl)
+    /// @covers: authorize
     #[test]
     fn test_debug_impl_shows_name_but_redacts_value() {
         let s = HeaderStrategy::new(

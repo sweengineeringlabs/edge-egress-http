@@ -118,7 +118,7 @@ fn test_default_http_stream_outbound_builds_with_swe_defaults() {
 fn test_default_http_stream_outbound_implements_stream_outbound_trait() {
     let outbound = HttpTransportSvc::default_http_stream_outbound().unwrap();
     fn _assert(_: &dyn HttpStream) {}
-    _assert(&outbound);
+    _assert(outbound.as_ref());
 }
 
 // ─── validate_http_config ─────────────────────────────────────────────────────

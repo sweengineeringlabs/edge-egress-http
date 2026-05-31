@@ -162,3 +162,27 @@ path = "tests/application_config_builder_int_test.rs"
 [[test]]
 name = "hmac_dep_int_test"
 path = "tests/hmac_dep_int_test.rs"
+
+[[test]]
+name = "http_dep_int_test"
+path = "tests/http_dep_int_test.rs"
+
+[[test]]
+name = "reqwest_dep_int_test"
+path = "tests/reqwest_dep_int_test.rs"
+
+[[test]]
+name = "secrecy_dep_int_test"
+path = "tests/secrecy_dep_int_test.rs"
+
+[[test]]
+name = "percent_encoding_dep_int_test"
+path = "tests/percent_encoding_dep_int_test.rs"
+
+[[test]]
+name = "aws_strategy_int_test"
+path = "tests/aws_strategy_int_test.rs"
+
+[[test]]
+name = "aws_helper_int_test"
+path = "tests/aws_helper_int_test.rs"

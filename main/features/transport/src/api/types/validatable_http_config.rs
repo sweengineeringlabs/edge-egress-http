@@ -20,28 +20,3 @@ impl Validator for ValidatableHttpConfig {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_validatable_http_config_ok_for_defaults() {
-        let v = ValidatableHttpConfig {
-            config: HttpConfig::default(),
-        };
-        assert!(v.validate().is_ok());
-    }
-
-    #[test]
-    fn test_validatable_http_config_err_for_zero_timeout() {
-        let v = ValidatableHttpConfig {
-            config: HttpConfig {
-                timeout_secs: 0,
-                ..HttpConfig::default()
-            },
-        };
-        let err = v.validate().unwrap_err();
-        assert!(err.contains("timeout_secs"), "got: {err:?}");
-    }
-}

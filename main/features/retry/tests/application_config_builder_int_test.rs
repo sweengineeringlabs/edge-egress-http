@@ -4,7 +4,7 @@ use swe_edge_egress_retry::HttpRetrySvc;
 
 /// @covers: HttpRetrySvc::create_config_builder — dep coverage for swe-edge-configbuilder
 #[test]
-fn http_retry_svc_create_config_builder_returns_seeded_builder_int_test() {
+fn retry_struct_svc_create_config_builder_returns_seeded_builder_int_test() {
     let builder = HttpRetrySvc::create_config_builder();
     assert!(
         !builder.name().is_empty(),

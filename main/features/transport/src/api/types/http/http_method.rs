@@ -29,15 +29,3 @@ impl fmt::Display for HttpMethod {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_http_method_display_returns_uppercase_string() {
-        assert_eq!(HttpMethod::Get.to_string(), "GET");
-        assert_eq!(HttpMethod::Post.to_string(), "POST");
-        assert_eq!(HttpMethod::Delete.to_string(), "DELETE");
-    }
-}

@@ -1,7 +1,7 @@
 //! TLS API types — layer and service factory.
 
-pub mod layer;
-pub mod svc;
+pub mod http_tls_svc;
+pub mod tls_layer;
 
-pub use layer::TlsLayer;
-pub use svc::HttpTlsSvc;
+pub use http_tls_svc::HttpTlsSvc;
+pub use tls_layer::TlsLayer;

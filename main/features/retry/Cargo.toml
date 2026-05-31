@@ -119,3 +119,6 @@ path = "tests/http_retry_svc_int_test.rs"
 [[test]]
 name = "configbuilder_dep_int_test"
 path = "tests/configbuilder_dep_int_test.rs"
+[[test]]
+name = "retry_config_builder_int_test"
+path = "tests/retry_config_builder_int_test.rs"

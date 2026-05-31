@@ -1770,7 +1770,6 @@ dependencies = [
 name = "swe-edge-egress-tls"
 version = "0.1.0"
 dependencies = [
- "http",
  "reqwest",
  "secrecy",
  "serde",

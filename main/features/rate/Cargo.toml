@@ -37,6 +37,7 @@ tracing = { workspace = true, optional = true }
 [dev-dependencies]
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+moka = { workspace = true }
 
 [features]
 default = []

@@ -178,21 +178,21 @@ mod tests {
         assert!(!l.status_retryable(reqwest::StatusCode::BAD_REQUEST));
     }
 
-    /// @covers: should_retry
+    /// @covers: status_retryable
     #[test]
     fn test_should_retry_on_retryable_status() {
         let l = RetryLayer::new(test_config());
         assert!(l.should_retry(&Ok(reqwest::StatusCode::SERVICE_UNAVAILABLE)));
     }
 
-    /// @covers: should_retry
+    /// @covers: status_retryable
     #[test]
     fn test_should_not_retry_on_success_status() {
         let l = RetryLayer::new(test_config());
         assert!(!l.should_retry(&Ok(reqwest::StatusCode::OK)));
     }
 
-    /// @covers: should_retry
+    /// @covers: status_retryable
     #[test]
     fn test_should_not_retry_on_client_error_status() {
         let l = RetryLayer::new(test_config());
@@ -200,14 +200,14 @@ mod tests {
         assert!(!l.should_retry(&Ok(reqwest::StatusCode::UNAUTHORIZED)));
     }
 
-    /// @covers: should_retry
+    /// @covers: status_retryable
     #[test]
     fn test_should_retry_transport_error_when_transient() {
         let l = RetryLayer::new(test_config());
         assert!(l.should_retry(&Err(true)));
     }
 
-    /// @covers: should_retry
+    /// @covers: status_retryable
     #[test]
     fn test_should_not_retry_transport_error_when_not_transient() {
         let l = RetryLayer::new(test_config());

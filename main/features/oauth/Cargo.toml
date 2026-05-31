@@ -65,3 +65,6 @@ path = "tests/application_config_builder_int_test.rs"
 [[test]]
 name = "configbuilder_dep_int_test"
 path = "tests/configbuilder_dep_int_test.rs"
+[[test]]
+name = "o_auth_config_int_test"
+path = "tests/o_auth_config_int_test.rs"

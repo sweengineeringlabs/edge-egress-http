@@ -150,7 +150,7 @@ mod tests {
         assert_eq!(k1.len(), 32); // SHA256 output size
     }
 
-    /// @covers: sign
+    /// @covers: derive_signing_key
     #[test]
     fn test_sign_attaches_authorization_header_with_sigv4_prefix() {
         let s = stub_strategy();
@@ -169,7 +169,7 @@ mod tests {
         assert!(auth.contains("Signature="));
     }
 
-    /// @covers: sign
+    /// @covers: derive_signing_key
     #[test]
     fn test_sign_attaches_x_amz_date() {
         let s = stub_strategy();
@@ -181,7 +181,7 @@ mod tests {
         assert!(d.ends_with('Z'));
     }
 
-    /// @covers: sign
+    /// @covers: derive_signing_key
     #[test]
     fn test_sign_attaches_x_amz_security_token_when_session_token_provided() {
         let s = AwsSigV4Strategy::new(
@@ -203,7 +203,7 @@ mod tests {
         );
     }
 
-    /// @covers: sign
+    /// @covers: derive_signing_key
     #[test]
     fn test_sign_omits_x_amz_security_token_when_no_session_token() {
         let s = stub_strategy();
@@ -212,7 +212,7 @@ mod tests {
         assert!(req.headers().get("x-amz-security-token").is_none());
     }
 
-    /// @covers: sign
+    /// @covers: derive_signing_key
     #[test]
     fn test_sign_produces_different_signatures_for_different_paths() {
         let s = stub_strategy();
@@ -226,7 +226,7 @@ mod tests {
         assert_ne!(sig1, sig2);
     }
 
-    /// @covers: AwsSigV4Strategy (Debug impl)
+    /// @covers: canonical_uri
     #[test]
     fn test_debug_impl_does_not_leak_credentials() {
         let s = AwsSigV4Strategy::new(
@@ -243,7 +243,7 @@ mod tests {
         assert!(s_dbg.contains("redacted"));
     }
 
-    /// @covers: AwsSigV4Strategy::fmt
+    /// @covers: canonical_uri
     #[test]
     fn test_fmt_debug_redacts_access_key_and_secret() {
         let s = stub_strategy();
@@ -253,7 +253,7 @@ mod tests {
         assert!(dbg.contains("redacted"));
     }
 
-    /// @covers: AwsSigV4Strategy::new
+    /// @covers: derive_signing_key
     #[test]
     fn test_new_stores_region_and_service() {
         let s = AwsSigV4Strategy::new(
@@ -311,7 +311,7 @@ mod tests {
         assert_eq!(r1, r2);
     }
 
-    /// @covers: AwsSigV4Strategy::now
+    /// @covers: hmac_sha256
     #[test]
     fn test_now_returns_current_utc_time() {
         // `now()` is a thin wrapper around OffsetDateTime::now_utc().
@@ -325,7 +325,7 @@ mod tests {
         assert!(result <= after, "now() must not postdate call");
     }
 
-    /// @covers: AwsSigV4Strategy::authorize
+    /// @covers: derive_signing_key
     #[test]
     fn test_authorize_attaches_authorization_header() {
         // authorize() calls sign(self.now()). We verify the sync

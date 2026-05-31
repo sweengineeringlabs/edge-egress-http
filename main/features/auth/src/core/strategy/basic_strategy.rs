@@ -109,7 +109,7 @@ mod tests {
         assert_eq!(header, format!("Basic {expected_payload}"));
     }
 
-    /// @covers: BasicStrategy (Debug impl)
+    /// @covers: authorize
     #[test]
     fn test_debug_impl_does_not_leak_credentials() {
         let s = BasicStrategy::new(

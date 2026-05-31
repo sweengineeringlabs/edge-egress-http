@@ -1,4 +1,16 @@
 //! Interface counterpart for the corresponding core/ implementation.
 
-/// Marker trait for per-host breaker state machines.
-pub trait HostBreaker: Send + Sync {}
+/// Trait for per-host breaker state machines.
+///
+/// Provides observable state inspection methods that consumers can rely on
+/// without depending on the concrete `core::host::breaker::HostBreaker` type.
+pub trait HostBreaker: Send + Sync {
+    /// Returns `true` when the breaker is in the Open (fail-fast) state.
+    fn is_open(&self) -> bool;
+
+    /// Returns `true` when the breaker is in the HalfOpen (probe) state.
+    fn is_half_open(&self) -> bool;
+
+    /// Returns `true` when the breaker is in the Closed (normal) state.
+    fn is_closed(&self) -> bool;
+}

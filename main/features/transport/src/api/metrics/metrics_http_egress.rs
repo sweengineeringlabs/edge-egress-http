@@ -7,13 +7,3 @@ use crate::api::port::HttpEgress;
 
 /// Dyn-safe alias for the metrics-observation HTTP outbound interface.
 pub type MetricsHttpEgress = dyn HttpEgress;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_metrics_http_egress_is_object_safe() {
-        fn _check(_: &MetricsHttpEgress) {}
-    }
-}

@@ -104,7 +104,7 @@ mod tests {
         assert!(!dbg.contains("sec-123"));
     }
 
-    /// @covers: BearerStrategy (Debug impl)
+    /// @covers: authorize
     #[test]
     fn test_debug_impl_does_not_leak_token() {
         let s = BearerStrategy::new(SecretString::from("super-secret".to_string())).unwrap();

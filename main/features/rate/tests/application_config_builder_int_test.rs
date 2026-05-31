@@ -4,7 +4,7 @@ use swe_edge_egress_rate::HttpRateSvc;
 
 /// @covers: HttpRateSvc::create_config_builder — dep coverage for swe-edge-configbuilder
 #[test]
-fn http_rate_svc_create_config_builder_returns_seeded_builder_int_test() {
+fn rate_struct_create_config_builder_returns_seeded_builder_int_test() {
     let builder = HttpRateSvc::create_config_builder();
     assert!(
         !builder.name().is_empty(),

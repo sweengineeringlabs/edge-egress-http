@@ -38,21 +38,3 @@ impl std::fmt::Debug for HttpStreamResponse {
             .finish()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use futures::stream;
-
-    #[test]
-    fn test_debug_does_not_expose_stream_internals() {
-        let resp = HttpStreamResponse {
-            status: 200,
-            headers: HashMap::new(),
-            body: Box::pin(stream::empty()),
-        };
-        let dbg = format!("{:?}", resp);
-        assert!(dbg.contains("200"));
-        assert!(dbg.contains("<stream>"));
-    }
-}

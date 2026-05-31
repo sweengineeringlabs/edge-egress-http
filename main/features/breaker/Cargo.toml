@@ -136,3 +136,15 @@ path = "tests/breaker_error_int_test.rs"
 [[test]]
 name = "breaker_metrics_int_test"
 path = "tests/breaker_metrics_int_test.rs"
+
+[[test]]
+name = "admission_int_test"
+path = "tests/admission_int_test.rs"
+
+[[test]]
+name = "outcome_int_test"
+path = "tests/outcome_int_test.rs"
+
+[[test]]
+name = "http_breaker_svc_int_test"
+path = "tests/http_breaker_svc_int_test.rs"

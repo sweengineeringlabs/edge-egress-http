@@ -6,6 +6,8 @@
 //! for clarity at use sites. The impl lives in
 //! `core/default_http_retry`.
 
+use crate::api::types::retry::retry_config::RetryConfig;
+
 /// The retry crate's primary trait. Every middleware layer
 /// produced by this crate implements it.
 pub trait HttpRetry: Send + Sync {
@@ -13,4 +15,7 @@ pub trait HttpRetry: Send + Sync {
     ///
     /// Returns the crate's canonical name (e.g. `"swe_edge_egress_retry"`).
     fn describe(&self) -> &'static str;
+
+    /// Return the underlying retry configuration.
+    fn config(&self) -> &RetryConfig;
 }

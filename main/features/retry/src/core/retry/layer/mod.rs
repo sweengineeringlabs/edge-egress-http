@@ -1,6 +1,5 @@
 //! Core retry layer — constructor and middleware impl.
 
-mod retry_error_classifier;
-mod retry_layer;
+mod retry;
 
-pub(crate) use retry_error_classifier::RetryErrorClassifier;
+pub(crate) use retry::RetryErrorClassifier;
