@@ -38,6 +38,7 @@ tracing = { workspace = true, optional = true }
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 moka = { workspace = true }
+swe-edge-configbuilder = { workspace = true }
 
 [features]
 default = []
@@ -128,3 +129,7 @@ path = "tests/http_rate_svc_int_test.rs"
 [[test]]
 name = "moka_dep_int_test"
 path = "tests/moka_dep_int_test.rs"
+
+[[test]]
+name = "configbuilder_dep_int_test"
+path = "tests/configbuilder_dep_int_test.rs"

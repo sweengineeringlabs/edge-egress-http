@@ -41,6 +41,8 @@ tokio = { workspace = true, features = ["rt"] }
 [dev-dependencies]
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+swe-edge-configbuilder = { workspace = true }
+http = { workspace = true }
 
 
 [features]
@@ -150,3 +152,7 @@ path = "tests/cache_entry_helper_int_test.rs"
 [[test]]
 name = "vary_directive_int_test"
 path = "tests/vary_directive_int_test.rs"
+
+[[test]]
+name = "http_dep_int_test"
+path = "tests/http_dep_int_test.rs"

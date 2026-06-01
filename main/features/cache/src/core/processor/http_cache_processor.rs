@@ -9,3 +9,19 @@ impl Processor for HttpCacheSvc {
         LABEL
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// @covers: describe
+    #[test]
+    fn cache_struct_http_cache_processor_describe_returns_label_int_test() {
+        let svc = HttpCacheSvc;
+        assert_eq!(
+            svc.describe(),
+            "http-cache",
+            "Processor::describe must return the crate label"
+        );
+    }
+}

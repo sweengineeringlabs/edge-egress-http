@@ -43,6 +43,7 @@ tempfile = "3"
 base64 = { workspace = true }
 sha2 = { workspace = true }
 hex = { workspace = true }
+swe-edge-configbuilder = { workspace = true }
 
 [features]
 default = []
@@ -150,3 +151,11 @@ path = "tests/recorded_request_int_test.rs"
 [[test]]
 name = "recorded_response_int_test"
 path = "tests/recorded_response_int_test.rs"
+
+[[test]]
+name = "cassette_config_builder_int_test"
+path = "tests/cassette_config_builder_int_test.rs"
+
+[[test]]
+name = "cassette_layer_builder_int_test"
+path = "tests/cassette_layer_builder_int_test.rs"

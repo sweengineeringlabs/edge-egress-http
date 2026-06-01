@@ -186,3 +186,11 @@ path = "tests/aws_strategy_int_test.rs"
 [[test]]
 name = "aws_helper_int_test"
 path = "tests/aws_helper_int_test.rs"
+
+[[test]]
+name = "aws_sig_v4_strategy_builder_int_test"
+path = "tests/aws_sig_v4_strategy_builder_int_test.rs"
+
+[[test]]
+name = "aws_sig_v4_strategy_config_int_test"
+path = "tests/aws_sig_v4_strategy_config_int_test.rs"

@@ -39,7 +39,7 @@ mod tests {
 
     /// @covers: new
     #[test]
-    fn test_captured_method_returns_request_method() {
+    fn cache_struct_request_snapshot_new_captures_method_int_test() {
         let req = reqwest::Request::new(
             reqwest::Method::POST,
             reqwest::Url::parse("https://example.test/").expect("url"),
@@ -50,10 +50,28 @@ mod tests {
 
     /// @covers: new
     #[test]
-    fn test_captured_url_returns_request_url() {
+    fn cache_struct_request_snapshot_new_captures_url_int_test() {
         let url = reqwest::Url::parse("https://example.test/path?q=1").expect("url");
         let req = reqwest::Request::new(reqwest::Method::GET, url.clone());
         let snap = RequestSnapshot::new(&req);
         assert_eq!(snap.captured_url().as_str(), url.as_str());
+    }
+
+    /// @covers: new
+    #[test]
+    fn cache_struct_request_snapshot_new_captures_headers_int_test() {
+        let mut req = reqwest::Request::new(
+            reqwest::Method::GET,
+            reqwest::Url::parse("https://example.test/").expect("url"),
+        );
+        req.headers_mut().insert(
+            http::header::ACCEPT,
+            http::HeaderValue::from_static("application/json"),
+        );
+        let snap = RequestSnapshot::new(&req);
+        assert!(
+            snap.headers.contains_key(http::header::ACCEPT),
+            "snapshot must capture request headers"
+        );
     }
 }

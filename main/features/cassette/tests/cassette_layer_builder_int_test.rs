@@ -1,0 +1,87 @@
+//! Integration tests for `CassetteLayerBuilder`.
+//!
+//! Rule 120: `src/api/types/cassette/cassette_layer_builder.rs` requires a
+//! corresponding test file.
+
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use swe_edge_egress_cassette::{CassetteConfig, CassetteError, CassetteLayerBuilder};
+
+/// @covers: CassetteLayerBuilder::new
+/// Verifies the builder is constructible with no arguments.
+#[test]
+fn cassette_struct_cassette_layer_builder_new_returns_default_int_test() {
+    let _builder = CassetteLayerBuilder::new();
+}
+
+/// @covers: CassetteLayerBuilder::build_layer
+/// Building without a cassette name must fail with `CassetteError::ParseFailed`.
+#[test]
+fn cassette_struct_cassette_layer_builder_build_layer_missing_name_fails_int_test() {
+    let result = CassetteLayerBuilder::new().build_layer();
+    assert!(
+        result.is_err(),
+        "missing cassette_name must produce an error"
+    );
+    let err = result.unwrap_err();
+    assert!(
+        matches!(err, CassetteError::ParseFailed(_)),
+        "missing cassette_name must yield ParseFailed; got: {err:?}"
+    );
+}
+
+/// @covers: CassetteLayerBuilder::with_cassette_name
+/// Builder with a cassette name and a temp dir config must succeed.
+#[test]
+fn cassette_struct_cassette_layer_builder_with_name_and_dir_succeeds_int_test() {
+    let tmpdir = tempfile::tempdir().expect("tempdir must succeed");
+    let dir = tmpdir
+        .path()
+        .to_str()
+        .expect("path must be utf-8")
+        .replace('\\', "/");
+    let cfg = CassetteConfig {
+        mode: "replay".to_string(),
+        cassette_dir: dir,
+        match_on: vec!["method".to_string(), "url".to_string()],
+        scrub_headers: vec![],
+        scrub_body_paths: vec![],
+    };
+    let result = CassetteLayerBuilder::new()
+        .with_config(cfg)
+        .with_cassette_name("layer_builder_test")
+        .build_layer();
+    assert!(
+        result.is_ok(),
+        "builder with name + config must succeed; got: {result:?}"
+    );
+}
+
+/// @covers: CassetteLayerBuilder::build_layer
+/// The built `CassetteLayer` must produce non-empty Debug output.
+#[test]
+fn cassette_struct_cassette_layer_builder_built_layer_debug_non_empty_int_test() {
+    let tmpdir = tempfile::tempdir().expect("tempdir must succeed");
+    let dir = tmpdir
+        .path()
+        .to_str()
+        .expect("path must be utf-8")
+        .replace('\\', "/");
+    let cfg = CassetteConfig {
+        mode: "auto".to_string(),
+        cassette_dir: dir,
+        match_on: vec!["method".to_string()],
+        scrub_headers: vec![],
+        scrub_body_paths: vec![],
+    };
+    let layer = CassetteLayerBuilder::new()
+        .with_config(cfg)
+        .with_cassette_name("debug_test")
+        .build_layer()
+        .expect("build must succeed");
+    let dbg = format!("{layer:?}");
+    assert!(
+        !dbg.is_empty(),
+        "built CassetteLayer Debug must produce non-empty output"
+    );
+}

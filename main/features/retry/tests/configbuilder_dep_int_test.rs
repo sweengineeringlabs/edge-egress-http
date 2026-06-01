@@ -1,11 +1,29 @@
 //! Dependency coverage test for `swe-edge-configbuilder`.
+//! @covers: swe-edge-configbuilder
+//!
+//! Rule 95: `swe-edge-configbuilder` is used in `src/` and must have
+//! integration coverage with an explicit `use swe_edge_configbuilder::...` import.
+
+use swe_edge_configbuilder::ConfigBuilderImpl;
+use swe_edge_egress_retry::HttpRetrySvc;
 
 /// @covers: swe-edge-configbuilder
+/// Confirms `HttpRetrySvc::create_config_builder` returns a `ConfigBuilderImpl`
+/// seeded with the crate name and version.
 #[test]
-fn test_config_builder_dep_is_exercised() {
-    // swe-edge-configbuilder is tested via saf/retry_svc.rs create_config_builder
+fn retry_struct_svc_create_config_builder_returns_builder_int_test() {
+    let builder: ConfigBuilderImpl = HttpRetrySvc::create_config_builder();
+    // build_loader() validates the builder is fully seeded (name + version).
+    let _loader = builder.build_loader();
+}
+
+/// @covers: swe-edge-configbuilder
+/// Verifies the builder carries a non-empty package name.
+#[test]
+fn retry_struct_svc_create_config_builder_has_non_empty_name_int_test() {
+    let builder: ConfigBuilderImpl = HttpRetrySvc::create_config_builder();
     assert!(
-        true,
-        "configbuilder dep is exercised via HttpRetrySvc::create_config_builder"
+        !builder.name().is_empty(),
+        "ConfigBuilderImpl must carry a non-empty package name"
     );
 }

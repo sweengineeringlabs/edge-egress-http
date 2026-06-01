@@ -42,6 +42,7 @@ tracing = { workspace = true, optional = true }
 [dev-dependencies]
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+swe-edge-configbuilder = { workspace = true }
 
 [features]
 default = []
@@ -122,3 +123,7 @@ path = "tests/configbuilder_dep_int_test.rs"
 [[test]]
 name = "retry_config_builder_int_test"
 path = "tests/retry_config_builder_int_test.rs"
+
+[[test]]
+name = "retry_error_classifier_int_test"
+path = "tests/retry_error_classifier_int_test.rs"

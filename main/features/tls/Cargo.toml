@@ -33,6 +33,7 @@ tracing = { workspace = true, optional = true }
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 tempfile = "3"
+swe-edge-configbuilder = { workspace = true }
 
 [features]
 default = []
@@ -127,3 +128,23 @@ path = "tests/provider_int_test.rs"
 [[test]]
 name = "validator_int_test"
 path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "configbuilder_dep_int_test"
+path = "tests/configbuilder_dep_int_test.rs"
+
+[[test]]
+name = "noop_http_tls_marker_int_test"
+path = "tests/noop_http_tls_marker_int_test.rs"
+
+[[test]]
+name = "tls_provider_factory_int_test"
+path = "tests/tls_provider_factory_int_test.rs"
+
+[[test]]
+name = "tls_layer_spec_int_test"
+path = "tests/tls_layer_spec_int_test.rs"
+
+[[test]]
+name = "http_tls_svc_int_test"
+path = "tests/http_tls_svc_int_test.rs"

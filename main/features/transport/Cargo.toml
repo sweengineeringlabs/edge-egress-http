@@ -102,6 +102,7 @@ swe-edge-egress-cache   = { workspace = true }
 swe-edge-egress-cassette = { workspace = true }
 swe-edge-egress-oauth    = { workspace = true }
 futures                  = { workspace = true }
+tokio-tungstenite        = { version = "0.26", features = ["rustls-tls-native-roots"] }
 
 [lints.rust]
 unsafe_code  = "deny"
@@ -240,3 +241,23 @@ path = "tests/ws_sender_int_test.rs"
 [[test]]
 name = "http_config_validator_int_test"
 path = "tests/http_config_validator_int_test.rs"
+
+[[test]]
+name = "tokio_tungstenite_dep_int_test"
+path = "tests/tokio_tungstenite_dep_int_test.rs"
+
+[[test]]
+name = "http_egress_object_int_test"
+path = "tests/http_egress_object_int_test.rs"
+
+[[test]]
+name = "metrics_http_egress_spec_int_test"
+path = "tests/metrics_http_egress_spec_int_test.rs"
+
+[[test]]
+name = "http_transport_svc_int_test"
+path = "tests/http_transport_svc_int_test.rs"
+
+[[test]]
+name = "validator_object_int_test"
+path = "tests/validator_object_int_test.rs"
