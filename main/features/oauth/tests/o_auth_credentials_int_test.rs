@@ -8,9 +8,11 @@ use swe_edge_egress_oauth::OAuthCredentials;
 /// All fields must be settable and readable.
 #[test]
 fn oauth_struct_o_auth_credentials_fields_accessible_int_test() {
+    let at = "access-xyz".to_string();
+    let rt = "refresh-abc".to_string();
     let creds = OAuthCredentials {
-        access_token: "access-xyz".to_string(),
-        refresh_token: "refresh-abc".to_string(),
+        access_token: at,
+        refresh_token: rt,
         expires_at_ms: 1_700_000_000_000u64,
         scopes: vec!["read".to_string(), "write".to_string()],
     };
@@ -45,7 +47,8 @@ fn oauth_struct_o_auth_credentials_clone_is_independent_int_test() {
         scopes: vec!["scope".to_string()],
     };
     let mut cloned = original.clone();
-    cloned.access_token = "different".to_string();
+    let new_val = "different".to_string();
+    cloned.access_token = new_val;
     assert_eq!(
         original.access_token, "tok",
         "original must be unaffected after mutating clone"

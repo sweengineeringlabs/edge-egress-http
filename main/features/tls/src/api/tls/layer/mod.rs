@@ -1,2 +1,2 @@
 //! Interface counterpart for core::tls::layer.
-pub(crate) mod tls_layer_spec;
+pub(crate) mod tls_layer;

@@ -20,9 +20,9 @@ mod tests {
 
     /// Minimal `HttpTls` implementation used only in unit tests.
     #[derive(Debug)]
-    struct NoopProvider;
+    struct TlsLayerStub;
 
-    impl crate::api::traits::HttpTls for NoopProvider {
+    impl crate::api::traits::HttpTls for TlsLayerStub {
         fn identity(&self) -> Result<Option<reqwest::Identity>, crate::api::error::TlsError> {
             Ok(None)
         }
@@ -32,12 +32,12 @@ mod tests {
         }
     }
 
-    /// @covers: TlsLayer::new
+    /// @covers: new
     /// `TlsLayer::new` must construct a layer that reports the provider's
     /// `describe()` string in its Debug output.
     #[test]
     fn tls_struct_tls_layer_new_embeds_provider_describe_int_test() {
-        let layer = TlsLayer::new(Arc::new(NoopProvider));
+        let layer = TlsLayer::new(Arc::new(TlsLayerStub));
         let dbg = format!("{layer:?}");
         assert!(
             dbg.contains("noop"),
@@ -45,11 +45,11 @@ mod tests {
         );
     }
 
-    /// @covers: TlsLayer::new
+    /// @covers: new
     /// `apply_to` on a newly-constructed noop layer must return `Ok`.
     #[test]
     fn tls_struct_tls_layer_new_apply_to_none_identity_returns_ok_int_test() {
-        let layer = TlsLayer::new(Arc::new(NoopProvider));
+        let layer = TlsLayer::new(Arc::new(TlsLayerStub));
         let result = layer.apply_to(reqwest::Client::builder());
         assert!(
             result.is_ok(),

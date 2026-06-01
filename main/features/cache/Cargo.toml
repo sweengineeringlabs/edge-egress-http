@@ -155,4 +155,3 @@ path = "tests/vary_directive_int_test.rs"
 
 [[test]]
 name = "http_dep_int_test"
-path = "tests/http_dep_int_test.rs"
