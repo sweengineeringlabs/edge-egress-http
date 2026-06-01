@@ -2,7 +2,7 @@
 
 use secrecy::SecretString;
 
-/// Validated configuration produced by [`AwsSigV4StrategyBuilder::build_config`](super::aws_sig_v4_strategy_builder::AwsSigV4StrategyBuilder::build_config).
+/// Validated configuration produced by [`AwsSigV4StrategyConfigBuilder::build_config`](super::aws_sig_v4_strategy_builder::AwsSigV4StrategyConfigBuilder::build_config).
 pub struct AwsSigV4StrategyConfig {
     /// AWS access key ID.
     pub access_key_id: SecretString,

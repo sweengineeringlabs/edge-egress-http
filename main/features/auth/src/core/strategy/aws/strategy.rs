@@ -79,12 +79,17 @@ const AMZ_DATE_FMT: &[FormatItem<'static>] =
 /// `YYYYMMDD` — AWS credential-scope date component.
 const AMZ_DATE_ONLY_FMT: &[FormatItem<'static>] = format_description!("[year][month][day]");
 
-/// AWS SigV4 strategy. Holds pre-resolved credentials + the
-/// static (region, service) pair for signing.
-pub(crate) struct AwsSigV4Strategy {
+/// Pre-resolved AWS credentials bundle (private to this module).
+struct AwsSigV4Credentials {
     access_key_id: SecretString,
     secret_access_key: SecretString,
     session_token: Option<SecretString>,
+}
+
+/// AWS SigV4 strategy. Holds pre-resolved credentials + the
+/// static (region, service) pair for signing.
+pub(crate) struct AwsSigV4Strategy {
+    credentials: AwsSigV4Credentials,
     region: String,
     service: String,
 }
@@ -96,7 +101,7 @@ impl std::fmt::Debug for AwsSigV4Strategy {
             .field("secret_access_key", &"<redacted>")
             .field(
                 "session_token",
-                &if self.session_token.is_some() {
+                &if self.credentials.session_token.is_some() {
                     "<set>"
                 } else {
                     "<none>"
@@ -119,9 +124,11 @@ impl AwsSigV4Strategy {
         service: String,
     ) -> Self {
         Self {
-            access_key_id,
-            secret_access_key,
-            session_token,
+            credentials: AwsSigV4Credentials {
+                access_key_id,
+                secret_access_key,
+                session_token,
+            },
             region,
             service,
         }
@@ -159,7 +166,7 @@ impl AwsSigV4Strategy {
 
         // Session token (if present) is also signed. AWS STS /
         // IMDSv2-issued credentials require this.
-        if let Some(token) = &self.session_token {
+        if let Some(token) = &self.credentials.session_token {
             let mut hv = HeaderValue::from_str(token.expose_secret())
                 .map_err(|e| AuthError::InvalidHeaderValue(e.to_string()))?;
             hv.set_sensitive(true);
@@ -244,7 +251,7 @@ impl AwsSigV4Strategy {
 
         // --- Derive signing key ---
         let signing_key = AwsSigV4Helper::derive_signing_key(
-            self.secret_access_key.expose_secret(),
+            self.credentials.secret_access_key.expose_secret(),
             &date_scope,
             &self.region,
             &self.service,
@@ -257,7 +264,7 @@ impl AwsSigV4Strategy {
         // --- Authorization header ---
         let auth_value = format!(
             "AWS4-HMAC-SHA256 Credential={access}/{scope}, SignedHeaders={signed}, Signature={sig}",
-            access = self.access_key_id.expose_secret(),
+            access = self.credentials.access_key_id.expose_secret(),
             scope = credential_scope,
             signed = signed_headers,
             sig = signature_hex,
