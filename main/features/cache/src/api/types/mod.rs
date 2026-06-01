@@ -22,3 +22,5 @@ pub(crate) mod cache_svc {
 }
 pub mod cached_entry;
 pub use cached_entry::CachedEntry;
+pub mod entry;
+pub use entry::CachedEntryBuilder;

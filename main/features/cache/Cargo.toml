@@ -155,3 +155,7 @@ path = "tests/vary_directive_int_test.rs"
 
 [[test]]
 name = "http_dep_int_test"
+
+[[test]]
+name = "cached_entry_builder_int_test"
+path = "tests/cached_entry_builder_int_test.rs"
