@@ -21,4 +21,3 @@ pub use sse::{SseEvent, SseStream};
 pub use ws::{WsChannel, WsMessage, WsReceiver, WsSender};
 
 pub mod application_config_builder;
-pub use application_config_builder::ApplicationConfigBuilder;

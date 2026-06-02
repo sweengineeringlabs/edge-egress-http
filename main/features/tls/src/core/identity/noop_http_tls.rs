@@ -8,7 +8,8 @@ pub(crate) struct NoopHttpTls;
 
 impl HttpTls for NoopHttpTls {
     fn describe(&self) -> &'static str {
-        "noop"
+        const LABEL: &str = "noop";
+        LABEL
     }
 
     fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {

@@ -7,11 +7,16 @@ use crate::api::types::cache_config::CacheConfig;
 /// never touch this type directly; they go through `saf::builder`.
 #[derive(Debug)]
 pub(crate) struct DefaultHttpCache {
+    #[expect(
+        dead_code,
+        reason = "stored for future config-driven behaviour; visible via Debug"
+    )]
     config: CacheConfig,
 }
 
 impl DefaultHttpCache {
     /// Construct from a resolved config.
+    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
     pub(crate) fn new(config: CacheConfig) -> Self {
         Self { config }
     }

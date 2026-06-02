@@ -1,4 +1,4 @@
-﻿//! HTTP rate SAF — factory methods on [`HttpRateSvc`].
+//! HTTP rate SAF — factory methods on [`HttpRateSvc`].
 
 use crate::api::error::RateError;
 use crate::api::traits::Processor;
@@ -22,9 +22,7 @@ impl HttpRateSvc {
     /// Returns `Err` if the config fails validation (e.g. zero token rate).
     pub fn build_rate_layer(config: RateConfig) -> Result<RateLayer, RateError> {
         let processor = DefaultHttpRate::new(config.clone());
-        processor
-            .validate()
-            .map_err(RateError::ParseFailed)?;
+        processor.validate().map_err(RateError::ParseFailed)?;
         let _ = processor.describe(); // exercise the Processor contract
         let layer = RateLayer::new(config);
         Ok(layer)

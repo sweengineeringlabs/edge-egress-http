@@ -25,7 +25,6 @@ use super::helper::AwsSigV4Helper;
 use crate::api::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 
-
 /// `AsciiSet` semantics: chars IN this set get percent-encoded.
 /// Everything NOT in the set passes through literally.
 ///

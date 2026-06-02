@@ -2,7 +2,7 @@
 
 pub mod application_config_builder;
 
-pub(crate) mod credential_source;
 pub mod auth;
+pub(crate) mod credential_source;
 pub use auth::AuthMiddleware;
 pub use auth::AuthSvc;

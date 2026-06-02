@@ -50,7 +50,8 @@ impl Pkcs12HttpTls {
 
 impl HttpTls for Pkcs12HttpTls {
     fn describe(&self) -> &'static str {
-        "pkcs12"
+        const LABEL: &str = "pkcs12";
+        LABEL
     }
 
     fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
