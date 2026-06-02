@@ -91,6 +91,7 @@ impl HostBreaker {
         }
     }
 
+    #[cfg(test)]
     fn state(&self) -> State {
         self.state
     }

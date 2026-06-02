@@ -1,7 +1,5 @@
 ﻿//! HTTP retry SAF — factory methods on [`HttpRetrySvc`].
 
-use swe_edge_configbuilder::ConfigLoaderFactory;
-
 use crate::api::error::RetryError;
 use crate::api::types::retry::http_retry_svc::HttpRetrySvc;
 use crate::api::types::retry::retry_config::RetryConfig;

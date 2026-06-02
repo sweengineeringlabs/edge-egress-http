@@ -3,7 +3,6 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use swe_edge_configbuilder::ConfigLoaderFactory;
 use tokio::sync::Mutex;
 
 use crate::api::error::CassetteError;

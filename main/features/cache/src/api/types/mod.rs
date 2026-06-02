@@ -3,11 +3,8 @@
 pub mod cache;
 
 pub mod application_config_builder;
-pub use application_config_builder::ApplicationConfigBuilder;
 
-// Re-export canonical names at the types/ level for backward compatibility.
-pub use cache::cache_config::CacheConfig;
-pub use cache::cache_layer::CacheLayer;
+// Re-export HttpCacheSvc at the types/ level for use by core/ and saf/.
 pub use cache::http_cache_svc::HttpCacheSvc;
 
 // Retain legacy module paths for any existing use-sites inside this crate.

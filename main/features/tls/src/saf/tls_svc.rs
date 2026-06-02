@@ -2,8 +2,6 @@
 
 use std::sync::Arc;
 
-use swe_edge_configbuilder::ConfigLoaderFactory;
-
 use crate::api::error::TlsError;
 use crate::api::types::HttpTlsSvc;
 use crate::api::types::TlsConfig;

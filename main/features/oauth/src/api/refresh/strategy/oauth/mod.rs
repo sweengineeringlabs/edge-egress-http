@@ -6,5 +6,3 @@ mod o_auth_strategy;
 pub(crate) mod refresh_strategy;
 pub(crate) mod static_token_source;
 pub(crate) mod time_helper;
-
-pub use o_auth_strategy::OAuthStrategy;

@@ -18,13 +18,9 @@ pub(crate) struct DefaultHttpBreaker {
 
 impl DefaultHttpBreaker {
     /// Construct from a resolved config.
+    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
     pub(crate) fn new(config: BreakerConfig) -> Self {
         Self { config }
-    }
-
-    /// Return the failure threshold from the config.
-    pub(crate) fn failure_threshold(&self) -> u32 {
-        self.config.failure_threshold
     }
 }
 

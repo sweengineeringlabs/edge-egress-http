@@ -1,8 +1,8 @@
 //! `AwsSigV4Helper` — AWS SigV4 signing utilities.
 
 use hmac::{Hmac, Mac};
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
-use sha2::{Digest, Sha256};
+use percent_encoding::utf8_percent_encode;
+use sha2::Sha256;
 
 use super::strategy::{ENCODE_FOR_PATH, ENCODE_FOR_QUERY};
 use crate::api::error::AuthError;

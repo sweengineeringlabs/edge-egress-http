@@ -32,8 +32,7 @@ impl PemHttpTls {
 
 impl HttpTls for PemHttpTls {
     fn describe(&self) -> &'static str {
-        let name = "pem";
-        name
+        "pem"
     }
 
     fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {

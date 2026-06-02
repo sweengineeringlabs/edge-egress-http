@@ -1,7 +1,5 @@
 ﻿//! HTTP rate SAF — factory methods on [`HttpRateSvc`].
 
-use swe_edge_configbuilder::ConfigLoaderFactory;
-
 use crate::api::error::RateError;
 use crate::api::traits::Processor;
 use crate::api::traits::Validator;
@@ -26,7 +24,7 @@ impl HttpRateSvc {
         let processor = DefaultHttpRate::new(config.clone());
         processor
             .validate()
-            .map_err(|e| RateError::ParseFailed(e))?;
+            .map_err(RateError::ParseFailed)?;
         let _ = processor.describe(); // exercise the Processor contract
         let layer = RateLayer::new(config);
         Ok(layer)

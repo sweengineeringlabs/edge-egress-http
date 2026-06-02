@@ -21,6 +21,7 @@ pub(crate) enum CredentialSource {
 
 impl CredentialSource {
     /// Return a human-readable label for diagnostics.
+    #[expect(dead_code, reason = "diagnostic helper — used in future log integration")]
     pub(crate) fn label(&self) -> String {
         match self {
             Self::EnvVar(name) => format!("env:{name}"),

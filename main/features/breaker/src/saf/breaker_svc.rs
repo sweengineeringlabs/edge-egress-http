@@ -1,7 +1,5 @@
 ﻿//! HTTP breaker SAF — factory methods on [`HttpBreakerSvc`].
 
-use swe_edge_configbuilder::ConfigLoaderFactory;
-
 use crate::api::error::BreakerError;
 use crate::api::types::breaker::breaker_config::BreakerConfig;
 use crate::api::types::breaker::breaker_layer::BreakerLayer;

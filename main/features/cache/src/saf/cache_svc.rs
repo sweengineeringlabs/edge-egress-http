@@ -1,7 +1,5 @@
 ﻿//! HTTP cache SAF — factory methods on [`HttpCacheSvc`].
 
-use swe_edge_configbuilder::ConfigLoaderFactory;
-
 use crate::api::error::CacheError;
 use crate::api::types::cache_config::CacheConfig;
 use crate::api::types::cache_layer::CacheLayer;

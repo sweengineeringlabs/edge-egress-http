@@ -15,8 +15,6 @@ use crate::api::oauth::o_auth_credentials::OAuthCredentials;
 use crate::api::oauth::o_auth_token_source::OAuthTokenSource;
 use crate::api::traits::{Processor, Validator};
 
-/// Refresh proactively this many milliseconds before actual expiry.
-
 /// reqwest-middleware layer that injects `Authorization: Bearer <token>` on
 /// every outbound request, refreshing the token proactively before it expires.
 ///

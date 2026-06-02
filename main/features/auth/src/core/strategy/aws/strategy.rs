@@ -14,9 +14,8 @@
 //!      SignedHeaders=..., Signature=...` + `x-amz-date` +
 //!      optional `x-amz-security-token` headers.
 
-use hmac::{Hmac, Mac};
 use http::header::{HeaderName, HeaderValue, AUTHORIZATION, HOST};
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use percent_encoding::{AsciiSet, CONTROLS};
 use secrecy::{ExposeSecret, SecretString};
 use sha2::{Digest, Sha256};
 use time::format_description::FormatItem;
@@ -26,7 +25,6 @@ use super::helper::AwsSigV4Helper;
 use crate::api::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 
-type HmacSha256 = Hmac<Sha256>;
 
 /// `AsciiSet` semantics: chars IN this set get percent-encoded.
 /// Everything NOT in the set passes through literally.

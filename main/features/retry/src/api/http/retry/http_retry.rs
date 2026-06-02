@@ -10,6 +10,7 @@ use crate::api::types::retry::retry_config::RetryConfig;
 
 /// The retry crate's primary trait. Every middleware layer
 /// produced by this crate implements it.
+#[expect(dead_code, reason = "SEA api/ interface anchor — intentionally unused")]
 pub trait HttpRetry: Send + Sync {
     /// Identify this processor in log / trace output.
     ///
