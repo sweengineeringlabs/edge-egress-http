@@ -20,9 +20,12 @@ pub trait RateBucketOps {
     ///
     /// Returns `Ok(())` if a token was available and consumed.
     /// Returns `Err(wait)` if the bucket is empty.
-    #[expect(
-        dead_code,
-        reason = "SEA api/ trait method — called through concrete impl"
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "SEA api/ trait method — exercised via the concrete impl in tests"
+        )
     )]
     fn try_acquire(&mut self, config: &RateConfig) -> Result<(), std::time::Duration>;
 }

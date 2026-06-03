@@ -7,6 +7,8 @@
 //! behavior (always fails) is in `core/`. We test error propagation through
 //! the public surface by using a custom always-failing `OAuthTokenSource`.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::sync::Arc;
 
 use futures::future::BoxFuture;

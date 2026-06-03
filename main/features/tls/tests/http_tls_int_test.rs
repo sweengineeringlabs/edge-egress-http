@@ -10,7 +10,7 @@
 //! - Missing files / env vars surface as typed errors, not panics.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTls, HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // HttpTls::identity — None provider returns Ok(None)

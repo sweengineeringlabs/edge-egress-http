@@ -3,6 +3,8 @@
 //! Rule 120: `src/api/strategy/aws/aws_sig_v4_strategy_builder.rs` requires a
 //! corresponding test file.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_auth::{AuthError, AwsSigV4StrategyBuilder, AwsSigV4StrategyConfig};
 
 /// @covers: AwsSigV4StrategyBuilder::new

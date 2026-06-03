@@ -6,6 +6,7 @@
 //! Only `OptionalSection` is imported (not `ConfigSection`), so `section_name`,
 //! `metadata`, and `load_optional` resolve unambiguously despite `TlsConfig`
 //! implementing both traits during the migration.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_configbuilder::{ConfigError, ConfigLoaderFactory, OptionalSection};
 use swe_edge_egress_tls::TlsConfig;

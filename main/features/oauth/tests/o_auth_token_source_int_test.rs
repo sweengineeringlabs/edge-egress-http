@@ -2,6 +2,8 @@
 //!
 //! Rule 120: `src/api/oauth/o_auth_token_source.rs` requires a corresponding test file.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::sync::Arc;
 
 use futures::future::BoxFuture;

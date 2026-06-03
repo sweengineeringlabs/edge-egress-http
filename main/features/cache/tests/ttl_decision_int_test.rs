@@ -4,6 +4,8 @@
 //! effect: the cache layer, which relies on TTL decisions to determine
 //! cache policy, honours the configured TTL parameters.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_cache::{CacheConfig, HttpCacheSvc};
 
 /// Building a cache layer with a specific TTL succeeds — the TTL decision

@@ -6,6 +6,7 @@
 //! `NoopHttpTlsMarker` is a marker trait for the no-op TLS identity provider.
 //! The concrete `NoopHttpTls` type in core/ is `pub(crate)`, so we test the
 //! behavior through the public TLS layer API.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsLayer};
 

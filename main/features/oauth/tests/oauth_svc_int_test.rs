@@ -1,5 +1,7 @@
 //! Integration tests for `OAuthSvc` — extracted from saf/oauth_svc.rs.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_oauth::{OAuthBuilderOps as _, OAuthSvc};
 
 /// @covers: OAuthSvc::builder

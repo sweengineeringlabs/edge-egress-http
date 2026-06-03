@@ -18,7 +18,10 @@ pub(crate) struct DefaultHttpBreaker {
 
 impl DefaultHttpBreaker {
     /// Construct from a resolved config.
-    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "SEA core/ impl — only called from unit tests")
+    )]
     pub(crate) fn new(config: BreakerConfig) -> Self {
         Self { config }
     }
@@ -31,9 +34,16 @@ impl Processor for DefaultHttpBreaker {
     }
 }
 
+impl crate::api::traits::BreakerMetrics for DefaultHttpBreaker {
+    fn failure_threshold(&self) -> u32 {
+        self.config.failure_threshold
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::traits::breaker_metrics::BreakerMetrics;
 
     /// @covers: new
     #[test]
@@ -63,11 +73,5 @@ mod tests {
         };
         let d = DefaultHttpBreaker::new(cfg);
         assert_eq!(d.failure_threshold(), 7);
-    }
-}
-
-impl crate::api::traits::BreakerMetrics for DefaultHttpBreaker {
-    fn failure_threshold(&self) -> u32 {
-        self.config.failure_threshold
     }
 }

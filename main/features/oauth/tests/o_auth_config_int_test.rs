@@ -1,5 +1,7 @@
 //! Integration tests for `OAuthConfig`.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_oauth::{OAuthConfig, OAuthProvider};
 
 /// @covers: OAuthConfig::from_config

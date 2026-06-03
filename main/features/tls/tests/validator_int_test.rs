@@ -1,4 +1,5 @@
 //! Integration tests for the `Validator` trait contract.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_tls::Validator;
 

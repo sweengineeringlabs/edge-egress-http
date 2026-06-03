@@ -1,6 +1,8 @@
 //! Integration test for `api/strategy/aws/helper.rs`.
 //! @covers: src/api/strategy/aws/helper.rs
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_auth::AwsSigV4StrategyBuilder;
 
 /// @covers: Helper

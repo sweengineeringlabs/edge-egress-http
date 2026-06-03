@@ -4,6 +4,8 @@
 //! the cache layer, which delegates to `CacheEntryHelper` for vary matching
 //! and revalidation logic, correctly reports Send + Sync bounds.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_cache::{CacheConfig, HttpCacheSvc};
 
 /// The cache layer depends on CacheEntryHelper internally for Vary and

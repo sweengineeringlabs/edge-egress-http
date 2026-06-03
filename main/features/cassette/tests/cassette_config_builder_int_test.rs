@@ -2,6 +2,7 @@
 //!
 //! Rule 120: `src/api/types/cassette/cassette_config_builder.rs` requires a
 //! corresponding test file.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_cassette::{CassetteConfigBuilder, CassetteError};
 

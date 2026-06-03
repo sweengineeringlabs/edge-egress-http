@@ -10,15 +10,17 @@ pub(crate) struct DefaultHttpCassette {
     config: CassetteConfig,
 }
 
+#[cfg_attr(
+    not(test),
+    expect(dead_code, reason = "SEA core/ impl — exercised only by unit tests")
+)]
 impl DefaultHttpCassette {
     /// Construct from a resolved config.
-    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
     pub(crate) fn new(config: CassetteConfig) -> Self {
         Self { config }
     }
 
     /// Return the stored config.
-    #[expect(dead_code, reason = "SEA core/ impl — exposed via HttpCassette trait")]
     pub(crate) fn config(&self) -> &CassetteConfig {
         &self.config
     }

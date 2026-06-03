@@ -1,6 +1,8 @@
 //! Dependency coverage test for `hmac`.
 //! @covers: hmac
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 

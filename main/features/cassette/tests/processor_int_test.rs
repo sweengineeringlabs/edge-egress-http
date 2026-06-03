@@ -1,4 +1,5 @@
 //! Integration tests for the `Processor` trait in `swe-edge-egress-cassette`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_cassette::HttpCassetteSvc;
 
@@ -9,5 +10,5 @@ fn test_processor_trait_is_implementable() {
     // If this compiles, the trait contract is satisfied.
     let svc = HttpCassetteSvc;
     // just creating the type verifies the impl exists
-    drop(svc);
+    let _ = svc;
 }

@@ -1,7 +1,5 @@
 //! Minimal usage: build the TLS layer (pass-through) and apply to a reqwest ClientBuilder.
 
-use swe_edge_egress_tls::HttpTls;
-
 fn main() {
     match swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(swe_edge_egress_tls::TlsConfig::default())
     {

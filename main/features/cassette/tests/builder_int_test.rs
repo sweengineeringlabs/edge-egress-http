@@ -26,7 +26,9 @@ fn make_config(dir: &str) -> CassetteConfig {
 /// of this crate can bootstrap without supplying their own config.
 #[test]
 fn test_builder_fn_loads_swe_default_and_returns_ok() {
-    HttpCassetteSvc::create_config_builder().build_loader();
+    HttpCassetteSvc::create_config_builder()
+        .build_loader()
+        .expect("SWE default TOML must parse without error");
 }
 
 /// The SWE default mode is "replay" — tests must not accidentally record

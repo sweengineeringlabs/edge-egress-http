@@ -91,9 +91,12 @@ impl HostBreaker {
         }
     }
 
-    #[expect(
-        dead_code,
-        reason = "test helper — used only by inline test assertions"
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "test helper — used only by inline test assertions"
+        )
     )]
     fn state(&self) -> State {
         self.state

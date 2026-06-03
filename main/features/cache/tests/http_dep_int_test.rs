@@ -4,6 +4,8 @@
 //! Rule 95: `http` is used in `src/` (Cache-Control header handling) and must
 //! have integration coverage with an explicit `use http::...` import.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use http::{header::CACHE_CONTROL, HeaderMap, HeaderName, HeaderValue};
 
 /// @covers: http

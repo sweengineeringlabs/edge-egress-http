@@ -5,6 +5,8 @@
 //! builds successfully has wired the VaryDirective module into the
 //! compilation unit.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_cache::{CacheConfig, HttpCacheSvc};
 
 /// The cache layer depends on VaryDirective for Vary-header parsing.

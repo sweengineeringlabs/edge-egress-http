@@ -1,6 +1,8 @@
 //! Dependency coverage test for `reqwest`.
 //! @covers: reqwest
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use reqwest::{Method, Url};
 
 /// @covers: reqwest

@@ -1,7 +1,8 @@
 ﻿//! Integration tests for `AuthSvc` public API — extracted from saf/auth_svc.rs.
 
-use std::sync::atomic::AtomicBool;
-use swe_edge_egress_auth::{AuthConfig, AuthError, AuthMiddleware, AuthSvc};
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use swe_edge_egress_auth::{AuthConfig, AuthError, AuthSvc};
 
 /// @covers: AuthSvc::create_config_builder
 #[test]

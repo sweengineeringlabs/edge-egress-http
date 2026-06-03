@@ -1,5 +1,6 @@
 //! Integration tests for `api/recorded/interaction/request.rs`.
 //! @covers: src/api/recorded/interaction/request.rs
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_cassette::{CassetteConfig, HttpCassetteSvc};
 

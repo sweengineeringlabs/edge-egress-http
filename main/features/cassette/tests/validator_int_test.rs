@@ -1,12 +1,18 @@
 //! Integration tests for the `Validator` trait in `swe-edge-egress-cassette`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use swe_edge_egress_cassette::CassetteConfigBuilder;
 
 /// @covers: Validator
+/// Validates that the validation contract rejects an unknown mode,
+/// exercising the Validator implementation behind `CassetteConfigBuilder`.
 #[test]
 fn test_validator_trait_exists_in_crate() {
-    // This test verifies the crate exports the Validator trait.
-    // Actual validation logic is tested via the implementing types.
+    let result = CassetteConfigBuilder::new()
+        .with_mode("unknown-mode")
+        .build_config();
     assert!(
-        true,
-        "Validator trait is part of the crate's public interface"
+        result.is_err(),
+        "Validator must reject an unknown cassette mode; got: {result:?}"
     );
 }

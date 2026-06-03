@@ -25,7 +25,10 @@ impl CassetteLayer {
     /// produce the on-disk path. By convention one cassette
     /// per test case — cassettes are the HTTP equivalent of
     /// golden files.
-    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "SEA core/ impl — constructed only by unit tests")
+    )]
     pub(crate) fn new(config: CassetteConfig, cassette_name: &str) -> Result<Self, CassetteError> {
         let path = PathBuf::from(&config.cassette_dir).join(format!("{cassette_name}.yaml"));
         let fixtures = Self::load_fixtures_from_disk(&path)?;

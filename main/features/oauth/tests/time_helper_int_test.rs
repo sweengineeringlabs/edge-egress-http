@@ -7,6 +7,8 @@
 //! (`OAuthTimeHelper`) is `pub(crate)` and already has inline unit tests.
 //! This file covers the module at the integration level.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_oauth::OAuthSvc;
 
 /// @covers: TimeHelper (via OAuth middleware clock usage)

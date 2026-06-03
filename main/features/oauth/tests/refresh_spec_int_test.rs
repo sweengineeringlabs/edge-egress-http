@@ -5,6 +5,8 @@
 //! `RefreshSpec` is a marker trait. We verify object safety and that
 //! a concrete implementor satisfies the bound.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_oauth::OAuthSvc;
 
 /// @covers: RefreshSpec (via OAuthSvc builder)

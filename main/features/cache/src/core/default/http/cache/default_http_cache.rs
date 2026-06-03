@@ -14,9 +14,12 @@ pub(crate) struct DefaultHttpCache {
     config: CacheConfig,
 }
 
+#[cfg_attr(
+    not(test),
+    expect(dead_code, reason = "SEA core/ impl — exercised only by unit tests")
+)]
 impl DefaultHttpCache {
     /// Construct from a resolved config.
-    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
     pub(crate) fn new(config: CacheConfig) -> Self {
         Self { config }
     }

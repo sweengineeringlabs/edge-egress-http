@@ -7,6 +7,8 @@
 //! from integration tests. We test the fixed-token behavior pattern through
 //! a custom `OAuthTokenSource` implementation.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::sync::Arc;
 
 use futures::future::BoxFuture;

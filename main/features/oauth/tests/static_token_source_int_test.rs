@@ -7,6 +7,8 @@
 //! behavior (returns a fixed token) is in `core/`. We test the analogous
 //! behavior through a custom `OAuthTokenSource` implementation.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::sync::Arc;
 
 use futures::future::BoxFuture;

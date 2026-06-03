@@ -15,7 +15,10 @@ pub(crate) struct DefaultHttpRetry {
 
 impl DefaultHttpRetry {
     /// Construct from a resolved config.
-    #[expect(dead_code, reason = "SEA core/ impl — only called from unit tests")]
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "SEA core/ impl — only called from unit tests")
+    )]
     pub(crate) fn new(config: RetryConfig) -> Self {
         Self { config }
     }

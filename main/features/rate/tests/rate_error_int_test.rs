@@ -1,7 +1,15 @@
 //! Integration tests for `rate_error` in `swe-edge-egress-rate`.
 
+use swe_edge_egress_rate::RateError;
+
 /// @covers: RateError
 #[test]
 fn test_rate_error_is_defined() {
-    assert!(true, "rate_error is the domain error type");
+    // Constructing a variant proves the type is accessible from outside the crate.
+    let e = RateError::ParseFailed("bad toml".to_string());
+    let msg = format!("{e}");
+    assert!(
+        msg.contains("config parse failed"),
+        "error Display must mention the failure kind; got: {msg}"
+    );
 }

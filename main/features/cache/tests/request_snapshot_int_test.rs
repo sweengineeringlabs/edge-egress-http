@@ -5,6 +5,8 @@
 //! the cache middleware layer, which uses `RequestSnapshot` internally,
 //! constructs and operates correctly.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_cache::{CacheConfig, HttpCacheSvc};
 
 /// Verify that the cache layer (which uses request snapshots internally)

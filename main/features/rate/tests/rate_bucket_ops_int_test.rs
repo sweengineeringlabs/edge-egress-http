@@ -1,10 +1,19 @@
 //! Integration tests for the `RateBucketOps` trait.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use swe_edge_egress_rate::{HttpRateSvc, RateConfig};
+
 /// @covers: RateBucketOps
 #[test]
-fn test_rate_bucket_ops_trait_is_defined() {
+fn test_rate_bucket_ops_wired_through_build_rate_layer() {
+    // `build_rate_layer` constructs a `RateLayer` which internally wraps a
+    // `TokenBucket` (the concrete `RateBucketOps` impl). If the layer builds
+    // successfully, the bucket ops contract is satisfied end-to-end.
+    let cfg = RateConfig::default();
+    let result = HttpRateSvc::build_rate_layer(cfg);
     assert!(
-        true,
-        "RateBucketOps trait is part of the rate crate's internal interface"
+        result.is_ok(),
+        "RateBucketOps wiring must be complete: build_rate_layer returned Err"
     );
 }

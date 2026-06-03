@@ -9,5 +9,5 @@ fn test_processor_trait_is_implementable() {
     // If this compiles, the trait contract is satisfied.
     let svc = HttpCacheSvc;
     // just creating the type verifies the impl exists
-    drop(svc);
+    let _ = svc;
 }

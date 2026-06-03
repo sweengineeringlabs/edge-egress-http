@@ -2,6 +2,8 @@
 //! Verifies that the reqwest types used in the cache middleware are
 //! accessible and functional through the public API.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use reqwest::Client;
 use swe_edge_egress_cache::{CacheConfig, HttpCacheSvc};
 
