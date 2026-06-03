@@ -1,79 +1,9 @@
 //! Integration tests for the SAF factory functions in `http_egress_factory`.
 //!
-//! Covers: `http_egress`, `http_egress_with_auth`, `plain_http_egress`,
-//! and `validate_http_config` which are not tested by other integration test files.
+//! Covers: `plain_http_egress`, `default_http_stream_outbound`, and
+//! `validate_http_config` — not exercised by other integration test files.
 
-use swe_edge_egress_http_transport::{HttpConfig, HttpEgressConfig, HttpStream, HttpTransportSvc};
-
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
-fn build_outbound_config(base_url: &str) -> HttpEgressConfig {
-    HttpEgressConfig {
-        http: HttpConfig::with_base_url(base_url),
-        auth: swe_edge_egress_auth::AuthConfig::None,
-        token_source: None,
-        retry: swe_edge_egress_retry::RetryConfig::default(),
-        rate: swe_edge_egress_rate::RateConfig::default(),
-        breaker: swe_edge_egress_breaker::BreakerConfig::default(),
-        cache: swe_edge_egress_cache::CacheConfig::default(),
-        cassette: swe_edge_egress_cassette::CassetteConfig::disabled(),
-        cassette_name: "unused".to_string(),
-        tls: swe_edge_egress_tls::TlsConfig::None,
-    }
-}
-
-// ─── http_egress ────────────────────────────────────────────────────────────
-
-/// @covers: http_egress
-#[test]
-fn test_http_egress_builds_successfully_with_none_auth() {
-    let cfg = build_outbound_config("https://api.example.com");
-    let result = HttpTransportSvc::http_egress(cfg);
-    assert!(
-        result.is_ok(),
-        "http_egress must build with None auth: {:?}",
-        result.err()
-    );
-}
-
-/// @covers: http_egress
-#[test]
-fn test_http_egress_builds_two_independent_instances() {
-    let a = HttpTransportSvc::http_egress(build_outbound_config("https://a.example.com"));
-    let b = HttpTransportSvc::http_egress(build_outbound_config("https://b.example.com"));
-    assert!(a.is_ok(), "first http_egress must build");
-    assert!(b.is_ok(), "second http_egress must build");
-}
-
-// ─── http_egress_with_auth ──────────────────────────────────────────────────
-
-/// @covers: http_egress_with_auth
-#[test]
-fn test_http_egress_with_auth_builds_successfully_with_none_auth() {
-    let cfg = HttpConfig::with_base_url("https://api.example.com");
-    let auth = swe_edge_egress_auth::AuthConfig::None;
-    let result = HttpTransportSvc::http_egress_with_auth(cfg, auth);
-    assert!(
-        result.is_ok(),
-        "http_egress_with_auth must build: {:?}",
-        result.err()
-    );
-}
-
-/// @covers: http_egress_with_auth
-#[test]
-fn test_http_egress_with_auth_builds_two_independent_instances() {
-    let a = HttpTransportSvc::http_egress_with_auth(
-        HttpConfig::with_base_url("https://a.example.com"),
-        swe_edge_egress_auth::AuthConfig::None,
-    );
-    let b = HttpTransportSvc::http_egress_with_auth(
-        HttpConfig::with_base_url("https://b.example.com"),
-        swe_edge_egress_auth::AuthConfig::None,
-    );
-    assert!(a.is_ok(), "first instance must build");
-    assert!(b.is_ok(), "second instance must build");
-}
+use swe_edge_egress_http_transport::{HttpConfig, HttpStream, HttpTransportSvc};
 
 // ─── plain_http_egress ──────────────────────────────────────────────────────
 

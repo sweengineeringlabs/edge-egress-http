@@ -29,7 +29,7 @@
 //!
 //! ## 1. Record (once, on a developer machine)
 //!
-//! Add the cassette layer to the test's `HttpEgressConfig` in `"auto"` or
+//! Add a `[cassette]` section to the test's config in `"auto"` or
 //! `"record"` mode and run the tests with real credentials:
 //!
 //! ```toml

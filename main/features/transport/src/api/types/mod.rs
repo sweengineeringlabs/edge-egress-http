@@ -5,8 +5,6 @@ pub(crate) mod sse;
 pub(crate) mod ws;
 
 pub(crate) mod always_valid_config;
-pub(crate) mod http_egress_config;
-pub(crate) mod http_egress_config_builder;
 pub(crate) mod http_transport_svc;
 pub(crate) mod observation_config;
 pub(crate) mod transport_config;

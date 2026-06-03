@@ -3,7 +3,7 @@
 mod transport_svc;
 
 pub use crate::api::default::http::egress::{HttpEgressObject as DefaultEgress, TransportConfig};
-pub use crate::api::http::{HttpEgressBuildError, HttpEgressConfig, HttpEgressConfigBuilder};
+pub use crate::api::http::HttpEgressBuildError;
 pub use crate::api::metrics::{MetricsHttpEgress as MetricsEgress, ObservationConfig};
 pub use crate::api::port::{HttpEgress, HttpEgressError, HttpEgressResult, HttpStream};
 pub use crate::api::types::{

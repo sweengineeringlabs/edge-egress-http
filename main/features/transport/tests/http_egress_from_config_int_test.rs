@@ -8,6 +8,7 @@
 
 use swe_edge_configbuilder::ConfigLoaderFactory;
 use swe_edge_egress_http_transport::{HttpEgressBuildError, HttpTransportSvc};
+use swe_edge_egress_oauth::OAuthTokenSource;
 use tempfile::TempDir;
 
 fn loader(content: &str) -> (TempDir, swe_edge_configbuilder::SectionLoaderImpl) {
@@ -312,7 +313,7 @@ fn test_preflight_invalid_section_returns_config_error() {
 #[derive(Debug)]
 struct StaticTokenSource;
 
-impl swe_edge_egress_oauth::OAuthTokenSource for StaticTokenSource {
+impl OAuthTokenSource for StaticTokenSource {
     fn get_access_token(
         &self,
     ) -> futures::future::BoxFuture<'_, swe_edge_egress_oauth::Result<String>> {
@@ -325,8 +326,7 @@ impl swe_edge_egress_oauth::OAuthTokenSource for StaticTokenSource {
 #[test]
 fn test_oauth_with_config_driven_middleware_builds() {
     let (_d, l) = loader(RETRY_TOML);
-    let source: std::sync::Arc<dyn swe_edge_egress_oauth::OAuthTokenSource> =
-        std::sync::Arc::new(StaticTokenSource);
+    let source: std::sync::Arc<dyn OAuthTokenSource> = std::sync::Arc::new(StaticTokenSource);
     let result = HttpTransportSvc::http_egress_from_config_with_oauth(&l, source);
     assert!(
         result.is_ok(),
@@ -339,8 +339,7 @@ fn test_oauth_with_config_driven_middleware_builds() {
 #[test]
 fn test_oauth_only_builds() {
     let (_d, l) = loader("[unrelated]\nx = 1");
-    let source: std::sync::Arc<dyn swe_edge_egress_oauth::OAuthTokenSource> =
-        std::sync::Arc::new(StaticTokenSource);
+    let source: std::sync::Arc<dyn OAuthTokenSource> = std::sync::Arc::new(StaticTokenSource);
     let result = HttpTransportSvc::http_egress_from_config_with_oauth(&l, source);
     assert!(result.is_ok(), "OAuth-only egress must build");
 }
