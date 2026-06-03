@@ -17,8 +17,19 @@ service_type     = "transport"
 [lib]
 path = "src/lib.rs"
 
+# Each egress middleware is an opt-in cargo feature (ADR-006 Phase 2c). `default`
+# enables all of them, so the out-of-the-box experience is unchanged; size-conscious
+# consumers use `default-features = false` and enable only what they need.
 [features]
-default = []
+default = ["auth", "oauth", "tls", "retry", "rate", "breaker", "cache", "cassette"]
+auth     = ["dep:swe-edge-egress-auth"]
+oauth    = ["dep:swe-edge-egress-oauth"]
+tls      = ["dep:swe-edge-egress-tls"]
+retry    = ["dep:swe-edge-egress-retry"]
+rate     = ["dep:swe-edge-egress-rate"]
+breaker  = ["dep:swe-edge-egress-breaker"]
+cache    = ["dep:swe-edge-egress-cache"]
+cassette = ["dep:swe-edge-egress-cassette"]
 websocket = ["dep:tokio-tungstenite"]
 
 [dependencies]
@@ -30,14 +41,14 @@ http.workspace              = true
 tokio                       = { workspace = true, features = ["rt", "net"] }
 reqwest.workspace           = true
 reqwest-middleware.workspace = true
-swe-edge-egress-auth.workspace     = true
-swe-edge-egress-retry.workspace    = true
-swe-edge-egress-rate.workspace     = true
-swe-edge-egress-breaker.workspace  = true
-swe-edge-egress-cache.workspace    = true
-swe-edge-egress-cassette.workspace = true
-swe-edge-egress-tls.workspace      = true
-swe-edge-egress-oauth.workspace    = true
+swe-edge-egress-auth     = { workspace = true, optional = true }
+swe-edge-egress-retry    = { workspace = true, optional = true }
+swe-edge-egress-rate     = { workspace = true, optional = true }
+swe-edge-egress-breaker  = { workspace = true, optional = true }
+swe-edge-egress-cache    = { workspace = true, optional = true }
+swe-edge-egress-cassette = { workspace = true, optional = true }
+swe-edge-egress-tls      = { workspace = true, optional = true }
+swe-edge-egress-oauth    = { workspace = true, optional = true }
 bytes.workspace                    = true
 swe-observ-metrics.workspace       = true
 tokio-tungstenite      = { version = "0.26", optional = true, features = ["rustls-tls-native-roots"] }

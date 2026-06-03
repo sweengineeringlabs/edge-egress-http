@@ -1710,6 +1710,7 @@ dependencies = [
  "swe-edge-egress-retry",
  "swe-edge-egress-tls",
  "swe_justobserv_metrics",
+ "tempfile",
  "thiserror 2.0.18",
  "tokio",
  "tokio-tungstenite",
