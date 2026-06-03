@@ -102,28 +102,11 @@ impl HttpTransportSvc {
         use swe_edge_configbuilder::{FeatureState, OptionalSection as _};
 
         let http_cfg = HttpConfig::default();
-        let mut cb = reqwest::Client::builder();
-
-        // [tls] present ⇒ build and apply the TLS layer; absent ⇒ no TLS layer is
-        // constructed or applied (the disabled feature adds nothing).
-        if let FeatureState::Enabled(tls_cfg) =
-            swe_edge_egress_tls::TlsConfig::load_optional(loader)?
-        {
-            let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(tls_cfg)?;
-            cb = tls.apply_to(cb)?;
-        }
-
-        cb = Self::configure_http_builder(cb, &http_cfg);
-        let reqwest_client = cb.build()?;
-
-        // Each enabled [section] adds exactly one middleware via `.with(..)`.
-        // A section that is absent (or `enabled = false`) adds nothing — no
-        // middleware in the chain, not a no-op layer.
-        let mut builder = ClientBuilder::new(reqwest_client);
+        let client = Self::reqwest_client_from_config(loader, &http_cfg)?;
+        let mut builder = ClientBuilder::new(client);
 
         // [auth] present ⇒ add the static auth layer. OAuth token-refresh is a
-        // runtime token_source (a trait object), not a config section, so it is
-        // wired programmatically rather than via [auth].
+        // runtime token_source — use `http_egress_from_config_with_oauth` for it.
         if let FeatureState::Enabled(auth_cfg) =
             swe_edge_egress_auth::AuthConfig::load_optional(loader)?
         {
@@ -131,54 +114,46 @@ impl HttpTransportSvc {
             builder = builder.with(auth);
         }
 
-        // [retry] present ⇒ add the retry policy layer.
-        if let FeatureState::Enabled(retry_cfg) =
-            swe_edge_egress_retry::RetryConfig::load_optional(loader)?
-        {
-            let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(retry_cfg)?;
-            builder = builder.with(retry);
-        }
-
-        // [rate] present ⇒ add the rate-limiting layer.
-        if let FeatureState::Enabled(rate_cfg) =
-            swe_edge_egress_rate::RateConfig::load_optional(loader)?
-        {
-            let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(rate_cfg)?;
-            builder = builder.with(rate);
-        }
-
-        // [breaker] present ⇒ add the circuit-breaker layer.
-        if let FeatureState::Enabled(breaker_cfg) =
-            swe_edge_egress_breaker::BreakerConfig::load_optional(loader)?
-        {
-            let breaker =
-                swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(breaker_cfg)?;
-            builder = builder.with(breaker);
-        }
-
-        // [cache] present ⇒ add the response-cache layer.
-        if let FeatureState::Enabled(cache_cfg) =
-            swe_edge_egress_cache::CacheConfig::load_optional(loader)?
-        {
-            let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(cache_cfg)?;
-            builder = builder.with(cache);
-        }
-
-        // [cassette] present ⇒ add the record/replay layer (default fixture name).
-        if let FeatureState::Enabled(cassette_cfg) =
-            swe_edge_egress_cassette::CassetteConfig::load_optional(loader)?
-        {
-            let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
-                cassette_cfg,
-                "default",
-            )?;
-            builder = builder.with(cassette);
-        }
-
-        let client = builder.build();
-
+        builder = Self::with_optional_layers(loader, builder)?;
         Ok(Box::new(DefaultHttpEgress::new(
-            client,
+            builder.build(),
+            http_cfg.base_url,
+            http_cfg.max_response_bytes,
+        )))
+    }
+
+    /// Like [`http_egress_from_config`], but the auth slot is an **OAuth
+    /// token-refresh** layer built from `token_source` instead of the static
+    /// `[auth]` section. This is how OAuth — which cannot be expressed in TOML
+    /// (the token source is a runtime trait object) — is combined with the
+    /// config-driven middleware stack. The `[tls]`/`[retry]`/`[rate]`/
+    /// `[breaker]`/`[cache]`/`[cassette]` sections are honoured as usual; the
+    /// `[auth]` section is ignored (OAuth takes the auth slot).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`HttpEgressBuildError::Config`] if a section fails to load or
+    /// validate, [`HttpEgressBuildError::OAuth`] if the OAuth layer cannot be
+    /// built, or the relevant middleware build error.
+    ///
+    /// [`http_egress_from_config`]: HttpTransportSvc::http_egress_from_config
+    pub fn http_egress_from_config_with_oauth(
+        loader: &swe_edge_configbuilder::SectionLoaderImpl,
+        token_source: Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>,
+    ) -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
+        let http_cfg = HttpConfig::default();
+        let client = Self::reqwest_client_from_config(loader, &http_cfg)?;
+        let mut builder = ClientBuilder::new(client);
+
+        // OAuth occupies the auth slot, replacing any static [auth] section.
+        let oauth = swe_edge_egress_oauth::OAuthSvc::builder()
+            .with_token_source(token_source)
+            .build()?;
+        builder = builder.with(oauth);
+
+        builder = Self::with_optional_layers(loader, builder)?;
+        Ok(Box::new(DefaultHttpEgress::new(
+            builder.build(),
             http_cfg.base_url,
             http_cfg.max_response_bytes,
         )))
@@ -463,6 +438,75 @@ impl HttpTransportSvc {
             http_cfg.base_url,
             http_cfg.max_response_bytes,
         ))
+    }
+
+    /// Build the reqwest client for a config-driven egress: apply the `[tls]`
+    /// section if present, then the [`HttpConfig`] transport settings.
+    fn reqwest_client_from_config(
+        loader: &swe_edge_configbuilder::SectionLoaderImpl,
+        http_cfg: &HttpConfig,
+    ) -> Result<reqwest::Client, HttpEgressBuildError> {
+        use swe_edge_configbuilder::{FeatureState, OptionalSection as _};
+
+        let mut cb = reqwest::Client::builder();
+        // [tls] present ⇒ build and apply the TLS layer; absent ⇒ no TLS layer.
+        if let FeatureState::Enabled(tls_cfg) =
+            swe_edge_egress_tls::TlsConfig::load_optional(loader)?
+        {
+            let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(tls_cfg)?;
+            cb = tls.apply_to(cb)?;
+        }
+        cb = Self::configure_http_builder(cb, http_cfg);
+        Ok(cb.build()?)
+    }
+
+    /// Append the non-auth optional middleware — `[retry]`, `[rate]`,
+    /// `[breaker]`, `[cache]`, `[cassette]` — each added via `.with(..)` only
+    /// when its section is present; a disabled section adds nothing.
+    fn with_optional_layers(
+        loader: &swe_edge_configbuilder::SectionLoaderImpl,
+        mut builder: ClientBuilder,
+    ) -> Result<ClientBuilder, HttpEgressBuildError> {
+        use swe_edge_configbuilder::{FeatureState, OptionalSection as _};
+
+        if let FeatureState::Enabled(retry_cfg) =
+            swe_edge_egress_retry::RetryConfig::load_optional(loader)?
+        {
+            builder = builder.with(swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(
+                retry_cfg,
+            )?);
+        }
+        if let FeatureState::Enabled(rate_cfg) =
+            swe_edge_egress_rate::RateConfig::load_optional(loader)?
+        {
+            builder = builder.with(swe_edge_egress_rate::HttpRateSvc::build_rate_layer(
+                rate_cfg,
+            )?);
+        }
+        if let FeatureState::Enabled(breaker_cfg) =
+            swe_edge_egress_breaker::BreakerConfig::load_optional(loader)?
+        {
+            builder = builder
+                .with(swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(breaker_cfg)?);
+        }
+        if let FeatureState::Enabled(cache_cfg) =
+            swe_edge_egress_cache::CacheConfig::load_optional(loader)?
+        {
+            builder = builder.with(swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(
+                cache_cfg,
+            )?);
+        }
+        if let FeatureState::Enabled(cassette_cfg) =
+            swe_edge_egress_cassette::CassetteConfig::load_optional(loader)?
+        {
+            builder = builder.with(
+                swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+                    cassette_cfg,
+                    "default",
+                )?,
+            );
+        }
+        Ok(builder)
     }
 
     /// Apply [`HttpConfig`] transport settings — timeouts, user-agent, redirect
