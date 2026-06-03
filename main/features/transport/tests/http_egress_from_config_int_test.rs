@@ -223,3 +223,42 @@ fn test_cassette_invalid_section_returns_config_error() {
         "[cassette] must be config-driven and reject a malformed section"
     );
 }
+
+// ── [auth] section (static auth; OAuth is programmatic, not config-driven) ───
+
+/// @covers: http_egress_from_config — a valid `[auth]` section wires the static
+/// auth layer (`kind = "none"` is a pass-through and builds clean).
+#[test]
+fn test_auth_section_present_builds() {
+    let (_d, l) = loader("[auth]\nkind = \"none\"");
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        result.is_ok(),
+        "valid [auth] must build with the auth layer wired"
+    );
+}
+
+/// @covers: http_egress_from_config — `[auth]` is config-driven: a malformed
+/// section surfaces a Config error.
+#[test]
+fn test_auth_invalid_section_returns_config_error() {
+    let (_d, l) = loader("[auth]\nkind = \"bogus_scheme\"");
+    assert!(
+        matches!(
+            HttpTransportSvc::http_egress_from_config(&l),
+            Err(HttpEgressBuildError::Config(_))
+        ),
+        "[auth] must be config-driven and reject an unknown kind"
+    );
+}
+
+/// @covers: http_egress_from_config — `[auth]` with `enabled = false` is omitted.
+#[test]
+fn test_auth_enabled_false_omits_auth() {
+    let (_d, l) = loader("[auth]\nenabled = false\nkind = \"none\"");
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        result.is_ok(),
+        "enabled=false [auth] must build with auth omitted"
+    );
+}

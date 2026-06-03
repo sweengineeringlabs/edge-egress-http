@@ -75,12 +75,15 @@ impl HttpTransportSvc {
     /// consumer's configuration (ADR-006 config-driven activation): a feature is
     /// wired **iff** its `[section]` is present in the loaded config.
     ///
-    /// Config-drives `[tls]`, `[retry]`, `[rate]`, `[breaker]`, `[cache]`, and
-    /// `[cassette]` — present ⇒ the feature is wired; absent (or
+    /// Config-drives `[auth]`, `[tls]`, `[retry]`, `[rate]`, `[breaker]`,
+    /// `[cache]`, and `[cassette]` — present ⇒ the feature is wired; absent (or
     /// `enabled = false`) ⇒ it is **omitted from the chain**, not added as a
-    /// no-op (zero overhead when disabled). `auth`/`oauth` are not yet
-    /// `OptionalSection`, so they contribute nothing here until they adopt the
-    /// pattern in a later slice.
+    /// no-op (zero overhead when disabled).
+    ///
+    /// `[auth]` wires the static auth strategy. OAuth token-refresh auth is a
+    /// runtime `token_source` (a trait object), not a config section, so it is
+    /// not activated here — supply it through the explicit `http_egress` /
+    /// `http_egress_oauth` factories.
     ///
     /// ```toml
     /// # enabling TLS is all the consumer writes:
@@ -117,6 +120,16 @@ impl HttpTransportSvc {
         // A section that is absent (or `enabled = false`) adds nothing — no
         // middleware in the chain, not a no-op layer.
         let mut builder = ClientBuilder::new(reqwest_client);
+
+        // [auth] present ⇒ add the static auth layer. OAuth token-refresh is a
+        // runtime token_source (a trait object), not a config section, so it is
+        // wired programmatically rather than via [auth].
+        if let FeatureState::Enabled(auth_cfg) =
+            swe_edge_egress_auth::AuthConfig::load_optional(loader)?
+        {
+            let auth = swe_edge_egress_auth::AuthSvc::build_auth_middleware(auth_cfg)?;
+            builder = builder.with(auth);
+        }
 
         // [retry] present ⇒ add the retry policy layer.
         if let FeatureState::Enabled(retry_cfg) =

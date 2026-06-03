@@ -79,6 +79,26 @@ impl swe_edge_configbuilder::ConfigSection for AuthConfig {
     }
 }
 
+/// Backend-owned opt-in contract (ADR-006): presence of the `[auth]` section
+/// activates the static auth strategy; absence leaves it off. Additive
+/// alongside [`ConfigSection`]. OAuth token-refresh auth is a runtime
+/// `token_source` (a trait object), not a config section — it is wired
+/// programmatically, not via `[auth]`.
+impl swe_edge_configbuilder::OptionalSection for AuthConfig {
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
+        "auth"
+    }
+
+    fn metadata() -> swe_edge_configbuilder::FeatureMetadata {
+        swe_edge_configbuilder::FeatureMetadata {
+            description: "static request auth (bearer/basic/header/aws-sigv4)",
+            owner: "platform-team",
+            deprecated_since: None,
+        }
+    }
+}
+
 impl AuthConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> Result<Self, AuthError> {
