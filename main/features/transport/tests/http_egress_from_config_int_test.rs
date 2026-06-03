@@ -122,3 +122,104 @@ fn test_retry_enabled_false_omits_retry() {
         "enabled=false [retry] must build with retry omitted"
     );
 }
+
+// ── rate / breaker / cache / cassette + full stack ──────────────────────────
+
+const ALL_SECTIONS_TOML: &str = r#"
+[retry]
+max_retries = 3
+initial_interval_ms = 200
+max_interval_ms = 10000
+multiplier = 2.0
+retryable_statuses = [503]
+retryable_methods = ["GET"]
+
+[rate]
+tokens_per_second = 100
+burst_capacity = 200
+per_host = true
+
+[breaker]
+failure_threshold = 5
+half_open_after_seconds = 30
+reset_after_successes = 2
+failure_statuses = [500, 503]
+
+[cache]
+default_ttl_seconds = 60
+max_entries = 1000
+respect_cache_control = true
+cache_private = false
+
+[cassette]
+mode = "disabled"
+cassette_dir = "tests/cassettes"
+match_on = ["method", "url"]
+scrub_headers = ["authorization"]
+scrub_body_paths = []
+"#;
+
+/// @covers: http_egress_from_config — every config-driven section present and
+/// valid assembles into one egress (the full middleware stack wires together).
+#[test]
+fn test_all_sections_present_builds() {
+    let (_d, l) = loader(ALL_SECTIONS_TOML);
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        result.is_ok(),
+        "all valid sections must assemble into one egress"
+    );
+}
+
+/// @covers: http_egress_from_config — `[rate]` is config-driven: a malformed
+/// section surfaces a Config error (proving the section is loaded, not ignored).
+#[test]
+fn test_rate_invalid_section_returns_config_error() {
+    let (_d, l) = loader("[rate]\nbogus = 1");
+    assert!(
+        matches!(
+            HttpTransportSvc::http_egress_from_config(&l),
+            Err(HttpEgressBuildError::Config(_))
+        ),
+        "[rate] must be config-driven and reject a malformed section"
+    );
+}
+
+/// @covers: http_egress_from_config — `[breaker]` is config-driven.
+#[test]
+fn test_breaker_invalid_section_returns_config_error() {
+    let (_d, l) = loader("[breaker]\nbogus = 1");
+    assert!(
+        matches!(
+            HttpTransportSvc::http_egress_from_config(&l),
+            Err(HttpEgressBuildError::Config(_))
+        ),
+        "[breaker] must be config-driven and reject a malformed section"
+    );
+}
+
+/// @covers: http_egress_from_config — `[cache]` is config-driven.
+#[test]
+fn test_cache_invalid_section_returns_config_error() {
+    let (_d, l) = loader("[cache]\nbogus = 1");
+    assert!(
+        matches!(
+            HttpTransportSvc::http_egress_from_config(&l),
+            Err(HttpEgressBuildError::Config(_))
+        ),
+        "[cache] must be config-driven and reject a malformed section"
+    );
+}
+
+/// @covers: http_egress_from_config — `[cassette]` is config-driven.
+#[test]
+fn test_cassette_invalid_section_returns_config_error() {
+    let (_d, l) = loader("[cassette]\nbogus = 1");
+    assert!(
+        matches!(
+            HttpTransportSvc::http_egress_from_config(&l),
+            Err(HttpEgressBuildError::Config(_))
+        ),
+        "[cassette] must be config-driven and reject a malformed section"
+    );
+}

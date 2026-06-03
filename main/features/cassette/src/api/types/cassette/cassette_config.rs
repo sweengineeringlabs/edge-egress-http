@@ -50,6 +50,24 @@ impl swe_edge_configbuilder::ConfigSection for CassetteConfig {
     }
 }
 
+/// Backend-owned opt-in contract (ADR-006): presence of the `[cassette]` section
+/// activates HTTP record/replay; absence leaves it off. Additive alongside
+/// [`ConfigSection`].
+impl swe_edge_configbuilder::OptionalSection for CassetteConfig {
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
+        "cassette"
+    }
+
+    fn metadata() -> swe_edge_configbuilder::FeatureMetadata {
+        swe_edge_configbuilder::FeatureMetadata {
+            description: "HTTP record/replay test fixtures",
+            owner: "platform-team",
+            deprecated_since: None,
+        }
+    }
+}
+
 impl CassetteConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> Result<Self, CassetteError> {

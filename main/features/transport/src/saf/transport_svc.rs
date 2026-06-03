@@ -75,12 +75,12 @@ impl HttpTransportSvc {
     /// consumer's configuration (ADR-006 config-driven activation): a feature is
     /// wired **iff** its `[section]` is present in the loaded config.
     ///
-    /// Today this config-drives the `[tls]` and `[retry]` sections — present ⇒
-    /// the feature is wired; absent (or `enabled = false`) ⇒ it is **omitted from
-    /// the chain**, not added as a no-op (zero overhead when disabled). The
-    /// remaining layers (auth/rate/breaker/cache/cassette) are not yet
+    /// Config-drives `[tls]`, `[retry]`, `[rate]`, `[breaker]`, `[cache]`, and
+    /// `[cassette]` — present ⇒ the feature is wired; absent (or
+    /// `enabled = false`) ⇒ it is **omitted from the chain**, not added as a
+    /// no-op (zero overhead when disabled). `auth`/`oauth` are not yet
     /// `OptionalSection`, so they contribute nothing here until they adopt the
-    /// pattern in later slices.
+    /// pattern in a later slice.
     ///
     /// ```toml
     /// # enabling TLS is all the consumer writes:
@@ -124,6 +124,42 @@ impl HttpTransportSvc {
         {
             let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(retry_cfg)?;
             builder = builder.with(retry);
+        }
+
+        // [rate] present ⇒ add the rate-limiting layer.
+        if let FeatureState::Enabled(rate_cfg) =
+            swe_edge_egress_rate::RateConfig::load_optional(loader)?
+        {
+            let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(rate_cfg)?;
+            builder = builder.with(rate);
+        }
+
+        // [breaker] present ⇒ add the circuit-breaker layer.
+        if let FeatureState::Enabled(breaker_cfg) =
+            swe_edge_egress_breaker::BreakerConfig::load_optional(loader)?
+        {
+            let breaker =
+                swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(breaker_cfg)?;
+            builder = builder.with(breaker);
+        }
+
+        // [cache] present ⇒ add the response-cache layer.
+        if let FeatureState::Enabled(cache_cfg) =
+            swe_edge_egress_cache::CacheConfig::load_optional(loader)?
+        {
+            let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(cache_cfg)?;
+            builder = builder.with(cache);
+        }
+
+        // [cassette] present ⇒ add the record/replay layer (default fixture name).
+        if let FeatureState::Enabled(cassette_cfg) =
+            swe_edge_egress_cassette::CassetteConfig::load_optional(loader)?
+        {
+            let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+                cassette_cfg,
+                "default",
+            )?;
+            builder = builder.with(cassette);
         }
 
         let client = builder.build();
