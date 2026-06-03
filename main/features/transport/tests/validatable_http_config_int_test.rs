@@ -1,5 +1,7 @@
 //! Integration tests for `ValidatableHttpConfig`.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_http_transport::{HttpConfig, HttpTransportSvc, ValidatableHttpConfig};
 
 #[test]

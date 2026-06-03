@@ -6,29 +6,24 @@
 //! `ValidatorObject` is a type alias for `dyn Validator`. We test that the
 //! alias is accessible and that the trait is object-safe.
 
-use swe_edge_egress_http_transport::{
-    AlwaysValidConfig, DefaultValidatorAlias, HttpConfigValidatorAlias, ValidatableHttpConfig,
-};
+use core::marker::PhantomData;
+
+use swe_edge_egress_http_transport::DefaultValidatorAlias;
 
 /// @covers: ValidatorObject (alias accessibility)
-/// `DefaultValidatorAlias` (the SAF alias for `ValidatorObject`) must have a
-/// non-zero pointer size — confirming the alias is resolved by the compiler.
+/// Naming the SAF-exported `DefaultValidatorAlias` is a compile-time contract:
+/// this fails to compile if the alias is removed or renamed. (Replaces a prior
+/// `assert!(size_of::<*const _>() > 0)`, which was always true.)
 #[test]
 fn transport_struct_validator_object_alias_is_accessible_int_test() {
-    let _size = std::mem::size_of::<*const DefaultValidatorAlias>();
-    assert!(
-        _size > 0,
-        "pointer to DefaultValidatorAlias must have non-zero size"
-    );
+    let _exists = PhantomData::<DefaultValidatorAlias>;
 }
 
 /// @covers: ValidatorObject object safety
-/// The `Validator` trait (backing `ValidatorObject`) must be object-safe.
+/// `DefaultValidatorAlias` is `dyn Validator`; it only forms a valid type if the
+/// `Validator` trait is object-safe, so binding `PhantomData::<DefaultValidatorAlias>`
+/// fails to compile if object safety is lost. (Replaces a prior `assert!(true)`.)
 #[test]
 fn transport_struct_validator_object_is_object_safe_int_test() {
-    fn _check(_: &DefaultValidatorAlias) {}
-    assert!(
-        true,
-        "DefaultValidatorAlias must be referenceable (compile-time object-safety check passed)"
-    );
+    let _dyn_compatible: PhantomData<DefaultValidatorAlias> = PhantomData;
 }

@@ -3,8 +3,9 @@
 //! Verifies that HTTP status codes, header names, and method values from the
 //! `http` crate flow correctly through domain value objects and the SAF layer.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use http::{Method, StatusCode};
-use swe_edge_egress_http_transport::HttpTransportSvc;
 use swe_edge_egress_http_transport::{HttpMethod, HttpRequest, HttpResponse};
 
 /// @covers: HttpMethod

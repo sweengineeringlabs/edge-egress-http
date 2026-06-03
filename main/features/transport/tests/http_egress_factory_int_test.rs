@@ -3,6 +3,8 @@
 //! Covers: `plain_http_egress`, `default_http_stream_outbound`, and
 //! `validate_http_config` — not exercised by other integration test files.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_http_transport::{HttpConfig, HttpStream, HttpTransportSvc};
 
 // ─── plain_http_egress ──────────────────────────────────────────────────────

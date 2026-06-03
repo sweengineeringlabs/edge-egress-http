@@ -4,6 +4,8 @@
 //! `reqwest_middleware::ClientWithMiddleware`-backed outbound and that the
 //! middleware pipeline operates end-to-end against a real loopback server.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::convert::Infallible;
 use std::time::Duration;
 
@@ -15,7 +17,7 @@ use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use reqwest_middleware::ClientBuilder;
-use swe_edge_egress_http_transport::{HttpConfig, HttpEgress, HttpRequest, HttpTransportSvc};
+use swe_edge_egress_http_transport::{HttpConfig, HttpRequest, HttpTransportSvc};
 
 /// Spawn a single-connection HTTP/1 test server.
 async fn spawn_once<F, Fut>(handler: F) -> (u16, tokio::task::JoinHandle<()>)

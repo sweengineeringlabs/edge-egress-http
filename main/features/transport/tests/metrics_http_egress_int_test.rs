@@ -1,5 +1,7 @@
 //! Integration tests for the MetricsHttpEgress SAF wrapper.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::sync::Arc;
 
 use swe_edge_egress_http_transport::{HttpConfig, HttpTransportSvc};

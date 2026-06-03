@@ -7,27 +7,26 @@
 //! implementations. The concrete implementation is `MetricsHttpEgress`
 //! (exported as `MetricsEgress`).
 
+use core::marker::PhantomData;
+
 use swe_edge_egress_http_transport::MetricsEgress;
 
 /// @covers: MetricsHttpEgressSpec (via MetricsEgress)
-/// The `MetricsEgress` type alias (which is `MetricsHttpEgress`, implementing
-/// `MetricsHttpEgressSpec`) must be accessible and have a non-zero pointer size.
+/// Naming the public `MetricsEgress` alias is a compile-time contract: this test
+/// fails to compile if the alias is removed or renamed. (Replaces a prior
+/// `assert!(size_of::<*const _>() > 0)` — pointer size is a constant, so the
+/// assertion was always true and could never catch a regression.)
 #[test]
 fn transport_trait_metrics_http_egress_spec_alias_is_accessible_int_test() {
-    let _size = std::mem::size_of::<*const MetricsEgress>();
-    assert!(
-        _size > 0,
-        "pointer to MetricsEgress must have non-zero size"
-    );
+    let _exists = PhantomData::<MetricsEgress>;
 }
 
-/// @covers: MetricsHttpEgressSpec object safety
-/// `MetricsEgress` must be usable as a reference target (object-safe trait).
+/// @covers: MetricsHttpEgressSpec usability
+/// `MetricsEgress` must remain usable as a reference target; the coercion to a
+/// `fn(&MetricsEgress)` pointer below fails to compile if the type stops being a
+/// valid sized referent. (Replaces a prior `assert!(true)`.)
 #[test]
-fn transport_trait_metrics_http_egress_spec_is_object_safe_int_test() {
-    fn _check(_: &MetricsEgress) {}
-    assert!(
-        true,
-        "MetricsEgress must be referenceable (compile-time object-safety check passed)"
-    );
+fn transport_trait_metrics_http_egress_spec_is_usable_behind_ref_int_test() {
+    fn accepts_ref(_: &MetricsEgress) {}
+    let _coerced: fn(&MetricsEgress) = accepts_ref;
 }

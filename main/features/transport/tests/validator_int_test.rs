@@ -4,6 +4,8 @@
 //! correctly enforce the `Validator` contract: `Ok(())` for well-formed values
 //! and `Err(msg)` with a non-empty, actionable message for invalid ones.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_egress_http_transport::{HttpConfig, HttpTransportSvc};
 
 // ─── validate_http_config tests ─────────────────────────────────────────────

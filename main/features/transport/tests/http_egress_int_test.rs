@@ -1,5 +1,7 @@
 //! Integration tests for the HTTP outbound domain.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::time::Duration;
@@ -12,7 +14,7 @@ use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use swe_edge_egress_http_transport::{
-    FormPart, HttpAuth, HttpBody, HttpConfig, HttpEgress, HttpEgressError, HttpMethod, HttpRequest,
+    FormPart, HttpAuth, HttpBody, HttpConfig, HttpEgressError, HttpMethod, HttpRequest,
     HttpResponse, HttpTransportSvc,
 };
 

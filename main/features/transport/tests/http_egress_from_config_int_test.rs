@@ -6,6 +6,8 @@
 //! eagerly — so a present `[tls]` with a missing cert path fails at build time,
 //! which is direct evidence that the TLS layer was actually attached.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use swe_edge_configbuilder::ConfigLoaderFactory;
 use swe_edge_egress_http_transport::{HttpEgressBuildError, HttpTransportSvc};
 use swe_edge_egress_oauth::OAuthTokenSource;
