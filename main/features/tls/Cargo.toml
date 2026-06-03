@@ -142,9 +142,5 @@ name = "tls_provider_factory_int_test"
 path = "tests/tls_provider_factory_int_test.rs"
 
 [[test]]
-name = "tls_layer_spec_int_test"
-path = "tests/tls_layer_spec_int_test.rs"
-
-[[test]]
 name = "http_tls_svc_int_test"
 path = "tests/http_tls_svc_int_test.rs"
