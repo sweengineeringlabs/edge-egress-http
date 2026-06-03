@@ -76,8 +76,11 @@ impl HttpTransportSvc {
     /// wired **iff** its `[section]` is present in the loaded config.
     ///
     /// Today this config-drives the `[tls]` section — present ⇒ client TLS is
-    /// wired; absent (or `enabled = false`) ⇒ no TLS. The remaining layers use
-    /// SWE defaults until they adopt `OptionalSection` in later slices.
+    /// wired; absent (or `enabled = false`) ⇒ no TLS layer is built or applied at
+    /// all. A disabled feature is **omitted from the chain**, not added as a
+    /// no-op (zero overhead when disabled). The remaining layers
+    /// (auth/retry/rate/breaker/cache/cassette) are not yet `OptionalSection`, so
+    /// they contribute nothing here until they adopt the pattern in later slices.
     ///
     /// ```toml
     /// # enabling TLS is all the consumer writes:
@@ -95,24 +98,30 @@ impl HttpTransportSvc {
     ) -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
         use swe_edge_configbuilder::{FeatureState, OptionalSection as _};
 
-        // [tls] present ⇒ activate client TLS; absent ⇒ no client identity.
-        let tls = match swe_edge_egress_tls::TlsConfig::load_optional(loader)? {
-            FeatureState::Enabled(cfg) => cfg,
-            FeatureState::Disabled => swe_edge_egress_tls::TlsConfig::None,
-        };
+        let http_cfg = HttpConfig::default();
+        let mut cb = reqwest::Client::builder();
 
-        Self::http_egress(HttpEgressConfig {
-            http: HttpConfig::default(),
-            auth: Default::default(),
-            token_source: None,
-            retry: Default::default(),
-            rate: Default::default(),
-            breaker: Default::default(),
-            cache: Default::default(),
-            cassette: swe_edge_egress_cassette::CassetteConfig::disabled(),
-            cassette_name: "unused".to_owned(),
-            tls,
-        })
+        // [tls] present ⇒ build and apply the TLS layer; absent ⇒ no TLS layer is
+        // constructed or applied (the disabled feature adds nothing).
+        if let FeatureState::Enabled(tls_cfg) =
+            swe_edge_egress_tls::TlsConfig::load_optional(loader)?
+        {
+            let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(tls_cfg)?;
+            cb = tls.apply_to(cb)?;
+        }
+
+        cb = Self::configure_http_builder(cb, &http_cfg);
+        let reqwest_client = cb.build()?;
+
+        // Each enabled [section] adds exactly one middleware via `.with(..)`.
+        // No section enabled ⇒ no middleware in the chain (not a no-op layer).
+        let client = ClientBuilder::new(reqwest_client).build();
+
+        Ok(Box::new(DefaultHttpEgress::new(
+            client,
+            http_cfg.base_url,
+            http_cfg.max_response_bytes,
+        )))
     }
 
     /// Build an [`HttpEgress`] with OAuth token-refresh auth and SWE defaults
@@ -347,6 +356,32 @@ impl HttpTransportSvc {
     ) -> Result<DefaultHttpEgress, HttpEgressBuildError> {
         let mut cb = reqwest::Client::builder();
         cb = tls.apply_to(cb)?;
+        cb = Self::configure_http_builder(cb, &http_cfg);
+        let reqwest_client = cb.build()?;
+
+        let client = ClientBuilder::new(reqwest_client)
+            .with(auth)
+            .with(retry)
+            .with(rate)
+            .with(breaker)
+            .with(cache)
+            .with(cassette)
+            .build();
+
+        Ok(DefaultHttpEgress::new(
+            client,
+            http_cfg.base_url,
+            http_cfg.max_response_bytes,
+        ))
+    }
+
+    /// Apply [`HttpConfig`] transport settings — timeouts, user-agent, redirect
+    /// policy, and default headers — to a reqwest client builder. Shared by the
+    /// explicit `assemble` path and the config-driven `http_egress_from_config`.
+    fn configure_http_builder(
+        mut cb: reqwest::ClientBuilder,
+        http_cfg: &HttpConfig,
+    ) -> reqwest::ClientBuilder {
         cb = cb.timeout(Duration::from_secs(http_cfg.timeout_secs));
         cb = cb.connect_timeout(Duration::from_secs(http_cfg.connect_timeout_secs));
         if let Some(ua) = &http_cfg.user_agent {
@@ -371,21 +406,6 @@ impl HttpTransportSvc {
             }
             cb = cb.default_headers(map);
         }
-        let reqwest_client = cb.build()?;
-
-        let client = ClientBuilder::new(reqwest_client)
-            .with(auth)
-            .with(retry)
-            .with(rate)
-            .with(breaker)
-            .with(cache)
-            .with(cassette)
-            .build();
-
-        Ok(DefaultHttpEgress::new(
-            client,
-            http_cfg.base_url,
-            http_cfg.max_response_bytes,
-        ))
+        cb
     }
 }
