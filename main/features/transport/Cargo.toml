@@ -83,6 +83,10 @@ path = "tests/validator_int_test.rs"
 name = "transport_svc_int_test"
 path = "tests/transport_svc_int_test.rs"
 
+[[test]]
+name = "http_egress_from_config_int_test"
+path = "tests/http_egress_from_config_int_test.rs"
+
 
 [dev-dependencies]
 tokio               = { workspace = true, features = ["rt-multi-thread", "macros", "net", "time"] }
@@ -103,6 +107,7 @@ swe-edge-egress-cassette = { workspace = true }
 swe-edge-egress-oauth    = { workspace = true }
 futures                  = { workspace = true }
 tokio-tungstenite        = { version = "0.26", features = ["rustls-tls-native-roots"] }
+tempfile                 = "3"
 
 [lints.rust]
 unsafe_code  = "deny"

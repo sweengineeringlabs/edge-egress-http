@@ -71,6 +71,50 @@ impl HttpTransportSvc {
         }
     }
 
+    /// Build an [`HttpEgress`] whose optional middleware are activated by the
+    /// consumer's configuration (ADR-006 config-driven activation): a feature is
+    /// wired **iff** its `[section]` is present in the loaded config.
+    ///
+    /// Today this config-drives the `[tls]` section — present ⇒ client TLS is
+    /// wired; absent (or `enabled = false`) ⇒ no TLS. The remaining layers use
+    /// SWE defaults until they adopt `OptionalSection` in later slices.
+    ///
+    /// ```toml
+    /// # enabling TLS is all the consumer writes:
+    /// [tls]
+    /// kind = "pem"
+    /// path = "/etc/certs/client.pem"
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns [`HttpEgressBuildError::Config`] if a section fails to load or
+    /// validate, or the relevant middleware build error if assembly fails.
+    pub fn http_egress_from_config(
+        loader: &swe_edge_configbuilder::SectionLoaderImpl,
+    ) -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
+        use swe_edge_configbuilder::{FeatureState, OptionalSection as _};
+
+        // [tls] present ⇒ activate client TLS; absent ⇒ no client identity.
+        let tls = match swe_edge_egress_tls::TlsConfig::load_optional(loader)? {
+            FeatureState::Enabled(cfg) => cfg,
+            FeatureState::Disabled => swe_edge_egress_tls::TlsConfig::None,
+        };
+
+        Self::http_egress(HttpEgressConfig {
+            http: HttpConfig::default(),
+            auth: Default::default(),
+            token_source: None,
+            retry: Default::default(),
+            rate: Default::default(),
+            breaker: Default::default(),
+            cache: Default::default(),
+            cassette: swe_edge_egress_cassette::CassetteConfig::disabled(),
+            cassette_name: "unused".to_owned(),
+            tls,
+        })
+    }
+
     /// Build an [`HttpEgress`] with OAuth token-refresh auth and SWE defaults
     /// for every other middleware layer.
     ///

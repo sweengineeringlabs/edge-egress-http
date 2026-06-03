@@ -30,4 +30,7 @@ pub enum HttpEgressBuildError {
     /// Reqwest client construction failed.
     #[error("reqwest: {0}")]
     Reqwest(#[from] reqwest::Error),
+    /// Loading or validating an optional `[section]` from config failed.
+    #[error("config: {0}")]
+    Config(#[from] swe_edge_configbuilder::ConfigError),
 }
