@@ -248,26 +248,10 @@ impl HttpTransportSvc {
     /// middleware layer (pass-through auth, no TLS, sensible retry/rate/breaker
     /// policies from each crate's `config/application.toml`).
     pub fn default_http_egress() -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
-        let auth = swe_edge_egress_auth::AuthSvc::build_auth_middleware(Default::default())?;
-        let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?;
-        let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?;
-        let breaker =
-            swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?;
-        let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?;
-        let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
-            Default::default(),
-            "default",
-        )?;
-        let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?;
-        Ok(Box::new(Self::assemble(
+        Ok(Box::new(Self::build_default_egress(
             HttpConfig::default(),
-            auth,
-            retry,
-            rate,
-            breaker,
-            cache,
-            cassette,
-            tls,
+            swe_edge_egress_cassette::CassetteConfig::default(),
+            "default",
         )?))
     }
 
@@ -279,19 +263,10 @@ impl HttpTransportSvc {
     pub fn default_http_egress_with_config(
         http: HttpConfig,
     ) -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
-        let auth = swe_edge_egress_auth::AuthSvc::build_auth_middleware(Default::default())?;
-        let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?;
-        let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?;
-        let breaker =
-            swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?;
-        let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?;
-        let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+        Ok(Box::new(Self::build_default_egress(
+            http,
             swe_edge_egress_cassette::CassetteConfig::disabled(),
             "unused",
-        )?;
-        let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?;
-        Ok(Box::new(Self::assemble(
-            http, auth, retry, rate, breaker, cache, cassette, tls,
         )?))
     }
 
@@ -325,26 +300,10 @@ impl HttpTransportSvc {
     /// but typed as [`HttpStream`], so callers can use SSE and WebSocket
     /// features without importing or naming the concrete type.
     pub fn default_http_stream_outbound() -> Result<Box<dyn HttpStream>, HttpEgressBuildError> {
-        let auth = swe_edge_egress_auth::AuthSvc::build_auth_middleware(Default::default())?;
-        let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(Default::default())?;
-        let rate = swe_edge_egress_rate::HttpRateSvc::build_rate_layer(Default::default())?;
-        let breaker =
-            swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?;
-        let cache = swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(Default::default())?;
-        let cassette = swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
-            Default::default(),
-            "default",
-        )?;
-        let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?;
-        Ok(Box::new(Self::assemble(
+        Ok(Box::new(Self::build_default_egress(
             HttpConfig::default(),
-            auth,
-            retry,
-            rate,
-            breaker,
-            cache,
-            cassette,
-            tls,
+            swe_edge_egress_cassette::CassetteConfig::default(),
+            "default",
         )?))
     }
 
@@ -507,6 +466,50 @@ impl HttpTransportSvc {
             );
         }
         Ok(builder)
+    }
+
+    /// Build a [`DefaultHttpEgress`] with the full SWE-default middleware stack —
+    /// pass-through auth, default retry/rate/breaker/cache, the supplied cassette
+    /// config, and no client TLS. Shared by the `default_*` factories; built
+    /// directly (no `assemble`) so each layer can be feature-gated independently.
+    fn build_default_egress(
+        http_cfg: HttpConfig,
+        cassette_cfg: swe_edge_egress_cassette::CassetteConfig,
+        cassette_name: &str,
+    ) -> Result<DefaultHttpEgress, HttpEgressBuildError> {
+        let mut cb = reqwest::Client::builder();
+        let tls = swe_edge_egress_tls::HttpTlsSvc::build_tls_layer(Default::default())?;
+        cb = tls.apply_to(cb)?;
+        cb = Self::configure_http_builder(cb, &http_cfg);
+
+        let mut builder = ClientBuilder::new(cb.build()?);
+        builder = builder.with(swe_edge_egress_auth::AuthSvc::build_auth_middleware(
+            Default::default(),
+        )?);
+        builder = builder.with(swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(
+            Default::default(),
+        )?);
+        builder = builder.with(swe_edge_egress_rate::HttpRateSvc::build_rate_layer(
+            Default::default(),
+        )?);
+        builder = builder.with(
+            swe_edge_egress_breaker::HttpBreakerSvc::build_breaker_layer(Default::default())?,
+        );
+        builder = builder.with(swe_edge_egress_cache::HttpCacheSvc::build_cache_layer(
+            Default::default(),
+        )?);
+        builder = builder.with(
+            swe_edge_egress_cassette::HttpCassetteSvc::build_cassette_layer(
+                cassette_cfg,
+                cassette_name,
+            )?,
+        );
+
+        Ok(DefaultHttpEgress::new(
+            builder.build(),
+            http_cfg.base_url,
+            http_cfg.max_response_bytes,
+        ))
     }
 
     /// Apply [`HttpConfig`] transport settings — timeouts, user-agent, redirect
