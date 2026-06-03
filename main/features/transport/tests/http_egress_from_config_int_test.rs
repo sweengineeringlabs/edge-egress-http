@@ -262,3 +262,46 @@ fn test_auth_enabled_false_omits_auth() {
         "enabled=false [auth] must build with auth omitted"
     );
 }
+
+// ── preflight summary ───────────────────────────────────────────────────────
+
+/// @covers: preflight — reports every egress feature with its on/off state; a
+/// present `[cache]` shows enabled, the rest disabled.
+#[test]
+fn test_preflight_reports_enabled_and_disabled() {
+    let (_d, l) = loader(
+        "[cache]\ndefault_ttl_seconds = 60\nmax_entries = 1000\n\
+         respect_cache_control = true\ncache_private = false",
+    );
+    let summary = HttpTransportSvc::preflight(&l).expect("preflight succeeds");
+    assert_eq!(
+        summary.total_count(),
+        7,
+        "all 7 egress features are reported"
+    );
+    assert_eq!(summary.enabled_count(), 1, "only [cache] is enabled");
+    let text = summary.to_string();
+    assert!(text.contains("cache"), "summary must name cache: {text}");
+}
+
+/// @covers: preflight — with no sections, every feature reports disabled.
+#[test]
+fn test_preflight_all_disabled_when_no_sections() {
+    let (_d, l) = loader("[unrelated]\nx = 1");
+    let summary = HttpTransportSvc::preflight(&l).expect("preflight succeeds");
+    assert_eq!(summary.total_count(), 7);
+    assert_eq!(summary.enabled_count(), 0, "no sections ⇒ nothing enabled");
+}
+
+/// @covers: preflight — a malformed present section surfaces a Config error.
+#[test]
+fn test_preflight_invalid_section_returns_config_error() {
+    let (_d, l) = loader("[cache]\nbogus = 1");
+    assert!(
+        matches!(
+            HttpTransportSvc::preflight(&l),
+            Err(HttpEgressBuildError::Config(_))
+        ),
+        "preflight must surface a Config error for a malformed section"
+    );
+}

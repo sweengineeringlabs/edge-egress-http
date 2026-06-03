@@ -184,6 +184,36 @@ impl HttpTransportSvc {
         )))
     }
 
+    /// Dry-run the config-driven egress: load every optional `[section]` into a
+    /// [`FeatureRegistry`] and return a [`FeatureSummary`] of what would
+    /// activate — without building any middleware. Log this at startup so
+    /// operators see exactly which features are on (and why); it is the
+    /// visibility guardrail against silent config-driven activation.
+    ///
+    /// Mirrors the section set of [`http_egress_from_config`]: `[auth]`,
+    /// `[tls]`, `[retry]`, `[rate]`, `[breaker]`, `[cache]`, `[cassette]`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`HttpEgressBuildError::Config`] if a present section fails to
+    /// parse or validate.
+    ///
+    /// [`FeatureRegistry`]: swe_edge_configbuilder::FeatureRegistry
+    /// [`FeatureSummary`]: swe_edge_configbuilder::FeatureSummary
+    pub fn preflight(
+        loader: &swe_edge_configbuilder::SectionLoaderImpl,
+    ) -> Result<swe_edge_configbuilder::FeatureSummary, HttpEgressBuildError> {
+        let mut registry = swe_edge_configbuilder::FeatureRegistry::new();
+        registry.load::<swe_edge_egress_auth::AuthConfig>(loader)?;
+        registry.load::<swe_edge_egress_tls::TlsConfig>(loader)?;
+        registry.load::<swe_edge_egress_retry::RetryConfig>(loader)?;
+        registry.load::<swe_edge_egress_rate::RateConfig>(loader)?;
+        registry.load::<swe_edge_egress_breaker::BreakerConfig>(loader)?;
+        registry.load::<swe_edge_egress_cache::CacheConfig>(loader)?;
+        registry.load::<swe_edge_egress_cassette::CassetteConfig>(loader)?;
+        Ok(registry.summary())
+    }
+
     /// Build an [`HttpEgress`] with OAuth token-refresh auth and SWE defaults
     /// for every other middleware layer.
     ///
