@@ -41,6 +41,38 @@ impl swe_edge_configbuilder::ConfigSection for TlsConfig {
     }
 }
 
+/// Backend-owned opt-in contract (ADR-006): presence of the `[tls]` section
+/// activates client TLS; absence leaves it off. Kept alongside [`ConfigSection`]
+/// so existing direct construction keeps working during the migration.
+impl swe_edge_configbuilder::OptionalSection for TlsConfig {
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
+        "tls"
+    }
+
+    fn validate_enabled(&self) -> Result<(), swe_edge_configbuilder::ConfigError> {
+        let path = match self {
+            TlsConfig::None => return Ok(()),
+            TlsConfig::Pkcs12 { path, .. } | TlsConfig::Pem { path } => path,
+        };
+        if path.trim().is_empty() {
+            return Err(swe_edge_configbuilder::ConfigError::validation(
+                <Self as swe_edge_configbuilder::OptionalSection>::section_name(),
+                "tls identity `path` must be non-empty",
+            ));
+        }
+        Ok(())
+    }
+
+    fn metadata() -> swe_edge_configbuilder::FeatureMetadata {
+        swe_edge_configbuilder::FeatureMetadata {
+            description: "client TLS identity (mutual TLS)",
+            owner: "platform-team",
+            deprecated_since: None,
+        }
+    }
+}
+
 impl TlsConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> Result<Self, TlsError> {

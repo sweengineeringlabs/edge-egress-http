@@ -85,6 +85,10 @@ name = "tls_config_int_test"
 path = "tests/tls_config_int_test.rs"
 
 [[test]]
+name = "tls_config_optional_section_int_test"
+path = "tests/tls_config_optional_section_int_test.rs"
+
+[[test]]
 name = "tls_factory_int_test"
 path = "tests/tls_factory_int_test.rs"
 
