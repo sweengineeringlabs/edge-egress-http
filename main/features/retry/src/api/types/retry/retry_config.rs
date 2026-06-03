@@ -59,6 +59,33 @@ impl swe_edge_configbuilder::ConfigSection for RetryConfig {
     }
 }
 
+/// Backend-owned opt-in contract (ADR-006): presence of the `[retry]` section
+/// activates the retry policy; absence leaves it off. Kept alongside
+/// [`ConfigSection`] so existing direct construction keeps working.
+impl swe_edge_configbuilder::OptionalSection for RetryConfig {
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
+        "retry"
+    }
+
+    fn validate_enabled(&self) -> Result<(), swe_edge_configbuilder::ConfigError> {
+        self.validate().map_err(|reason| {
+            swe_edge_configbuilder::ConfigError::validation(
+                <Self as swe_edge_configbuilder::OptionalSection>::section_name(),
+                reason,
+            )
+        })
+    }
+
+    fn metadata() -> swe_edge_configbuilder::FeatureMetadata {
+        swe_edge_configbuilder::FeatureMetadata {
+            description: "HTTP request retry with exponential backoff",
+            owner: "platform-team",
+            deprecated_since: None,
+        }
+    }
+}
+
 impl RetryConfig {
     /// Parse a retry config from TOML text.
     ///

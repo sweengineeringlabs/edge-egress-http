@@ -75,12 +75,12 @@ impl HttpTransportSvc {
     /// consumer's configuration (ADR-006 config-driven activation): a feature is
     /// wired **iff** its `[section]` is present in the loaded config.
     ///
-    /// Today this config-drives the `[tls]` section — present ⇒ client TLS is
-    /// wired; absent (or `enabled = false`) ⇒ no TLS layer is built or applied at
-    /// all. A disabled feature is **omitted from the chain**, not added as a
-    /// no-op (zero overhead when disabled). The remaining layers
-    /// (auth/retry/rate/breaker/cache/cassette) are not yet `OptionalSection`, so
-    /// they contribute nothing here until they adopt the pattern in later slices.
+    /// Today this config-drives the `[tls]` and `[retry]` sections — present ⇒
+    /// the feature is wired; absent (or `enabled = false`) ⇒ it is **omitted from
+    /// the chain**, not added as a no-op (zero overhead when disabled). The
+    /// remaining layers (auth/rate/breaker/cache/cassette) are not yet
+    /// `OptionalSection`, so they contribute nothing here until they adopt the
+    /// pattern in later slices.
     ///
     /// ```toml
     /// # enabling TLS is all the consumer writes:
@@ -114,8 +114,19 @@ impl HttpTransportSvc {
         let reqwest_client = cb.build()?;
 
         // Each enabled [section] adds exactly one middleware via `.with(..)`.
-        // No section enabled ⇒ no middleware in the chain (not a no-op layer).
-        let client = ClientBuilder::new(reqwest_client).build();
+        // A section that is absent (or `enabled = false`) adds nothing — no
+        // middleware in the chain, not a no-op layer.
+        let mut builder = ClientBuilder::new(reqwest_client);
+
+        // [retry] present ⇒ add the retry policy layer.
+        if let FeatureState::Enabled(retry_cfg) =
+            swe_edge_egress_retry::RetryConfig::load_optional(loader)?
+        {
+            let retry = swe_edge_egress_retry::HttpRetrySvc::build_retry_layer(retry_cfg)?;
+            builder = builder.with(retry);
+        }
+
+        let client = builder.build();
 
         Ok(Box::new(DefaultHttpEgress::new(
             client,

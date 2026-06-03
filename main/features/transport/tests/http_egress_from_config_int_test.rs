@@ -64,3 +64,61 @@ fn test_tls_invalid_section_returns_config_error() {
         "invalid [tls] must surface a Config error from validate_enabled"
     );
 }
+
+// ── [retry] section ────────────────────────────────────────────────────────
+
+const RETRY_TOML: &str = "[retry]\nmax_retries = 3\ninitial_interval_ms = 200\n\
+    max_interval_ms = 10000\nmultiplier = 2.0\nretryable_statuses = [503]\n\
+    retryable_methods = [\"GET\"]\n";
+
+/// @covers: http_egress_from_config — a valid `[retry]` section is loaded and the
+/// retry layer is wired (the egress builds successfully).
+#[test]
+fn test_retry_section_present_builds() {
+    let (_d, l) = loader(RETRY_TOML);
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        result.is_ok(),
+        "valid [retry] must build with the retry layer wired"
+    );
+}
+
+/// @covers: http_egress_from_config — no `[retry]` section ⇒ retry omitted; builds.
+#[test]
+fn test_no_retry_section_builds() {
+    let (_d, l) = loader("[unrelated]\nkey = \"value\"");
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        result.is_ok(),
+        "absent [retry] must build with retry omitted"
+    );
+}
+
+/// @covers: http_egress_from_config — an invalid `[retry]` (multiplier = 0)
+/// surfaces a Config validation error.
+#[test]
+fn test_retry_invalid_section_returns_config_error() {
+    let toml = "[retry]\nmax_retries = 3\ninitial_interval_ms = 200\n\
+        max_interval_ms = 10000\nmultiplier = 0.0\nretryable_statuses = [503]\n\
+        retryable_methods = [\"GET\"]\n";
+    let (_d, l) = loader(toml);
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        matches!(result, Err(HttpEgressBuildError::Config(_))),
+        "invalid [retry] (multiplier=0) must surface a Config error"
+    );
+}
+
+/// @covers: http_egress_from_config — `[retry]` with `enabled = false` is omitted.
+#[test]
+fn test_retry_enabled_false_omits_retry() {
+    let toml = "[retry]\nenabled = false\nmax_retries = 3\ninitial_interval_ms = 200\n\
+        max_interval_ms = 10000\nmultiplier = 2.0\nretryable_statuses = [503]\n\
+        retryable_methods = [\"GET\"]\n";
+    let (_d, l) = loader(toml);
+    let result = HttpTransportSvc::http_egress_from_config(&l);
+    assert!(
+        result.is_ok(),
+        "enabled=false [retry] must build with retry omitted"
+    );
+}
