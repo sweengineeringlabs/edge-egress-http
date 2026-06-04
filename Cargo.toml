@@ -29,4 +29,47 @@ unwrap_used = "deny"
 expect_used = "deny"
 
 [workspace.dependencies]
+# ── config ────────────────────────────────────────────────────────────────────
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", branch = "dev" }
+swe-observ-metrics     = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
+
+# ── internal middleware ───────────────────────────────────────────────────────
+swe-edge-egress-http     = { package = "swe-edge-egress-http-transport", path = "main/transport" }
+swe-edge-egress-auth     = { path = "main/auth" }
+swe-edge-egress-breaker  = { path = "main/breaker" }
+swe-edge-egress-cache    = { path = "main/cache" }
+swe-edge-egress-cassette = { path = "main/cassette" }
+swe-edge-egress-oauth    = { path = "main/oauth" }
+swe-edge-egress-rate     = { path = "main/rate" }
+swe-edge-egress-retry    = { path = "main/retry" }
+swe-edge-egress-tls      = { path = "main/tls" }
+
+# ── HTTP client stack ─────────────────────────────────────────────────────────
+reqwest            = { version = "0.12", features = ["json", "stream", "multipart", "rustls-tls"], default-features = false }
+reqwest-middleware = { version = "0.3", features = ["json", "multipart"] }
+http               = "1"
+moka               = { version = "0.12", features = ["future"] }
+
+# ── Auth / TLS crypto ─────────────────────────────────────────────────────────
+secrecy          = "0.10"
+sha2             = "0.10"
+hmac             = "0.12"
+hex              = "0.4"
+time             = { version = "0.3", features = ["formatting", "macros"] }
+percent-encoding = "2.3"
+base64           = "0.22"
+
+# ── Common ────────────────────────────────────────────────────────────────────
+anyhow      = "1"
+async-trait = "0.1"
+bytes       = "1"
+chrono      = { version = "0.4", features = ["serde"] }
+futures     = "0.3"
+parking_lot = "0.12"
+serde       = { version = "1.0", features = ["derive"] }
+serde_json  = "1.0"
+serde_yaml  = "0.9"
+thiserror   = "2"
+tokio       = { version = "1.0", features = ["rt", "sync", "fs", "io-util", "net", "time"] }
+toml        = "0.8"
+tracing     = { version = "0.1", default-features = false }
