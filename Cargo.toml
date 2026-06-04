@@ -1,6 +1,16 @@
 [workspace]
 resolver = "2"
-members  = ["main/features/*"]
+members  = [
+  "main/auth",
+  "main/breaker",
+  "main/cache",
+  "main/cassette",
+  "main/oauth",
+  "main/rate",
+  "main/retry",
+  "main/tls",
+  "main/transport",
+]
 
 [workspace.package]
 version      = "0.1.0"
@@ -8,60 +18,15 @@ edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
 authors      = ["SWE Engineering Labs"]
-repository   = "https://github.com/sweengineeringlabs/edge"
-
-[workspace.dependencies]
-# HTTP client stack
-reqwest            = { version = "0.12", features = ["json", "stream", "multipart", "rustls-tls"], default-features = false }
-reqwest-middleware = { version = "0.3", features = ["json", "multipart"] }
-http               = "1"
-moka               = { version = "0.12", features = ["future"] }
-
-# Auth / TLS crypto
-secrecy          = "0.10"
-sha2             = "0.10"
-hmac             = "0.12"
-hex              = "0.4"
-time             = { version = "0.3", features = ["formatting", "macros"] }
-percent-encoding = "2.3"
-base64           = "0.22"
-
-# Common
-parking_lot = "0.12"
-serde       = { version = "1.0", features = ["derive"] }
-serde_json  = "1.0"
-serde_yaml  = "0.9"
-thiserror   = "2"
-async-trait = "0.1"
-futures     = "0.3"
-tokio       = { version = "1.0", features = ["rt", "sync", "fs", "io-util", "net", "time"] }
-tracing     = { version = "0.1", default-features = false }
-anyhow      = "1"
-bytes       = "1"
-toml        = "0.8"
-chrono      = { version = "0.4", features = ["serde"] }
-
-# Config infrastructure
-swe-edge-configbuilder = { path = "../../configbuilder/main/configbuilder" }
-
-# Observability
-swe-observ-metrics = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
-
-# Workspace-internal middleware crates
-swe-edge-egress-http     = { package = "swe-edge-egress-http-transport", path = "main/features/transport" }
-swe-edge-egress-auth     = { path = "main/features/auth" }
-swe-edge-egress-retry    = { path = "main/features/retry" }
-swe-edge-egress-rate     = { path = "main/features/rate" }
-swe-edge-egress-breaker  = { path = "main/features/breaker" }
-swe-edge-egress-cache    = { path = "main/features/cache" }
-swe-edge-egress-cassette = { path = "main/features/cassette" }
-swe-edge-egress-tls      = { path = "main/features/tls" }
-swe-edge-egress-oauth    = { path = "main/features/oauth" }
+repository   = "https://github.com/sweengineeringlabs/edge-egress-http"
 
 [workspace.lints.rust]
 unsafe_code  = "deny"
 missing_docs = "warn"
 
 [workspace.lints.clippy]
-unwrap_used = "warn"
-expect_used = "warn"
+unwrap_used = "deny"
+expect_used = "deny"
+
+[workspace.dependencies]
+swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", branch = "dev" }
