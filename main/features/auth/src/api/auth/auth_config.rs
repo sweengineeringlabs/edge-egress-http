@@ -13,6 +13,37 @@ use crate::api::error::AuthError;
 /// Auth policy schema. A tagged enum on the `kind` field so
 /// config like `kind = "bearer"; token_env = "..."` deserializes
 /// into the right variant.
+///
+/// Credentials are resolved from environment variables at config-load time —
+/// no secret value is ever stored in source or TOML. The `*_env` fields hold
+/// the NAME of the env var, not the credential itself.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_auth::AuthConfig;
+///
+/// // No auth (baseline — passes requests unmodified).
+/// let cfg = AuthConfig::default();
+/// assert!(matches!(cfg, AuthConfig::None));
+///
+/// // Bearer token read from MY_API_TOKEN env var.
+/// let cfg = AuthConfig::Bearer { token_env: "MY_API_TOKEN".to_string() };
+/// if let AuthConfig::Bearer { token_env } = &cfg {
+///     assert_eq!(token_env, "MY_API_TOKEN");
+/// }
+///
+/// // Custom header credential.
+/// let cfg = AuthConfig::Header {
+///     name: "x-api-key".to_string(),
+///     value_env: "API_KEY".to_string(),
+/// };
+/// assert!(matches!(cfg, AuthConfig::Header { .. }));
+///
+/// // Parse from TOML (values in config/application.toml, never in source).
+/// let cfg = AuthConfig::from_config(r#"kind = "none""#).unwrap();
+/// assert!(matches!(cfg, AuthConfig::None));
+/// ```
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum AuthConfig {

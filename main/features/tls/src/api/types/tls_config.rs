@@ -10,6 +10,38 @@ use crate::api::error::TlsError;
 /// TLS client-identity schema. Tagged enum on `kind` so
 /// `kind = "pkcs12"; path = "..."; password_env = "..."`
 /// deserializes into the right variant.
+///
+/// Absence of the `[tls]` TOML section leaves the config at `None` — no client
+/// cert is attached. Use `Pkcs12` for `.p12`/`.pfx` bundles (common with Java/OpenSSL
+/// toolchains) or `Pem` for combined PEM files (common with Rust/Go toolchains).
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_tls::TlsConfig;
+///
+/// // Default: no client TLS.
+/// let cfg = TlsConfig::default();
+/// assert!(matches!(cfg, TlsConfig::None));
+///
+/// // PKCS#12 bundle (password from env var).
+/// let cfg = TlsConfig::Pkcs12 {
+///     path: "certs/client.p12".to_string(),
+///     password_env: Some("CLIENT_CERT_PASSWORD".to_string()),
+/// };
+/// if let TlsConfig::Pkcs12 { path, password_env } = &cfg {
+///     assert!(path.ends_with(".p12"));
+///     assert!(password_env.is_some());
+/// }
+///
+/// // Combined PEM file.
+/// let cfg = TlsConfig::Pem { path: "certs/client.pem".to_string() };
+/// assert!(matches!(cfg, TlsConfig::Pem { .. }));
+///
+/// // Parse from TOML.
+/// let cfg = TlsConfig::from_config(r#"kind = "none""#).unwrap();
+/// assert!(matches!(cfg, TlsConfig::None));
+/// ```
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum TlsConfig {

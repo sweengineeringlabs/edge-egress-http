@@ -18,7 +18,35 @@ use crate::api::error::Result;
 ///
 /// The middleware calls this once per request; implementations should cache
 /// the current token in memory and only hit the token endpoint when necessary.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use futures::future::BoxFuture;
+/// use swe_edge_egress_oauth::{OAuthTokenSource, OAuthError};
+///
+/// /// Static token source — useful in tests and for long-lived service accounts.
+/// #[derive(Debug)]
+/// struct StaticToken(String);
+///
+/// impl OAuthTokenSource for StaticToken {
+///     fn get_access_token(&self) -> BoxFuture<'_, Result<String, OAuthError>> {
+///         let token = self.0.clone();
+///         Box::pin(async move { Ok(token) })
+///     }
+/// }
+///
+/// // Wire into OAuthSvc::builder().token_source(Box::new(StaticToken("my-token".to_string())))
+/// ```
 pub trait OAuthTokenSource: Send + Sync + std::fmt::Debug + 'static {
     /// Return a valid access token. Must not return an expired token.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use swe_edge_egress_oauth::{OAuthTokenSource, OAuthError};
+    /// // Implement get_access_token to return a fresh token from your credential store.
+    /// // The middleware calls this on every outbound request.
+    /// ```
     fn get_access_token(&self) -> BoxFuture<'_, Result<String>>;
 }

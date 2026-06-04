@@ -17,6 +17,30 @@ use crate::api::error::RetryError;
 /// Retry policy schema. Deserialized from TOML via
 /// [`RetryConfig::from_config`]. Consumers compose this into a
 /// middleware layer via `build_retry_layer(config)`.
+///
+/// Only idempotent methods (GET, HEAD, PUT, DELETE) are retried by default.
+/// Only the listed `retryable_statuses` trigger a retry; 4xx errors (except
+/// 408/425/429) are never retried.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_retry::RetryConfig;
+///
+/// // SWE baseline.
+/// let cfg = RetryConfig::default();
+/// assert_eq!(cfg.max_retries, 3);
+/// assert_eq!(cfg.multiplier, 2.0);
+/// assert!(cfg.retryable_statuses.contains(&503));
+/// assert!(cfg.retryable_methods.contains(&"GET".to_string()));
+/// assert!(cfg.validate().is_ok());
+///
+/// // Custom TOML.
+/// let cfg = RetryConfig::from_config(
+///     "max_retries = 5\ninitial_interval_ms = 100\nmax_interval_ms = 5000\nmultiplier = 1.5\nretryable_statuses = [503]\nretryable_methods = [\"GET\"]"
+/// ).unwrap();
+/// assert_eq!(cfg.max_retries, 5);
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RetryConfig {

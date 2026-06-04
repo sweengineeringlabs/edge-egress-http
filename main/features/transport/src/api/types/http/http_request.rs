@@ -8,6 +8,35 @@ use super::http_body::HttpBody;
 use super::http_method::HttpMethod;
 
 /// An HTTP request.
+///
+/// Convenience constructors (`get`, `post`, `put`, `delete`, `patch`, `head`,
+/// `options`) create a request with no body and no headers. Chain the `with_*`
+/// methods to add headers, query params, a body, and a timeout.
+///
+/// # Examples
+///
+/// ```rust
+/// use std::time::Duration;
+/// use swe_edge_egress_http_transport::{HttpMethod, HttpRequest};
+///
+/// // Quick GET.
+/// let req = HttpRequest::get("https://api.example.com/users");
+/// assert_eq!(req.method, HttpMethod::Get);
+/// assert_eq!(req.url, "https://api.example.com/users");
+/// assert!(req.body.is_none());
+///
+/// // POST with JSON body.
+/// let req = HttpRequest::post("https://api.example.com/users")
+///     .with_header("x-request-id", "abc-123")
+///     .with_query("include", "roles")
+///     .with_json(&serde_json::json!({ "name": "Alice" }))
+///     .unwrap()
+///     .with_timeout(Duration::from_secs(10));
+///
+/// assert_eq!(req.url, "https://api.example.com/users");
+/// assert_eq!(req.header("x-request-id"), Some("abc-123"));
+/// assert_eq!(req.timeout, Some(Duration::from_secs(10)));
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HttpRequest {
     pub method: HttpMethod,

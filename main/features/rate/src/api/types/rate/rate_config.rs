@@ -6,6 +6,29 @@ use serde::Deserialize;
 use crate::api::error::RateError;
 
 /// Rate-limiter (token-bucket) policy schema.
+///
+/// Applies a token-bucket rate limiter client-side before sending requests.
+/// When `per_host` is `true`, each target host gets its own bucket; `false`
+/// applies a single global bucket across all hosts.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_rate::RateConfig;
+///
+/// // SWE baseline: 10 req/s, 20-request burst, per-host buckets.
+/// let cfg = RateConfig::default();
+/// assert_eq!(cfg.tokens_per_second, 10);
+/// assert_eq!(cfg.burst_capacity, 20);
+/// assert!(cfg.per_host);
+///
+/// // Custom TOML.
+/// let cfg = RateConfig::from_config(
+///     "tokens_per_second = 5\nburst_capacity = 10\nper_host = false"
+/// ).unwrap();
+/// assert_eq!(cfg.tokens_per_second, 5);
+/// assert!(!cfg.per_host);
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RateConfig {

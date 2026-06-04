@@ -14,6 +14,29 @@ use serde::Deserialize;
 use crate::api::error::CacheError;
 
 /// HTTP cache policy schema.
+///
+/// Implements RFC-7234 HTTP caching with a Moka in-memory LRU store. When
+/// `respect_cache_control` is `true`, upstream `Cache-Control: no-store` and
+/// `max-age` headers override `default_ttl_seconds`.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_cache::CacheConfig;
+///
+/// // SWE baseline: 5-min TTL, 10k entries, honor Cache-Control.
+/// let cfg = CacheConfig::default();
+/// assert_eq!(cfg.default_ttl_seconds, 300);
+/// assert_eq!(cfg.max_entries, 10_000);
+/// assert!(cfg.respect_cache_control);
+/// assert!(!cfg.cache_private);
+///
+/// // Custom policy from TOML.
+/// let cfg = CacheConfig::from_config(
+///     "default_ttl_seconds = 60\nmax_entries = 500\nrespect_cache_control = true\ncache_private = false"
+/// ).unwrap();
+/// assert_eq!(cfg.default_ttl_seconds, 60);
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CacheConfig {

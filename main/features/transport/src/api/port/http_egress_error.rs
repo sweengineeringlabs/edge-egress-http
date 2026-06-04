@@ -3,6 +3,35 @@
 use thiserror::Error;
 
 /// Error type for HTTP outbound operations.
+///
+/// Returned by [`HttpEgress::execute`](crate::HttpEgress::execute). Match on
+/// the variant to apply different recovery strategies: retry on `Timeout` and
+/// `ServiceUnavailable`, return 401 to the caller on `Unauthorized`, etc.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_http_transport::HttpEgressError;
+///
+/// fn http_status(e: &HttpEgressError) -> u16 {
+///     match e {
+///         HttpEgressError::Unauthorized(_)       => 401,
+///         HttpEgressError::Forbidden(_)          => 403,
+///         HttpEgressError::NotFound(_)           => 404,
+///         HttpEgressError::RateLimited(_)        => 429,
+///         HttpEgressError::BadGateway(_)         => 502,
+///         HttpEgressError::ServiceUnavailable(_) => 503,
+///         HttpEgressError::Timeout(_)            => 504,
+///         HttpEgressError::ConnectionFailed(_)
+///         | HttpEgressError::InvalidRequest(_)
+///         | HttpEgressError::Internal(_)         => 500,
+///     }
+/// }
+///
+/// let err = HttpEgressError::Timeout("30s deadline exceeded".to_string());
+/// assert_eq!(http_status(&err), 504);
+/// assert!(err.to_string().contains("30s"));
+/// ```
 #[derive(Debug, Error)]
 pub enum HttpEgressError {
     /// Transport-level connection failure.

@@ -4,6 +4,21 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An HTTP request method.
+///
+/// Implements [`Display`] returning the uppercase wire form (`"GET"`, `"POST"`, etc.).
+///
+/// [`Display`]: std::fmt::Display
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_http_transport::HttpMethod;
+///
+/// assert_eq!(HttpMethod::Get.to_string(), "GET");
+/// assert_eq!(HttpMethod::Post.to_string(), "POST");
+/// assert_eq!(HttpMethod::Delete.to_string(), "DELETE");
+/// assert_ne!(HttpMethod::Get, HttpMethod::Post);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum HttpMethod {
