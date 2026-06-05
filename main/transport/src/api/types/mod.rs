@@ -7,11 +7,7 @@ pub(crate) mod ws;
 pub mod http_egress_result;
 pub use http_egress_result::HttpEgressResult;
 
-pub(crate) mod always_valid_config;
 pub(crate) mod http_transport_svc;
-pub(crate) mod observation_config;
-pub(crate) mod transport_config;
-pub(crate) mod validatable_http_config;
 
 pub use http::{
     FormPart, HttpAuth, HttpBody, HttpConfig, HttpConfigBuilder, HttpMethod, HttpRequest,
@@ -22,3 +18,6 @@ pub use sse::{SseEvent, SseStream};
 pub use ws::{WsChannel, WsMessage, WsReceiver, WsSender};
 
 pub mod application_config_builder;
+pub mod default;
+pub mod metrics;
+pub mod validator;

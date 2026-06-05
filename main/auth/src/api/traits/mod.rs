@@ -17,3 +17,7 @@ pub(crate) use credential_resolver::CredentialResolver;
 pub use http_auth::HttpAuth;
 pub use processor::Processor;
 pub use validator::Validator;
+
+pub mod auth;
+pub mod credential;
+pub mod strategy;

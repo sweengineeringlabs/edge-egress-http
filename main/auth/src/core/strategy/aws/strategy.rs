@@ -22,7 +22,7 @@ use time::format_description::FormatItem;
 use time::{macros::format_description, OffsetDateTime};
 
 use super::helper::AwsSigV4Helper;
-use crate::api::auth::auth_strategy::AuthStrategy;
+use crate::api::traits::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 
 /// `AsciiSet` semantics: chars IN this set get percent-encoded.

@@ -11,8 +11,8 @@ use tracing::debug;
 
 use super::super::OAuthTimeHelper;
 use crate::api::error::OAuthError as Error;
-use crate::api::oauth::o_auth_credentials::OAuthCredentials;
-use crate::api::oauth::o_auth_token_source::OAuthTokenSource;
+use crate::api::types::oauth::o_auth_credentials::OAuthCredentials;
+use crate::api::traits::oauth::o_auth_token_source::OAuthTokenSource;
 use crate::api::traits::{Processor, Validator};
 
 /// reqwest-middleware layer that injects `Authorization: Bearer <token>` on

@@ -8,7 +8,7 @@
 use super::state::State;
 use std::time::{Duration, Instant};
 
-use crate::api::host::breaker::host_breaker::HostBreaker as HostBreakerTrait;
+use crate::api::traits::host::host_breaker::HostBreaker as HostBreakerTrait;
 use crate::api::traits::CircuitBreakerNode;
 use crate::api::types::breaker::breaker_config::BreakerConfig;
 use crate::api::types::breaker::state::{Admission, Outcome};

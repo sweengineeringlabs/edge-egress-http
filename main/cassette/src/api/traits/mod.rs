@@ -6,3 +6,7 @@ pub mod validator;
 
 pub use http_cassette::HttpCassette;
 pub use processor::Processor;
+
+pub mod body;
+pub mod default;
+pub mod recorded;

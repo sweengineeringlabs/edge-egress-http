@@ -4,7 +4,7 @@ use crate::api::types::AuthSvc;
 
 use std::sync::Arc;
 
-use crate::api::auth::auth_config::AuthConfig;
+use crate::api::types::auth::auth_config::AuthConfig;
 use crate::api::error::AuthError;
 use crate::api::types::AuthMiddleware;
 use crate::core::credential::EnvCredentialResolver;

@@ -1,5 +1,8 @@
 //! Auth-specific public types.
 
+pub mod auth_config;
+pub use auth_config::AuthConfig;
+
 pub mod auth_middleware;
 pub mod auth_svc;
 

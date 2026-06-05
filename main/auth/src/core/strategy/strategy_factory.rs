@@ -5,8 +5,8 @@
 //! path is pure trait-object dispatch on the resulting
 //! [`AuthStrategy`].
 
-use crate::api::auth::auth_config::AuthConfig;
-use crate::api::auth::auth_strategy::AuthStrategy;
+use crate::api::types::auth::auth_config::AuthConfig;
+use crate::api::traits::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
 use crate::api::traits::credential_resolver::CredentialResolver;
 use crate::api::types::credential_source::CredentialSource;

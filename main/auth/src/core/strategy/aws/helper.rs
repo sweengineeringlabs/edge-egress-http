@@ -73,7 +73,7 @@ impl AwsSigV4Helper {
 mod tests {
     use super::super::strategy::AwsSigV4Strategy;
     use super::*;
-    use crate::api::auth::auth_strategy::AuthStrategy;
+    use crate::api::traits::auth::auth_strategy::AuthStrategy;
     use reqwest::{Method, Url};
     use secrecy::SecretString;
     use time::OffsetDateTime;

@@ -8,3 +8,6 @@ pub(crate) use circuit_breaker_node::CircuitBreakerNode;
 pub use processor::Processor;
 pub mod breaker_metrics;
 pub use breaker_metrics::BreakerMetrics;
+
+pub mod default;
+pub mod host;

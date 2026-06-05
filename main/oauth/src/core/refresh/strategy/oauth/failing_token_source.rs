@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::oauth::o_auth_token_source::OAuthTokenSource;
+use crate::api::traits::oauth::OAuthTokenSource;
 
 /// A token source that always fails. Used in tests to verify error propagation.
 pub(crate) struct FailingTokenSource;
