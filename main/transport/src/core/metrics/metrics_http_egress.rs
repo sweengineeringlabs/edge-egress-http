@@ -4,8 +4,8 @@ use std::time::Instant;
 use futures::future::BoxFuture;
 use swe_observ_metrics::MetricsProvider;
 
-use crate::api::port::http_egress::HttpEgress;
-use crate::api::port::HttpEgressResult;
+use crate::api::traits::http_egress::HttpEgress;
+use crate::api::types::HttpEgressResult;
 use crate::api::types::{HttpRequest, HttpResponse, HttpStreamResponse};
 
 /// Wraps any [`HttpEgress`]; records per-call latency, request count, and
@@ -99,7 +99,7 @@ mod tests {
             Box::pin(async {
                 let body: futures::stream::BoxStream<
                     'static,
-                    Result<bytes::Bytes, crate::api::port::http_egress_error::HttpEgressError>,
+                    Result<bytes::Bytes, crate::api::error::http_egress_error::HttpEgressError>,
                 > = Box::pin(futures::stream::empty());
                 Ok(HttpStreamResponse {
                     status: 200,
@@ -154,7 +154,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_send_records_egress_errors_total_on_failure() {
-        use crate::api::port::http_egress_error::HttpEgressError;
+        use crate::api::error::http_egress_error::HttpEgressError;
         struct MetricsFailEgress;
         impl HttpEgress for MetricsFailEgress {
             fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {

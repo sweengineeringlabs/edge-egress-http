@@ -4,7 +4,7 @@ use std::pin::Pin;
 
 use futures::Stream;
 
-use crate::api::port::http_egress_error::HttpEgressError;
+use crate::api::error::http_egress_error::HttpEgressError;
 use crate::api::types::ws::ws_message::WsMessage;
 
 /// The receive half of a [`WsChannel`](super::ws_channel::WsChannel) (egress).

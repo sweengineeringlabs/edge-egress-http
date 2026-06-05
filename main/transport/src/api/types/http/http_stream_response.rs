@@ -6,7 +6,7 @@ use std::pin::Pin;
 use bytes::Bytes;
 use futures::Stream;
 
-use crate::api::port::http_egress_error::HttpEgressError;
+use crate::api::error::http_egress_error::HttpEgressError;
 
 /// A streaming HTTP response — status and headers are available immediately;
 /// the body arrives as a lazy [`Stream`] of [`Bytes`] chunks.

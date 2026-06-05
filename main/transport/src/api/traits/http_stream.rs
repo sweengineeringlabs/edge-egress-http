@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::port::HttpEgressResult;
+use crate::api::types::http_egress_result::HttpEgressResult;
 use crate::api::types::sse::SseStream;
 use crate::api::types::ws::WsChannel;
 

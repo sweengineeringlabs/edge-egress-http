@@ -1,6 +1,6 @@
 //! Interface contract for the default HTTP egress implementation.
 
-use crate::api::port::HttpEgress;
+use crate::api::traits::HttpEgress;
 
 /// Dyn-safe alias for the default (reqwest-backed) HTTP outbound interface.
 ///

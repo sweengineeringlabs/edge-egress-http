@@ -5,10 +5,10 @@ use futures::future::BoxFuture;
 use futures::StreamExt as _;
 use reqwest_middleware::ClientWithMiddleware;
 
-use crate::api::port::http::http_stream::HttpStream;
-use crate::api::port::http_egress::HttpEgress;
-use crate::api::port::http_egress_error::HttpEgressError;
-use crate::api::port::HttpEgressResult;
+use crate::api::traits::http_stream::HttpStream;
+use crate::api::traits::http_egress::HttpEgress;
+use crate::api::error::http_egress_error::HttpEgressError;
+use crate::api::types::HttpEgressResult;
 use crate::api::types::sse::{SseEvent, SseStream};
 use crate::api::types::ws::WsChannel;
 #[cfg(feature = "websocket")]

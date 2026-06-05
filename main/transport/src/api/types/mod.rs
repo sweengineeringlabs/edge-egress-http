@@ -4,6 +4,9 @@ pub(crate) mod http;
 pub(crate) mod sse;
 pub(crate) mod ws;
 
+pub mod http_egress_result;
+pub use http_egress_result::HttpEgressResult;
+
 pub(crate) mod always_valid_config;
 pub(crate) mod http_transport_svc;
 pub(crate) mod observation_config;

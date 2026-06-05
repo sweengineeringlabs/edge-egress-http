@@ -9,8 +9,6 @@ pub(crate) mod http;
 #[allow(missing_docs)]
 pub(crate) mod metrics;
 #[allow(missing_docs)]
-pub(crate) mod port;
-#[allow(missing_docs)]
 pub(crate) mod traits;
 #[allow(missing_docs)]
 pub(crate) mod types;
