@@ -15,7 +15,7 @@ application_type = "lib"
 service_type     = "transport"
 
 [lib]
-path = "src/lib.rs"
+path = "main/src/lib.rs"
 
 # Each egress middleware is an opt-in cargo feature (ADR-006 Phase 2c). `default`
 # enables all of them, so the out-of-the-box experience is unchanged; size-conscious
