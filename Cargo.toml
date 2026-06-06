@@ -30,7 +30,7 @@ expect_used = "deny"
 
 [workspace.dependencies]
 # ── config ────────────────────────────────────────────────────────────────────
-swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", branch = "dev" }
+swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.1.0" }
 swe-observ-metrics     = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 # ── internal middleware ───────────────────────────────────────────────────────
