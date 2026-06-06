@@ -1,19 +1,19 @@
 [workspace]
 resolver = "2"
 members  = [
-  "main/auth",
-  "main/breaker",
-  "main/cache",
-  "main/cassette",
-  "main/oauth",
-  "main/rate",
-  "main/retry",
-  "main/tls",
-  "main/transport",
+  "auth",
+  "breaker",
+  "cache",
+  "cassette",
+  "oauth",
+  "rate",
+  "retry",
+  "tls",
+  "transport",
 ]
 
 [workspace.package]
-version      = "0.1.0"
+version      = "0.3.0"
 edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
@@ -30,19 +30,19 @@ expect_used = "deny"
 
 [workspace.dependencies]
 # ── config ────────────────────────────────────────────────────────────────────
-swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.1.0" }
+swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 swe-observ-metrics     = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 # ── internal middleware ───────────────────────────────────────────────────────
-swe-edge-egress-http     = { package = "swe-edge-egress-http-transport", path = "main/transport" }
-swe-edge-egress-auth     = { path = "main/auth" }
-swe-edge-egress-breaker  = { path = "main/breaker" }
-swe-edge-egress-cache    = { path = "main/cache" }
-swe-edge-egress-cassette = { path = "main/cassette" }
-swe-edge-egress-oauth    = { path = "main/oauth" }
-swe-edge-egress-rate     = { path = "main/rate" }
-swe-edge-egress-retry    = { path = "main/retry" }
-swe-edge-egress-tls      = { path = "main/tls" }
+swe-edge-egress-http     = { package = "swe-edge-egress-http-transport", path = "transport" }
+swe-edge-egress-auth     = { path = "auth" }
+swe-edge-egress-breaker  = { path = "breaker" }
+swe-edge-egress-cache    = { path = "cache" }
+swe-edge-egress-cassette = { path = "cassette" }
+swe-edge-egress-oauth    = { path = "oauth" }
+swe-edge-egress-rate     = { path = "rate" }
+swe-edge-egress-retry    = { path = "retry" }
+swe-edge-egress-tls      = { path = "tls" }
 
 # ── HTTP client stack ─────────────────────────────────────────────────────────
 reqwest            = { version = "0.12", features = ["json", "stream", "multipart", "rustls-tls"], default-features = false }
