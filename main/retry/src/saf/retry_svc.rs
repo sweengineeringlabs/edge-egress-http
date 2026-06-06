@@ -1,9 +1,9 @@
 ﻿//! HTTP retry SAF — factory methods on [`HttpRetrySvc`].
 
 use crate::api::error::RetryError;
-use crate::api::types::retry::http_retry_svc::HttpRetrySvc;
-use crate::api::types::retry::retry_config::RetryConfig;
-use crate::api::types::retry::retry_layer::RetryLayer;
+use crate::api::types::http_retry_svc::HttpRetrySvc;
+use crate::api::types::retry_config::RetryConfig;
+use crate::api::types::retry_layer::RetryLayer;
 
 impl HttpRetrySvc {
     /// Return a config builder pre-seeded with this crate's name and version.

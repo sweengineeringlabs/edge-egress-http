@@ -1,7 +1,7 @@
 //! `Validator` — credential validation contract.
 
 use crate::api::error::Result;
-use crate::api::types::oauth::o_auth_credentials::OAuthCredentials;
+use crate::api::types::o_auth_credentials::OAuthCredentials;
 
 /// Validates that an [`OAuthCredentials`] value is usable.
 #[cfg_attr(

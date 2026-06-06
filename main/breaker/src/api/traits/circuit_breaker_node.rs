@@ -4,12 +4,12 @@
 pub trait CircuitBreakerNode {
     fn admit(
         &mut self,
-        config: &crate::api::types::breaker::breaker_config::BreakerConfig,
-    ) -> crate::api::types::breaker::state::Admission;
+        config: &crate::api::types::breaker_config::BreakerConfig,
+    ) -> crate::api::types::state::Admission;
 
     fn record(
         &mut self,
-        config: &crate::api::types::breaker::breaker_config::BreakerConfig,
-        outcome: crate::api::types::breaker::state::Outcome,
+        config: &crate::api::types::breaker_config::BreakerConfig,
+        outcome: crate::api::types::state::Outcome,
     );
 }

@@ -5,7 +5,7 @@
 //! through the SAF factory — they never name this type directly.
 
 use crate::api::traits::Processor;
-use crate::api::types::breaker::breaker_config::BreakerConfig;
+use crate::api::types::breaker_config::BreakerConfig;
 
 /// Default Processor implementation. `pub(crate)` — consumers
 /// never touch this type directly; they go through `saf::breaker_svc`.

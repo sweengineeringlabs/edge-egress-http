@@ -8,9 +8,9 @@ use moka::future::Cache;
 use tokio::sync::Mutex;
 
 use crate::api::traits::CircuitBreakerNode;
-use crate::api::types::breaker::breaker_config::BreakerConfig;
-use crate::api::types::breaker::breaker_layer::BreakerLayer;
-use crate::api::types::breaker::state::{Admission, Outcome};
+use crate::api::types::breaker_config::BreakerConfig;
+use crate::api::types::breaker_layer::BreakerLayer;
+use crate::api::types::state::{Admission, Outcome};
 
 use crate::api::error::BreakerError;
 

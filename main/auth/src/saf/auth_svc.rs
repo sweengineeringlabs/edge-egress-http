@@ -1,11 +1,11 @@
-﻿//! Public factory entry point for `swe-edge-egress-auth`.
+//! Public factory entry point for `swe-edge-egress-auth`.
 
 use crate::api::types::AuthSvc;
 
 use std::sync::Arc;
 
-use crate::api::types::auth::auth_config::AuthConfig;
 use crate::api::error::AuthError;
+use crate::api::types::auth_config::AuthConfig;
 use crate::api::types::AuthMiddleware;
 use crate::core::credential::EnvCredentialResolver;
 use crate::core::default::DefaultHttpAuth;

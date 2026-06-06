@@ -1,6 +1,6 @@
 //! `HttpCassette` — primary trait for the cassette crate.
 
-use crate::api::types::cassette::cassette_config::CassetteConfig;
+use crate::api::types::cassette_config::CassetteConfig;
 
 /// The cassette crate's primary trait.
 #[expect(dead_code, reason = "SEA api/ interface anchor — intentionally unused")]

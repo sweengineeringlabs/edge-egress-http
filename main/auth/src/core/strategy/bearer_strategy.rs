@@ -7,8 +7,8 @@
 use http::header::{HeaderValue, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 
-use crate::api::traits::auth::auth_strategy::AuthStrategy;
 use crate::api::error::AuthError;
+use crate::api::traits::auth_strategy::AuthStrategy;
 
 /// `Authorization: Bearer <token>` strategy.
 pub(crate) struct BearerStrategy {

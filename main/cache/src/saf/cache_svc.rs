@@ -3,7 +3,7 @@
 use crate::api::error::CacheError;
 use crate::api::types::cache_config::CacheConfig;
 use crate::api::types::cache_layer::CacheLayer;
-use crate::api::types::cache_svc::HttpCacheSvc;
+use crate::api::types::http_cache_svc::HttpCacheSvc;
 
 impl HttpCacheSvc {
     /// Return a config builder pre-seeded with this crate's name and version.

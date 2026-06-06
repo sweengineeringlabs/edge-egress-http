@@ -1,6 +1,6 @@
 //! Constructor impl for [`TlsLayer`].
-//! Struct lives in `api::types::tls::layer` per rule 160.
-//! `apply_to` is a public method on the struct (also in api::types::tls::layer).
+//! Struct lives in `api::types::tls_layer` per rule 160.
+//! `apply_to` is a public method on the struct (also in api::types::tls_layer).
 
 use std::sync::Arc;
 

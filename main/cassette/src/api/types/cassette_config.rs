@@ -5,6 +5,42 @@ use serde::Deserialize;
 use crate::api::error::CassetteError;
 
 /// Cassette record/replay policy schema.
+///
+/// Controls whether requests are recorded to disk (`"record"`), replayed from
+/// disk (`"replay"`), automatically switched based on cassette presence (`"auto"`),
+/// or bypassed entirely (`"disabled"`). Use `disabled()` in production factory
+/// functions to get a zero-cost pass-through.
+///
+/// Credentials in headers and body paths listed in `scrub_headers` /
+/// `scrub_body_paths` are zeroed before the cassette is written — cassettes
+/// committed to VCS never contain real secrets.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_egress_cassette::CassetteConfig;
+///
+/// // Production: disabled pass-through (no cassette I/O).
+/// let cfg = CassetteConfig::disabled();
+/// assert_eq!(cfg.mode, "disabled");
+/// assert!(cfg.match_on.is_empty());
+///
+/// // Test default: replay from tests/cassettes/.
+/// let cfg = CassetteConfig::default();
+/// assert_eq!(cfg.mode, "replay");
+/// assert_eq!(cfg.cassette_dir, "tests/cassettes");
+/// assert!(cfg.scrub_headers.contains(&"authorization".to_string()));
+///
+/// // Custom from TOML.
+/// let cfg = CassetteConfig::from_config(
+///     r#"mode = "record"
+/// cassette_dir = "tests/fixtures"
+/// match_on = ["method", "url"]
+/// scrub_headers = ["x-api-key"]
+/// scrub_body_paths = []"#
+/// ).unwrap();
+/// assert_eq!(cfg.mode, "record");
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CassetteConfig {
@@ -44,8 +80,27 @@ impl Default for CassetteConfig {
 }
 
 impl swe_edge_configbuilder::ConfigSection for CassetteConfig {
-    fn section_name() -> &'static str { // @allow: no_stub_fn_bodies
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
         "cassette"
+    }
+}
+
+/// Backend-owned opt-in contract (ADR-006): presence of the `[cassette]` section
+/// activates HTTP record/replay; absence leaves it off. Additive alongside
+/// [`ConfigSection`].
+impl swe_edge_configbuilder::OptionalSection for CassetteConfig {
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies
+        "cassette"
+    }
+
+    fn metadata() -> swe_edge_configbuilder::FeatureMetadata {
+        swe_edge_configbuilder::FeatureMetadata {
+            description: "HTTP record/replay test fixtures",
+            owner: "platform-team",
+            deprecated_since: None,
+        }
     }
 }
 
@@ -66,5 +121,14 @@ impl CassetteConfig {
             scrub_headers: vec![],
             scrub_body_paths: vec![],
         }
+    }
+
+    /// Return the SWE default config (mode = "replay").
+    ///
+    /// Alias for `CassetteConfig::default()` — preferred in test code where
+    /// the intent is to load the SWE baseline rather than construct
+    /// an ad-hoc struct.
+    pub fn swe_default() -> Result<Self, CassetteError> {
+        Ok(Self::default())
     }
 }

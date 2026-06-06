@@ -10,11 +10,11 @@ use std::time::{Duration, Instant};
 
 use crate::api::traits::host::host_breaker::HostBreaker as HostBreakerTrait;
 use crate::api::traits::CircuitBreakerNode;
-use crate::api::types::breaker::breaker_config::BreakerConfig;
-use crate::api::types::breaker::state::{Admission, Outcome};
+use crate::api::types::breaker_config::BreakerConfig;
+use crate::api::types::state::{Admission, Outcome};
 
 /// Breaker state for a single host. Protected by an async
-/// `Mutex` inside [`BreakerLayer`](crate::api::types::breaker::breaker_layer::BreakerLayer)
+/// `Mutex` inside [`BreakerLayer`](crate::api::types::breaker_layer::BreakerLayer)
 /// — the mutex serializes state transitions so concurrent
 /// requests to the same host see coherent state.
 #[derive(Debug)]

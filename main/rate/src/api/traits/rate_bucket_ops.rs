@@ -1,6 +1,6 @@
 //! `RateBucketOps` — token consumption contract for rate bucket implementations.
 
-use crate::api::types::rate::rate_config::RateConfig;
+use crate::api::types::rate_config::RateConfig;
 
 /// Contract for token-bucket rate limiters.
 pub trait RateBucketOps {

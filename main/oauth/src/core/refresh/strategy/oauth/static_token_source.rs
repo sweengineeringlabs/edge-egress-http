@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::traits::oauth::OAuthTokenSource;
+use crate::api::traits::OAuthTokenSource;
 
 /// A token source that always returns the same static token. Used in tests.
 pub(crate) struct StaticTokenSource(pub(crate) String);

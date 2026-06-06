@@ -1,6 +1,6 @@
 //! Transport-level configuration for the default HTTP outbound implementation.
 
-use crate::api::types::http::http_config::HttpConfig;
+use crate::api::types::http_config::HttpConfig;
 
 /// Transport-level configuration for the default (reqwest-backed) HTTP outbound.
 pub struct TransportConfig {

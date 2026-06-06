@@ -8,16 +8,14 @@
 //! - [`CredentialResolver`] — resolves abstract credential sources to
 //!   concrete secret values.
 
-pub(crate) mod credential_resolver;
 pub(crate) mod http_auth;
 pub mod processor;
 pub mod validator;
 
-pub(crate) use credential_resolver::CredentialResolver;
+pub(crate) use crate::api::credential::traits::CredentialResolver;
 pub use http_auth::HttpAuth;
 pub use processor::Processor;
 pub use validator::Validator;
 
-pub mod auth;
-pub mod credential;
-pub mod strategy;
+pub mod auth_strategy;
+pub use auth_strategy::AuthStrategy;

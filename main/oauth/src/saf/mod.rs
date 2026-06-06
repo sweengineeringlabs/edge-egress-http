@@ -7,7 +7,7 @@
 mod oauth_svc;
 
 pub use crate::api::error::{OAuthError, Result};
-pub use crate::api::traits::oauth::{OAuthBuilderOps, OAuthTokenSource};
-pub use crate::api::types::oauth::{OAuthConfig, OAuthCredentials, OAuthMiddleware, OAuthProvider};
+pub use crate::api::traits::{OAuthBuilderOps, OAuthTokenSource};
 pub use crate::api::types::OAuthBuilder;
 pub use crate::api::types::{ApplicationConfigBuilder, OAuthSvc};
+pub use crate::api::types::{OAuthConfig, OAuthCredentials, OAuthMiddleware, OAuthProvider};

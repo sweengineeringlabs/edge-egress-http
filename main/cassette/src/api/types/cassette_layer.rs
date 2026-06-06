@@ -20,7 +20,7 @@ pub struct CassetteLayer {
         tokio::sync::Mutex<
             std::collections::HashMap<
                 String,
-                crate::core::recorded::interaction::RecordedInteraction,
+                crate::core::recorded::interaction::interaction::RecordedInteraction,
             >,
         >,
     >,

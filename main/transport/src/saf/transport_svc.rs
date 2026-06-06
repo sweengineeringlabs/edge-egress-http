@@ -9,8 +9,8 @@ use reqwest_middleware::ClientBuilder;
 use swe_observ_metrics::MetricsProvider;
 
 use crate::api::error::HttpEgressBuildError;
-use crate::api::traits::{HttpEgress, HttpStream};
 use crate::api::traits::Validator as _;
+use crate::api::traits::{HttpEgress, HttpStream};
 use crate::api::types::{HttpConfig, HttpTransportSvc};
 use crate::core::{DefaultHttpEgress, MetricsHttpEgress};
 

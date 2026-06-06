@@ -3,9 +3,9 @@
 use std::sync::Arc;
 
 use crate::api::error::OAuthError;
-use crate::api::traits::oauth::o_auth_builder_ops::OAuthBuilderOps;
-use crate::api::types::oauth::o_auth_middleware::OAuthMiddleware;
-use crate::api::traits::oauth::o_auth_token_source::OAuthTokenSource;
+use crate::api::traits::o_auth_builder_ops::OAuthBuilderOps;
+use crate::api::traits::o_auth_token_source::OAuthTokenSource;
+use crate::api::types::o_auth_middleware::OAuthMiddleware;
 
 /// Fluent builder for [`OAuthMiddleware`].
 #[derive(Default)]

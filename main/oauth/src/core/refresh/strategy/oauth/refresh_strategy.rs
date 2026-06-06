@@ -11,9 +11,9 @@ use tracing::debug;
 
 use super::super::OAuthTimeHelper;
 use crate::api::error::OAuthError as Error;
-use crate::api::types::oauth::o_auth_credentials::OAuthCredentials;
-use crate::api::traits::oauth::o_auth_token_source::OAuthTokenSource;
+use crate::api::traits::o_auth_token_source::OAuthTokenSource;
 use crate::api::traits::{Processor, Validator};
+use crate::api::types::o_auth_credentials::OAuthCredentials;
 
 /// reqwest-middleware layer that injects `Authorization: Bearer <token>` on
 /// every outbound request, refreshing the token proactively before it expires.

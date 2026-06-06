@@ -7,8 +7,8 @@ impl OAuthSvc {
     /// Create a builder for [`OAuthMiddleware`].
     ///
     /// Returns an empty [`OAuthBuilder`]; call
-    /// [`OAuthBuilderOps::with_token_source`](crate::api::traits::oauth::OAuthBuilderOps::with_token_source)
-    /// then [`OAuthBuilderOps::build`](crate::api::traits::oauth::OAuthBuilderOps::build).
+    /// [`OAuthBuilderOps::with_token_source`](crate::api::traits::OAuthBuilderOps::with_token_source)
+    /// then [`OAuthBuilderOps::build`](crate::api::traits::OAuthBuilderOps::build).
     pub fn builder() -> OAuthBuilder {
         OAuthBuilder { source: None }
     }

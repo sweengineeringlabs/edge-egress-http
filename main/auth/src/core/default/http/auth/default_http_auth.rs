@@ -1,4 +1,4 @@
-﻿//! Default impl of [`HttpAuth`](crate::api::traits::http_auth::HttpAuth).
+//! Default impl of [`HttpAuth`](crate::api::traits::http_auth::HttpAuth).
 //!
 //! Holds a pre-resolved [`AuthStrategy`] (constructed once at
 //! `build()` time from the config + resolver) and delegates
@@ -6,12 +6,12 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::types::auth::auth_config::AuthConfig;
-use crate::api::traits::auth::auth_strategy::AuthStrategy;
+use crate::api::credential::traits::credential_resolver::CredentialResolver;
 use crate::api::error::AuthError;
-use crate::api::traits::credential_resolver::CredentialResolver;
+use crate::api::traits::auth_strategy::AuthStrategy;
 use crate::api::traits::http_auth::HttpAuth;
 use crate::api::traits::{Processor, Validator};
+use crate::api::types::auth_config::AuthConfig;
 use crate::core::strategy::strategy_factory::StrategyFactory;
 
 /// Default HTTP auth processor. Holds the resolved strategy;
@@ -102,7 +102,7 @@ impl Validator for DefaultHttpAuth {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::types::credential_source::CredentialSource;
+    use crate::api::credential::types::credential_source::CredentialSource;
     use secrecy::SecretString;
 
     /// Test resolver that returns a fixed credential for all sources.
