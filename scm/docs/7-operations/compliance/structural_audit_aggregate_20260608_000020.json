@@ -1,0 +1,63 @@
+{
+  "members": [
+    {
+      "failed": 1,
+      "member": "auth",
+      "passed": 147,
+      "skipped": 0
+    },
+    {
+      "failed": 1,
+      "member": "breaker",
+      "passed": 147,
+      "skipped": 0
+    },
+    {
+      "failed": 1,
+      "member": "cache",
+      "passed": 147,
+      "skipped": 0
+    },
+    {
+      "failed": 1,
+      "member": "cassette",
+      "passed": 147,
+      "skipped": 0
+    },
+    {
+      "failed": 1,
+      "member": "oauth",
+      "passed": 147,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "rate",
+      "passed": 148,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "retry",
+      "passed": 148,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "tls",
+      "passed": 148,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "transport",
+      "passed": 148,
+      "skipped": 0
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-08T00:00:24.374014500+02:00",
+  "total_failed": 5,
+  "total_members": 9,
+  "total_passed": 1327
+}
