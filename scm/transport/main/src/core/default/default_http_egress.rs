@@ -155,6 +155,40 @@ impl HttpEgress for DefaultHttpEgress {
                 }
             }
 
+            match status {
+                401 => {
+                    return Err(HttpEgressError::Unauthorized(
+                        "remote returned 401 Unauthorized".to_string(),
+                    ))
+                }
+                403 => {
+                    return Err(HttpEgressError::Forbidden(
+                        "remote returned 403 Forbidden".to_string(),
+                    ))
+                }
+                404 => {
+                    return Err(HttpEgressError::NotFound(
+                        "remote returned 404 Not Found".to_string(),
+                    ))
+                }
+                429 => {
+                    return Err(HttpEgressError::RateLimited(
+                        "remote returned 429 Too Many Requests".to_string(),
+                    ))
+                }
+                502 => {
+                    return Err(HttpEgressError::BadGateway(
+                        "remote returned 502 Bad Gateway".to_string(),
+                    ))
+                }
+                503 => {
+                    return Err(HttpEgressError::ServiceUnavailable(
+                        "remote returned 503 Service Unavailable".to_string(),
+                    ))
+                }
+                _ => {}
+            }
+
             Ok(HttpResponse {
                 status,
                 headers,

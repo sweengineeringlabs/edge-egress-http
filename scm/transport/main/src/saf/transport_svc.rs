@@ -276,6 +276,44 @@ impl HttpTransportSvc {
         )))
     }
 
+    /// Build a minimal [`HttpEgress`] from an [`HttpConfig`] and a runtime OAuth
+    /// token source — no config-builder, no other middleware layers.
+    ///
+    /// This fills the gap between [`plain_http_egress`] (no auth) and
+    /// [`http_egress_from_config_with_oauth`] (full config-builder stack): a
+    /// caller who already has an `HttpConfig` and an `Arc<dyn OAuthTokenSource>`
+    /// but does not use the config-builder can assemble an OAuth-enabled egress
+    /// through this factory without manually wrapping `DefaultHttpEgress`.
+    ///
+    /// All `HttpConfig` fields are honoured (timeouts, user-agent, redirect policy,
+    /// default headers, `max_response_bytes`). The OAuth bearer token is injected
+    /// per request via the `OAuthSvc` middleware layer.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`HttpEgressBuildError::Reqwest`] if the underlying reqwest client
+    /// cannot be built, or [`HttpEgressBuildError::OAuth`] if the `OAuthSvc`
+    /// layer fails to initialise.
+    ///
+    /// [`plain_http_egress`]: HttpTransportSvc::plain_http_egress
+    /// [`http_egress_from_config_with_oauth`]: HttpTransportSvc::http_egress_from_config_with_oauth
+    #[cfg(feature = "oauth")]
+    pub fn plain_http_egress_with_oauth(
+        config: HttpConfig,
+        token_source: Arc<dyn swe_edge_egress_oauth::OAuthTokenSource>,
+    ) -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
+        let client = Self::configure_http_builder(reqwest::Client::builder(), &config).build()?;
+        let oauth = swe_edge_egress_oauth::OAuthSvc::builder()
+            .with_token_source(token_source)
+            .build()?;
+        let mw_client = ClientBuilder::new(client).with(oauth).build();
+        Ok(Box::new(DefaultHttpEgress::new(
+            mw_client,
+            config.base_url,
+            config.max_response_bytes,
+        )))
+    }
+
     /// Validate that an [`HttpConfig`] value is well-formed.
     ///
     /// Returns `Ok(())` when the config is valid, or a human-readable error
