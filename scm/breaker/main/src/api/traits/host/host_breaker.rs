@@ -4,7 +4,7 @@
 ///
 /// Provides observable state inspection methods that consumers can rely on
 /// without depending on the concrete `core::host::breaker::HostBreaker` type.
-#[expect(dead_code, reason = "SEA api/ interface anchor — intentionally unused")]
+#[cfg_attr(not(feature = "loadbalancer"), allow(dead_code))]
 pub trait HostBreaker: Send + Sync {
     /// Returns `true` when the breaker is in the Open (fail-fast) state.
     fn is_open(&self) -> bool;

@@ -52,6 +52,10 @@ impl reqwest_middleware::Middleware for LoadbalancerLayer {
         *req.url_mut() = new_url;
 
         let backend_id = backend.id.clone();
+        // Expose the selected backend to outer layers (e.g. a circuit-breaker
+        // above this in the chain) so they can report pool outcomes keyed to
+        // the correct backend.
+        ext.insert(backend_id.clone());
         let result = next.run(req, ext).await;
 
         let outcome = match &result {

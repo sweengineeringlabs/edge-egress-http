@@ -15,6 +15,11 @@ pub struct BreakerLayer {
     /// concurrent access with background expiration of
     /// long-idle entries.
     pub(crate) state: Cache<String, Arc<tokio::sync::Mutex<crate::core::host::HostBreaker>>>,
+    /// Optional loadbalancer pool. When set (requires the `loadbalancer`
+    /// feature), the breaker reports circuit-trip and recovery events back
+    /// to the pool so that tripped backends are removed from rotation.
+    #[cfg(feature = "loadbalancer")]
+    pub(crate) pool: Option<Arc<swe_edge_loadbalancer::BackendPoolInstance>>,
 }
 
 impl crate::api::traits::BreakerMetrics for BreakerLayer {
@@ -25,13 +30,15 @@ impl crate::api::traits::BreakerMetrics for BreakerLayer {
 
 impl std::fmt::Debug for BreakerLayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("BreakerLayer")
-            .field("failure_threshold", &self.config.failure_threshold)
+        let mut d = f.debug_struct("BreakerLayer");
+        d.field("failure_threshold", &self.config.failure_threshold)
             .field(
                 "half_open_after_seconds",
                 &self.config.half_open_after_seconds,
             )
-            .field("reset_after_successes", &self.config.reset_after_successes)
-            .finish()
+            .field("reset_after_successes", &self.config.reset_after_successes);
+        #[cfg(feature = "loadbalancer")]
+        d.field("pool", &self.pool.is_some());
+        d.finish()
     }
 }

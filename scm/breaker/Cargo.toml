@@ -33,19 +33,30 @@ async-trait = { workspace = true }
 tokio = { workspace = true, features = ["sync", "time"] }
 moka = { workspace = true }
 anyhow = { workspace = true }
-tracing = { workspace = true, optional = true }
+tracing             = { workspace = true, optional = true }
+swe-edge-loadbalancer = { workspace = true, optional = true }
 
 [dev-dependencies]
-reqwest = { workspace = true }
-tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
-moka = { workspace = true }
+reqwest             = { workspace = true }
+reqwest-middleware  = { workspace = true }
+async-trait         = { workspace = true }
+tokio               = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+moka                = { workspace = true }
 swe-edge-configbuilder = { workspace = true }
+swe-edge-loadbalancer  = { workspace = true }
+bytes               = { workspace = true }
+hyper               = { version = "1", features = ["http1", "server"] }
+hyper-util          = { version = "0.1", features = ["tokio"] }
+http-body-util      = "0.1"
 
 [features]
 default = []
 # Emit spans via the `tracing` crate. Off by default so consumers
 # without tracing infrastructure don't pay the cost.
 tracing = ["dep:tracing"]
+# Wire circuit-trip events back to a `swe-edge-loadbalancer` BackendPool so
+# tripped backends are removed from rotation.
+loadbalancer = ["dep:swe-edge-loadbalancer"]
 
 
 [lints.rust]

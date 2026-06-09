@@ -25,4 +25,21 @@ impl HttpBreakerSvc {
         let layer = BreakerLayer::new(config);
         Ok(layer)
     }
+
+    /// Build a [`BreakerLayer`] that reports circuit-trip and recovery events
+    /// back to a `BackendPool`.
+    ///
+    /// Requires the `loadbalancer` feature. When the circuit opens (trip) the
+    /// layer reports `Outcome::Failure { reason: "circuit open" }` to the pool
+    /// for the affected backend, removing it from rotation. When a half-open
+    /// probe succeeds the layer reports `Outcome::Success`, restoring the
+    /// backend.
+    #[cfg(feature = "loadbalancer")]
+    pub fn build_breaker_layer_with_pool(
+        config: BreakerConfig,
+        pool: std::sync::Arc<swe_edge_loadbalancer::BackendPoolInstance>,
+    ) -> Result<BreakerLayer, BreakerError> {
+        let layer = BreakerLayer::new_with_pool(config, pool);
+        Ok(layer)
+    }
 }
