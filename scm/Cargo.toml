@@ -5,6 +5,7 @@ members  = [
   "breaker",
   "cache",
   "cassette",
+  "loadbalancer",
   "oauth",
   "rate",
   "retry",
@@ -33,16 +34,20 @@ expect_used = "deny"
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 swe-observ-metrics     = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
+# ── loadbalancer contract ─────────────────────────────────────────────────────
+swe-edge-loadbalancer  = { git = "https://github.com/sweengineeringlabs/edge-loadbalancer.git", tag = "v0.1.0" }
+
 # ── internal middleware ───────────────────────────────────────────────────────
-swe-edge-egress-http     = { package = "swe-edge-egress-http-transport", path = "transport" }
-swe-edge-egress-auth     = { path = "auth" }
-swe-edge-egress-breaker  = { path = "breaker" }
-swe-edge-egress-cache    = { path = "cache" }
-swe-edge-egress-cassette = { path = "cassette" }
-swe-edge-egress-oauth    = { path = "oauth" }
-swe-edge-egress-rate     = { path = "rate" }
-swe-edge-egress-retry    = { path = "retry" }
-swe-edge-egress-tls      = { path = "tls" }
+swe-edge-egress-http         = { package = "swe-edge-egress-http-transport", path = "transport" }
+swe-edge-egress-auth         = { path = "auth" }
+swe-edge-egress-breaker      = { path = "breaker" }
+swe-edge-egress-cache        = { path = "cache" }
+swe-edge-egress-cassette     = { path = "cassette" }
+swe-edge-egress-loadbalancer = { path = "loadbalancer" }
+swe-edge-egress-oauth        = { path = "oauth" }
+swe-edge-egress-rate         = { path = "rate" }
+swe-edge-egress-retry        = { path = "retry" }
+swe-edge-egress-tls          = { path = "tls" }
 
 # ── HTTP client stack ─────────────────────────────────────────────────────────
 reqwest            = { version = "0.12", features = ["json", "stream", "multipart", "rustls-tls"], default-features = false }

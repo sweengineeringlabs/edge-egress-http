@@ -1,0 +1,49 @@
+[package]
+name = "swe-edge-egress-loadbalancer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Client-side load-balancer middleware — round-robin / weighted / least-connections backend selection"
+keywords = ["http", "loadbalancer", "reqwest", "middleware", "swe"]
+categories = ["web-programming::http-client"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type = "processor"
+
+[lib]
+path = "main/src/lib.rs"
+
+[dependencies]
+swe-edge-loadbalancer  = { workspace = true }
+swe-edge-configbuilder = { workspace = true }
+reqwest                = { workspace = true }
+reqwest-middleware     = { workspace = true }
+http                   = { workspace = true }
+async-trait            = { workspace = true }
+thiserror              = { workspace = true }
+anyhow                 = { workspace = true }
+tracing                = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio                 = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+reqwest               = { workspace = true }
+swe-edge-configbuilder = { workspace = true }
+swe-edge-loadbalancer  = { workspace = true }
+
+[features]
+default = []
+# Emit spans via the `tracing` crate. Off by default so consumers
+# without tracing infrastructure don't pay the cost.
+tracing = ["dep:tracing"]
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
