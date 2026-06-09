@@ -6,6 +6,7 @@ pub use crate::api::types::HttpBreakerSvc;
 
 pub use crate::api::error::BreakerError;
 pub use crate::api::error::Error;
+pub use crate::api::traits::BreakerMetrics;
 pub use crate::api::types::admission::Admission;
 pub use crate::api::types::breaker_config::BreakerConfig;
 pub use crate::api::types::breaker_layer::BreakerLayer;
