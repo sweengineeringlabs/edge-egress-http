@@ -1,12 +1,12 @@
-//! Integration tests for `provider_trait` in `swe-edge-egress-tls`.
+//! Integration tests for `describe_tls_provider` — provider accessibility from crate root.
 
-use swe_edge_egress_tls::Provider;
+use swe_edge_egress_tls::{describe_tls_provider, HttpTlsSvc};
 
-/// @covers: Provider
-/// Proves `Provider` is object-safe and accessible from the crate root.
-/// A removed re-export or a broken object-safety bound causes this to fail
-/// to compile.
+/// @covers: describe_tls_provider
+/// Proves the SAF wrapper for `Provider::describe` is accessible from the crate root
+/// and delegates correctly to the underlying implementation.
 #[test]
-fn test_provider_trait_is_accessible() {
-    let _ = core::marker::PhantomData::<dyn Provider>;
+fn tls_trait_provider_describe_is_accessible_from_crate_root_int_test() {
+    let svc = HttpTlsSvc;
+    assert_eq!(describe_tls_provider(&svc), "http-tls");
 }

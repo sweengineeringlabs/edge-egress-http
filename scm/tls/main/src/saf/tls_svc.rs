@@ -8,6 +8,18 @@ use crate::api::types::TlsConfig;
 use crate::api::types::TlsLayer;
 use crate::core::identity::TlsProviderFactory;
 
+/// Returns the identity label for this TLS service provider.
+pub fn describe_tls_provider(svc: &HttpTlsSvc) -> &'static str {
+    use crate::api::traits::Provider;
+    svc.describe()
+}
+
+/// Validates a [`TlsConfig`], returning a human-readable error on failure.
+pub fn validate_tls_config(config: &TlsConfig) -> Result<(), String> {
+    use crate::api::traits::Validator;
+    config.validate()
+}
+
 impl HttpTlsSvc {
     /// Return a config builder pre-seeded with this crate's name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {

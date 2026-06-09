@@ -1,16 +1,10 @@
-//! Integration tests for the `Provider` trait contract on `HttpTlsSvc`.
+//! Integration tests for `describe_tls_provider` — `Provider` contract via SAF wrapper.
 
-use swe_edge_egress_tls::{HttpTlsSvc, Provider};
+use swe_edge_egress_tls::{describe_tls_provider, HttpTlsSvc};
 
-/// @covers: Provider — trait is object-safe
+/// @covers: describe_tls_provider
 #[test]
-fn tls_trait_provider_is_object_safe_int_test() {
-    fn _assert(_: &dyn Provider) {}
-}
-
-/// @covers: Provider::describe — HttpTlsSvc returns expected label
-#[test]
-fn tls_struct_svc_describe_returns_http_tls_label_int_test() {
+fn tls_trait_provider_describe_returns_http_tls_label_int_test() {
     let svc = HttpTlsSvc;
-    assert_eq!(svc.describe(), "http-tls");
+    assert_eq!(describe_tls_provider(&svc), "http-tls");
 }

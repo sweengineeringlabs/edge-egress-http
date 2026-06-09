@@ -1,11 +1,19 @@
-//! Integration tests for the `BreakerMetrics` trait contract.
+//! Integration tests for `get_failure_threshold` — `BreakerMetrics` contract via SAF wrapper.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_breaker::{BreakerMetrics, HttpBreakerSvc};
+use swe_edge_egress_breaker::{get_failure_threshold, BreakerConfig, HttpBreakerSvc};
 
-/// @covers: BreakerMetrics — trait is object-safe
+/// @covers: get_failure_threshold
 #[test]
-fn breaker_trait_metrics_is_object_safe_int_test() {
-    fn _assert(_: &dyn BreakerMetrics) {}
+fn breaker_trait_breaker_metrics_get_failure_threshold_returns_configured_value_int_test() {
+    let config = BreakerConfig {
+        failure_threshold: 7,
+        half_open_after_seconds: 10,
+        reset_after_successes: 2,
+        failure_statuses: vec![500],
+    };
+    let layer = HttpBreakerSvc::build_breaker_layer(config).expect("build must succeed");
+    assert_eq!(get_failure_threshold(&layer), 7);
 }
 
 /// @covers: HttpBreakerSvc::create_config_builder — dep coverage for swe-edge-configbuilder

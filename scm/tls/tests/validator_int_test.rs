@@ -1,37 +1,31 @@
-//! Integration tests for the `Validator` trait contract.
+//! Integration tests for `validate_tls_config` — `Validator` contract via SAF wrapper.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::Validator;
+use swe_edge_egress_tls::{validate_tls_config, TlsConfig};
 
-struct AlwaysOk;
-impl Validator for AlwaysOk {
-    fn validate(&self) -> Result<(), String> {
-        Ok(())
-    }
-}
-
-struct AlwaysFail;
-impl Validator for AlwaysFail {
-    fn validate(&self) -> Result<(), String> {
-        Err("validation failed".into())
-    }
-}
-
-/// @covers: Validator::validate
+/// @covers: validate_tls_config
 #[test]
-fn tls_trait_validator_validate_returns_ok_for_valid_impl_int_test() {
-    assert!(AlwaysOk.validate().is_ok());
+fn tls_trait_validator_validate_returns_ok_for_none_int_test() {
+    assert!(validate_tls_config(&TlsConfig::None).is_ok());
 }
 
-/// @covers: Validator::validate
+/// @covers: validate_tls_config
 #[test]
-fn tls_trait_validator_validate_returns_err_for_failing_impl_int_test() {
-    let err = AlwaysFail.validate().unwrap_err();
+fn tls_trait_validator_validate_returns_err_for_empty_pem_path_int_test() {
+    let cfg = TlsConfig::Pem {
+        path: "".to_string(),
+    };
+    let err = validate_tls_config(&cfg).unwrap_err();
     assert!(!err.is_empty(), "error message must be non-empty");
 }
 
-/// @covers: Validator
+/// @covers: validate_tls_config
 #[test]
-fn tls_trait_validator_is_object_safe_int_test() {
-    fn _assert(_: &dyn Validator) {}
+fn tls_trait_validator_validate_returns_err_for_empty_pkcs12_path_int_test() {
+    let cfg = TlsConfig::Pkcs12 {
+        path: "".to_string(),
+        password_env: None,
+    };
+    let err = validate_tls_config(&cfg).unwrap_err();
+    assert!(!err.is_empty(), "error message must be non-empty");
 }

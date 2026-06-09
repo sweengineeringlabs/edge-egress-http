@@ -17,6 +17,12 @@ pub struct BreakerLayer {
     pub(crate) state: Cache<String, Arc<tokio::sync::Mutex<crate::core::host::HostBreaker>>>,
 }
 
+impl crate::api::traits::BreakerMetrics for BreakerLayer {
+    fn failure_threshold(&self) -> u32 {
+        self.config.failure_threshold
+    }
+}
+
 impl std::fmt::Debug for BreakerLayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BreakerLayer")

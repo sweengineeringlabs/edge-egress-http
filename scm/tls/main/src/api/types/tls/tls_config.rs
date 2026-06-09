@@ -105,6 +105,13 @@ impl swe_edge_configbuilder::OptionalSection for TlsConfig {
     }
 }
 
+impl crate::api::traits::Validator for TlsConfig {
+    fn validate(&self) -> Result<(), String> {
+        use swe_edge_configbuilder::OptionalSection;
+        self.validate_enabled().map_err(|e| e.to_string())
+    }
+}
+
 impl TlsConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> Result<Self, TlsError> {
