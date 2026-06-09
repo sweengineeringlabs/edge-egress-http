@@ -2,15 +2,15 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::traits::OAuthTokenSource;
+use crate::api::refresh::traits::OAuthTokenSource;
 
 /// A token source that always fails. Used in tests to verify error propagation.
 pub(crate) struct FailingTokenSource;
 
 impl OAuthTokenSource for FailingTokenSource {
-    fn get_access_token(&self) -> BoxFuture<'_, crate::api::error::Result<String>> {
+    fn get_access_token(&self) -> BoxFuture<'_, crate::api::refresh::errors::Result<String>> {
         Box::pin(async {
-            Err(crate::api::error::OAuthError::RefreshFailed(
+            Err(crate::api::refresh::errors::OAuthError::RefreshFailed(
                 "test failure".into(),
             ))
         })

@@ -1,4 +1,4 @@
-//! Credential trait contracts.
+//! Credential contracts.
 
 pub mod credential_resolver;
 pub mod env_credential_resolver;

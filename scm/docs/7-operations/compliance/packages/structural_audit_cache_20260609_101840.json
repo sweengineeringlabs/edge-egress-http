@@ -1,0 +1,118 @@
+{
+  "timestamp": "2026-06-09T08:18:40.336398300+00:00",
+  "results": [
+    {
+      "id": 161,
+      "category": "naming",
+      "description": "Each pub type/trait in api/ must be in its own standalone file with the file stem matching the snake_case name",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 161,
+            "path": "main\\src\\api\\cache\\layer\\request_snapshot.rs",
+            "message": "api/ file 'main/src/api/cache/layer/request_snapshot.rs' contains no pub type/trait declarations — every file in api/ must contain exactly one public interface item",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "exactly one pub item",
+            "actual": "zero pub items",
+            "fix_hint": "Add a public type/trait to the file, or move private helpers to a non-api module and delete this file.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          },
+          {
+            "check_id": 161,
+            "path": "main\\src\\api\\cache\\layer\\ttl_decision.rs",
+            "message": "api/ file 'main/src/api/cache/layer/ttl_decision.rs' contains no pub type/trait declarations — every file in api/ must contain exactly one public interface item",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "exactly one pub item",
+            "actual": "zero pub items",
+            "fix_hint": "Add a public type/trait to the file, or move private helpers to a non-api module and delete this file.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          },
+          {
+            "check_id": 161,
+            "path": "main\\src\\api\\cached\\entry\\cache_entry_helper.rs",
+            "message": "api/ file 'main/src/api/cached/entry/cache_entry_helper.rs' contains no pub type/trait declarations — every file in api/ must contain exactly one public interface item",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "exactly one pub item",
+            "actual": "zero pub items",
+            "fix_hint": "Add a public type/trait to the file, or move private helpers to a non-api module and delete this file.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          },
+          {
+            "check_id": 161,
+            "path": "main\\src\\api\\cached\\entry\\vary_directive.rs",
+            "message": "api/ file 'main/src/api/cached/entry/vary_directive.rs' contains no pub type/trait declarations — every file in api/ must contain exactly one public interface item",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "exactly one pub item",
+            "actual": "zero pub items",
+            "fix_hint": "Add a public type/trait to the file, or move private helpers to a non-api module and delete this file.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "duration_ms": 9.371
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "111": [
+      "core",
+      "spi"
+    ],
+    "86": [
+      "core",
+      "spi"
+    ],
+    "124": [
+      "core",
+      "spi"
+    ],
+    "51": [
+      "core",
+      "spi"
+    ],
+    "89": [
+      "core",
+      "spi"
+    ],
+    "90": [
+      "core",
+      "spi"
+    ],
+    "50": [
+      "core",
+      "spi"
+    ],
+    "113": [
+      "core",
+      "spi"
+    ]
+  }
+}

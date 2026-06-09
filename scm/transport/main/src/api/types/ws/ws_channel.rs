@@ -8,7 +8,7 @@ use crate::api::types::ws::ws_sender::WsSender;
 /// Returned by [`HttpStream::connect_websocket`] after the handshake.
 /// Use [`sender`] to push frames and [`receiver`] to consume them.
 ///
-/// [`HttpStream::connect_websocket`]: crate::api::traits::http_stream::HttpStream::connect_websocket
+/// [`HttpStream::connect_websocket`]: crate::api::traits::http::http_stream::HttpStream::connect_websocket
 pub struct WsChannel {
     /// Send frames to the remote WebSocket peer.
     pub sender: WsSender,

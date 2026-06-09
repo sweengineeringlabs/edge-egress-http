@@ -1,10 +1,10 @@
 ﻿//! Default impl of [`HttpRetry`](crate::api::traits::http::HttpRetry).
 //!
-//! Holds a resolved [`RetryConfig`](crate::api::types::retry_config::RetryConfig)
+//! Holds a resolved [`RetryConfig`](crate::api::types::retry::retry_config::RetryConfig)
 //! and answers `describe()`. Real middleware behavior is in `core::retry_layer`.
 
 use crate::api::traits::http::HttpRetry;
-use crate::api::types::retry_config::RetryConfig;
+use crate::api::types::retry::retry_config::RetryConfig;
 
 /// Default HttpRetry implementation. `pub(crate)` — consumers
 /// never touch this type directly; they go through `saf::retry_svc`.

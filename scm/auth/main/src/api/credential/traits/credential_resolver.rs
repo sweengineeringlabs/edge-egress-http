@@ -8,8 +8,8 @@
 
 use secrecy::SecretString;
 
+use crate::api::auth::errors::AuthError;
 use crate::api::credential::types::credential_source::CredentialSource;
-use crate::api::error::AuthError;
 
 /// Resolves an abstract [`CredentialSource`] to its concrete
 /// [`SecretString`] at middleware-build time.

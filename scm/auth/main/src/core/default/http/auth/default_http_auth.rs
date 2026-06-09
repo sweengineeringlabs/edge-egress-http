@@ -1,4 +1,4 @@
-//! Default impl of [`HttpAuth`](crate::api::traits::http_auth::HttpAuth).
+//! Default impl of [`HttpAuth`](crate::api::auth::traits::HttpAuth).
 //!
 //! Holds a pre-resolved [`AuthStrategy`] (constructed once at
 //! `build()` time from the config + resolver) and delegates
@@ -6,12 +6,12 @@
 
 use futures::future::BoxFuture;
 
+use crate::api::auth::errors::AuthError;
+use crate::api::auth::traits::HttpAuth;
+use crate::api::auth::traits::{Processor, Validator};
+use crate::api::auth::types::auth::auth_config::AuthConfig;
 use crate::api::credential::traits::credential_resolver::CredentialResolver;
-use crate::api::error::AuthError;
-use crate::api::traits::auth_strategy::AuthStrategy;
-use crate::api::traits::http_auth::HttpAuth;
-use crate::api::traits::{Processor, Validator};
-use crate::api::types::auth_config::AuthConfig;
+use crate::api::strategy::traits::AuthStrategy;
 use crate::core::strategy::strategy_factory::StrategyFactory;
 
 /// Default HTTP auth processor. Holds the resolved strategy;

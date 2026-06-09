@@ -6,8 +6,8 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::api::error::CassetteError;
-use crate::api::types::cassette_config::CassetteConfig;
-use crate::api::types::cassette_layer::CassetteLayer;
+use crate::api::types::cassette::cassette_config::CassetteConfig;
+use crate::api::types::cassette::cassette_layer::CassetteLayer;
 use crate::api::types::http_cassette_svc::HttpCassetteSvc;
 
 impl HttpCassetteSvc {

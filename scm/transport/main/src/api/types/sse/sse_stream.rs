@@ -4,7 +4,7 @@ use std::pin::Pin;
 
 use futures::Stream;
 
-use crate::api::error::http_egress_error::HttpEgressError;
+use crate::api::error::http::http_egress_error::HttpEgressError;
 use crate::api::types::sse::sse_event::SseEvent;
 
 /// A lazy stream of [`SseEvent`] items consumed from a remote SSE feed.

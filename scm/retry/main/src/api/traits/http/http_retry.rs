@@ -6,7 +6,7 @@
 //! for clarity at use sites. The impl lives in
 //! `core/default_http_retry`.
 
-use crate::api::types::retry_config::RetryConfig;
+use crate::api::types::retry::retry_config::RetryConfig;
 
 /// The retry crate's primary trait. Every middleware layer
 /// produced by this crate implements it.

@@ -1,0 +1,1 @@
+//! Auth middleware domain module.

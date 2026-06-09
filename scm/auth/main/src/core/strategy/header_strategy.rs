@@ -5,8 +5,8 @@
 use http::header::{HeaderName, HeaderValue};
 use secrecy::{ExposeSecret, SecretString};
 
-use crate::api::error::AuthError;
-use crate::api::traits::auth_strategy::AuthStrategy;
+use crate::api::auth::errors::AuthError;
+use crate::api::strategy::traits::AuthStrategy;
 
 /// Attaches `<name>: <value>` to every outbound request.
 pub(crate) struct HeaderStrategy {

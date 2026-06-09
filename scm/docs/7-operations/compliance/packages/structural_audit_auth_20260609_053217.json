@@ -1,0 +1,385 @@
+{
+  "timestamp": "2026-06-09T03:32:17.608335100+00:00",
+  "results": [
+    {
+      "id": 37,
+      "category": "test_org",
+      "description": "Colocated #[cfg(test)] blocks only permitted when testing private methods",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 37,
+            "path": "main\\src\\api\\strategy\\traits\\strategy.rs",
+            "message": "Source file 'main\\src\\api\\strategy\\traits\\strategy.rs' has a #[cfg(test)] block but only public functions; move tests to tests/<name>_test.rs",
+            "severity": "warning",
+            "rule_type": "builtin:unit_tests_colocated",
+            "expected": "#[cfg(test)] block",
+            "actual": "forbidden — only pub fns",
+            "fix_hint": "Move tests to a standalone tests/<name>_test.rs file",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 94,
+      "category": "test_org",
+      "description": "Integration tests must not use mocking libraries or mock types",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 94,
+            "path": "tests\\strategy_marker_int_test.rs",
+            "message": "Line 14: Mock type usage detected",
+            "severity": "error",
+            "rule_type": "builtin:no_mocks_in_integration",
+            "expected": "no Mock types in integration tests",
+            "actual": "struct StubStrategy;",
+            "fix_hint": "Remove mock usage or move test to unit/feature test file. Use // @allow: no_mocks_in_integration for external API mocks.",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 94,
+            "path": "tests\\strategy_marker_int_test.rs",
+            "message": "Line 16: Mock type usage detected",
+            "severity": "error",
+            "rule_type": "builtin:no_mocks_in_integration",
+            "expected": "no Mock types in integration tests",
+            "actual": "impl AuthStrategy for StubStrategy {",
+            "fix_hint": "Remove mock usage or move test to unit/feature test file. Use // @allow: no_mocks_in_integration for external API mocks.",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 94,
+            "path": "tests\\strategy_marker_int_test.rs",
+            "message": "Line 32: Mock type usage detected",
+            "severity": "error",
+            "rule_type": "builtin:no_mocks_in_integration",
+            "expected": "no Mock types in integration tests",
+            "actual": "_assert_importable::<StubStrategy>();",
+            "fix_hint": "Remove mock usage or move test to unit/feature test file. Use // @allow: no_mocks_in_integration for external API mocks.",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 94,
+            "path": "tests\\strategy_marker_int_test.rs",
+            "message": "Line 40: Mock type usage detected",
+            "severity": "error",
+            "rule_type": "builtin:no_mocks_in_integration",
+            "expected": "no Mock types in integration tests",
+            "actual": "let strategy = StubStrategy;",
+            "fix_hint": "Remove mock usage or move test to unit/feature test file. Use // @allow: no_mocks_in_integration for external API mocks.",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 94,
+            "path": "tests\\strategy_marker_int_test.rs",
+            "message": "Line 58: Mock type usage detected",
+            "severity": "error",
+            "rule_type": "builtin:no_mocks_in_integration",
+            "expected": "no Mock types in integration tests",
+            "actual": "assert_send_sync::<StubStrategy>();",
+            "fix_hint": "Remove mock usage or move test to unit/feature test file. Use // @allow: no_mocks_in_integration for external API mocks.",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 112,
+      "category": "code_organization",
+      "description": "Sibling files sharing a common prefix must be grouped into a subdirectory module (e.g., check_runner.rs + check_result.rs → check/runner.rs + check/result.rs)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 112,
+            "path": "main\\src\\api\\auth\\types\\auth_config.rs",
+            "message": "3 files in main/src/api/auth/types/ share prefix 'auth': auth_config, auth_middleware, auth_svc — group into main/src/api/auth/types/auth/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/api/auth/types/auth/",
+            "actual": "auth_config, auth_middleware, auth_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\api\\types\\auth_config.rs",
+            "message": "3 files in main/src/api/types/ share prefix 'auth': auth_config, auth_middleware, auth_svc — group into main/src/api/types/auth/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/api/types/auth/",
+            "actual": "auth_config, auth_middleware, auth_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\api\\strategy\\types\\aws_sig_v4_strategy_builder.rs",
+            "message": "3 files in main/src/api/strategy/types/ share prefix 'aws': aws_sig_v4_strategy_builder, aws_sig_v4_strategy_config, aws_sig_v4_strategy_config_builder — group into main/src/api/strategy/types/aws/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/api/strategy/types/aws/",
+            "actual": "aws_sig_v4_strategy_builder, aws_sig_v4_strategy_config, aws_sig_v4_strategy_config_builder",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 121,
+      "category": "structure",
+      "description": "Every {implementation_layer}/ submodule must have a corresponding {interface_layer}/ submodule defining its types or traits",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\auth\\middleware\\auth_middleware.rs",
+            "message": "main\\src\\core\\auth\\middleware\\auth_middleware.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "auth_middleware.rs or auth_middleware/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\auth\\middleware\\auth_middleware.rs' with type/trait definitions that main\\src\\core\\auth\\middleware\\auth_middleware.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\credential\\env_credential_resolver.rs",
+            "message": "main\\src\\core\\credential\\env_credential_resolver.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "env_credential_resolver.rs or env_credential_resolver/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\credential\\env_credential_resolver.rs' with type/trait definitions that main\\src\\core\\credential\\env_credential_resolver.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\aws",
+            "message": "main\\src\\core\\strategy\\aws has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "aws.rs or aws/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\aws' with type/trait definitions that main\\src\\core\\strategy\\aws implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\aws\\helper.rs",
+            "message": "main\\src\\core\\strategy\\aws\\helper.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "helper.rs or helper/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\aws\\helper.rs' with type/trait definitions that main\\src\\core\\strategy\\aws\\helper.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\aws\\strategy.rs",
+            "message": "main\\src\\core\\strategy\\aws\\strategy.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "strategy.rs or strategy/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\aws\\strategy.rs' with type/trait definitions that main\\src\\core\\strategy\\aws\\strategy.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\basic_strategy.rs",
+            "message": "main\\src\\core\\strategy\\basic_strategy.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "basic_strategy.rs or basic_strategy/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\basic_strategy.rs' with type/trait definitions that main\\src\\core\\strategy\\basic_strategy.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\bearer_strategy.rs",
+            "message": "main\\src\\core\\strategy\\bearer_strategy.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "bearer_strategy.rs or bearer_strategy/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\bearer_strategy.rs' with type/trait definitions that main\\src\\core\\strategy\\bearer_strategy.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\header_strategy.rs",
+            "message": "main\\src\\core\\strategy\\header_strategy.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "header_strategy.rs or header_strategy/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\header_strategy.rs' with type/trait definitions that main\\src\\core\\strategy\\header_strategy.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\strategy\\strategy_factory.rs",
+            "message": "main\\src\\core\\strategy\\strategy_factory.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "strategy_factory.rs or strategy_factory/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\strategy\\strategy_factory.rs' with type/trait definitions that main\\src\\core\\strategy\\strategy_factory.rs implements against",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 126,
+      "category": "interface",
+      "description": "saf/ must not re-export traits via pub use — wrap trait methods as standalone functions instead",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 126,
+            "path": "main\\src\\saf\\mod.rs",
+            "message": "File contains forbidden pattern '^\\s*pub\\s+use\\s+.*::(\\w+Runner|\\w+Scanner|\\w+Reporter|\\w+Sink|\\w+Engine)\\b|^\\s*pub\\s+use\\s+crate::api::traits::'",
+            "severity": "error",
+            "rule_type": "glob_content_not_matches",
+            "expected": "^\\s*pub\\s+use\\s+.*::(\\w+Runner|\\w+Scanner|\\w+Reporter|\\w+Sink|\\w+Engine)\\b|^\\s*pub\\s+use\\s+crate::api::traits::",
+            "actual": "matched in main\\src\\saf\\mod.rs",
+            "fix_hint": "Remove `pub use` of traits from saf/; instead, add standalone pub fn wrappers that call the trait impl internally",
+            "remediation_strategy": "manual"
+          }
+        ]
+      },
+      "duration_ms": 4.9281999999999995
+    },
+    {
+      "id": 208,
+      "category": "interface",
+      "description": "api/ root must not contain loose .rs files or mixed-layout directories — only mod.rs at root; no flat traits/types/error/ dirs when domain-grouped layout (api/<domain>/traits/) is active",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 208,
+            "path": "main\\src\\api\\error",
+            "message": "Mixed layout: flat 'error/' at api/ root conflicts with domain-grouped api/<domain>/error/ directories — use one layout consistently",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/<domain>/error/",
+            "actual": "api/error/ (flat)",
+            "fix_hint": "Move the contents of api/error/ into the appropriate api/<domain>/error/ directory and remove the flat error/ dir",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 208,
+            "path": "main\\src\\api\\traits",
+            "message": "Mixed layout: flat 'traits/' at api/ root conflicts with domain-grouped api/<domain>/traits/ directories — use one layout consistently",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/<domain>/traits/",
+            "actual": "api/traits/ (flat)",
+            "fix_hint": "Move the contents of api/traits/ into the appropriate api/<domain>/traits/ directory and remove the flat traits/ dir",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 208,
+            "path": "main\\src\\api\\types",
+            "message": "Mixed layout: flat 'types/' at api/ root conflicts with domain-grouped api/<domain>/types/ directories — use one layout consistently",
+            "severity": "error",
+            "rule_type": "builtin:api_no_loose_rs_files",
+            "expected": "api/<domain>/types/",
+            "actual": "api/types/ (flat)",
+            "fix_hint": "Move the contents of api/types/ into the appropriate api/<domain>/types/ directory and remove the flat types/ dir",
+            "principles": [
+              "screaming_architecture",
+              "encapsulation"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 209,
+      "category": "hygiene",
+      "description": "Source files must not suppress the dead_code lint via #[allow(dead_code)]",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 209,
+            "path": "main\\src\\api\\strategy\\traits\\strategy.rs",
+            "message": "#[allow(dead_code)] at line 4 — remove the suppression and delete or wire up the dead code",
+            "severity": "warning",
+            "rule_type": "builtin:no_allow_dead_code",
+            "expected": "remove #[allow(dead_code)] and delete or implement the dead item",
+            "actual": "#[allow(dead_code)]",
+            "fix_hint": "Fix the issue detected by builtin check 'no_allow_dead_code'",
+            "remediation_strategy": "manual",
+            "principles": [
+              "code_hygiene",
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 0,
+    "failed": 7,
+    "skipped": 0,
+    "duration_ms": 63.6446
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "86": [
+      "core",
+      "spi"
+    ],
+    "51": [
+      "core",
+      "spi"
+    ],
+    "50": [
+      "core",
+      "spi"
+    ],
+    "90": [
+      "core",
+      "spi"
+    ],
+    "124": [
+      "core",
+      "spi"
+    ],
+    "113": [
+      "core",
+      "spi"
+    ],
+    "111": [
+      "core",
+      "spi"
+    ],
+    "89": [
+      "core",
+      "spi"
+    ]
+  }
+}

@@ -4,7 +4,6 @@ mod transport_svc;
 
 pub use crate::api::error::HttpEgressBuildError;
 pub use crate::api::error::HttpEgressError;
-pub use crate::api::traits::{HttpEgress, HttpStream};
 pub use crate::api::types::default::TransportConfig;
 pub use crate::api::types::metrics::MetricsHttpEgress as MetricsEgress;
 pub use crate::api::types::metrics::ObservationConfig;
@@ -19,3 +18,4 @@ pub use crate::api::types::{
     HttpRequestBuilder, HttpResponse, HttpStreamResponse, HttpTransportSvc, SseEvent, SseStream,
     WsChannel, WsMessage, WsReceiver, WsSender,
 };
+pub use crate::api::types::{HttpEgress, HttpStream};

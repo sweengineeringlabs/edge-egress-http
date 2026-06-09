@@ -1,0 +1,186 @@
+{
+  "timestamp": "2026-06-09T03:32:17.689681600+00:00",
+  "results": [
+    {
+      "id": 37,
+      "category": "test_org",
+      "description": "Colocated #[cfg(test)] blocks only permitted when testing private methods",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 94,
+      "category": "test_org",
+      "description": "Integration tests must not use mocking libraries or mock types",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 112,
+      "category": "code_organization",
+      "description": "Sibling files sharing a common prefix must be grouped into a subdirectory module (e.g., check_runner.rs + check_result.rs → check/runner.rs + check/result.rs)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 112,
+            "path": "main\\src\\api\\types\\breaker_config.rs",
+            "message": "2 files in main/src/api/types/ share prefix 'breaker': breaker_config, breaker_layer — group into main/src/api/types/breaker/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/api/types/breaker/",
+            "actual": "breaker_config, breaker_layer",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 121,
+      "category": "structure",
+      "description": "Every {implementation_layer}/ submodule must have a corresponding {interface_layer}/ submodule defining its types or traits",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\default",
+            "message": "main\\src\\core\\default has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "default.rs or default/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\default' with type/trait definitions that main\\src\\core\\default implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\default\\http_breaker.rs",
+            "message": "main\\src\\core\\default\\http_breaker.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "http_breaker.rs or http_breaker/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\default\\http_breaker.rs' with type/trait definitions that main\\src\\core\\default\\http_breaker.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\host",
+            "message": "main\\src\\core\\host has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "host.rs or host/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\host' with type/trait definitions that main\\src\\core\\host implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\host\\breaker",
+            "message": "main\\src\\core\\host\\breaker has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "breaker.rs or breaker/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\host\\breaker' with type/trait definitions that main\\src\\core\\host\\breaker implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\host\\breaker\\host_breaker.rs",
+            "message": "main\\src\\core\\host\\breaker\\host_breaker.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "host_breaker.rs or host_breaker/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\host\\breaker\\host_breaker.rs' with type/trait definitions that main\\src\\core\\host\\breaker\\host_breaker.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\host\\breaker\\state.rs",
+            "message": "main\\src\\core\\host\\breaker\\state.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "state.rs or state/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\host\\breaker\\state.rs' with type/trait definitions that main\\src\\core\\host\\breaker\\state.rs implements against",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 126,
+      "category": "interface",
+      "description": "saf/ must not re-export traits via pub use — wrap trait methods as standalone functions instead",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 4.954400000000001
+    },
+    {
+      "id": 208,
+      "category": "interface",
+      "description": "api/ root must not contain loose .rs files or mixed-layout directories — only mod.rs at root; no flat traits/types/error/ dirs when domain-grouped layout (api/<domain>/traits/) is active",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 209,
+      "category": "hygiene",
+      "description": "Source files must not suppress the dead_code lint via #[allow(dead_code)]",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 5,
+    "failed": 2,
+    "skipped": 0,
+    "duration_ms": 39.049800000000005
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "113": [
+      "core",
+      "spi"
+    ],
+    "90": [
+      "core",
+      "spi"
+    ],
+    "124": [
+      "core",
+      "spi"
+    ],
+    "111": [
+      "core",
+      "spi"
+    ],
+    "51": [
+      "core",
+      "spi"
+    ],
+    "50": [
+      "core",
+      "spi"
+    ],
+    "89": [
+      "core",
+      "spi"
+    ],
+    "86": [
+      "core",
+      "spi"
+    ]
+  }
+}

@@ -10,10 +10,10 @@ use tokio::sync::Mutex;
 use tracing::debug;
 
 use super::super::OAuthTimeHelper;
-use crate::api::error::OAuthError as Error;
-use crate::api::traits::o_auth_token_source::OAuthTokenSource;
-use crate::api::traits::{Processor, Validator};
-use crate::api::types::o_auth_credentials::OAuthCredentials;
+use crate::api::refresh::errors::OAuthError as Error;
+use crate::api::refresh::traits::OAuthTokenSource;
+use crate::api::refresh::traits::{Processor, Validator};
+use crate::api::refresh::types::OAuthCredentials;
 
 /// reqwest-middleware layer that injects `Authorization: Bearer <token>` on
 /// every outbound request, refreshing the token proactively before it expires.
@@ -70,13 +70,13 @@ impl std::fmt::Debug for OAuthRefreshStrategy {
 }
 
 impl Processor for OAuthRefreshStrategy {
-    fn process(&self) -> BoxFuture<'_, crate::api::error::Result<String>> {
+    fn process(&self) -> BoxFuture<'_, crate::api::refresh::errors::Result<String>> {
         Box::pin(self.fresh_token())
     }
 }
 
 impl Validator for OAuthRefreshStrategy {
-    fn validate(credentials: &OAuthCredentials) -> crate::api::error::Result<()> {
+    fn validate(credentials: &OAuthCredentials) -> crate::api::refresh::errors::Result<()> {
         if credentials.access_token.is_empty() {
             return Err(Error::Configuration(
                 "access_token must not be empty".into(),

@@ -1,14 +1,14 @@
 ﻿//! SAF service — public factory for OAuth middleware.
 
-use crate::api::types::OAuthBuilder;
-use crate::api::types::OAuthSvc;
+use crate::api::refresh::types::OAuthBuilder;
+use crate::api::refresh::types::OAuthSvc;
 
 impl OAuthSvc {
     /// Create a builder for [`OAuthMiddleware`].
     ///
     /// Returns an empty [`OAuthBuilder`]; call
-    /// [`OAuthBuilderOps::with_token_source`](crate::api::traits::OAuthBuilderOps::with_token_source)
-    /// then [`OAuthBuilderOps::build`](crate::api::traits::OAuthBuilderOps::build).
+    /// [`OAuthBuilderOps::with_token_source`](crate::api::refresh::traits::OAuthBuilderOps::with_token_source)
+    /// then [`OAuthBuilderOps::build`](crate::api::refresh::traits::OAuthBuilderOps::build).
     pub fn builder() -> OAuthBuilder {
         OAuthBuilder { source: None }
     }

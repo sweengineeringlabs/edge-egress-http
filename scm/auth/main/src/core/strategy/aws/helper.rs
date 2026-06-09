@@ -5,7 +5,7 @@ use percent_encoding::utf8_percent_encode;
 use sha2::Sha256;
 
 use super::strategy::{ENCODE_FOR_PATH, ENCODE_FOR_QUERY};
-use crate::api::error::AuthError;
+use crate::api::auth::errors::AuthError;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -73,7 +73,7 @@ impl AwsSigV4Helper {
 mod tests {
     use super::super::strategy::AwsSigV4Strategy;
     use super::*;
-    use crate::api::traits::auth_strategy::AuthStrategy;
+    use crate::api::strategy::traits::AuthStrategy;
     use reqwest::{Method, Url};
     use secrecy::SecretString;
     use time::OffsetDateTime;

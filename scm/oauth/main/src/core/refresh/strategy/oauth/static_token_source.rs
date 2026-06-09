@@ -2,13 +2,13 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::traits::OAuthTokenSource;
+use crate::api::refresh::traits::OAuthTokenSource;
 
 /// A token source that always returns the same static token. Used in tests.
 pub(crate) struct StaticTokenSource(pub(crate) String);
 
 impl OAuthTokenSource for StaticTokenSource {
-    fn get_access_token(&self) -> BoxFuture<'_, crate::api::error::Result<String>> {
+    fn get_access_token(&self) -> BoxFuture<'_, crate::api::refresh::errors::Result<String>> {
         let v = self.0.clone();
         Box::pin(async move { Ok(v) })
     }
