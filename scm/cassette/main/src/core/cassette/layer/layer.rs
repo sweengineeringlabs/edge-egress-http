@@ -53,7 +53,7 @@ impl CassetteLayer {
         if yaml.trim().is_empty() {
             return Ok(HashMap::new());
         }
-        let as_map: BTreeMap<String, RecordedInteraction> = serde_yaml::from_str(&yaml)
+        let as_map: BTreeMap<String, RecordedInteraction> = serde_saphyr::from_str(&yaml)
             .map_err(|e| CassetteError::ParseFailed(format!("parse cassette: {e}")))?;
         Ok(as_map.into_iter().collect())
     }
@@ -119,7 +119,7 @@ impl CassetteLayer {
             .into_iter()
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
-        let yaml = serde_yaml::to_string(&as_map)
+        let yaml = serde_saphyr::to_string(&as_map)
             .map_err(|e| CassetteError::ParseFailed(format!("serialize cassette: {e}")))?;
 
         if let Some(parent) = self.cassette_path.parent() {
@@ -442,7 +442,7 @@ mod tests {
                 },
             },
         );
-        std::fs::write(&path, serde_yaml::to_string(&map).unwrap()).unwrap();
+        std::fs::write(&path, serde_saphyr::to_string(&map).unwrap()).unwrap();
         let fixtures = CassetteLayer::load_fixtures_from_disk(&path).unwrap();
         assert_eq!(fixtures.len(), 1);
     }

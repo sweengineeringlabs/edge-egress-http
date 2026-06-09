@@ -37,8 +37,8 @@ mod tests {
                 body_base64: "aGVsbG8=".into(), // "hello"
             },
         };
-        let yaml = serde_yaml::to_string(&ri).unwrap();
-        let decoded: RecordedInteraction = serde_yaml::from_str(&yaml).unwrap();
+        let yaml = serde_saphyr::to_string(&ri).unwrap();
+        let decoded: RecordedInteraction = serde_saphyr::from_str(&yaml).unwrap();
         assert_eq!(decoded.request.method, "GET");
         assert_eq!(decoded.response.status, 200);
     }
