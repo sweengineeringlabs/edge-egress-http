@@ -21,7 +21,7 @@ impl AuthSvc {
 
     /// Build an [`AuthMiddleware`] from a caller-supplied [`AuthConfig`].
     ///
-    /// Uses the default [`EnvCredentialResolver`] to resolve every env-var
+    /// Uses the default `EnvCredentialResolver` to resolve every env-var
     /// reference in the config at call time. A missing env var fails with
     /// [`AuthError::MissingEnvVar`] so startup (not the first request) surfaces
     /// the misconfiguration.

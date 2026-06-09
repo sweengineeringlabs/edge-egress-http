@@ -22,12 +22,19 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum HttpMethod {
+    /// HTTP GET.
     Get,
+    /// HTTP POST.
     Post,
+    /// HTTP PUT.
     Put,
+    /// HTTP PATCH.
     Patch,
+    /// HTTP DELETE.
     Delete,
+    /// HTTP HEAD.
     Head,
+    /// HTTP OPTIONS.
     Options,
 }
 

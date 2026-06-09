@@ -61,7 +61,7 @@ impl swe_edge_configbuilder::ConfigSection for BreakerConfig {
 
 /// Backend-owned opt-in contract (ADR-006): presence of the `[breaker]` section
 /// activates the circuit breaker; absence leaves it off. Additive alongside
-/// [`ConfigSection`].
+/// [`swe_edge_configbuilder::ConfigSection`].
 impl swe_edge_configbuilder::OptionalSection for BreakerConfig {
     fn section_name() -> &'static str {
         // @allow: no_stub_fn_bodies

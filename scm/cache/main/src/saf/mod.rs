@@ -2,6 +2,7 @@
 
 mod cache_svc;
 
+pub use crate::api::types::CachedEntry;
 pub use crate::api::types::CachedEntryBuilder;
 pub use crate::api::types::HttpCacheSvc;
 

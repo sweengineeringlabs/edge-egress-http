@@ -39,17 +39,24 @@ use super::http_method::HttpMethod;
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HttpRequest {
+    /// HTTP method.
     pub method: HttpMethod,
+    /// Full URL or path relative to the client's base URL.
     pub url: String,
+    /// Request headers (merged with client-level defaults at send time).
     #[serde(default)]
     pub headers: HashMap<String, String>,
+    /// URL query parameters appended at send time.
     #[serde(default)]
     pub query: HashMap<String, String>,
+    /// Optional request body.
     pub body: Option<HttpBody>,
+    /// Per-request timeout override (uses client default when `None`).
     pub timeout: Option<Duration>,
 }
 
 impl HttpRequest {
+    /// Build a GET request.
     pub fn get(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Get,
@@ -61,6 +68,7 @@ impl HttpRequest {
         }
     }
 
+    /// Build a POST request.
     pub fn post(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Post,
@@ -72,6 +80,7 @@ impl HttpRequest {
         }
     }
 
+    /// Build a PUT request.
     pub fn put(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Put,
@@ -83,6 +92,7 @@ impl HttpRequest {
         }
     }
 
+    /// Build a DELETE request.
     pub fn delete(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Delete,
@@ -94,6 +104,7 @@ impl HttpRequest {
         }
     }
 
+    /// Build a PATCH request.
     pub fn patch(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Patch,
@@ -105,6 +116,7 @@ impl HttpRequest {
         }
     }
 
+    /// Build a HEAD request.
     pub fn head(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Head,
@@ -116,6 +128,7 @@ impl HttpRequest {
         }
     }
 
+    /// Build an OPTIONS request.
     pub fn options(url: impl Into<String>) -> Self {
         Self {
             method: HttpMethod::Options,
@@ -141,16 +154,19 @@ impl HttpRequest {
             })
     }
 
+    /// Add a request header.
     pub fn with_header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
         self.headers.insert(name.into(), value.into());
         self
     }
 
+    /// Add a URL query parameter.
     pub fn with_query(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
         self.query.insert(name.into(), value.into());
         self
     }
 
+    /// Set a JSON body and `Content-Type: application/json`.
     pub fn with_json<T: Serialize>(mut self, body: &T) -> Result<Self, serde_json::Error> {
         self.body = Some(HttpBody::Json(serde_json::to_value(body)?));
         self.headers
@@ -158,6 +174,7 @@ impl HttpRequest {
         Ok(self)
     }
 
+    /// Set a raw byte body and the given `Content-Type`.
     pub fn with_body(mut self, body: Vec<u8>, content_type: impl Into<String>) -> Self {
         self.body = Some(HttpBody::Raw(body));
         self.headers
@@ -165,6 +182,7 @@ impl HttpRequest {
         self
     }
 
+    /// Set a form-encoded body and `Content-Type: application/x-www-form-urlencoded`.
     pub fn with_form(mut self, form: HashMap<String, String>) -> Self {
         self.body = Some(HttpBody::Form(form));
         self.headers.insert(
@@ -174,6 +192,7 @@ impl HttpRequest {
         self
     }
 
+    /// Set a per-request timeout, overriding the client-level default.
     pub fn with_timeout(mut self, timeout: Duration) -> Self {
         self.timeout = Some(timeout);
         self

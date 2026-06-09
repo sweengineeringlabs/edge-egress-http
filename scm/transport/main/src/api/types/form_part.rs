@@ -36,8 +36,12 @@ use serde::{Deserialize, Serialize};
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FormPart {
+    /// Form field name.
     pub name: String,
+    /// Optional filename hint (used for file-upload parts).
     pub filename: Option<String>,
+    /// Optional MIME type (e.g. `"image/png"`).
     pub content_type: Option<String>,
+    /// Raw bytes of this part.
     pub data: Vec<u8>,
 }

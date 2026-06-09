@@ -88,7 +88,7 @@ impl swe_edge_configbuilder::ConfigSection for CassetteConfig {
 
 /// Backend-owned opt-in contract (ADR-006): presence of the `[cassette]` section
 /// activates HTTP record/replay; absence leaves it off. Additive alongside
-/// [`ConfigSection`].
+/// [`swe_edge_configbuilder::ConfigSection`].
 impl swe_edge_configbuilder::OptionalSection for CassetteConfig {
     fn section_name() -> &'static str {
         // @allow: no_stub_fn_bodies

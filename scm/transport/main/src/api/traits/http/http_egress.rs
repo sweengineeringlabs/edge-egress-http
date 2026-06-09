@@ -7,6 +7,7 @@ use crate::api::types::{HttpRequest, HttpResponse, HttpStreamResponse};
 
 /// Makes outbound HTTP requests to external services.
 pub trait HttpEgress: Send + Sync {
+    /// Send an HTTP request and return the buffered response.
     fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>>;
 
     /// Send a request and return a lazy byte stream rather than a buffered body.
@@ -20,8 +21,10 @@ pub trait HttpEgress: Send + Sync {
         request: HttpRequest,
     ) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>>;
 
+    /// Probe reachability — returns `Ok(())` if the remote responds, error otherwise.
     fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>>;
 
+    /// Convenience shorthand for a GET request to `url`.
     fn get(&self, url: &str) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
         let req = HttpRequest::get(url.to_string());
         self.send(req)

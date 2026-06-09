@@ -33,19 +33,38 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HttpAuth {
+    /// No authentication — requests are sent without credentials.
     None,
-    Bearer { token: String },
-    Basic { username: String, password: String },
-    ApiKey { header: String, key: String },
+    /// `Authorization: Bearer <token>`.
+    Bearer {
+        /// The bearer token value.
+        token: String,
+    },
+    /// `Authorization: Basic base64(username:password)`.
+    Basic {
+        /// Username component.
+        username: String,
+        /// Password component.
+        password: String,
+    },
+    /// Custom credential header (e.g. `x-api-key`).
+    ApiKey {
+        /// Header name.
+        header: String,
+        /// Credential value.
+        key: String,
+    },
 }
 
 impl HttpAuth {
+    /// Construct a `Bearer` variant.
     pub fn bearer(token: impl Into<String>) -> Self {
         HttpAuth::Bearer {
             token: token.into(),
         }
     }
 
+    /// Construct a `Basic` variant.
     pub fn basic(username: impl Into<String>, password: impl Into<String>) -> Self {
         HttpAuth::Basic {
             username: username.into(),
@@ -53,6 +72,7 @@ impl HttpAuth {
         }
     }
 
+    /// Construct an `ApiKey` variant.
     pub fn api_key(header: impl Into<String>, key: impl Into<String>) -> Self {
         HttpAuth::ApiKey {
             header: header.into(),

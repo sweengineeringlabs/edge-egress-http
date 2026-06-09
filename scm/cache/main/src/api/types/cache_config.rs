@@ -71,7 +71,7 @@ impl swe_edge_configbuilder::ConfigSection for CacheConfig {
 
 /// Backend-owned opt-in contract (ADR-006): presence of the `[cache]` section
 /// activates the HTTP response cache; absence leaves it off. Additive alongside
-/// [`ConfigSection`].
+/// [`swe_edge_configbuilder::ConfigSection`].
 impl swe_edge_configbuilder::OptionalSection for CacheConfig {
     fn section_name() -> &'static str {
         // @allow: no_stub_fn_bodies

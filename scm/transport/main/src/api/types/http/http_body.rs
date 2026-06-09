@@ -30,8 +30,12 @@ use crate::api::types::form_part::FormPart;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HttpBody {
+    /// `application/json` body.
     Json(serde_json::Value),
+    /// `application/octet-stream` body — arbitrary bytes.
     Raw(Vec<u8>),
+    /// `application/x-www-form-urlencoded` body.
     Form(HashMap<String, String>),
+    /// `multipart/form-data` body — one or more named parts.
     Multipart(Vec<FormPart>),
 }

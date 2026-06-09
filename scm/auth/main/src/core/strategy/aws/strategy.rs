@@ -1,7 +1,7 @@
 //! AWS Signature Version 4 strategy.
 //!
 //! Implements the AWS SigV4 algorithm as specified by AWS:
-//! https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
+//! <https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html>
 //!
 //! On each request:
 //!   1. Compute canonical request string (method, path, query,
