@@ -35,9 +35,7 @@ mod tests {
     /// @covers: is_transient
     #[test]
     fn test_is_transient_middleware_error_is_not_transient() {
-        let err = reqwest_middleware::Error::middleware(
-            std::io::Error::new(std::io::ErrorKind::Other, "config error"),
-        );
+        let err = reqwest_middleware::Error::middleware(std::io::Error::other("config error"));
         assert!(
             !RetryErrorClassifier::is_transient(&err),
             "Middleware-level errors must NOT be retried"

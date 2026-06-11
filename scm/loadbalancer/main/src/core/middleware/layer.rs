@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::api::types::loadbalancer_layer::LoadbalancerLayer;
+use crate::api::types::loadbalancer::loadbalancer_layer::LoadbalancerLayer;
 use swe_edge_loadbalancer::{
     build_backend_pool, report_backend_outcome, select_backend, LoadbalancerConfig, Outcome,
 };
