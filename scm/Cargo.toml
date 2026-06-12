@@ -30,6 +30,9 @@ unwrap_used = "deny"
 expect_used = "deny"
 
 [workspace.dependencies]
+# ── security primitives ───────────────────────────────────────────────────────
+swe-edge-security      = { path = "../../../security/scm/security" }
+
 # ── config ────────────────────────────────────────────────────────────────────
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 swe-observ-metrics     = { package = "swe_observability_metrics", git = "ssh://git@github.com/sweengineeringlabs/observability.git", tag = "v0.2.4" }
