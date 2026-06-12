@@ -31,7 +31,7 @@ expect_used = "deny"
 
 [workspace.dependencies]
 # ── security primitives ───────────────────────────────────────────────────────
-swe-edge-security      = { path = "../../../security/scm/security" }
+swe-edge-security      = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.1.0" }
 
 # ── config ────────────────────────────────────────────────────────────────────
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
