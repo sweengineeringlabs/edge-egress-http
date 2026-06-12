@@ -58,4 +58,4 @@ edge-domain = { ..., features = ["security"] }
 
 ## Cascade position
 
-Steps 6 and 11 of 11. `CredentialResolver` change (step 6) blocked on: swe-edge-security ADR-001. `HttpOutbound` with_context (step 11) can proceed in parallel. Both unblock: bootstrap final assembly.
+Step **6 of 11**. Both the `CredentialResolver` change and `send_with_context` addition ship in the same PR. Blocked on: swe-edge-security step 5 (CredentialResolver trait breaking change). Unblocks: bootstrap (step 11).
