@@ -43,3 +43,9 @@ pub enum AuthError {
         reason: String,
     },
 }
+
+impl From<AuthError> for swe_edge_security::SecurityError {
+    fn from(e: AuthError) -> Self {
+        swe_edge_security::SecurityError::Auth(e.to_string())
+    }
+}

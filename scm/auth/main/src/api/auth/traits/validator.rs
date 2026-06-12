@@ -1,13 +1,4 @@
-//! Configuration / credential validation contract.
-
-use crate::api::auth::errors::AuthError;
-
-/// Configuration / credential validation contract. Validates that a
-/// configuration block is well-formed before any credential resolution
-/// or network I/O takes place.
-#[expect(dead_code, reason = "SEA api/ interface anchor — intentionally unused")]
-pub trait Validator: Send + Sync {
-    /// Validate the configuration. Returns `Ok(())` when valid; an
-    /// `AuthError` describing the violation otherwise.
-    fn validate(&self) -> Result<(), AuthError>;
-}
+//! [`Validator`] — re-exported from `swe-edge-security`.
+//!
+//! The canonical definition lives in the shared security primitives crate.
+pub use swe_edge_security::Validator;
