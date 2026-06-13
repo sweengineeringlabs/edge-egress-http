@@ -22,3 +22,4 @@ pub use crate::api::types::{
     WsChannel, WsMessage, WsReceiver, WsSender,
 };
 pub use crate::api::types::{HttpEgress, HttpStream};
+pub use edge_domain::SecurityContext;

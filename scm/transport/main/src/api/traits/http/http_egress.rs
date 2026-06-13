@@ -1,5 +1,6 @@
 //! HTTP outbound trait — makes outbound HTTP requests.
 
+use edge_domain::SecurityContext;
 use futures::future::BoxFuture;
 
 use crate::api::types::http::http_egress_result::HttpEgressResult;
@@ -9,6 +10,20 @@ use crate::api::types::{HttpRequest, HttpResponse, HttpStreamResponse};
 pub trait HttpEgress: Send + Sync {
     /// Send an HTTP request and return the buffered response.
     fn send(&self, request: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>>;
+
+    /// Send an HTTP request, propagating the caller's security context to the outbound call.
+    ///
+    /// The default implementation delegates to [`send`] and ignores `_ctx`.
+    /// Override to inject context-derived headers (e.g. `x-trace-id`, `Authorization`).
+    ///
+    /// [`send`]: HttpEgress::send
+    fn send_with_context(
+        &self,
+        request: HttpRequest,
+        _ctx: SecurityContext,
+    ) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
+        self.send(request)
+    }
 
     /// Send a request and return a lazy byte stream rather than a buffered body.
     ///

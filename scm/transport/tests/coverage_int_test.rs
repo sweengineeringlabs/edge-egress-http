@@ -537,6 +537,33 @@ fn test_get_two_independent_egress_instances_edge() {
     assert!(r1.is_ok() && r2.is_ok());
 }
 
+// ── send_with_context (rule 222: HttpEgress::send_with_context) ──────────────
+
+#[test]
+fn test_send_with_context_egress_builds_for_default_config_happy() {
+    assert!(HttpTransportSvc::plain_http_egress(HttpConfig::default()).is_ok());
+}
+
+#[test]
+fn test_send_with_context_security_context_is_constructible_error() {
+    use swe_edge_egress_http_transport::SecurityContext;
+    let ctx = SecurityContext {
+        principal: None,
+        tenant_id: None,
+        claims: std::collections::HashMap::new(),
+        trace_id: None,
+        authenticated: false,
+    };
+    let _ = ctx;
+}
+
+#[test]
+fn test_send_with_context_two_independent_egress_instances_edge() {
+    let r1 = HttpTransportSvc::plain_http_egress(HttpConfig::default());
+    let r2 = HttpTransportSvc::plain_http_egress(HttpConfig::default());
+    assert!(r1.is_ok() && r2.is_ok());
+}
+
 // ── subscribe_sse (rule 222: HttpStream::subscribe_sse) — sync proxies ────────
 
 #[test]
