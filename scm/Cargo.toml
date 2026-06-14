@@ -31,10 +31,10 @@ expect_used = "deny"
 
 [workspace.dependencies]
 # ── domain contracts ──────────────────────────────────────────────────────────
-edge-domain            = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.8.20", features = ["security"] }
+edge-domain            = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.8.27", features = ["security"] }
 
 # ── security primitives ───────────────────────────────────────────────────────
-swe-edge-security      = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.2.0" }
+swe-edge-security      = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.1" }
 
 # ── config ────────────────────────────────────────────────────────────────────
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
