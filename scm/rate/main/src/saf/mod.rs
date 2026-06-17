@@ -1,6 +1,10 @@
 //! SAF layer — public facade.
 
-mod rate_svc;
+mod bucket_svc;
+mod http_rate_svc;
+mod processor_svc;
+mod rate;
+mod validator_svc;
 
 pub use crate::api::types::HttpRateSvc;
 

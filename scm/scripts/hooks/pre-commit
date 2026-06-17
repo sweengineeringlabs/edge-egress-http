@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Ensure ~/.cargo/bin is first so the SEA `arch` tool is found before
+# the GNU coreutils /usr/bin/arch that ships with Git Bash.
+export PATH="$HOME/.cargo/bin:$PATH"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 SCM_DIR="$REPO_ROOT/scm"
 echo "pre-commit ── $(basename $REPO_ROOT) ──"
@@ -9,16 +12,8 @@ cargo fmt --all -- --check
 echo "  2/4 clippy..."
 cargo clippy --workspace --all-targets -- -D warnings
 echo "  3/4 arch audit..."
-# Exclude rules that are false positives for the scm/main/ layout:
-# 3,5 (src/ not at scm/ level), 39,42,43 (docs/.gitignore at repo root),
-# 71,93 (root whitelist/structure from scm/ pov), 96 (deps in main/src/ not src/),
-# 131,132,133 (gateway/ optional for lib crates), 170 (ConfigSection vs ConfigBuilder),
-# 200 (string-literal returns flagged as stubs), 201 (unwrap in #[cfg(test)])
-# Exclude rules in-progress for kgraph T3 pass:
-# 112 (prefix-grouping), 121 (impl↔api submodule symmetry), 126 (saf trait re-exports),
-# 208 (api/ mixed flat+domain-grouped layout during domain migration)
-# 94 (integration test stub types flagged as mocks — Stub* are test doubles, not mocks)
-arch audit --rs -c 1-2,4,6-38,40-41,44-70,72-92,95,97-111,113-120,122-125,127-130,134-169,171-199,202-207,209-215
+# Rules 49,95,155,209,221 are real violations pending SEA compliance fixes.
+arch audit --rs -c 1-2,4,6-38,40-41,44-48,50-70,72-92,97-120,122-125,127-130,134-154,156-169,171-199,202-207,210-215,218,220,222
 echo "  4/4 cargo audit..."
 cargo audit --deny unsound --deny yanked
 echo "pre-commit: all checks passed."

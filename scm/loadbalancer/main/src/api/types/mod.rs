@@ -2,11 +2,9 @@
 
 pub mod application_config_builder;
 
-pub mod loadbalancer_layer;
-pub use loadbalancer_layer::LoadbalancerLayer;
-
-pub mod loadbalancer_svc;
-pub use loadbalancer_svc::LoadbalancerSvc;
+pub mod loadbalancer;
+pub use loadbalancer::LoadbalancerLayer;
+pub use loadbalancer::LoadbalancerSvc;
 
 // Contract types from the loadbalancer library — re-exported so consumers
 // only need to depend on this crate.

@@ -1,6 +1,9 @@
 //! SAF facade — public surface for the HTTP egress transport crate.
 
+mod http;
+mod metrics_http_egress_spec_svc;
 mod transport_svc;
+mod validator_svc;
 
 pub use crate::api::error::HttpEgressBuildError;
 pub use crate::api::error::HttpEgressError;
@@ -19,3 +22,4 @@ pub use crate::api::types::{
     WsChannel, WsMessage, WsReceiver, WsSender,
 };
 pub use crate::api::types::{HttpEgress, HttpStream};
+pub use edge_domain::SecurityContext;

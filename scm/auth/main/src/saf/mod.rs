@@ -1,6 +1,17 @@
 //! SAF layer — public facade.
 
-mod auth_svc;
+mod auth;
+mod aws_strategy_svc;
+mod basic_strategy_svc;
+mod bearer_strategy_svc;
+mod credential_resolver_svc;
+mod env_credential_resolver_svc;
+mod header_strategy_svc;
+mod helper_svc;
+mod http_auth_svc;
+mod processor_svc;
+mod strategy;
+mod validator_svc;
 
 pub use crate::api::auth::errors::AuthError;
 pub use crate::api::auth::types::AuthConfig;

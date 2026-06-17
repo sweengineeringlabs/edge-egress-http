@@ -92,7 +92,7 @@ impl Processor for DefaultHttpAuth {
 }
 
 impl Validator for DefaultHttpAuth {
-    fn validate(&self) -> Result<(), AuthError> {
+    fn validate(&self) -> Result<(), String> {
         // All validation happens at construction time in `new()`.
         // A constructed `DefaultHttpAuth` is always valid.
         Ok(())

@@ -5,6 +5,8 @@
 //! Core types are NOT re-exported directly (SEA Rule 47).
 
 mod loadbalancer_svc;
+mod processor_svc;
+mod validator_svc;
 
 // Public types re-exported from api/
 pub use crate::api::error::LoadbalancerMiddlewareError;

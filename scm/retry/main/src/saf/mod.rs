@@ -1,6 +1,9 @@
 //! SAF layer — public facade.
 
-mod retry_svc;
+mod http_retry_svc;
+mod processor_svc;
+mod retry;
+mod validator_svc;
 
 pub use crate::api::error::RetryError;
 pub use crate::api::types::HttpRetrySvc;
