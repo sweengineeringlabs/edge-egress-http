@@ -38,7 +38,7 @@ swe-edge-security      = { git = "https://github.com/sweengineeringlabs/edge-sec
 
 # ── config ────────────────────────────────────────────────────────────────────
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
-swe-observ-metrics     = { package = "swe_observability_metrics", git = "ssh://git@github.com/sweengineeringlabs/observability.git", tag = "v0.2.4" }
+swe-observ-metrics     = { package = "swe-observability-metrics", git = "ssh://git@github.com/sweengineeringlabs/observability.git", tag = "v0.2.9" }
 
 # ── loadbalancer contract ─────────────────────────────────────────────────────
 swe-edge-loadbalancer  = { git = "https://github.com/sweengineeringlabs/edge-loadbalancer.git", tag = "v0.1.0" }
