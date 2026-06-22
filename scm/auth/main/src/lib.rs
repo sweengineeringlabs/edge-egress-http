@@ -20,6 +20,6 @@ pub use crate::api::{
     ApplicationConfigBuilder, AuthConfig, AuthError, AuthMiddleware, AuthStrategy, AuthSvc,
     AwsSigV4StrategyBuilder, AwsSigV4StrategyConfig, AwsSigV4StrategyConfigBuilder,
     CredentialResolver, CredentialSource, CredentialSourceConfig, CredentialSourceResolver,
-    HttpAuth, Processor, Validator,
+    HttpAuth, OAuthTokenSourceFactory, Processor, Validator,
 };
 pub use crate::core::credential::FileCredentialResolver;
