@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 use crate::api::types::HttpTlsSvc;
 use crate::api::types::TlsConfig;
 use crate::api::types::TlsLayer;
@@ -30,7 +30,7 @@ impl HttpTlsSvc {
     }
 
     /// Build a [`TlsLayer`] from a caller-supplied [`TlsConfig`].
-    pub fn build_tls_layer(config: TlsConfig) -> Result<TlsLayer, TlsError> {
+    pub fn build_tls_layer(config: TlsConfig) -> Result<TlsLayer, TlsConfigError> {
         let provider = TlsProviderFactory::build_provider(&config)?;
         let layer = TlsLayer::new(Arc::from(provider));
         Ok(layer)

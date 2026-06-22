@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 use crate::api::traits::HttpTls;
 
 /// TLS identity layer. Opaque handle — consumers get one from
@@ -36,7 +36,7 @@ impl TlsLayer {
     pub fn apply_to(
         &self,
         builder: reqwest::ClientBuilder,
-    ) -> Result<reqwest::ClientBuilder, TlsError> {
+    ) -> Result<reqwest::ClientBuilder, TlsConfigError> {
         match self.provider.identity()? {
             Some(identity) => Ok(builder.identity(identity)),
             None => Ok(builder),

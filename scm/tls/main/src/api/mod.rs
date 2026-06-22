@@ -6,7 +6,7 @@ pub(crate) mod traits;
 pub(crate) mod types;
 
 // Re-export public traits and errors at the top level
-pub use error::TlsError;
+pub use error::TlsConfigError;
 pub use traits::{HttpTls, Provider, Validator};
 
 // Re-export public types at the top level

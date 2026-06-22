@@ -3,7 +3,7 @@
 
 use secrecy::SecretString;
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 use crate::api::traits::HttpTls;
 use crate::api::types::TlsConfig;
 
@@ -20,7 +20,7 @@ pub(crate) struct TlsProviderFactory;
 
 impl TlsProviderFactory {
     /// Realize a [`TlsConfig`] into the right provider impl.
-    pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, TlsError> {
+    pub(crate) fn build_provider(config: &TlsConfig) -> Result<Box<dyn HttpTls>, TlsConfigError> {
         match config {
             TlsConfig::None => Ok(Box::new(NoopHttpTls)),
 
@@ -28,7 +28,7 @@ impl TlsProviderFactory {
                 let password = match password_env {
                     Some(var) => {
                         let v = std::env::var(var)
-                            .map_err(|_| TlsError::MissingEnvVar { name: var.clone() })?;
+                            .map_err(|_| TlsConfigError::MissingEnvVar { name: var.clone() })?;
                         Some(SecretString::from(v))
                     }
                     None => None,
@@ -62,12 +62,7 @@ mod tests {
             password_env: Some("EDGE_TEST_TLS_PKCS_PW_ABSENT_01".into()),
         };
         let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
-        match err {
-            TlsError::MissingEnvVar { name } => {
-                assert_eq!(name, "EDGE_TEST_TLS_PKCS_PW_ABSENT_01");
-            }
-            other => panic!("expected MissingEnvVar, got {other:?}"),
-        }
+        assert!(matches!(err, TlsConfigError::MissingEnvVar { name } if name == "EDGE_TEST_TLS_PKCS_PW_ABSENT_01"));
     }
 
     /// @covers: build_provider
@@ -78,10 +73,7 @@ mod tests {
             password_env: None,
         };
         let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
-        match err {
-            TlsError::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
-            other => panic!("expected FileReadFailed, got {other:?}"),
-        }
+        assert!(matches!(err, TlsConfigError::CertLoad(_)));
     }
 
     /// @covers: build_provider
@@ -91,7 +83,7 @@ mod tests {
             path: "/path/definitely/does/not/exist.pem".into(),
         };
         let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
-        assert!(matches!(err, TlsError::FileReadFailed { .. }));
+        assert!(matches!(err, TlsConfigError::CertLoad(_)));
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! `NoopHttpTls` — pass-through identity provider (no client cert attached).
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 use crate::api::traits::HttpTls;
 
 #[derive(Debug, Default)]
@@ -12,7 +12,7 @@ impl HttpTls for NoopHttpTls {
         LABEL
     }
 
-    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsConfigError> {
         Ok(None)
     }
 }

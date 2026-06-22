@@ -5,7 +5,7 @@
 
 use serde::Deserialize;
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 
 /// TLS client-identity schema. Tagged enum on `kind` so
 /// `kind = "pkcs12"; path = "..."; password_env = "..."`
@@ -114,7 +114,7 @@ impl crate::api::traits::Validator for TlsConfig {
 
 impl TlsConfig {
     /// Parse from TOML text.
-    pub fn from_config(toml_text: &str) -> Result<Self, TlsError> {
-        toml::from_str(toml_text).map_err(|e| TlsError::ParseFailed(e.to_string()))
+    pub fn from_config(toml_text: &str) -> Result<Self, TlsConfigError> {
+        toml::from_str(toml_text).map_err(|e| TlsConfigError::Config(e.to_string()))
     }
 }

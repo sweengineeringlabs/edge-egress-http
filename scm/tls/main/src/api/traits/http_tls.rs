@@ -3,7 +3,7 @@
 //! `pub(crate)` — consumers never implement. Plug-in happens
 //! through new `TlsConfig` variants.
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 
 /// TLS identity provider contract. Produces a
 /// [`reqwest::Identity`] on demand — the factory resolves the
@@ -15,5 +15,5 @@ pub trait HttpTls: Send + Sync + std::fmt::Debug {
 
     /// Produce the identity (or None for pass-through).
     /// Called once when attaching to a ClientBuilder.
-    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError>;
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsConfigError>;
 }

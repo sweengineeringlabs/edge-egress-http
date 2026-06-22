@@ -2,7 +2,7 @@
 //!
 //! Expects a single file containing BOTH the certificate chain and the private key.
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 use crate::api::traits::HttpTls;
 
 pub(crate) struct PemHttpTls {
@@ -21,11 +21,10 @@ impl std::fmt::Debug for PemHttpTls {
 
 impl PemHttpTls {
     /// Construct by reading the .pem file into memory.
-    pub(crate) fn new(path: String) -> Result<Self, TlsError> {
-        let pem_bytes = std::fs::read(&path).map_err(|e| TlsError::FileReadFailed {
-            path: path.clone(),
-            reason: e.to_string(),
-        })?;
+    pub(crate) fn new(path: String) -> Result<Self, TlsConfigError> {
+        let pem_bytes = std::fs::read(&path).map_err(|e| TlsConfigError::CertLoad(
+            format!("could not read file {}: {}", path, e),
+        ))?;
         Ok(Self { pem_bytes, path })
     }
 }
@@ -36,12 +35,9 @@ impl HttpTls for PemHttpTls {
         LABEL
     }
 
-    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsConfigError> {
         let identity = reqwest::Identity::from_pem(&self.pem_bytes).map_err(|e| {
-            TlsError::InvalidCertificate {
-                format: "pem",
-                reason: e.to_string(),
-            }
+            TlsConfigError::CertParse(format!("invalid pem data: {}", e))
         })?;
         Ok(Some(identity))
     }
@@ -71,7 +67,7 @@ mod tests {
     #[test]
     fn test_new_missing_file_returns_file_read_failed() {
         let err = PemHttpTls::new("/path/definitely/does/not/exist.pem".into()).unwrap_err();
-        assert!(matches!(err, TlsError::FileReadFailed { .. }));
+        assert!(matches!(err, TlsConfigError::CertLoad(_)));
     }
 
     /// @covers: identity
@@ -82,10 +78,7 @@ mod tests {
             path: "<stub>".into(),
         };
         let err = p.identity().unwrap_err();
-        match err {
-            TlsError::InvalidCertificate { format, .. } => assert_eq!(format, "pem"),
-            other => panic!("expected InvalidCertificate, got {other:?}"),
-        }
+        assert!(matches!(err, TlsConfigError::CertParse(_)));
     }
 
     /// @covers: describe

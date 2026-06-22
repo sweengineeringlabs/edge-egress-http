@@ -2,7 +2,7 @@
 
 use secrecy::{ExposeSecret, SecretString};
 
-use crate::api::error::TlsError;
+use crate::api::error::TlsConfigError;
 use crate::api::traits::HttpTls;
 
 pub(crate) struct Pkcs12HttpTls {
@@ -35,11 +35,10 @@ impl Pkcs12HttpTls {
     /// Construct by reading the .p12 / .pfx file into memory.
     /// Password (if any) is pre-resolved from env var before
     /// this call; see `TlsProviderFactory::build_provider`.
-    pub(crate) fn new(path: String, password: Option<SecretString>) -> Result<Self, TlsError> {
-        let der_bytes = std::fs::read(&path).map_err(|e| TlsError::FileReadFailed {
-            path: path.clone(),
-            reason: e.to_string(),
-        })?;
+    pub(crate) fn new(path: String, password: Option<SecretString>) -> Result<Self, TlsConfigError> {
+        let der_bytes = std::fs::read(&path).map_err(|e| TlsConfigError::CertLoad(
+            format!("could not read file {}: {}", path, e),
+        ))?;
         Ok(Self {
             der_bytes,
             password,
@@ -54,7 +53,7 @@ impl HttpTls for Pkcs12HttpTls {
         LABEL
     }
 
-    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsError> {
+    fn identity(&self) -> Result<Option<reqwest::Identity>, TlsConfigError> {
         let password = self
             .password
             .as_ref()
@@ -62,10 +61,7 @@ impl HttpTls for Pkcs12HttpTls {
             .unwrap_or_default();
         let identity =
             reqwest::Identity::from_pkcs12_der(&self.der_bytes, &password).map_err(|e| {
-                TlsError::InvalidCertificate {
-                    format: "pkcs12",
-                    reason: e.to_string(),
-                }
+                TlsConfigError::CertParse(format!("invalid pkcs12 data: {}", e))
             })?;
         Ok(Some(identity))
     }
@@ -120,10 +116,7 @@ mod tests {
     fn test_new_missing_file_returns_file_read_failed() {
         let err =
             Pkcs12HttpTls::new("/path/definitely/does/not/exist.p12".into(), None).unwrap_err();
-        match err {
-            TlsError::FileReadFailed { path, .. } => assert!(path.contains("does/not/exist")),
-            other => panic!("expected FileReadFailed, got {other:?}"),
-        }
+        assert!(matches!(err, TlsConfigError::CertLoad(_)));
     }
 
     /// @covers: identity
@@ -135,10 +128,7 @@ mod tests {
             path: "<stub>".into(),
         };
         let err = p.identity().unwrap_err();
-        match err {
-            TlsError::InvalidCertificate { format, .. } => assert_eq!(format, "pkcs12"),
-            other => panic!("expected InvalidCertificate, got {other:?}"),
-        }
+        assert!(matches!(err, TlsConfigError::CertParse(_)));
     }
 
     /// @covers: describe
