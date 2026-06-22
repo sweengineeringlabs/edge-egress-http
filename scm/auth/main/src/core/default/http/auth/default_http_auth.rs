@@ -9,7 +9,7 @@ use futures::future::BoxFuture;
 use crate::api::auth::errors::AuthError;
 use crate::api::auth::traits::HttpAuth;
 use crate::api::auth::traits::{Processor, Validator};
-use crate::api::auth::types::auth::auth_config::AuthConfig;
+use crate::api::auth::types::auth_config::AuthConfig;
 use crate::api::credential::traits::credential_resolver::CredentialResolver;
 use crate::api::strategy::traits::AuthStrategy;
 use crate::core::strategy::strategy_factory::StrategyFactory;
