@@ -10,7 +10,7 @@
 //! - The `TlsLayer` Debug output reflects the provider.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsConfigError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // TlsLayer::apply_to — TlsConfig::None (noop path)
@@ -46,7 +46,7 @@ fn test_apply_to_none_is_idempotent() {
 // ---------------------------------------------------------------------------
 
 /// `apply_to` with a layer built from an existing but malformed PEM file
-/// must return `TlsError::InvalidCertificate { format: "pem", .. }`.
+/// must return `TlsConfigError::CertParse { format: "pem", .. }`.
 #[test]
 fn test_apply_to_pem_invalid_content_returns_invalid_certificate() {
     let tmpdir = tempfile::tempdir().unwrap();
@@ -60,7 +60,7 @@ fn test_apply_to_pem_invalid_content_returns_invalid_certificate() {
 
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        TlsError::InvalidCertificate { format, .. } => {
+        TlsConfigError::CertParse { format, .. } => {
             assert_eq!(format, "pem", "format must be 'pem'; got: {format}");
         }
         other => panic!("expected InvalidCertificate, got: {other:?}"),
@@ -72,7 +72,7 @@ fn test_apply_to_pem_invalid_content_returns_invalid_certificate() {
 // ---------------------------------------------------------------------------
 
 /// `apply_to` with a layer built from an existing but malformed PKCS12
-/// file must return `TlsError::InvalidCertificate { format: "pkcs12", .. }`.
+/// file must return `TlsConfigError::CertParse { format: "pkcs12", .. }`.
 #[test]
 fn test_apply_to_pkcs12_invalid_content_returns_invalid_certificate() {
     let tmpdir = tempfile::tempdir().unwrap();
@@ -87,7 +87,7 @@ fn test_apply_to_pkcs12_invalid_content_returns_invalid_certificate() {
 
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        TlsError::InvalidCertificate { format, .. } => {
+        TlsConfigError::CertParse { format, .. } => {
             assert_eq!(format, "pkcs12", "format must be 'pkcs12'; got: {format}");
         }
         other => panic!("expected InvalidCertificate, got: {other:?}"),

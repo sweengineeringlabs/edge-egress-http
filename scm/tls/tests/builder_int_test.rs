@@ -3,7 +3,7 @@
 //! Covers: `build_tls_layer`, `TlsConfig` variants, `TlsLayer` construction.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsConfigError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // build_tls_layer — SAF entry point
@@ -61,7 +61,7 @@ fn test_with_config_pem_missing_file_fails_at_build_time() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, TlsError::FileReadFailed { .. }),
+        matches!(err, TlsConfigError::CertLoad(_)),
         "missing PEM file must return FileReadFailed; got: {err:?}"
     );
 }
@@ -75,13 +75,13 @@ fn test_with_config_pkcs12_missing_file_fails_at_build_time() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, TlsError::FileReadFailed { .. }),
+        matches!(err, TlsConfigError::CertLoad(_)),
         "missing PKCS12 file must return FileReadFailed; got: {err:?}"
     );
 }
 
 /// `TlsConfig::Pkcs12` with an unset password env var must return
-/// `TlsError::MissingEnvVar` before even attempting to read the file.
+/// `TlsConfigError::MissingEnvVar` before even attempting to read the file.
 #[test]
 fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
     let env_name = "SWE_IT_TLS_BUILDER_PW_ABSENT_01";
@@ -92,7 +92,7 @@ fn test_with_config_pkcs12_missing_password_env_returns_missing_env_var() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
-        TlsError::MissingEnvVar { name } => assert_eq!(name, env_name),
+        TlsConfigError::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
     }
 }

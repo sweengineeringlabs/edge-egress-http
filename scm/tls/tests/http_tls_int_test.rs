@@ -10,7 +10,7 @@
 //! - Missing files / env vars surface as typed errors, not panics.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsConfigError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // HttpTls::identity — None provider returns Ok(None)
@@ -61,7 +61,7 @@ fn test_none_layer_debug_contains_noop_describe_value() {
 // ---------------------------------------------------------------------------
 
 /// `TlsConfig::Pem` with a missing file must surface as
-/// `TlsError::FileReadFailed` at build time (because `PemHttpTls::load`
+/// `TlsConfigError::CertLoad` at build time (because `PemHttpTls::load`
 /// reads the file eagerly).
 #[test]
 fn test_pem_missing_file_returns_file_read_failed_at_build_time() {
@@ -70,13 +70,13 @@ fn test_pem_missing_file_returns_file_read_failed_at_build_time() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, TlsError::FileReadFailed { .. }),
+        matches!(err, TlsConfigError::CertLoad(_)),
         "missing PEM must return FileReadFailed; got: {err:?}"
     );
 }
 
 /// `TlsConfig::Pkcs12` with a missing file must surface as
-/// `TlsError::FileReadFailed` at build time.
+/// `TlsConfigError::CertLoad` at build time.
 #[test]
 fn test_pkcs12_missing_file_returns_file_read_failed_at_build_time() {
     let cfg = TlsConfig::Pkcs12 {
@@ -85,13 +85,13 @@ fn test_pkcs12_missing_file_returns_file_read_failed_at_build_time() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     assert!(
-        matches!(err, TlsError::FileReadFailed { .. }),
+        matches!(err, TlsConfigError::CertLoad(_)),
         "missing PKCS12 file must return FileReadFailed; got: {err:?}"
     );
 }
 
 /// `TlsConfig::Pkcs12` with a missing password env var must surface as
-/// `TlsError::MissingEnvVar` — before even attempting to read the file.
+/// `TlsConfigError::MissingEnvVar` — before even attempting to read the file.
 #[test]
 fn test_pkcs12_missing_password_env_returns_missing_env_var() {
     let env_name = "SWE_IT_HTTP_TLS_PW_ABSENT_02";
@@ -102,7 +102,7 @@ fn test_pkcs12_missing_password_env_returns_missing_env_var() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
-        TlsError::MissingEnvVar { name } => assert_eq!(name, env_name),
+        TlsConfigError::MissingEnvVar { name } => assert_eq!(name, env_name),
         other => panic!("expected MissingEnvVar, got: {other:?}"),
     }
 }

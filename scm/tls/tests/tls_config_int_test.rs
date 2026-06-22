@@ -12,7 +12,7 @@
 //! - Values flow unchanged through `build_tls_layer`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{TlsConfig, TlsError};
+use swe_edge_egress_tls::{TlsConfig, TlsConfigError};
 
 // ---------------------------------------------------------------------------
 // Direct variant construction
@@ -156,7 +156,7 @@ fn test_from_config_rejects_inline_password_field() {
 fn test_from_config_rejects_pem_without_path() {
     let err = TlsConfig::from_config(r#"kind = "pem""#).unwrap_err();
     assert!(
-        matches!(err, TlsError::ParseFailed(_)),
+        matches!(err, TlsConfigError::Config(_)),
         "pem without path must produce ParseFailed; got: {err:?}"
     );
 }

@@ -4,12 +4,12 @@
 //! `dyn HttpTls`. The integration-level contract is:
 //!
 //! - The SAF re-export surface is complete: `TlsConfig`, `TlsLayer`,
-//!   `TlsError`, and `HttpTlsSvc::build_tls_layer()` are all accessible.
+//!   `TlsConfigError`, and `HttpTlsSvc::build_tls_layer()` are all accessible.
 //! - `TlsLayer::apply_to` works end-to-end with a `reqwest::ClientBuilder`.
 //! - `TlsLayer` is `Send + Sync` (flows from `HttpTls: Send + Sync + Debug`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsError, TlsLayer};
+use swe_edge_egress_tls::{HttpTlsSvc, TlsConfig, TlsConfigError, TlsLayer};
 
 // ---------------------------------------------------------------------------
 // SAF re-export completeness — compile-time proof
@@ -26,8 +26,8 @@ fn test_saf_surface_exports_all_required_types() {
     fn accept_layer(_: TlsLayer) {}
     let _ = accept_layer as fn(TlsLayer);
 
-    // TlsError — type
-    let _e = TlsError::ParseFailed("test".to_string());
+    // TlsConfigError — type
+    let _e = TlsConfigError::Config("test".to_string());
 }
 
 // ---------------------------------------------------------------------------

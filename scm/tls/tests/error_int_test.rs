@@ -1,19 +1,19 @@
-//! Integration tests for `swe_edge_egress_tls::TlsError`.
+//! Integration tests for `swe_edge_egress_tls::TlsConfigError`.
 //!
-//! Covers: `TlsError::ParseFailed`, `TlsError::MissingEnvVar`, `TlsError::FileReadFailed`,
-//! `TlsError::InvalidCertificate` — Display messages
+//! Covers: `TlsConfigError::Config`, `TlsConfigError::MissingEnvVar`, `TlsConfigError::CertLoad`,
+//! `TlsConfigError::CertParse` — Display messages
 //! must be actionable: name the crate, embed the payload, be non-empty.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_egress_tls::TlsError;
+use swe_edge_egress_tls::TlsConfigError;
 
 // ---------------------------------------------------------------------------
-// TlsError::ParseFailed
+// TlsConfigError::Config
 // ---------------------------------------------------------------------------
 
 #[test]
 fn test_parse_failed_display_names_the_crate() {
-    let msg = TlsError::ParseFailed("unknown field `jks`".to_string()).to_string();
+    let msg = TlsConfigError::Config("unknown field `jks`".to_string()).to_string();
     assert!(
         msg.contains("swe_edge_egress_tls"),
         "ParseFailed Display must name the crate; got: {msg}"
@@ -22,7 +22,7 @@ fn test_parse_failed_display_names_the_crate() {
 
 #[test]
 fn test_parse_failed_display_contains_supplied_reason() {
-    let msg = TlsError::ParseFailed("missing field `path`".to_string()).to_string();
+    let msg = TlsConfigError::Config("missing field `path`".to_string()).to_string();
     assert!(
         msg.contains("path"),
         "ParseFailed must embed the reason; got: {msg}"
@@ -31,24 +31,24 @@ fn test_parse_failed_display_contains_supplied_reason() {
 
 #[test]
 fn test_parse_failed_is_debug_printable() {
-    let _ = format!("{:?}", TlsError::ParseFailed("bad".to_string()));
+    let _ = format!("{:?}", TlsConfigError::Config("bad".to_string()));
 }
 
 #[test]
 fn test_parse_failed_is_std_error() {
-    let err: Box<dyn std::error::Error> = Box::new(TlsError::ParseFailed("oops".to_string()));
+    let err: Box<dyn std::error::Error> = Box::new(TlsConfigError::Config("oops".to_string()));
     assert!(!err.to_string().is_empty());
 }
 
 // ---------------------------------------------------------------------------
-// TlsError::MissingEnvVar
+// TlsConfigError::MissingEnvVar
 // ---------------------------------------------------------------------------
 
 /// Display must contain the missing env var name so the operator knows
 /// exactly which variable to set to fix the issue.
 #[test]
 fn test_missing_env_var_display_contains_var_name() {
-    let msg = TlsError::MissingEnvVar {
+    let msg = TlsConfigError::MissingEnvVar {
         name: "EDGE_MTLS_PASSWORD".to_string(),
     }
     .to_string();
@@ -61,7 +61,7 @@ fn test_missing_env_var_display_contains_var_name() {
 /// Display must name the crate.
 #[test]
 fn test_missing_env_var_display_names_the_crate() {
-    let msg = TlsError::MissingEnvVar {
+    let msg = TlsConfigError::MissingEnvVar {
         name: "ANY_VAR".to_string(),
     }
     .to_string();
@@ -75,7 +75,7 @@ fn test_missing_env_var_display_names_the_crate() {
 fn test_missing_env_var_is_debug_printable() {
     let _ = format!(
         "{:?}",
-        TlsError::MissingEnvVar {
+        TlsConfigError::MissingEnvVar {
             name: "X".to_string()
         }
     );
@@ -83,20 +83,20 @@ fn test_missing_env_var_is_debug_printable() {
 
 #[test]
 fn test_missing_env_var_is_std_error() {
-    let err: Box<dyn std::error::Error> = Box::new(TlsError::MissingEnvVar {
+    let err: Box<dyn std::error::Error> = Box::new(TlsConfigError::MissingEnvVar {
         name: "Y".to_string(),
     });
     assert!(!err.to_string().is_empty());
 }
 
 // ---------------------------------------------------------------------------
-// TlsError::FileReadFailed
+// TlsConfigError::CertLoad
 // ---------------------------------------------------------------------------
 
 /// Display must include the path so the operator knows which file to check.
 #[test]
 fn test_file_read_failed_display_contains_path() {
-    let msg = TlsError::FileReadFailed {
+    let msg = TlsConfigError::CertLoad {
         path: "/etc/certs/client.p12".to_string(),
         reason: "No such file or directory".to_string(),
     }
@@ -111,7 +111,7 @@ fn test_file_read_failed_display_contains_path() {
 /// permissions issue, a missing file, or something else.
 #[test]
 fn test_file_read_failed_display_contains_reason() {
-    let msg = TlsError::FileReadFailed {
+    let msg = TlsConfigError::CertLoad {
         path: "/any/path".to_string(),
         reason: "Permission denied (os error 13)".to_string(),
     }
@@ -125,7 +125,7 @@ fn test_file_read_failed_display_contains_reason() {
 /// Display must name the crate.
 #[test]
 fn test_file_read_failed_display_names_the_crate() {
-    let msg = TlsError::FileReadFailed {
+    let msg = TlsConfigError::CertLoad {
         path: "p".to_string(),
         reason: "r".to_string(),
     }
@@ -140,7 +140,7 @@ fn test_file_read_failed_display_names_the_crate() {
 fn test_file_read_failed_is_debug_printable() {
     let _ = format!(
         "{:?}",
-        TlsError::FileReadFailed {
+        TlsConfigError::CertLoad {
             path: "/p".to_string(),
             reason: "r".to_string()
         }
@@ -149,7 +149,7 @@ fn test_file_read_failed_is_debug_printable() {
 
 #[test]
 fn test_file_read_failed_is_std_error() {
-    let err: Box<dyn std::error::Error> = Box::new(TlsError::FileReadFailed {
+    let err: Box<dyn std::error::Error> = Box::new(TlsConfigError::CertLoad {
         path: "/p".to_string(),
         reason: "r".to_string(),
     });
@@ -157,13 +157,13 @@ fn test_file_read_failed_is_std_error() {
 }
 
 // ---------------------------------------------------------------------------
-// TlsError::InvalidCertificate
+// TlsConfigError::CertParse
 // ---------------------------------------------------------------------------
 
 /// Display must name the format so the operator knows which parser failed.
 #[test]
 fn test_invalid_certificate_display_names_format() {
-    let msg = TlsError::InvalidCertificate {
+    let msg = TlsConfigError::CertParse {
         format: "pkcs12",
         reason: "wrong password".to_string(),
     }
@@ -177,7 +177,7 @@ fn test_invalid_certificate_display_names_format() {
 /// Display must include the reason (e.g. "wrong password") for diagnosability.
 #[test]
 fn test_invalid_certificate_display_contains_reason() {
-    let msg = TlsError::InvalidCertificate {
+    let msg = TlsConfigError::CertParse {
         format: "pem",
         reason: "no CERTIFICATE block found".to_string(),
     }
@@ -191,7 +191,7 @@ fn test_invalid_certificate_display_contains_reason() {
 /// Display must name the crate.
 #[test]
 fn test_invalid_certificate_display_names_the_crate() {
-    let msg = TlsError::InvalidCertificate {
+    let msg = TlsConfigError::CertParse {
         format: "pem",
         reason: "bad".to_string(),
     }
@@ -206,7 +206,7 @@ fn test_invalid_certificate_display_names_the_crate() {
 fn test_invalid_certificate_is_debug_printable() {
     let _ = format!(
         "{:?}",
-        TlsError::InvalidCertificate {
+        TlsConfigError::CertParse {
             format: "pem",
             reason: "bad".to_string()
         }
@@ -222,14 +222,14 @@ fn test_invalid_certificate_is_debug_printable() {
 #[test]
 fn test_all_error_variants_have_distinct_display_messages() {
     let messages: Vec<String> = vec![
-        TlsError::ParseFailed("x".into()).to_string(),
-        TlsError::MissingEnvVar { name: "x".into() }.to_string(),
-        TlsError::FileReadFailed {
+        TlsConfigError::Config("x".into()).to_string(),
+        TlsConfigError::MissingEnvVar { name: "x".into() }.to_string(),
+        TlsConfigError::CertLoad {
             path: "x".into(),
             reason: "x".into(),
         }
         .to_string(),
-        TlsError::InvalidCertificate {
+        TlsConfigError::CertParse {
             format: "pem",
             reason: "x".into(),
         }
