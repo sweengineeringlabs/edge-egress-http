@@ -16,3 +16,9 @@ pub enum OAuthError {
     #[error("swe_edge_egress_oauth: configuration error: {0}")]
     Configuration(String),
 }
+
+impl From<OAuthError> for swe_edge_security::SecurityError {
+    fn from(err: OAuthError) -> Self {
+        swe_edge_security::SecurityError::Token(err.to_string())
+    }
+}
