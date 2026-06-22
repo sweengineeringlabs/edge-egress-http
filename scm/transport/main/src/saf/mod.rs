@@ -5,21 +5,21 @@ mod metrics_http_egress_spec_svc;
 mod transport_svc;
 mod validator_svc;
 
-pub use crate::api::error::HttpEgressBuildError;
-pub use crate::api::error::HttpEgressError;
-pub use crate::api::types::default::TransportConfig;
-pub use crate::api::types::metrics::MetricsHttpEgress as MetricsEgress;
-pub use crate::api::types::metrics::ObservationConfig;
-pub use crate::api::types::validator::AlwaysValidConfig;
-pub use crate::api::types::validator::HttpConfigValidator as HttpConfigValidatorAlias;
-pub use crate::api::types::validator::HttpEgressObject as DefaultEgress;
-pub use crate::api::types::validator::ValidatableHttpConfig;
-pub use crate::api::types::validator::ValidatorObject as DefaultValidatorAlias;
-pub use crate::api::types::HttpEgressResult;
-pub use crate::api::types::{
+pub(crate) use crate::api::error::HttpEgressBuildError;
+pub(crate) use crate::api::error::HttpEgressError;
+pub(crate) use crate::api::types::default::TransportConfig;
+pub(crate) use crate::api::types::metrics::MetricsHttpEgress as MetricsEgress;
+pub(crate) use crate::api::types::metrics::ObservationConfig;
+pub(crate) use crate::api::types::validator::AlwaysValidConfig;
+pub(crate) use crate::api::types::validator::HttpConfigValidator as HttpConfigValidatorAlias;
+pub(crate) use crate::api::types::validator::HttpEgressObject as DefaultEgress;
+pub(crate) use crate::api::types::validator::ValidatableHttpConfig;
+pub(crate) use crate::api::types::validator::ValidatorObject as DefaultValidatorAlias;
+pub(crate) use crate::api::types::HttpEgressResult;
+pub(crate) use crate::api::types::{
     FormPart, HttpAuth, HttpBody, HttpConfig, HttpConfigBuilder, HttpMethod, HttpRequest,
     HttpRequestBuilder, HttpResponse, HttpStreamResponse, HttpTransportSvc, SseEvent, SseStream,
     WsChannel, WsMessage, WsReceiver, WsSender,
 };
-pub use crate::api::types::{HttpEgress, HttpStream};
-pub use edge_domain::SecurityContext;
+pub(crate) use crate::api::types::{HttpEgress, HttpStream};
+pub(crate) use edge_domain::SecurityContext;

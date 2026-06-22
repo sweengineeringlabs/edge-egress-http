@@ -41,4 +41,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
+pub use crate::api::{
+    OAuthBuilderOps, OAuthError, OAuthStrategy, OAuthSvc, OAuthTokenSource, Processor, Result,
+    Validator,
+};

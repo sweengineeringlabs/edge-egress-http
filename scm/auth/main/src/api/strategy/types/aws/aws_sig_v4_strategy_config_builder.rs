@@ -2,8 +2,8 @@
 
 use secrecy::SecretString;
 
-use crate::api::auth::errors::AuthError;
-pub use crate::api::strategy::types::aws::aws_sig_v4_strategy_config::AwsSigV4StrategyConfig;
+use crate::api::AuthError;
+use crate::api::AwsSigV4StrategyConfig;
 
 /// Fluent builder for `AwsSigV4Strategy`.
 ///

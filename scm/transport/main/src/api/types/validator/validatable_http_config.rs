@@ -3,7 +3,7 @@
 use crate::api::traits::Validator;
 use crate::api::types::HttpConfig;
 
-/// Wraps an [`HttpConfig`] to make it validatable via the [`Validator`] trait.
+/// Wraps an [`HttpConfig`](crate::HttpConfig) to make it validatable via the `Validator` trait.
 pub struct ValidatableHttpConfig {
     /// The HTTP configuration to validate.
     pub config: HttpConfig,

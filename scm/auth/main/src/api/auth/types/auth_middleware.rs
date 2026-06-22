@@ -12,7 +12,7 @@
 
 use std::sync::Arc;
 
-use crate::api::auth::traits::HttpAuth;
+use crate::api::HttpAuth;
 
 /// reqwest-middleware layer that applies the configured auth
 /// policy to every outbound request.

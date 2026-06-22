@@ -14,8 +14,8 @@ use base64::Engine;
 use http::header::{HeaderValue, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 
-use crate::api::auth::errors::AuthError;
-use crate::api::strategy::traits::AuthStrategy;
+use crate::api::AuthError;
+use crate::api::AuthStrategy;
 
 /// `Authorization: Basic base64(user:pass)` strategy.
 pub(crate) struct BasicStrategy {

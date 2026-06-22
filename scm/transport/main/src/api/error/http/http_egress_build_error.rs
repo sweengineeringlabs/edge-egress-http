@@ -1,6 +1,6 @@
-//! Error type for assembling an [`HttpEgress`] at startup.
+//! Error type for assembling an [`HttpEgress`](crate::HttpEgress) at startup.
 
-/// Error returned when assembling an [`HttpEgress`] fails at startup.
+/// Error returned when assembling an [`HttpEgress`](crate::HttpEgress) fails at startup.
 #[derive(Debug, thiserror::Error)]
 pub enum HttpEgressBuildError {
     /// Auth middleware assembly failed.

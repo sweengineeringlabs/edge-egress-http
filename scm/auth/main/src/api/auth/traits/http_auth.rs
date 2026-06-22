@@ -8,7 +8,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::auth::errors::AuthError;
+use crate::api::AuthError;
 
 /// Auth processor contract. Every middleware layer this crate
 /// produces implements it.

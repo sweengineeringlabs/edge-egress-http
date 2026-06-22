@@ -6,12 +6,12 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::auth::errors::AuthError;
-use crate::api::auth::traits::HttpAuth;
-use crate::api::auth::traits::{Processor, Validator};
-use crate::api::auth::types::auth_config::AuthConfig;
-use crate::api::credential::traits::credential_resolver::CredentialResolver;
-use crate::api::strategy::traits::AuthStrategy;
+use crate::api::AuthConfig;
+use crate::api::AuthError;
+use crate::api::AuthStrategy;
+use crate::api::CredentialResolver;
+use crate::api::HttpAuth;
+use crate::api::{Processor, Validator};
 use crate::core::strategy::strategy_factory::StrategyFactory;
 
 /// Default HTTP auth processor. Holds the resolved strategy;
@@ -102,7 +102,7 @@ impl Validator for DefaultHttpAuth {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::credential::types::credential_source::CredentialSource;
+    use crate::api::CredentialSource;
     use secrecy::SecretString;
 
     /// Test resolver that returns a fixed credential for all sources.

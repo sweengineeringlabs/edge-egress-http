@@ -12,4 +12,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
+pub use crate::api::{
+    BreakerConfig, BreakerError, BreakerMetrics, CircuitBreakerNode, HttpBreakerSvc, Processor,
+    Validator,
+};

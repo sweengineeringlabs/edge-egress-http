@@ -16,4 +16,10 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
+pub use crate::api::{
+    ApplicationConfigBuilder, AuthConfig, AuthError, AuthMiddleware, AuthStrategy, AuthSvc,
+    AwsSigV4StrategyBuilder, AwsSigV4StrategyConfig, AwsSigV4StrategyConfigBuilder,
+    CredentialResolver, CredentialSource, CredentialSourceConfig, CredentialSourceResolver,
+    HttpAuth, Processor, Validator,
+};
+pub use crate::core::credential::FileCredentialResolver;

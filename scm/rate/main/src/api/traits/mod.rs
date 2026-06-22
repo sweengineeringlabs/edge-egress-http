@@ -6,8 +6,8 @@ pub use processor::Processor;
 pub mod validator;
 pub use validator::Validator;
 
-pub(crate) mod rate_bucket_ops;
-pub(crate) use rate_bucket_ops::RateBucketOps;
+pub mod rate_bucket_ops;
+pub use rate_bucket_ops::RateBucketOps;
 
 pub mod default;
 pub mod token;

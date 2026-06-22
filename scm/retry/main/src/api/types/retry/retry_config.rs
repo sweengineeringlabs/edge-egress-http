@@ -85,7 +85,7 @@ impl swe_edge_configbuilder::ConfigSection for RetryConfig {
 
 /// Backend-owned opt-in contract (ADR-006): presence of the `[retry]` section
 /// activates the retry policy; absence leaves it off. Kept alongside
-/// [`ConfigSection`] so existing direct construction keeps working.
+/// `ConfigSection` so existing direct construction keeps working.
 impl swe_edge_configbuilder::OptionalSection for RetryConfig {
     fn section_name() -> &'static str {
         // @allow: no_stub_fn_bodies

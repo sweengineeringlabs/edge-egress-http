@@ -1,4 +1,4 @@
-//! `OAuthBuilder` — fluent builder for [`OAuthMiddleware`].
+//! `OAuthBuilder` — fluent builder for [`OAuthMiddleware`](crate::OAuthMiddleware).
 
 use std::sync::Arc;
 
@@ -7,7 +7,7 @@ use crate::api::refresh::traits::OAuthBuilderOps;
 use crate::api::refresh::traits::OAuthTokenSource;
 use crate::api::refresh::types::OAuthMiddleware;
 
-/// Fluent builder for [`OAuthMiddleware`].
+/// Fluent builder for [`OAuthMiddleware`](crate::OAuthMiddleware).
 #[derive(Default)]
 pub struct OAuthBuilder {
     pub(crate) source: Option<Arc<dyn OAuthTokenSource>>,

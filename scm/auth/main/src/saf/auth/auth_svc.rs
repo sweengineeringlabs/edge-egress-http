@@ -3,9 +3,7 @@
 //! Implements the core wiring for AuthSvc factory methods.
 //! The API type delegates here; SAF can import from core.
 
-use crate::api::auth::errors::AuthError;
-use crate::api::auth::types::auth_config::AuthConfig;
-use crate::api::auth::types::AuthMiddleware;
+use crate::api::{AuthConfig, AuthError, AuthMiddleware};
 use crate::core::credential::EnvCredentialResolver;
 use crate::core::default::DefaultHttpAuth;
 use std::sync::Arc;

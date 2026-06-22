@@ -42,6 +42,11 @@ pub enum AuthError {
         /// Underlying parse error.
         reason: String,
     },
+
+    /// No credential sources are configured or available.
+    /// Raised by CredentialSourceResolver when all sources fail.
+    #[error("swe_edge_egress_auth: credential resolution failed — {0}")]
+    MissingCredential(String),
 }
 
 impl From<AuthError> for swe_edge_security::SecurityError {

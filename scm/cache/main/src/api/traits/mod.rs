@@ -6,6 +6,7 @@ pub mod validator;
 
 pub use http_cache::HttpCache;
 pub use processor::Processor;
+pub use validator::Validator;
 
 pub mod cache;
 pub mod cached;

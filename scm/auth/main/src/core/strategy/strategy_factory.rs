@@ -5,11 +5,11 @@
 //! path is pure trait-object dispatch on the resulting
 //! [`AuthStrategy`].
 
-use crate::api::auth::errors::AuthError;
-use crate::api::auth::types::auth_config::AuthConfig;
-use crate::api::credential::traits::credential_resolver::CredentialResolver;
-use crate::api::credential::types::credential_source::CredentialSource;
-use crate::api::strategy::traits::AuthStrategy;
+use crate::api::AuthConfig;
+use crate::api::AuthError;
+use crate::api::AuthStrategy;
+use crate::api::CredentialResolver;
+use crate::api::CredentialSource;
 
 use super::aws::AwsSigV4Strategy;
 use super::basic_strategy::BasicStrategy;

@@ -10,4 +10,4 @@ mod core;
 mod saf;
 mod spi;
 
-pub use saf::*;
+pub use crate::api::{HttpEgress, HttpEgressBuildError, HttpEgressError, HttpStream, Validator};

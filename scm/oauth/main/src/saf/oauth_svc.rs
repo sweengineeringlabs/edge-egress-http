@@ -4,11 +4,11 @@ use crate::api::refresh::types::OAuthBuilder;
 use crate::api::refresh::types::OAuthSvc;
 
 impl OAuthSvc {
-    /// Create a builder for [`OAuthMiddleware`].
+    /// Create a builder for [`OAuthMiddleware`](crate::OAuthMiddleware).
     ///
-    /// Returns an empty [`OAuthBuilder`]; call
-    /// [`OAuthBuilderOps::with_token_source`](crate::api::refresh::traits::OAuthBuilderOps::with_token_source)
-    /// then [`OAuthBuilderOps::build`](crate::api::refresh::traits::OAuthBuilderOps::build).
+    /// Returns an empty [`OAuthBuilder`](crate::OAuthBuilder); call
+    /// [`OAuthBuilderOps::with_token_source`](crate::OAuthBuilderOps::with_token_source)
+    /// then [`OAuthBuilderOps::build`](crate::OAuthBuilderOps::build).
     pub fn builder() -> OAuthBuilder {
         OAuthBuilder { source: None }
     }

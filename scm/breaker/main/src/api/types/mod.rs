@@ -11,6 +11,7 @@ pub(crate) mod state;
 // Compatibility re-exports: keep existing `crate::api::types::breaker_config::…`
 // and `crate::api::types::breaker_layer::…` paths working after the R112 move.
 pub(crate) use breaker::breaker_config;
+pub use breaker::breaker_config::BreakerConfig;
 pub(crate) use breaker::breaker_layer;
 
 pub use http_breaker_svc::HttpBreakerSvc;

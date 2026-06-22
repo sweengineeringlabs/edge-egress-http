@@ -5,8 +5,8 @@ mod processor_svc;
 mod retry;
 mod validator_svc;
 
-pub use crate::api::error::RetryError;
-pub use crate::api::types::HttpRetrySvc;
-pub use crate::api::types::RetryConfig;
-pub use crate::api::types::RetryConfigBuilder;
-pub use crate::api::types::RetryLayer;
+pub(crate) use crate::api::error::RetryError;
+pub(crate) use crate::api::types::HttpRetrySvc;
+pub(crate) use crate::api::types::RetryConfig;
+pub(crate) use crate::api::types::RetryConfigBuilder;
+pub(crate) use crate::api::types::RetryLayer;

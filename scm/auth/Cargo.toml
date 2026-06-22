@@ -46,10 +46,13 @@ percent-encoding = { workspace = true }
 swe-edge-configbuilder.workspace = true
 swe-edge-security.workspace      = true
 tracing = { workspace = true, optional = true }
+# Home directory expansion for credential file paths
+dirs = "5"
 
 [dev-dependencies]
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+tempfile = "3.8"
 
 [features]
 default = []

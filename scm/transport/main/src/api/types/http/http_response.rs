@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 /// An HTTP response.
 ///
-/// Returned by [`HttpEgress::execute`](crate::HttpEgress::execute). Use
+/// Returned by [`HttpEgress::send`](crate::HttpEgress::send). Use
 /// `is_success()`, `is_client_error()`, and `is_server_error()` to classify
 /// the status without comparing raw numbers. Call `json::<T>()` to deserialize
 /// the body or `text()` to decode it as UTF-8.

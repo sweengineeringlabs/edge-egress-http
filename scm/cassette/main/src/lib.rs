@@ -103,4 +103,6 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
+pub use crate::api::{
+    CassetteConfig, CassetteError, HttpCassette, HttpCassetteSvc, Processor, Validator,
+};

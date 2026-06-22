@@ -59,7 +59,7 @@ impl swe_edge_configbuilder::ConfigSection for RateConfig {
 
 /// Backend-owned opt-in contract (ADR-006): presence of the `[rate]` section
 /// activates client-side rate limiting; absence leaves it off. Additive
-/// alongside [`ConfigSection`].
+/// alongside `ConfigSection`.
 impl swe_edge_configbuilder::OptionalSection for RateConfig {
     fn section_name() -> &'static str {
         // @allow: no_stub_fn_bodies

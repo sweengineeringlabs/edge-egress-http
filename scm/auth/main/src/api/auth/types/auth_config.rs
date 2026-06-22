@@ -8,7 +8,7 @@
 
 use serde::Deserialize;
 
-use crate::api::auth::errors::AuthError;
+use crate::api::AuthError;
 
 /// Auth policy schema. A tagged enum on the `kind` field so
 /// config like `kind = "bearer"; token_env = "..."` deserializes

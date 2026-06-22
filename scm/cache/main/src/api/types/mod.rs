@@ -3,6 +3,7 @@
 pub mod application_config_builder;
 
 pub mod cache_config;
+pub use cache_config::CacheConfig;
 pub mod cache_layer;
 pub mod http_cache_svc;
 

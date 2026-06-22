@@ -13,10 +13,10 @@ mod processor_svc;
 mod time_helper_svc;
 mod validator_svc;
 
-pub use crate::api::refresh::errors::{OAuthError, Result};
-pub use crate::api::refresh::traits::{OAuthBuilderOps, OAuthTokenSource};
-pub use crate::api::refresh::types::OAuthBuilder;
-pub use crate::api::refresh::types::{ApplicationConfigBuilder, OAuthSvc};
-pub use crate::api::refresh::types::{
+pub(crate) use crate::api::refresh::errors::{OAuthError, Result};
+pub(crate) use crate::api::refresh::traits::{OAuthBuilderOps, OAuthTokenSource};
+pub(crate) use crate::api::refresh::types::OAuthBuilder;
+pub(crate) use crate::api::refresh::types::{ApplicationConfigBuilder, OAuthSvc};
+pub(crate) use crate::api::refresh::types::{
     OAuthConfig, OAuthCredentials, OAuthMiddleware, OAuthProvider,
 };

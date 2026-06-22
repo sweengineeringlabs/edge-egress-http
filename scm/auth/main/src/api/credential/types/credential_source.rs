@@ -12,7 +12,7 @@
 /// are supported; file/vault/HSM variants will land as new
 /// enum arms when a consumer needs them.
 #[derive(Debug, Clone)]
-pub(crate) enum CredentialSource {
+pub enum CredentialSource {
     /// Read the credential from the process env var with this
     /// name. Resolution happens once at middleware build time —
     /// changes to the env var after that aren't observed.
@@ -25,7 +25,7 @@ impl CredentialSource {
         dead_code,
         reason = "diagnostic helper — used in future log integration"
     )]
-    pub(crate) fn label(&self) -> String {
+    pub fn label(&self) -> String {
         match self {
             Self::EnvVar(name) => format!("env:{name}"),
         }

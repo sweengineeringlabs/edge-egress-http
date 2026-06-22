@@ -10,4 +10,4 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
+pub use crate::api::{CacheConfig, CacheError, HttpCache, HttpCacheSvc, Processor, Validator};

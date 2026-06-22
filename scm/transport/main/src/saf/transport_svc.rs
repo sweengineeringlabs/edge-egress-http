@@ -1,4 +1,4 @@
-//! SAF factory methods on [`HttpTransportSvc`] for assembling [`HttpEgress`] instances.
+//! SAF factory methods on [`HttpTransportSvc`](crate::HttpTransportSvc) for assembling [`HttpEgress`](crate::HttpEgress) instances.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -23,7 +23,7 @@ impl HttpTransportSvc {
         b
     }
 
-    /// Build an [`HttpEgress`] whose optional middleware are activated by the
+    /// Build an [`HttpEgress`](crate::HttpEgress) whose optional middleware are activated by the
     /// consumer's configuration (ADR-006 config-driven activation): a feature is
     /// wired **iff** its `[section]` is present in the loaded config.
     ///
@@ -76,7 +76,7 @@ impl HttpTransportSvc {
         )))
     }
 
-    /// Like [`http_egress_from_config`], but the auth slot is an **OAuth
+    /// Like [`http_egress_from_config`](HttpTransportSvc::http_egress_from_config), but the auth slot is an **OAuth
     /// token-refresh** layer built from `token_source` instead of the static
     /// `[auth]` section. This is how OAuth — which cannot be expressed in TOML
     /// (the token source is a runtime trait object) — is combined with the
@@ -89,8 +89,6 @@ impl HttpTransportSvc {
     /// Returns [`HttpEgressBuildError::Config`] if a section fails to load or
     /// validate, [`HttpEgressBuildError::OAuth`] if the OAuth layer cannot be
     /// built, or the relevant middleware build error.
-    ///
-    /// [`http_egress_from_config`]: HttpTransportSvc::http_egress_from_config
     #[cfg(feature = "oauth")]
     pub fn http_egress_from_config_with_oauth(
         loader: &swe_edge_configbuilder::SectionLoaderImpl,
@@ -120,7 +118,7 @@ impl HttpTransportSvc {
     /// operators see exactly which features are on (and why); it is the
     /// visibility guardrail against silent config-driven activation.
     ///
-    /// Mirrors the section set of [`http_egress_from_config`]: `[auth]`,
+    /// Mirrors the section set of [`http_egress_from_config`](HttpTransportSvc::http_egress_from_config): `[auth]`,
     /// `[tls]`, `[retry]`, `[rate]`, `[breaker]`, `[cache]`, `[cassette]`.
     ///
     /// # Errors
@@ -165,7 +163,7 @@ impl HttpTransportSvc {
         Ok(registry.summary())
     }
 
-    /// Build an [`HttpEgress`] using the SWE-shipped defaults for every
+    /// Build an [`HttpEgress`](crate::HttpEgress) using the SWE-shipped defaults for every
     /// middleware layer (pass-through auth, no TLS, sensible retry/rate/breaker
     /// policies from each crate's `config/application.toml`).
     pub fn default_http_egress() -> Result<Box<dyn HttpEgress>, HttpEgressBuildError> {
@@ -178,10 +176,10 @@ impl HttpTransportSvc {
         )?))
     }
 
-    /// Build a fully-assembled [`HttpEgress`] using the provided [`HttpConfig`]
+    /// Build a fully-assembled [`HttpEgress`](crate::HttpEgress) using the provided [`HttpConfig`]
     /// and SWE defaults for every middleware layer.
     ///
-    /// Same middleware stack as [`default_http_egress`] but with caller-supplied
+    /// Same middleware stack as [`default_http_egress`](HttpTransportSvc::default_http_egress) but with caller-supplied
     /// transport settings (base URL, timeouts, headers, etc.).
     pub fn default_http_egress_with_config(
         http: HttpConfig,
@@ -195,7 +193,7 @@ impl HttpTransportSvc {
         )?))
     }
 
-    /// Wrap any [`HttpEgress`] with per-call metrics observation.
+    /// Wrap any [`HttpEgress`](crate::HttpEgress) with per-call metrics observation.
     ///
     /// Consumers call this after any of the factory functions to add observability
     /// without changing how the outbound is configured:
@@ -203,7 +201,7 @@ impl HttpTransportSvc {
     /// ```rust,ignore
     /// let outbound = HttpTransportSvc::observe_http_egress(default_http_egress()?, metrics_provider);
     /// ```
-    /// Wrap any [`HttpEgress`] with per-call metrics observation.
+    /// Wrap any [`HttpEgress`](crate::HttpEgress) with per-call metrics observation.
     ///
     /// Consumers call this after any of the factory functions to add observability
     /// without changing how the outbound is configured:
@@ -219,10 +217,10 @@ impl HttpTransportSvc {
         Box::new(MetricsHttpEgress::new(arc_inner, provider))
     }
 
-    /// Build a fully-assembled [`HttpStream`] using the SWE defaults.
+    /// Build a fully-assembled [`HttpStream`](crate::HttpStream) using the SWE defaults.
     ///
-    /// Returns the same default middleware stack as [`default_http_egress`]
-    /// but typed as [`HttpStream`], so callers can use SSE and WebSocket
+    /// Returns the same default middleware stack as [`default_http_egress`](HttpTransportSvc::default_http_egress)
+    /// but typed as [`HttpStream`](crate::HttpStream), so callers can use SSE and WebSocket
     /// features without importing or naming the concrete type.
     pub fn default_http_stream_outbound() -> Result<Box<dyn HttpStream>, HttpEgressBuildError> {
         Ok(Box::new(Self::build_default_egress(
@@ -234,7 +232,7 @@ impl HttpTransportSvc {
         )?))
     }
 
-    /// Build a minimal [`HttpEgress`] from just an [`HttpConfig`] — no middleware layers.
+    /// Build a minimal [`HttpEgress`](crate::HttpEgress) from just an [`HttpConfig`] — no middleware layers.
     ///
     /// All `HttpConfig` fields are honoured: `timeout_secs`, `connect_timeout_secs`,
     /// `user_agent`, `follow_redirects`, `max_redirects`, `default_headers`, and
@@ -276,7 +274,7 @@ impl HttpTransportSvc {
         )))
     }
 
-    /// Build a minimal [`HttpEgress`] from an [`HttpConfig`] and a runtime OAuth
+    /// Build a minimal [`HttpEgress`](crate::HttpEgress) from an [`HttpConfig`] and a runtime OAuth
     /// token source — no config-builder, no other middleware layers.
     ///
     /// This fills the gap between [`plain_http_egress`] (no auth) and
@@ -323,10 +321,10 @@ impl HttpTransportSvc {
         DefaultValidator::new(HttpConfigValidator::new(config)).validate()
     }
 
-    /// Validate any value that implements the [`Validator`] trait.
+    /// Validate any value that implements the `Validator` trait.
     ///
-    /// This is the generic gateway to the [`Validator`] contract — consumers who
-    /// implement [`Validator`] on their own types can call this to run validation
+    /// This is the generic gateway to the `Validator` contract — consumers who
+    /// implement `Validator` on their own types can call this to run validation
     /// through the SAF boundary without holding a direct reference to the trait.
     pub fn validate<V: crate::api::traits::Validator>(v: &V) -> Result<(), String> {
         v.validate()

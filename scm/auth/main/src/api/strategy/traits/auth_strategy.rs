@@ -12,7 +12,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::auth::errors::AuthError;
+use crate::api::AuthError;
 
 /// Attaches configured credentials to an outbound HTTP request.
 ///

@@ -6,9 +6,9 @@ mod processor_svc;
 mod rate;
 mod validator_svc;
 
-pub use crate::api::types::HttpRateSvc;
+pub(crate) use crate::api::types::HttpRateSvc;
 
-pub use crate::api::error::Error;
-pub use crate::api::error::RateError;
-pub use crate::api::types::RateConfig;
-pub use crate::api::types::RateLayer;
+pub(crate) use crate::api::error::Error;
+pub(crate) use crate::api::error::RateError;
+pub(crate) use crate::api::types::RateConfig;
+pub(crate) use crate::api::types::RateLayer;

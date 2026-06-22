@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::api::auth::traits::HttpAuth;
-use crate::api::auth::types::AuthMiddleware;
+use crate::api::AuthMiddleware;
+use crate::api::HttpAuth;
 
 impl AuthMiddleware {
     /// Construct from an already-resolved [`HttpAuth`]. The
@@ -38,7 +38,7 @@ impl reqwest_middleware::Middleware for AuthMiddleware {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::auth::errors::AuthError;
+    use crate::api::AuthError;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     /// Stub HttpAuth that records how many times `process` fired

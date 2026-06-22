@@ -4,7 +4,7 @@ use thiserror::Error;
 
 /// Error type for HTTP outbound operations.
 ///
-/// Returned by [`HttpEgress::execute`](crate::HttpEgress::execute). Match on
+/// Returned by [`HttpEgress::send`](crate::HttpEgress::send). Match on
 /// the variant to apply different recovery strategies: retry on `Timeout` and
 /// `ServiceUnavailable`, return 401 to the caller on `Unauthorized`, etc.
 ///

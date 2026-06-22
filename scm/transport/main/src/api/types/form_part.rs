@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// `multipart/form-data` request body. `filename` and `content_type` are
 /// optional — omit them for plain text fields; set them for file uploads.
 ///
-/// [`HttpBody::Multipart`]: super::http_body::HttpBody::Multipart
+/// [`HttpBody::Multipart`]: crate::HttpBody::Multipart
 ///
 /// # Examples
 ///

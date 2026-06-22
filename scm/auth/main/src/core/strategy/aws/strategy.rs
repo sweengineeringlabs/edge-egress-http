@@ -22,8 +22,8 @@ use time::format_description::FormatItem;
 use time::{macros::format_description, OffsetDateTime};
 
 use super::helper::AwsSigV4Helper;
-use crate::api::auth::errors::AuthError;
-use crate::api::strategy::traits::AuthStrategy;
+use crate::api::AuthError;
+use crate::api::AuthStrategy;
 
 /// `AsciiSet` semantics: chars IN this set get percent-encoded.
 /// Everything NOT in the set passes through literally.

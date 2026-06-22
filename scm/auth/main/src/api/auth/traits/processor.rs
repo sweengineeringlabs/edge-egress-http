@@ -5,7 +5,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::auth::errors::AuthError;
+use crate::api::AuthError;
 
 /// Top-level auth-processing contract. Every auth middleware this crate
 /// produces implements it. Matches the `service_type = "processor"` metadata

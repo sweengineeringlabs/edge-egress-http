@@ -74,7 +74,7 @@ impl swe_edge_configbuilder::ConfigSection for TlsConfig {
 }
 
 /// Backend-owned opt-in contract (ADR-006): presence of the `[tls]` section
-/// activates client TLS; absence leaves it off. Kept alongside [`ConfigSection`]
+/// activates client TLS; absence leaves it off. Kept alongside `ConfigSection`
 /// so existing direct construction keeps working during the migration.
 impl swe_edge_configbuilder::OptionalSection for TlsConfig {
     fn section_name() -> &'static str {
