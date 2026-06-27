@@ -11,6 +11,7 @@ use crate::api::refresh::types::OAuthProvider;
 /// OAuth middleware uses.
 ///
 /// Load from TOML via [`OAuthConfig::from_config`] or build programmatically.
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub struct OAuthConfig {
     /// Provider kind.
@@ -30,6 +31,7 @@ impl Default for OAuthConfig {
     }
 }
 
+#[allow(dead_code)]
 impl OAuthConfig {
     /// Parse from TOML text.
     pub fn from_config(toml_text: &str) -> crate::api::refresh::errors::Result<Self> {

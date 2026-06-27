@@ -60,10 +60,13 @@ fn test_apply_to_pem_invalid_content_returns_invalid_certificate() {
 
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        TlsConfigError::CertParse { format, .. } => {
-            assert_eq!(format, "pem", "format must be 'pem'; got: {format}");
+        TlsConfigError::CertParse(msg) => {
+            assert!(
+                msg.contains("pem"),
+                "message must reference 'pem'; got: {msg}"
+            );
         }
-        other => panic!("expected InvalidCertificate, got: {other:?}"),
+        other => panic!("expected CertParse, got: {other:?}"),
     }
 }
 
@@ -72,7 +75,7 @@ fn test_apply_to_pem_invalid_content_returns_invalid_certificate() {
 // ---------------------------------------------------------------------------
 
 /// `apply_to` with a layer built from an existing but malformed PKCS12
-/// file must return `TlsConfigError::CertParse { format: "pkcs12", .. }`.
+/// file must return `TlsConfigError::CertParse` containing "pkcs12".
 #[test]
 fn test_apply_to_pkcs12_invalid_content_returns_invalid_certificate() {
     let tmpdir = tempfile::tempdir().unwrap();
@@ -87,10 +90,13 @@ fn test_apply_to_pkcs12_invalid_content_returns_invalid_certificate() {
 
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        TlsConfigError::CertParse { format, .. } => {
-            assert_eq!(format, "pkcs12", "format must be 'pkcs12'; got: {format}");
+        TlsConfigError::CertParse(msg) => {
+            assert!(
+                msg.contains("pkcs12"),
+                "message must reference 'pkcs12'; got: {msg}"
+            );
         }
-        other => panic!("expected InvalidCertificate, got: {other:?}"),
+        other => panic!("expected CertParse, got: {other:?}"),
     }
 }
 

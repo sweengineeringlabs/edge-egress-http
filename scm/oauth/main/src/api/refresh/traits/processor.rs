@@ -5,7 +5,6 @@ use futures::future::BoxFuture;
 use crate::api::refresh::errors::Result;
 
 /// Processes an OAuth token refresh cycle.
-#[expect(dead_code, reason = "SEA api/ interface anchor — intentionally unused")]
 pub trait Processor: Send + Sync + 'static {
     /// Return a valid access token, refreshing if necessary.
     fn process(&self) -> BoxFuture<'_, Result<String>>;

@@ -13,4 +13,9 @@ mod api;
 mod core;
 mod saf;
 
+pub use crate::api::types::{
+    Backend, BackendConfig, BackendHealth, BackendId, BackendPoolInstance, LoadbalancerConfig,
+    LoadbalancerLayer, LoadbalancerSvc, Outcome, PoolError, Strategy,
+};
 pub use crate::api::{LoadbalancerMiddlewareError, Processor, Validator};
+pub use saf::{build_loadbalancer_layer, validate_loadbalancer_config};

@@ -7,4 +7,7 @@ pub use refresh::errors::{OAuthError, Result};
 pub use refresh::traits::{OAuthBuilderOps, OAuthStrategy, OAuthTokenSource, Processor, Validator};
 
 // Re-export public types at the top level
-pub use refresh::types::OAuthSvc;
+pub use refresh::types::{
+    ApplicationConfigBuilder, OAuthBuilder, OAuthConfig, OAuthCredentials, OAuthMiddleware,
+    OAuthProvider, OAuthSvc,
+};

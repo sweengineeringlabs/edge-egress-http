@@ -1,6 +1,6 @@
 //! [`FileCredentialResolver`] — resolves credentials from files and environment variables.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::{AuthError, CredentialSource, CredentialSourceConfig, CredentialSourceResolver};
 
@@ -28,7 +28,7 @@ impl FileCredentialResolver {
     }
 
     /// Check if a file path is readable (exists and accessible).
-    fn is_readable(path: &PathBuf) -> bool {
+    fn is_readable(path: &Path) -> bool {
         path.exists() && path.is_file()
     }
 }
@@ -81,7 +81,6 @@ impl CredentialSourceResolver for FileCredentialResolver {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
     use tempfile::NamedTempFile;
 
     #[test]
@@ -128,11 +127,7 @@ mod tests {
         let result = resolver.resolve(&cfg).expect("resolve");
 
         // Should return the file path as a credential source
-        if let CredentialSource::EnvVar(source_name) = result {
-            assert_eq!(source_name, path_str);
-        } else {
-            panic!("expected EnvVar, got something else");
-        }
+        assert_eq!(result, CredentialSource::EnvVar(path_str));
     }
 
     #[test]
@@ -147,11 +142,7 @@ mod tests {
         let result = resolver.resolve(&cfg).expect("resolve");
 
         // File path should be preferred over env var
-        if let CredentialSource::EnvVar(source_name) = result {
-            assert_eq!(source_name, path_str);
-        } else {
-            panic!("expected file path to be preferred");
-        }
+        assert_eq!(result, CredentialSource::EnvVar(path_str));
     }
 
     #[test]
@@ -170,11 +161,10 @@ mod tests {
         let result = resolver.resolve(&cfg).expect("resolve");
 
         // Override should be preferred
-        if let CredentialSource::EnvVar(source_name) = result {
-            assert_eq!(source_name, "TEST_CREDS_OVERRIDE");
-        } else {
-            panic!("expected override env var to be preferred");
-        }
+        assert_eq!(
+            result,
+            CredentialSource::EnvVar("TEST_CREDS_OVERRIDE".into())
+        );
 
         std::env::remove_var("TEST_CREDS_OVERRIDE");
     }

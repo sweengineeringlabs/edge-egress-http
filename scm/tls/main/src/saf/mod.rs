@@ -8,11 +8,5 @@ mod provider_svc;
 mod tls;
 mod validator_svc;
 
-pub(crate) use tls::describe_tls_provider;
-pub(crate) use tls::validate_tls_config;
-
-pub(crate) use crate::api::types::HttpTlsSvc;
-
-pub(crate) use crate::api::error::TlsError;
-pub(crate) use crate::api::types::TlsConfig;
-pub(crate) use crate::api::types::TlsLayer;
+pub use provider_svc::describe_tls_provider;
+pub use validator_svc::validate_tls_config;

@@ -10,4 +10,6 @@ mod api;
 mod core;
 mod saf;
 
+pub use crate::api::types::retry::retry_config_builder::RetryConfigBuilder;
+pub use crate::api::types::retry::retry_layer::RetryLayer;
 pub use crate::api::{HttpRetrySvc, Processor, RetryConfig, RetryError, Validator};

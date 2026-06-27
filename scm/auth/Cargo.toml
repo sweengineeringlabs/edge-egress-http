@@ -53,6 +53,7 @@ dirs = "5"
 reqwest = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
 tempfile = "3.8"
+serde_json = { workspace = true }
 
 [features]
 default = []

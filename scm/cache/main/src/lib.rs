@@ -10,4 +10,6 @@ mod api;
 mod core;
 mod saf;
 
+pub use crate::api::types::cached_entry_builder::CachedEntryBuilder;
+pub use crate::api::types::CacheLayer;
 pub use crate::api::{CacheConfig, CacheError, HttpCache, HttpCacheSvc, Processor, Validator};

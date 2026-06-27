@@ -62,7 +62,9 @@ mod tests {
             password_env: Some("EDGE_TEST_TLS_PKCS_PW_ABSENT_01".into()),
         };
         let err = TlsProviderFactory::build_provider(&cfg).unwrap_err();
-        assert!(matches!(err, TlsConfigError::MissingEnvVar { name } if name == "EDGE_TEST_TLS_PKCS_PW_ABSENT_01"));
+        assert!(
+            matches!(err, TlsConfigError::MissingEnvVar { name } if name == "EDGE_TEST_TLS_PKCS_PW_ABSENT_01")
+        );
     }
 
     /// @covers: build_provider

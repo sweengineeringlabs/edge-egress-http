@@ -3,6 +3,7 @@
 use serde::Deserialize;
 
 /// Identifies which provider's credential file and token endpoint to use.
+#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum OAuthProvider {

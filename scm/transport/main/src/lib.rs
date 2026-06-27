@@ -10,4 +10,26 @@ mod core;
 mod saf;
 mod spi;
 
+pub use crate::api::types::default::TransportConfig;
+pub use crate::api::types::metrics::{MetricsHttpEgress, ObservationConfig};
+pub use crate::api::types::validator::{
+    AlwaysValidConfig, HttpConfigValidator, HttpEgressObject, ValidatableHttpConfig,
+    ValidatorObject,
+};
+pub use crate::api::types::HttpTransportSvc;
+pub use crate::api::types::{
+    FormPart, HttpAuth, HttpBody, HttpConfig, HttpConfigBuilder, HttpEgressResult, HttpMethod,
+    HttpRequest, HttpRequestBuilder, HttpResponse, HttpStreamResponse, SseEvent, SseStream,
+    WsChannel, WsMessage, WsReceiver, WsSender,
+};
 pub use crate::api::{HttpEgress, HttpEgressBuildError, HttpEgressError, HttpStream, Validator};
+pub use edge_domain::SecurityContext;
+
+/// SAF alias for the default (reqwest-backed) HTTP outbound interface.
+pub type DefaultEgress = dyn HttpEgress;
+/// SAF alias for the metrics-observation HTTP outbound interface.
+pub type MetricsEgress = dyn HttpEgress;
+/// SAF alias for the default HTTP config validator interface.
+pub type DefaultValidatorAlias = dyn Validator;
+/// SAF alias for the HTTP config validator interface.
+pub type HttpConfigValidatorAlias = dyn Validator;

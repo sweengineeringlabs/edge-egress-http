@@ -1,7 +1,6 @@
 //! `Validator` — configuration validation contract.
 
 /// Validation contract for circuit-breaker configuration.
-#[expect(dead_code, reason = "SEA api/ interface anchor — intentionally unused")]
 pub trait Validator {
     /// The type being validated.
     type Subject;

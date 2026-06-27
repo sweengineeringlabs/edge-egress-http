@@ -24,4 +24,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use crate::api::{HttpTls, HttpTlsSvc, Provider, TlsConfig, TlsConfigError, Validator};
+pub use crate::api::{
+    HttpTls, HttpTlsSvc, Provider, TlsConfig, TlsConfigError, TlsError, TlsLayer, Validator,
+};
+pub use saf::{describe_tls_provider, validate_tls_config};

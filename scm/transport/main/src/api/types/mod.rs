@@ -24,6 +24,3 @@ pub mod application_config_builder;
 pub mod default;
 pub mod metrics;
 pub mod validator;
-
-pub use crate::api::traits::HttpEgress;
-pub use crate::api::traits::HttpStream;

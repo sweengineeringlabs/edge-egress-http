@@ -35,10 +35,13 @@ impl Pkcs12HttpTls {
     /// Construct by reading the .p12 / .pfx file into memory.
     /// Password (if any) is pre-resolved from env var before
     /// this call; see `TlsProviderFactory::build_provider`.
-    pub(crate) fn new(path: String, password: Option<SecretString>) -> Result<Self, TlsConfigError> {
-        let der_bytes = std::fs::read(&path).map_err(|e| TlsConfigError::CertLoad(
-            format!("could not read file {}: {}", path, e),
-        ))?;
+    pub(crate) fn new(
+        path: String,
+        password: Option<SecretString>,
+    ) -> Result<Self, TlsConfigError> {
+        let der_bytes = std::fs::read(&path).map_err(|e| {
+            TlsConfigError::CertLoad(format!("could not read file {}: {}", path, e))
+        })?;
         Ok(Self {
             der_bytes,
             password,
@@ -59,10 +62,8 @@ impl HttpTls for Pkcs12HttpTls {
             .as_ref()
             .map(|p| p.expose_secret().to_string())
             .unwrap_or_default();
-        let identity =
-            reqwest::Identity::from_pkcs12_der(&self.der_bytes, &password).map_err(|e| {
-                TlsConfigError::CertParse(format!("invalid pkcs12 data: {}", e))
-            })?;
+        let identity = reqwest::Identity::from_pkcs12_der(&self.der_bytes, &password)
+            .map_err(|e| TlsConfigError::CertParse(format!("invalid pkcs12 data: {}", e)))?;
         Ok(Some(identity))
     }
 }

@@ -103,6 +103,9 @@ mod api;
 mod core;
 mod saf;
 
+pub use crate::api::types::cassette::cassette_config_builder::CassetteConfigBuilder;
+pub use crate::api::types::cassette::cassette_layer::CassetteLayer;
+pub use crate::api::types::cassette::cassette_layer_builder::CassetteLayerBuilder;
 pub use crate::api::{
     CassetteConfig, CassetteError, HttpCassette, HttpCassetteSvc, Processor, Validator,
 };

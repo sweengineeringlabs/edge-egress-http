@@ -23,7 +23,7 @@ mod tests {
     struct TlsLayerStub;
 
     impl crate::api::traits::HttpTls for TlsLayerStub {
-        fn identity(&self) -> Result<Option<reqwest::Identity>, crate::api::error::TlsError> {
+        fn identity(&self) -> Result<Option<reqwest::Identity>, crate::api::error::TlsConfigError> {
             Ok(None)
         }
 

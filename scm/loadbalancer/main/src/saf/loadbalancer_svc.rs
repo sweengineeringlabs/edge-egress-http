@@ -41,11 +41,6 @@ impl LoadbalancerSvc {
 }
 
 /// Validate a [`LoadbalancerConfig`] and build a [`LoadbalancerLayer`] from it.
-///
-/// # Errors
-///
-/// - [`LoadbalancerMiddlewareError::InvalidConfig`] — validation failed.
-/// - [`LoadbalancerMiddlewareError::PoolError`] — pool construction failed.
 pub fn build_loadbalancer_layer(
     config: LoadbalancerConfig,
 ) -> Result<LoadbalancerLayer, LoadbalancerMiddlewareError> {
@@ -53,8 +48,6 @@ pub fn build_loadbalancer_layer(
 }
 
 /// Validate a [`LoadbalancerConfig`] without constructing a layer.
-///
-/// Returns `Ok(())` when the config is well-formed.
 pub fn validate_loadbalancer_config(config: &LoadbalancerConfig) -> Result<(), String> {
     LoadbalancerSvc::validate_config(config)
 }

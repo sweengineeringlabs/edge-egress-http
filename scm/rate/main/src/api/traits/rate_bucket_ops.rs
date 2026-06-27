@@ -10,22 +10,11 @@ pub trait RateBucketOps {
     fn try_consume(&mut self, config: &RateConfig) -> Result<(), std::time::Duration>;
 
     /// Refill tokens based on elapsed time.
-    #[expect(
-        dead_code,
-        reason = "SEA api/ trait method — called through concrete impl"
-    )]
     fn refill(&mut self, config: &RateConfig);
 
     /// Try to acquire one token without waiting.
     ///
     /// Returns `Ok(())` if a token was available and consumed.
     /// Returns `Err(wait)` if the bucket is empty.
-    #[cfg_attr(
-        not(test),
-        expect(
-            dead_code,
-            reason = "SEA api/ trait method — exercised via the concrete impl in tests"
-        )
-    )]
     fn try_acquire(&mut self, config: &RateConfig) -> Result<(), std::time::Duration>;
 }

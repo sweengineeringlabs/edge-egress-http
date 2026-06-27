@@ -20,7 +20,9 @@ pub use auth::types::{ApplicationConfigBuilder, AuthConfig, AuthMiddleware, Auth
 // pub use auth::middleware::AuthMiddleware;  // Already above
 
 // Credential types
-pub use credential::traits::{CredentialResolver, CredentialSourceResolver, OAuthTokenSourceFactory};
+pub use credential::traits::{
+    CredentialResolver, CredentialSourceResolver, OAuthTokenSourceFactory,
+};
 pub use credential::types::{CredentialSource, CredentialSourceConfig};
 
 // Strategy traits and types

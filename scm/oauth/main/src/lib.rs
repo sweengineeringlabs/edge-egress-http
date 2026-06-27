@@ -42,6 +42,7 @@ mod core;
 mod saf;
 
 pub use crate::api::{
-    OAuthBuilderOps, OAuthError, OAuthStrategy, OAuthSvc, OAuthTokenSource, Processor, Result,
-    Validator,
+    ApplicationConfigBuilder, OAuthBuilder, OAuthBuilderOps, OAuthConfig, OAuthCredentials,
+    OAuthError, OAuthMiddleware, OAuthProvider, OAuthStrategy, OAuthSvc, OAuthTokenSource,
+    Processor, Result, Validator,
 };

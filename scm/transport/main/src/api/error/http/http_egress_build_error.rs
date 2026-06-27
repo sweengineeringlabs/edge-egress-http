@@ -30,7 +30,7 @@ pub enum HttpEgressBuildError {
     /// TLS middleware assembly failed.
     #[cfg(feature = "tls")]
     #[error("tls: {0}")]
-    Tls(#[from] swe_edge_egress_tls::TlsError),
+    Tls(#[from] swe_edge_egress_tls::TlsConfigError),
     /// OAuth builder assembly failed.
     #[cfg(feature = "oauth")]
     #[error("oauth: {0}")]

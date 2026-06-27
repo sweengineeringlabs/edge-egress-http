@@ -22,9 +22,9 @@ impl std::fmt::Debug for PemHttpTls {
 impl PemHttpTls {
     /// Construct by reading the .pem file into memory.
     pub(crate) fn new(path: String) -> Result<Self, TlsConfigError> {
-        let pem_bytes = std::fs::read(&path).map_err(|e| TlsConfigError::CertLoad(
-            format!("could not read file {}: {}", path, e),
-        ))?;
+        let pem_bytes = std::fs::read(&path).map_err(|e| {
+            TlsConfigError::CertLoad(format!("could not read file {}: {}", path, e))
+        })?;
         Ok(Self { pem_bytes, path })
     }
 }
@@ -36,9 +36,8 @@ impl HttpTls for PemHttpTls {
     }
 
     fn identity(&self) -> Result<Option<reqwest::Identity>, TlsConfigError> {
-        let identity = reqwest::Identity::from_pem(&self.pem_bytes).map_err(|e| {
-            TlsConfigError::CertParse(format!("invalid pem data: {}", e))
-        })?;
+        let identity = reqwest::Identity::from_pem(&self.pem_bytes)
+            .map_err(|e| TlsConfigError::CertParse(format!("invalid pem data: {}", e)))?;
         Ok(Some(identity))
     }
 }

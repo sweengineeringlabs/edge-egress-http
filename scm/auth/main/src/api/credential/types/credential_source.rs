@@ -11,7 +11,7 @@
 /// concrete `SecretString`. Today only env-var-backed sources
 /// are supported; file/vault/HSM variants will land as new
 /// enum arms when a consumer needs them.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CredentialSource {
     /// Read the credential from the process env var with this
     /// name. Resolution happens once at middleware build time —
@@ -21,10 +21,6 @@ pub enum CredentialSource {
 
 impl CredentialSource {
     /// Return a human-readable label for diagnostics.
-    #[expect(
-        dead_code,
-        reason = "diagnostic helper — used in future log integration"
-    )]
     pub fn label(&self) -> String {
         match self {
             Self::EnvVar(name) => format!("env:{name}"),

@@ -27,13 +27,13 @@ fn test_pkcs12_missing_file_no_password_returns_file_read_failed() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
-        TlsConfigError::CertLoad { path, .. } => {
+        TlsConfigError::CertLoad(msg) => {
             assert!(
-                path.contains("does/not/exist"),
-                "FileReadFailed path must embed the configured path; got: {path}"
+                msg.contains("does/not/exist"),
+                "CertLoad message must embed the configured path; got: {msg}"
             );
         }
-        other => panic!("expected FileReadFailed, got: {other:?}"),
+        other => panic!("expected CertLoad, got: {other:?}"),
     }
 }
 
@@ -120,14 +120,14 @@ fn test_pkcs12_invalid_content_returns_invalid_certificate_on_apply_to() {
     // apply_to() calls identity() → from_pkcs12_der() → InvalidCertificate.
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        TlsConfigError::CertParse { format, reason } => {
-            assert_eq!(format, "pkcs12", "format must be 'pkcs12'; got: {format}");
+        TlsConfigError::CertParse(msg) => {
             assert!(
-                !reason.is_empty(),
-                "reason must not be empty; got: {reason}"
+                msg.contains("pkcs12"),
+                "message must reference 'pkcs12'; got: {msg}"
             );
+            assert!(!msg.is_empty(), "message must not be empty; got: {msg}");
         }
-        other => panic!("expected InvalidCertificate, got: {other:?}"),
+        other => panic!("expected CertParse, got: {other:?}"),
     }
 }
 

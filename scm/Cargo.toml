@@ -34,7 +34,7 @@ expect_used = "deny"
 edge-domain            = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.8.30", features = ["security"] }
 
 # ── security primitives ───────────────────────────────────────────────────────
-swe-edge-security      = { path = "../../security/scm/security" }
+swe-edge-security      = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.4" }
 
 # ── config ────────────────────────────────────────────────────────────────────
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }

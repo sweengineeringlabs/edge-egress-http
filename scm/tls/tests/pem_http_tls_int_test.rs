@@ -26,17 +26,17 @@ fn test_pem_missing_file_returns_file_read_failed() {
     };
     let err = HttpTlsSvc::build_tls_layer(cfg).unwrap_err();
     match err {
-        TlsConfigError::CertLoad { path, reason } => {
+        TlsConfigError::CertLoad(msg) => {
             assert!(
-                path.contains("does/not/exist"),
-                "FileReadFailed path must contain the configured path; got: {path}"
+                msg.contains("does/not/exist"),
+                "CertLoad message must contain the configured path; got: {msg}"
             );
             assert!(
-                !reason.is_empty(),
-                "FileReadFailed reason must not be empty; got: {reason}"
+                !msg.is_empty(),
+                "CertLoad message must not be empty; got: {msg}"
             );
         }
-        other => panic!("expected FileReadFailed, got: {other:?}"),
+        other => panic!("expected CertLoad, got: {other:?}"),
     }
 }
 
@@ -80,14 +80,14 @@ fn test_pem_invalid_content_returns_invalid_certificate() {
     // Now `apply_to` calls `identity()` which calls `reqwest::Identity::from_pem`.
     let err = layer.apply_to(reqwest::Client::builder()).unwrap_err();
     match err {
-        TlsConfigError::CertParse { format, reason } => {
-            assert_eq!(format, "pem", "format must be 'pem'; got: {format}");
+        TlsConfigError::CertParse(msg) => {
             assert!(
-                !reason.is_empty(),
-                "reason must not be empty; got: {reason}"
+                msg.contains("pem"),
+                "message must reference 'pem'; got: {msg}"
             );
+            assert!(!msg.is_empty(), "message must not be empty; got: {msg}");
         }
-        other => panic!("expected InvalidCertificate, got: {other:?}"),
+        other => panic!("expected CertParse, got: {other:?}"),
     }
 }
 

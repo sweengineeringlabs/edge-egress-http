@@ -6,6 +6,7 @@ use crate::api::types::retry::retry_config::RetryConfig;
 ///
 /// Construct via [`RetryConfigBuilder::new`], set fields, then call
 /// [`RetryConfigBuilder::build`].
+#[allow(dead_code)]
 pub struct RetryConfigBuilder {
     max_retries: u32,
     initial_interval_ms: u64,
